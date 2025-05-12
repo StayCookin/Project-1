@@ -1,0 +1,658 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Properties - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(245, 245, 245, 0.9);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .property-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .btn {
+            font-family: var(--font-body);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .back-button i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+            background: var(--gradient-primary);
+        }
+
+        .back-button:hover i {
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            color: var(--dark);
+            font-size: 2rem;
+        }
+
+        .page-header i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .saved-properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .property-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .property-details {
+            padding: 1.5rem;
+        }
+
+        .property-price {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .property-location {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .property-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .property-features span {
+            background: rgba(0,0,0,0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <a href="student-dashboard.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="container">
+        <div class="page-header">
+            <i class="fas fa-heart"></i>
+            <h1>Saved Properties</h1>
+        </div>
+
+        <div class="saved-properties-grid">
+            <!-- Property Card 1 -->
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Modern Apartment" class="property-image">
+                <div class="property-details">
+                    <div class="property-price">P3,500/month</div>
+                    <h3 class="property-title">Modern Apartment near UB</h3>
+                    <p class="property-location">Gaborone, Near UB Campus</p>
+                    <div class="property-features">
+                        <span><i class="fas fa-bed"></i> 2 Beds</span>
+                        <span><i class="fas fa-bath"></i> 1 Bath</span>
+                        <span><i class="fas fa-ruler-combined"></i> 800 sqft</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
+                        <button class="btn btn-secondary"><i class="fas fa-heart"></i> Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 2 -->
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Cozy Studio" class="property-image">
+                <div class="property-details">
+                    <div class="property-price">P2,800/month</div>
+                    <h3 class="property-title">Cozy Studio near Baisago</h3>
+                    <p class="property-location">Gaborone, Near Baisago Campus</p>
+                    <div class="property-features">
+                        <span><i class="fas fa-bed"></i> 1 Bed</span>
+                        <span><i class="fas fa-bath"></i> 1 Bath</span>
+                        <span><i class="fas fa-ruler-combined"></i> 500 sqft</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
+                        <button class="btn btn-secondary"><i class="fas fa-heart"></i> Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle remove button clicks
+            const removeButtons = document.querySelectorAll('.btn-secondary');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.property-card');
+                    const title = card.querySelector('.property-title').textContent;
+                    if (confirm(`Are you sure you want to remove ${title} from your saved properties?`)) {
+                        card.remove();
+                        // Check if no properties left
+                        if (document.querySelectorAll('.property-card').length === 0) {
+                            showEmptyState();
+                        }
+                    }
+                });
+            });
+
+            function showEmptyState() {
+                const grid = document.querySelector('.saved-properties-grid');
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-heart"></i>
+                        <h2>No Saved Properties</h2>
+                        <p>You haven't saved any properties yet. Start exploring to find your perfect place!</p>
+                        <button class="btn btn-primary" onclick="window.location.href='student-dashboard.html'">
+                            <i class="fas fa-search"></i> Browse Properties
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Properties - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(245, 245, 245, 0.9);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .property-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        .btn {
+            font-family: var(--font-body);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .back-button i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+            background: var(--gradient-primary);
+        }
+
+        .back-button:hover i {
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            color: var(--dark);
+            font-size: 2rem;
+        }
+
+        .page-header i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .saved-properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .property-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-md);
+        }
+
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .property-details {
+            padding: 1.5rem;
+        }
+
+        .property-price {
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .property-location {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .property-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .property-features span {
+            background: rgba(0,0,0,0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .property-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <a href="student-dashboard.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="container">
+        <div class="page-header">
+            <i class="fas fa-heart"></i>
+            <h1>Saved Properties</h1>
+        </div>
+
+        <div class="saved-properties-grid">
+            <!-- Property Card 1 -->
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Modern Apartment" class="property-image">
+                <div class="property-details">
+                    <div class="property-price">P3,500/month</div>
+                    <h3 class="property-title">Modern Apartment near UB</h3>
+                    <p class="property-location">Gaborone, Near UB Campus</p>
+                    <div class="property-features">
+                        <span><i class="fas fa-bed"></i> 2 Beds</span>
+                        <span><i class="fas fa-bath"></i> 1 Bath</span>
+                        <span><i class="fas fa-ruler-combined"></i> 800 sqft</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
+                        <button class="btn btn-secondary"><i class="fas fa-heart"></i> Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Card 2 -->
+            <div class="property-card">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Cozy Studio" class="property-image">
+                <div class="property-details">
+                    <div class="property-price">P2,800/month</div>
+                    <h3 class="property-title">Cozy Studio near Baisago</h3>
+                    <p class="property-location">Gaborone, Near Baisago Campus</p>
+                    <div class="property-features">
+                        <span><i class="fas fa-bed"></i> 1 Bed</span>
+                        <span><i class="fas fa-bath"></i> 1 Bath</span>
+                        <span><i class="fas fa-ruler-combined"></i> 500 sqft</span>
+                    </div>
+                    <div class="property-actions">
+                        <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
+                        <button class="btn btn-secondary"><i class="fas fa-heart"></i> Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle remove button clicks
+            const removeButtons = document.querySelectorAll('.btn-secondary');
+            removeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const card = this.closest('.property-card');
+                    const title = card.querySelector('.property-title').textContent;
+                    if (confirm(`Are you sure you want to remove ${title} from your saved properties?`)) {
+                        card.remove();
+                        // Check if no properties left
+                        if (document.querySelectorAll('.property-card').length === 0) {
+                            showEmptyState();
+                        }
+                    }
+                });
+            });
+
+            function showEmptyState() {
+                const grid = document.querySelector('.saved-properties-grid');
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-heart"></i>
+                        <h2>No Saved Properties</h2>
+                        <p>You haven't saved any properties yet. Start exploring to find your perfect place!</p>
+                        <button class="btn btn-primary" onclick="window.location.href='student-dashboard.html'">
+                            <i class="fas fa-search"></i> Browse Properties
+                        </button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+>>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
+</html> 

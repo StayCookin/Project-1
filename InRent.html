@@ -1,0 +1,4236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Existing meta tags -->
+    <meta name="description" content="InRent - Connect with student accommodation in Botswana">
+    <meta name="keywords" content="student accommodation, Botswana, rental properties, student housing">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#228B22">
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="InRent - Student Accommodation in Botswana">
+    <meta property="og:description" content="Find and list student accommodation in Botswana">
+    <meta property="og:image" content="https://inrent.com/assets/images/og-image.jpg">
+    <meta property="og:url" content="https://inrent.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+  
+  <meta charset="UTF-8">
+  <title>InRent - Simplifying Rental Management For Students and Landlords!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    :root {
+      --primary: #228B22; /* Forest Green */
+      --primary-dark: #1B6B1B;
+      --secondary: #12B886;
+      --dark: #212529;
+      --light: #F8F9FA;
+      --gray: #ADB5BD;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+    
+    
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo .in {
+      color: white;
+      background-color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 1px;
+    }
+    
+    .logo .rent {
+      color: var(--primary);
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+    }
+    
+    .nav-links li {
+      margin-left: 2rem;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero {
+      padding: 8rem 0 4rem;
+      text-align: center;
+      background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/api/placeholder/1200/600') center/cover;
+      position: relative;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--gray);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+            border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+    }
+    
+    .section {
+      padding: 5rem 0;
+      scroll-margin-top: 80px;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .section-title h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary);
+    }
+    
+    .section-title p {
+      color: var(--gray);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 3rem 0 2rem;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        .section-subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .feature-card {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      background-color: rgba(34, 139, 34, 0.05);
+      transition: height 0.3s ease;
+      z-index: -1;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card:hover::before {
+      height: 100%;
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover .feature-icon {
+      transform: scale(1.2);
+    }
+    
+    .how-it-works {
+      background-color: rgba(34, 139, 34, 0.05);
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+    
+    .step {
+      text-align: center;
+      padding: 1rem;
+      position: relative;
+    }
+    
+    .step::after {
+      content: '→';
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      color: var(--primary);
+      display: none;
+    }
+    
+    .step:last-child::after {
+      display: none;
+    }
+    
+    @media (min-width: 768px) {
+      .step:not(:last-child)::after {
+        display: block;
+      }
+    }
+    
+    .step-number {
+      background-color: var(--primary);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 1rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+    
+    .step:hover .step-number {
+      transform: scale(1.1);
+    }
+    
+    .product-demo {
+      text-align: center;
+    }
+    
+    .demo-video {
+      margin-top: 2rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .demo-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s;
+    }
+    
+    .demo-overlay:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .play-button {
+      width: 80px;
+      height: 80px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s;
+    }
+    
+    .play-button::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-left: 25px solid white;
+      margin-left: 5px;
+    }
+    
+    .demo-overlay:hover .play-button {
+      transform: scale(1.1);
+    }
+    
+    .pricing {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .pricing-card {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-top: 5px solid transparent;
+    }
+    
+    .pricing-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pricing-card.featured {
+      border-top: 5px solid var(--primary);
+      position: relative;
+    }
+    
+    .featured-label {
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      background-color: var(--secondary);
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .price {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      color: var(--primary);
+    }
+    
+    .price span {
+      font-size: 1rem;
+      font-weight: normal;
+      color: var(--gray);
+    }
+    
+    .pricing-features {
+      list-style: none;
+      margin: 2rem 0;
+      text-align: left;
+    }
+    
+    .pricing-features li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+    
+    .pricing-features li::before {
+      content: "✓";
+      color: var(--secondary);
+      position: absolute;
+      left: 0;
+    }
+    
+    .testimonials {
+      background-color: rgba(34, 139, 34, 0.05);
+    }
+    
+    .testimonial-container {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .testimonial-slider {
+      position: relative;
+      overflow: hidden;
+      height: 280px;
+    }
+    
+    .testimonial {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    
+    .testimonial.active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .testimonial.prev {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    
+    .testimonial img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 1rem;
+      border: 3px solid var(--primary);
+    }
+    
+    .testimonial-name {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+      color: var(--primary-dark);
+    }
+    
+    .testimonial-position {
+      color: var(--gray);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .testimonial-controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+      gap: 0.5rem;
+    }
+    
+    .control-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--gray);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .control-dot.active {
+      background-color: var(--primary);
+      transform: scale(1.2);
+    }
+    
+    .arrow-controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+    
+    .arrow-btn {
+      background-color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .arrow-btn:hover {
+      background-color: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .prev-btn {
+      margin-left: -20px;
+    }
+    
+    .next-btn {
+      margin-right: -20px;
+    }
+    
+    .cta {
+      text-align: center;
+      background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/api/placeholder/1200/600') center/cover;
+      position: relative;
+    }
+    
+    .cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .cta p {
+      color: var(--gray);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+    
+    .newsletter {
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .newsletter input {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--gray);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    
+    .newsletter input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .success-message {
+      color: var(--primary);
+      margin-top: 1rem;
+      font-weight: 500;
+      display: none;
+    }
+    
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 3rem 0;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 2rem;
+    }
+    
+    .footer-about h3 {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .footer-about .in {
+      color: white;
+      background-color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 1px;
+      font-size: 1.2rem;
+    }
+    
+    .footer-about .rent {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .footer-about p {
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .social-link {
+      color: white;
+      text-decoration: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    
+    .social-link:hover {
+      background-color: var(--primary);
+      transform: translateY(-3px);
+    }
+    
+    .footer-links h3 {
+      margin-bottom: 1rem;
+      color: white;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-links a {
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.3s;
+      display: inline-block;
+    }
+    
+    .footer-links a:hover {
+      color: white;
+      transform: translateX(5px);
+    }
+    
+    .copyright {
+      margin-top: 2rem;
+      text-align: center;
+      color: var(--gray);
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+            align-items: flex-start;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+            overflow-y: auto;
+            padding: 2rem 0;
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 90%;
+      width: 800px;
+      position: relative;
+      transform: translateY(-50px);
+      transition: all 0.3s;
+            margin: auto;
+    }
+    
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .contact-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group.full {
+      grid-column: span 2;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    /* Mobile Menu */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--dark);
+      cursor: pointer;
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate {
+      opacity: 0;
+    }
+    
+    .animate.active {
+      animation: fadeInUp 0.6s forwards;
+    }
+    
+    /* Back to top button */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+      z-index: 99;
+    }
+    
+    .back-to-top.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .back-to-top:hover {
+      transform: translateY(-5px);
+    }
+    
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 0;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+      
+      .nav-links.active {
+        display: flex;
+      }
+      
+      .nav-links li {
+        margin: 0.5rem 0;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .nav-links .btn {
+                width: 90%;
+                margin: 0.25rem auto;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .arrow-controls {
+        display: none;
+      }
+            
+            .modal {
+                padding: 1rem 0;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+
+        .signup-section {
+            background-color: rgba(34, 139, 34, 0.05);
+            padding: 3rem 0;
+        }
+
+        .signup-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .signup-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .signup-option-btn {
+            background: white;
+            border: 2px solid var(--primary);
+            padding: 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .signup-option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(34, 139, 34, 0.1);
+        }
+
+        .signup-option-btn i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .signup-option-btn h3 {
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .signup-option-btn p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .option-features {
+            text-align: left;
+            list-style: none;
+            margin-top: auto;
+        }
+
+        .option-features li {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .option-features li::before {
+            content: "✓";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .signup-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .btn-student {
+            background-color: transparent;
+            border: 2px solid #1a237e;
+            color: #1a237e;
+        }
+        
+        .btn-student:hover {
+            background-color: #1a237e;
+            color: white;
+        }
+        
+        .btn-landlord {
+            background-color: white;
+            border: 2px solid #424242;
+            color: #424242;
+        }
+        
+        .btn-landlord:hover {
+            background-color: #424242;
+            color: white;
+        }
+
+        .student-modal {
+            background-color: rgba(34, 139, 34, 0.1);
+        }
+        
+        .student-modal .modal-content {
+            background-color: white;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+        }
+        
+        .student-modal h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .student-modal .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .student-modal label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .student-modal input,
+        .student-modal select {
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 0.8rem;
+            transition: border-color 0.3s;
+        }
+        
+        .student-modal input:focus,
+        .student-modal select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .student-modal .btn {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+        
+        .student-modal .modal-close {
+            color: var(--primary);
+        }
+
+        .verification-step {
+            display: none;
+            text-align: center;
+        }
+        
+        .verification-step.active {
+            display: block;
+        }
+        
+        .verification-code {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .verification-code input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            transition: border-color 0.3s;
+        }
+        
+        .verification-code input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .resend-code {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .resend-code button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .resend-code button:disabled {
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .timer {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .welcome-content {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        
+        .welcome-content p {
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            color: var(--gray);
+        }
+        
+        .listings-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .property-listings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .property-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .property-details {
+            padding: 1rem;
+        }
+        
+        .property-price {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .property-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .property-location {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .property-features {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .property-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .login-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 1rem;
+        }
+        
+        .login-option-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.3s;
+        }
+        
+        .login-option-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .login-option-btn.active {
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .login-option-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary);
+        }
+        
+        .login-form {
+            transition: all 0.3s;
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--gray);
+        }
+        
+        .form-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Chat Styles */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s;
+            transform: translateY(460px);
+        }
+
+        .chat-widget.expanded {
+            transform: translateY(0);
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .chat-contacts {
+            border-bottom: 1px solid #eee;
+            overflow-y: auto;
+            max-height: 0;
+            transition: max-height 0.3s;
+        }
+
+        .chat-widget.expanded .chat-contacts {
+            max-height: 200px;
+        }
+
+        .chat-contact {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-contact:hover {
+            background-color: #f5f5f5;
+        }
+
+        .chat-contact.active {
+            background-color: #e8f5e9;
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .contact-status {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .message.sent {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.received {
+            background-color: #f0f0f0;
+            color: var(--dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary);
+        }
+
+        .send-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+
+        .unread-badge {
+            background-color: var(--primary);
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .membership-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .membership-card {
+            background-color: white;
+            padding: 2.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .membership-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .membership-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .membership-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .membership-card .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .membership-card .price span {
+            font-size: 1rem;
+            font-weight: normal;
+            color: var(--gray);
+        }
+
+        .membership-features {
+            list-style: none;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .membership-features li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .membership-features li::before {
+            content: "✓";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
+        }
+
+        .special-offer {
+            position: absolute;
+            top: 20px;
+            right: -35px;
+            background: #FF4E50;
+            color: white;
+            padding: 8px 40px;
+            transform: rotate(45deg);
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+            width: 250px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .special-offer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            z-index: -1;
+        }
+
+        .membership-card.landlord-card {
+            border: 2px solid var(--primary);
+            overflow: visible;
+        }
+
+        .spots-left {
+            margin: 1rem 0;
+            color: #FF4E50;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 10px;
+            background-color: rgba(255, 78, 80, 0.1);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .spots-left span {
+            color: #FF4E50;
+            font-size: 1.2rem;
+        }
+
+        /* Payment Modal Styles */
+        .payment-modal .modal-content {
+            max-width: 500px;
+        }
+
+        .payment-details {
+            margin: 2rem 0;
+        }
+
+        .payment-amount {
+            font-size: 2rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .payment-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-input {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .card-input input[name="expiry"],
+        .card-input input[name="cvv"] {
+            width: 100px;
+        }
+
+        .add-listing-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(34, 139, 34, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+
+        .add-listing-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(34, 139, 34, 0.3);
+        }
+
+        .add-listing-modal .modal-content {
+            max-width: 800px;
+        }
+
+        .document-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .document-upload:hover {
+            border-color: var(--primary);
+            background-color: rgba(34, 139, 34, 0.05);
+        }
+
+        .document-upload i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-preview {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .upload-preview.active {
+            display: block;
+        }
+
+        .rating-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-slider {
+            flex: 1;
+        }
+
+        .rating-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .amenities-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .amenity-tag {
+            background: rgba(34, 139, 34, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .amenity-tag button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Add new photo upload styles */
+        .photo-upload-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .photo-upload-item {
+            position: relative;
+            aspect-ratio: 1;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload-item:hover {
+            border-color: var(--primary);
+            background-color: rgba(34, 139, 34, 0.05);
+        }
+
+        .photo-upload-item input[type="file"] {
+            display: none;
+        }
+
+        .photo-upload-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-upload-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .photo-upload-placeholder i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-upload-placeholder.hidden {
+            display: none;
+        }
+
+        .photo-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #ff4444;
+            font-size: 1rem;
+            z-index: 1;
+        }
+
+        .photo-delete:hover {
+            background: #ff4444;
+            color: white;
+        }
+
+        /* Add new rating and review styles */
+        .rating-stars {
+            display: inline-flex;
+            gap: 0.25rem;
+            font-size: 1.5rem;
+            color: #ffd700;
+            cursor: pointer;
+        }
+
+        .rating-stars i {
+            transition: transform 0.2s;
+        }
+
+        .rating-stars i:hover {
+            transform: scale(1.2);
+        }
+
+        .landlord-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .landlord-rating .rating-value {
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .reviews-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        .review-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .reviewer-name {
+            font-weight: 500;
+        }
+
+        .review-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .review-rating {
+            color: #ffd700;
+        }
+
+        .review-content {
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .write-review-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            color: var(--primary);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .write-review-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        <!-- Add Review Modal -->
+        <div class="modal" id="review-modal">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Write a Review</h2>
+                <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Share your experience with this landlord</p>
+                
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label>Rating</label>
+                        <div class="rating-stars" id="ratingStars">
+                            <i class="far fa-star" data-rating="1"></i>
+                            <i class="far fa-star" data-rating="2"></i>
+                            <i class="far fa-star" data-rating="3"></i>
+                            <i class="far fa-star" data-rating="4"></i>
+                            <i class="far fa-star" data-rating="5"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Your Review</label>
+                        <textarea rows="4" placeholder="Share your experience..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" required>
+                            I confirm this is an honest review based on my personal experience
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn">Submit Review</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Reviews Section to Property Details -->
+        <div class="reviews-section">
+            <div class="section-header">
+                <h3>Landlord Reviews</h3>
+                <div class="landlord-rating">
+                    <div class="rating-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="rating-value">4.5</span>
+                    <span class="review-count">(15 reviews)</span>
+                </div>
+                <button class="write-review-btn" id="writeReviewBtn">
+                    <i class="fas fa-pen"></i>
+                    Write a Review
+                </button>
+            </div>
+
+            <div class="reviews-list">
+                <!-- Sample reviews will be dynamically added here -->
+            </div>
+        </div>
+  </style>
+
+    <!-- Add Payment Modal -->
+    <div class="modal payment-modal" id="payment-modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Complete Your Registration</h2>
+            <p>One-time payment to access all student features</p>
+            
+            <div class="payment-details">
+                <div class="payment-amount">$2.00</div>
+                <form id="payment-form" class="payment-form">
+                    <div class="form-group">
+                        <label for="card-name">Cardholder Name</label>
+                        <input type="text" id="card-name" required placeholder="Name on card">
+                    </div>
+                    <div class="form-group">
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" required placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div class="form-group card-input">
+                        <div>
+                            <label for="card-expiry">Expiry Date</label> 
+                            <input type="text" id="card-expiry" name="expiry" required placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div>
+                            <label for="card-cvv">CVV</label>
+                            <input type="text" id="card-cvv" name="cvv" required placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Pay $2.00</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Listing Button -->
+    <button class="add-listing-btn" id="addListingBtn">
+        <i class="fas fa-plus"></i>
+        Add New Listing
+    </button>
+
+    <!-- Add Listing Modal -->
+    <div class="modal add-listing-modal" id="add-listing-modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Add New Property Listing</h2>
+            <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Please provide the required documentation and property details</p>
+            
+            <form id="addListingForm">
+                <div class="form-group">
+                    <label>Property Photos (Required - Min. 3 photos)</label>
+                    <div class="photo-upload-container">
+                        <small>Upload clear photos of your property (Max 5MB each)</small>
+                        <div class="photo-upload-grid" id="photoUploadGrid">
+                            <div class="photo-upload-item">
+                                <input type="file" accept="image/*" required>
+                                <div class="photo-upload-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <small>Add Photo</small>
+                                </div>
+                            </div>
+                            <div class="photo-upload-item">
+                                <input type="file" accept="image/*" required>
+                                <div class="photo-upload-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <small>Add Photo</small>
+                                </div>
+                            </div>
+                            <div class="photo-upload-item">
+                                <input type="file" accept="image/*" required>
+                                <div class="photo-upload-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <small>Add Photo</small>
+                                </div>
+                            </div>
+                            <div class="photo-upload-item">
+                                <input type="file" accept="image/*">
+                                <div class="photo-upload-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <small>Add Photo</small>
+                                </div>
+                            </div>
+                            <div class="photo-upload-item">
+                                <input type="file" accept="image/*">
+                                <div class="photo-upload-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <small>Add Photo</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ID/Passport Verification</label>
+                    <div class="document-upload" id="idUpload">
+                        <i class="fas fa-id-card"></i>
+                        <p>Click to upload ID or Passport</p>
+                        <small>Supported formats: JPG, PNG, PDF (Max 5MB)</small>
+                        <input type="file" hidden accept=".jpg,.jpeg,.png,.pdf" required>
+                        <div class="upload-preview">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="filename"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Title Deed</label>
+                    <div class="document-upload" id="deedUpload">
+                        <i class="fas fa-file-alt"></i>
+                        <p>Click to upload Title Deed</p>
+                        <small>Supported formats: JPG, PNG, PDF (Max 5MB)</small>
+                        <input type="file" hidden accept=".jpg,.jpeg,.png,.pdf" required>
+                        <div class="upload-preview">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="filename"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Details</label>
+                    <input type="text" placeholder="Property Title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Property Description</label>
+                    <textarea rows="4" placeholder="Describe your property..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Amenities</label>
+                    <div class="input-group">
+                        <input type="text" id="amenityInput" placeholder="Type amenity and press Enter">
+                    </div>
+                    <div class="amenities-tags" id="amenitiesList"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>House Condition (1-10)</label>
+                    <div class="rating-group">
+                        <input type="range" class="rating-slider" min="1" max="10" value="5" id="conditionRating">
+                        <span class="rating-value" id="conditionValue">5</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Location Safety (1-10)</label>
+                    <div class="rating-group">
+                        <input type="range" class="rating-slider" min="1" max="10" value="5" id="safetyRating">
+                        <span class="rating-value" id="safetyValue">5</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Submit Listing</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Landlord Dashboard Modal -->
+    <div class="modal" id="landlord-dashboard">
+        <div class="modal-content dashboard-content">
+            <span class="modal-close">&times;</span>
+            <h2>Landlord Dashboard</h2>
+            
+            <!-- Overview Cards -->
+            <div class="dashboard-overview">
+                <div class="overview-card">
+                    <div class="overview-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="overview-details">
+                        <h3>Monthly Income</h3>
+                        <p class="amount">P12,500</p>
+                        <span class="trend positive">+5.2% from last month</span>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="overview-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="overview-details">
+                        <h3>Properties Rented</h3>
+                        <p class="amount">4/5</p>
+                        <span class="trend">80% Occupancy Rate</span>
+                    </div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="overview-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="overview-details">
+                        <h3>Active Tenants</h3>
+                        <p class="amount">6</p>
+                        <span class="trend positive">2 new this month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="analytics-section">
+                <div class="analytics-card">
+                    <h3>Monthly Income Trend</h3>
+                    <canvas id="incomeChart"></canvas>
+                </div>
+                
+                <div class="analytics-card">
+                    <h3>Property Performance</h3>
+                    <canvas id="propertyChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="activity-details">
+                            <p>Rent Payment Received - Unit 3B</p>
+                            <span>Today, 10:30 AM</span>
+                        </div>
+                        <span class="amount positive">+P3,500</span>
+                    </div>
+                    <div class="activity-item">
+                        <i class="fas fa-user-plus"></i>
+                        <div class="activity-details">
+                            <p>New Tenant - Unit 2A</p>
+                            <span>Yesterday, 2:15 PM</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <i class="fas fa-tools"></i>
+                        <div class="activity-details">
+                            <p>Maintenance Request - Unit 1C</p>
+                            <span>2 days ago</span>
+                        </div>
+                        <span class="amount negative">-P500</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .dashboard-content {
+        max-width: 1200px;
+        padding: 2rem;
+    }
+
+    .dashboard-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .overview-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .overview-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .overview-details h3 {
+        font-size: 1rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+    }
+
+    .overview-details .amount {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .trend {
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .trend.positive {
+        color: #28a745;
+    }
+
+    .trend.negative {
+        color: #dc3545;
+    }
+
+    .analytics-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .analytics-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .analytics-card h3 {
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+
+    .recent-activity {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .activity-list {
+        margin-top: 1rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item i {
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+
+    .activity-details {
+        flex: 1;
+    }
+
+    .activity-details p {
+        margin-bottom: 0.25rem;
+        color: var(--dark);
+    }
+
+    .activity-details span {
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .amount.positive {
+        color: #28a745;
+    }
+
+    .amount.negative {
+        color: #dc3545;
+    }
+
+    /* Existing styles */
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        margin: 1rem 0;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .checkbox-label a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+
+    .checkbox-label a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Rest of existing styles */
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    // Initialize charts when dashboard is opened
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show dashboard after landlord login
+        landlordLoginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('login').classList.remove('active');
+            document.getElementById('landlord-dashboard').classList.add('active');
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Monthly Income Chart
+            const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+            new Chart(incomeCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Monthly Income (P)',
+                        data: [10000, 11200, 10800, 11500, 11900, 12500],
+                        borderColor: '#228B22',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(34, 139, 34, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'P' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Property Performance Chart
+            const propertyCtx = document.getElementById('propertyChart').getContext('2d');
+            new Chart(propertyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Unit 1A', 'Unit 1B', 'Unit 2A', 'Unit 2B', 'Unit 3A'],
+                    datasets: [{
+                        label: 'Monthly Revenue',
+                        data: [3500, 2800, 3200, 3000, 0],
+                        backgroundColor: '#228B22'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'P' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    // Add phone number validation
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Remove any non-digit characters
+            let value = e.target.value.replace(/\D/g, '');
+            // Limit to 8 digits
+            value = value.substring(0, 8);
+            e.target.value = value;
+        });
+    });
+
+    // Update landlord verification check
+    landlordNextBtn.addEventListener('click', async function() {
+        const phone = document.getElementById('landlordPhone').value;
+        if (!phone.match(/^[0-9]{8}$/)) {
+            alert('Please enter a valid 8-digit mobile number');
+            return;
+        }
+        // Rest of the existing verification code
+        const code = await sendVerificationCode(phone);
+        console.log('Verification code:', code);
+        
+        landlordSignupStep.classList.remove('active');
+        landlordVerificationStep.classList.add('active');
+        startTimer('landlordTimer', 'landlordResendCode');
+    });
+    </script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <span class="in">In</span><span class="rent">Rent</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+                    <li><button class="btn btn-secondary open-modal" data-modal="login">Login</button></li>
+                    <li><button class="btn btn-student open-modal" data-modal="student-signup">Sign Up as Student</button></li>
+                    <li><button class="btn btn-landlord open-modal" data-modal="landlord-signup">Sign Up as Landlord</button></li>
+        </ul>
+        <button class="mobile-menu-btn">☰</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+                <h1 class="animate">Your Student Housing Marketplace</h1>
+                <p class="animate">InRent is the premier marketplace connecting students with trusted landlords. Find your perfect student accommodation or list your properties to reach verified student tenants. Experience hassle-free student housing today.</p>
+        <div class="hero-buttons animate">
+                    <button class="btn open-modal" data-modal="signup-options">Get Started Free</button>
+          <button class="btn btn-secondary open-modal" data-modal="demo">Watch Demo</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="animate">Key Features</h2>
+          <p class="animate">Discover how InRent makes property management easier</p>
+        </div>
+        <div class="features">
+          <div class="feature-card animate">
+            <div class="feature-icon">📱</div>
+            <h3>Smart Tenant Portal</h3>
+            <p>Give tenants a dedicated app to pay rent, submit maintenance requests, and communicate efficiently.</p>
+          </div>
+          <div class="feature-card animate">
+            <div class="feature-icon">💰</div>
+            <h3>Automated Rent Collection</h3>
+            <p>Set up automatic payment processing, late fee calculation, and customized payment schedules.</p>
+          </div>
+          <div class="feature-card animate">
+            <div class="feature-icon">📊</div>
+            <h3>Reporting & Analytics</h3>
+            <p>Gain valuable insights with financial reports, occupancy trends, and property performance metrics.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section how-it-works">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="animate">How It Works</h2>
+                    <p class="animate">Simple steps to get started with InRent</p>
+        </div>
+                
+                <h3 class="section-subtitle">For Landlords</h3>
+        <div class="steps">
+          <div class="step animate">
+            <div class="step-number">1</div>
+                        <h3>Create Account</h3>
+                        <p>Sign up as a landlord and verify your identity with required documentation.</p>
+          </div>
+          <div class="step animate">
+            <div class="step-number">2</div>
+                        <h3>List Properties</h3>
+                        <p>Add your properties with detailed information, photos, and safety ratings.</p>
+          </div>
+          <div class="step animate">
+            <div class="step-number">3</div>
+                        <h3>Manage Inquiries</h3>
+                        <p>Receive and respond to verified student inquiries through our messaging system.</p>
+                    </div>
+                </div>
+
+                <h3 class="section-subtitle">For Tertiary Students</h3>
+                <div class="steps">
+                    <div class="step animate">
+                        <div class="step-number">1</div>
+                        <h3>Register & Verify</h3>
+                        <p>Create your student account and verify with your student ID for a one-time fee of $2.</p>
+                    </div>
+                    <div class="step animate">
+                        <div class="step-number">2</div>
+                        <h3>Browse Listings</h3>
+                        <p>Search through verified properties with detailed information and safety ratings.</p>
+                    </div>
+                    <div class="step animate">
+                        <div class="step-number">3</div>
+                        <h3>Connect & View</h3>
+                        <p>Message landlords directly and schedule property viewings through the platform.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+        <style>
+        .user-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .user-type-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        .user-type-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        </style>
+
+    <section class="section product-demo">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="animate">See InRent in Action</h2>
+          <p class="animate">Watch how our solution streamlines rental management in minutes</p>
+        </div>
+        <div class="demo-video animate open-modal" data-modal="demo">
+                    <img src="https://via.placeholder.com/800x450" alt="Product demo video placeholder" />
+          <div class="demo-overlay">
+            <div class="play-button"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="section">
+      <div class="container">
+        <div class="section-title">
+                    <h2 class="animate">Join InRent Community</h2>
+                    <p class="animate">Access quality student housing and reach verified tenants</p>
+        </div>
+                <div class="membership-options">
+                    <div class="membership-card student-card animate">
+                        <div class="membership-icon">
+                            <i class="fas fa-user-graduate"></i>
+          </div>
+                        <h3>Student Access</h3>
+                        <div class="price">$2 <span>/once-off</span></div>
+                        <p>Get unlimited access to verified student accommodations</p>
+                        <ul class="membership-features">
+                            <li>View all property listings</li>
+                            <li>Direct message landlords</li>
+                            <li>Save favorite properties</li>
+                            <li>Get notified of new listings</li>
+                            <li>Schedule property viewings</li>
+            </ul>
+                        <button class="btn open-modal" data-modal="student-signup">Sign Up Now</button>
+          </div>
+                    
+                    <div class="membership-card landlord-card animate">
+                        <div class="membership-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="special-offer">Limited Time Offer!</div>
+                        <h3>Landlord Listing</h3>
+                        <div class="price">Free <span>first 5 listings</span></div>
+                        <p>Special offer for first 10 landlords</p>
+                        <ul class="membership-features">
+                            <li>5 free property listings</li>
+                            <li>Verified student inquiries</li>
+                            <li>Property management tools</li>
+                            <li>Messaging system access</li>
+                            <li>Premium support</li>
+            </ul>
+                        <div class="spots-left">Only <span id="landlordsLeft">10</span> spots remaining!</div>
+                        <button class="btn open-modal" data-modal="landlord-signup">Register Now</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="testimonials" class="section testimonials">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="animate">What Our Users Say</h2>
+          <p class="animate">Real experiences from property owners and managers</p>
+        </div>
+        <div class="testimonial-container animate">
+          <div class="arrow-controls">
+            <button class="arrow-btn prev-btn" id="prevTestimonial">❮</button>
+            <button class="arrow-btn next-btn" id="nextTestimonial">❯</button>
+          </div>
+          <div class="testimonial-slider">
+            <div class="testimonial active">
+                            <img src="https://via.placeholder.com/80x80" alt="User avatar" />
+                            <p>"InRent has completely transformed how I manage my rental properties. I've saved over 10 hours per week on administrative tasks."</p>
+                            <div class="testimonial-name">Sarah Johnson</div>
+                            <div class="testimonial-position">Property Owner</div>
+                        </div>
+                        <div class="testimonial">
+                            <img src="https://via.placeholder.com/80x80" alt="User avatar" />
+                            <p>"The automated rent collection and maintenance request system has made my life so much easier. Highly recommended!"</p>
+                            <div class="testimonial-name">Michael Chen</div>
+                            <div class="testimonial-position">Property Manager</div>
+                        </div>
+                        <div class="testimonial">
+                            <img src="https://via.placeholder.com/80x80" alt="User avatar" />
+                            <p>"The reporting features have helped me make better decisions about my property investments. The support team is also very responsive."</p>
+                            <div class="testimonial-name">Emily Rodriguez</div>
+                            <div class="testimonial-position">Real Estate Investor</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-controls">
+                        <div class="control-dot active"></div>
+                        <div class="control-dot"></div>
+                        <div class="control-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section signup-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2 class="animate">Join InRent Today</h2>
+                    <p class="animate">Choose your account type to get started</p>
+                </div>
+                <div class="signup-container animate">
+                    <div class="signup-options">
+                        <button class="signup-option-btn student-btn open-modal" data-modal="student-signup">
+                            <i class="fas fa-user-graduate"></i>
+                            <h3>Student</h3>
+                            <p>Looking for accommodation?</p>
+                        </button>
+                        <button class="signup-option-btn landlord-btn open-modal" data-modal="landlord-signup">
+                            <i class="fas fa-building"></i>
+                            <h3>Landlord</h3>
+                            <p>Have property to rent?</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section contact-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Contact Us</h2>
+                    <p>Get in touch with us for any questions or support</p>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>Lethaboswereki029@gmail.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <h3>Phone</h3>
+                        <p>+267 76068664</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>About Us</h3>
+                    <p>InRent is Botswana's leading student accommodation marketplace, bringing together students and landlords in one trusted platform. We simplify the process of finding and managing student housing while ensuring a safe and reliable experience for both parties.</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 InRent. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal" id="contact">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Contact Us</h2>
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="demo">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Watch Demo</h2>
+            <div class="demo-video">
+                <img src="https://via.placeholder.com/800x450" alt="Product demo video placeholder" />
+                <div class="demo-overlay">
+                    <div class="play-button"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="login">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Login to InRent</h2>
+            <div class="login-options">
+                <button class="login-option-btn active" data-type="student">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Student Login</span>
+                </button>
+                <button class="login-option-btn" data-type="landlord">
+                    <i class="fas fa-building"></i>
+                    <span>Landlord Login</span>
+                </button>
+            </div>
+            
+            <form class="login-form" id="studentLoginForm">
+                <div class="form-group">
+                    <label for="studentLoginEmail">Student Email</label>
+                    <input type="email" id="studentLoginEmail" name="email" required placeholder="Enter your student email">
+                </div>
+                <div class="form-group">
+                    <label for="studentLoginPassword">Password</label>
+                    <input type="password" id="studentLoginPassword" name="password" required placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                </div>
+                <button type="submit" class="btn">Login as Student</button>
+                <p class="form-footer">Don't have an account? <a href="#" class="switch-to-signup" data-signup="student">Sign up as Student</a></p>
+            </form>
+
+            <form class="login-form" id="landlordLoginForm" style="display: none;">
+                <div class="form-group">
+                    <label for="landlordLoginEmail">Email Address</label>
+                    <input type="email" id="landlordLoginEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="landlordLoginPassword">Password</label>
+                    <input type="password" id="landlordLoginPassword" name="password" required placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                </div>
+                <button type="submit" class="btn">Login as Landlord</button>
+                <p class="form-footer">Don't have an account? <a href="#" class="switch-to-signup" data-signup="landlord">Sign up as Landlord</a></p>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal student-modal" id="student-signup">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Student Sign Up</h2>
+            <form id="studentSignupForm">
+                <div class="signup-step active">
+                    <div class="form-group">
+                        <label for="studentName">Full Name</label>
+                        <input type="text" id="studentName" name="name" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentEmail">Student Email</label>
+                        <input type="email" id="studentEmail" name="email" required placeholder="Enter your student email">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentPassword">Password</label>
+                        <input type="password" id="studentPassword" name="password" required placeholder="Enter your password">
+                        <div class="password-requirements">
+                            <p>Password must contain:</p>
+                            <ul>
+                                <li>At least 8 characters</li>
+                                <li>At least one uppercase letter</li>
+                                <li>At least one number</li>
+                                <li>At least one special character</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tertiarySchool">Tertiary Institution</label>
+                        <select id="tertiarySchool" name="school" required>
+                            <option value="">Select your institution</option>
+                            <option value="ub">University of Botswana</option>
+                            <option value="baisago">Baisago University</option>
+                            <option value="botho">Botho University</option>
+                            <option value="limkokwing">Limpokwing University</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentId">Student ID</label>
+                        <input type="text" id="studentId" name="studentId" required placeholder="Enter your student ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentPhone">Mobile Number</label>
+                        <input type="tel" id="studentPhone" name="phone" pattern="[0-9]{8}" placeholder="Enter 8-digit mobile number" required>
+                        <small>Format: 76XXXXXX (8 digits)</small>
+                    </div>
+                    <button type="button" class="btn" id="studentNextBtn">Next</button>
+                </div>
+                
+                <div class="verification-step">
+                    <h3>Verify Your Email</h3>
+                    <p>We've sent a verification code to your email address. Please enter it below:</p>
+                    <div class="verification-code">
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                    </div>
+                    <div class="resend-code">
+                        <button type="button" id="studentResendCode">Resend Code</button>
+                        <div class="timer">Time remaining: <span id="studentTimer">60</span>s</div>
+                    </div>
+                    <button type="submit" class="btn">Verify & Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="welcome-message">
+        <div class="modal-content">
+            <h2>Welcome to InRent!</h2>
+            <div class="welcome-content">
+                <i class="fas fa-check-circle" style="color: var(--primary); font-size: 4rem; margin-bottom: 1rem;"></i>
+                <p>Your account has been successfully created!</p>
+                <p>We're excited to help you find the perfect accommodation near your institution.</p>
+                <button class="btn" id="viewListingsBtn">View Available Properties</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="property-listings">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Available Properties</h2>
+            <div class="listings-filters">
+                <div class="form-group">
+                    <label for="priceRange">Price Range</label>
+                    <select id="priceRange">
+                        <option value="all">All Prices</option>
+                        <option value="0-2000">P0 - P2,000</option>
+                        <option value="2000-4000">P2,000 - P4,000</option>
+                        <option value="4000-6000">P4,000 - P6,000</option>
+                        <option value="6000+">P6,000+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType">
+                        <option value="all">All Types</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House</option>
+                        <option value="studio">Studio</option>
+                        <option value="shared">Shared Room</option>
+                    </select>
+                </div>
+            </div>
+            <div class="property-listings">
+                <!-- Property cards will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="landlord-signup">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Landlord Sign Up</h2>
+            <form id="landlordSignupForm">
+                <div class="signup-step active">
+                    <div class="form-group">
+                        <label for="landlordFullName">Full Name</label>
+                        <input type="text" id="landlordFullName" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="landlordEmail">Email Address</label>
+                        <input type="email" id="landlordEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="landlordPhone">Mobile Number</label>
+                        <input type="tel" id="landlordPhone" name="phone" pattern="[0-9]{8}" placeholder="Enter 8-digit mobile number" required>
+                        <small>Format: 76XXXXXX (8 digits)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location in Botswana</label>
+                        <select id="location" name="location" required>
+                            <option value="">Select your location</option>
+                            <option value="gaborone">Gaborone</option>
+                            <option value="francistown">Francistown</option>
+                            <option value="maun">Maun</option>
+                            <option value="serowe">Serowe</option>
+                            <option value="molepolole">Molepolole</option>
+                            <option value="kanye">Kanye</option>
+                            <option value="mahalapye">Mahalapye</option>
+                            <option value="mochudi">Mochudi</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="propertyType">Property Type</label>
+                        <select id="propertyType" name="propertyType" required>
+                            <option value="">Select property type</option>
+                            <option value="apartment">Apartment</option>
+                            <option value="house">House</option>
+                            <option value="commercial">Commercial Property</option>
+                            <option value="student">Student Accommodation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="landlordPassword">Password</label>
+                        <input type="password" id="landlordPassword" name="password" required>
+                        <div class="password-requirements">
+                            <p>Password must contain:</p>
+                            <ul>
+                                <li>At least 8 characters</li>
+                                <li>At least one uppercase letter</li>
+                                <li>At least one number</li>
+                                <li>At least one special character</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="landlordConfirmPassword">Confirm Password</label>
+                        <input type="password" id="landlordConfirmPassword" name="confirmPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required>
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <button type="button" class="btn" id="landlordNextBtn">Next</button>
+                </div>
+                
+                <div class="verification-step">
+                    <h3>Verify Your Phone Number</h3>
+                    <p>We've sent a verification code to your phone number. Please enter it below:</p>
+                    <div class="verification-code">
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                        <input type="text" maxlength="1" pattern="[0-9]" required>
+                    </div>
+                    <div class="resend-code">
+                        <button type="button" id="landlordResendCode">Resend Code</button>
+                        <div class="timer">Time remaining: <span id="landlordTimer">60</span>s</div>
+                    </div>
+                    <button type="submit" class="btn">Verify & Sign Up</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add new signup options modal -->
+    <div class="modal" id="signup-options">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Join InRent Today</h2>
+            <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Choose your account type to get started</p>
+            <div class="signup-options">
+                <button class="signup-option-btn student-btn open-modal" data-modal="student-signup">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Student</h3>
+                    <p>Looking for accommodation?</p>
+                    <div class="option-features">
+                        <li>Find verified student housing</li>
+                        <li>Easy booking process</li>
+                        <li>Direct contact with landlords</li>
+                    </div>
+                </button>
+                <button class="signup-option-btn landlord-btn open-modal" data-modal="landlord-signup">
+                    <i class="fas fa-building"></i>
+                    <h3>Landlord</h3>
+                    <p>Have property to rent?</p>
+                    <div class="option-features">
+                        <li>List your properties</li>
+                        <li>Reach verified students</li>
+                        <li>Manage bookings efficiently</li>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add chat widget before closing body tag -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" id="chatHeader">
+            <h3>Messages</h3>
+            <button class="chat-toggle" id="chatToggle">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+        
+        <div class="chat-contacts" id="chatContacts">
+            <!-- Contacts will be dynamically added here -->
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be dynamically added here -->
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button class="send-button" id="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal functionality
+            const modals = document.querySelectorAll('.modal');
+            const closeBtns = document.querySelectorAll('.modal-close');
+            const openModalButtons = document.querySelectorAll('.open-modal');
+
+            openModalButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const modalId = this.getAttribute('data-modal');
+                    document.getElementById(modalId).classList.add('active');
+                });
+            });
+
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').classList.remove('active');
+                });
+            });
+
+            // Close modal when clicking outside
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+
+            // Mobile menu functionality
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            // Testimonial slider functionality
+            const testimonials = document.querySelectorAll('.testimonial');
+            const dots = document.querySelectorAll('.control-dot');
+            const prevBtn = document.getElementById('prevTestimonial');
+            const nextBtn = document.getElementById('nextTestimonial');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                testimonials.forEach(testimonial => {
+                    testimonial.classList.remove('active');
+                    testimonial.classList.remove('prev');
+                });
+                dots.forEach(dot => dot.classList.remove('active'));
+
+                testimonials[index].classList.add('active');
+                dots[index].classList.add('active');
+
+                if (index > 0) {
+                    testimonials[index - 1].classList.add('prev');
+                }
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % testimonials.length;
+                showSlide(currentSlide);
+            }
+
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + testimonials.length) % testimonials.length;
+                showSlide(currentSlide);
+            }
+
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    currentSlide = index;
+                    showSlide(currentSlide);
+                });
+            });
+
+            // Auto-advance testimonials
+            setInterval(nextSlide, 5000);
+
+            // Animation on scroll
+            const animateElements = document.querySelectorAll('.animate');
+            
+            function checkScroll() {
+                animateElements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const elementBottom = element.getBoundingClientRect().bottom;
+                    
+                    if (elementTop < window.innerHeight && elementBottom > 0) {
+                        element.classList.add('active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', checkScroll);
+            checkScroll(); // Initial check
+
+            // Two-Factor Authentication
+            function startTimer(timerId, resendBtnId) {
+                let timeLeft = 60;
+                const timerElement = document.getElementById(timerId);
+                const resendBtn = document.getElementById(resendBtnId);
+                
+                resendBtn.disabled = true;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    timerElement.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        resendBtn.disabled = false;
+                        timerElement.textContent = '0';
+                    }
+                }, 1000);
+            }
+
+            function sendVerificationCode(email) {
+                // Simulate sending verification code
+                console.log(`Sending verification code to ${email}`);
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve('123456'); // In production, this would be sent via email
+                    }, 1000);
+                });
+            }
+
+            // Function to send verification email
+            async function sendVerificationEmail(email, name) {
+                try {
+                    // In a production environment, this would be an API call to your backend
+                    console.log(`Sending verification email to ${email}`);
+                    
+                    // Simulate email sending delay
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Generate a 6-digit verification code
+                    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+                    
+                    // Store the verification code (in production, this would be stored securely on the server)
+                    localStorage.setItem(`verification_${email}`, verificationCode.toString());
+                    
+                    // Show success message
+                    alert(`A verification code has been sent to ${email}. Please check your inbox.`);
+                    
+                    return verificationCode;
+                } catch (error) {
+                    console.error('Error sending verification email:', error);
+                    alert('Failed to send verification email. Please try again.');
+                    return null;
+                }
+            }
+
+            // Function to verify email code
+            function verifyEmailCode(email, code) {
+                const storedCode = localStorage.getItem(`verification_${email}`);
+                return storedCode === code.toString();
+            }
+
+            // Handle student signup form submission
+            document.getElementById('studentSignupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('studentEmail').value;
+                const name = document.getElementById('studentName').value;
+                const school = document.getElementById('tertiarySchool').value;
+                const studentId = document.getElementById('studentId').value;
+                
+                // Get the verification code from inputs
+                const verificationInputs = document.querySelectorAll('#studentSignupForm .verification-code input');
+                const enteredCode = Array.from(verificationInputs).map(input => input.value).join('');
+                
+                // Verify the code
+                if (verifyEmailCode(email, enteredCode)) {
+                    // Store user data
+                    const studentData = {
+                        name: name,
+                        email: email,
+                        school: school,
+                        studentId: studentId,
+                        verified: true,
+                        role: 'student'
+                    };
+                    localStorage.setItem('studentData', JSON.stringify(studentData));
+                    
+                    // Show welcome message
+                    document.getElementById('student-signup').classList.remove('active');
+                    document.getElementById('welcome-message').classList.add('active');
+                    
+                    // Clear verification code
+                    localStorage.removeItem(`verification_${email}`);
+                    
+                    // Redirect to student dashboard after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'student-dashboard.html';
+                    }, 2000);
+                } else {
+                    alert('Invalid verification code. Please try again.');
+                }
+            });
+
+            // Handle student next button click
+            const studentNextBtn = document.getElementById('studentNextBtn');
+            const studentResendCode = document.getElementById('studentResendCode');
+            const studentSignupStep = document.querySelector('#studentSignupForm .signup-step');
+            const studentVerificationStep = document.querySelector('#studentSignupForm .verification-step');
+            const studentVerificationInputs = document.querySelectorAll('#studentSignupForm .verification-code input');
+
+            studentNextBtn.addEventListener('click', async function() {
+                const email = document.getElementById('studentEmail').value;
+                const name = document.getElementById('studentName').value;
+                
+                if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                    alert('Please enter a valid email address');
+                    return;
+                }
+
+                if (!name.trim()) {
+                    alert('Please enter your full name');
+                    return;
+                }
+
+                // Send verification email
+                const code = await sendVerificationEmail(email, name);
+                
+                if (code) {
+                    // Show verification step
+                    studentSignupStep.classList.remove('active');
+                    studentVerificationStep.classList.add('active');
+                    startTimer('studentTimer', 'studentResendCode');
+                }
+            });
+
+            // Handle resend code button
+            studentResendCode.addEventListener('click', async function() {
+                const email = document.getElementById('studentEmail').value;
+                const name = document.getElementById('studentName').value;
+                
+                const code = await sendVerificationEmail(email, name);
+                if (code) {
+                    startTimer('studentTimer', 'studentResendCode');
+                }
+            });
+
+            // Auto-focus next input for verification code
+            studentVerificationInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    if (this.value && index < studentVerificationInputs.length - 1) {
+                        studentVerificationInputs[index + 1].focus();
+                    }
+                });
+            });
+
+            // Landlord signup 2FA
+            const landlordNextBtn = document.getElementById('landlordNextBtn');
+            const landlordResendCode = document.getElementById('landlordResendCode');
+            const landlordSignupStep = document.querySelector('#landlordSignupForm .signup-step');
+            const landlordVerificationStep = document.querySelector('#landlordSignupForm .verification-step');
+            const landlordVerificationInputs = document.querySelectorAll('#landlordSignupForm .verification-code input');
+
+            landlordNextBtn.addEventListener('click', async function() {
+                const phone = document.getElementById('landlordPhone').value;
+                if (!phone.match(/^[0-9]{8}$/)) {
+                    alert('Please enter a valid 8-digit mobile number');
+                    return;
+                }
+
+                const code = await sendVerificationCode(phone);
+                console.log('Verification code:', code);
+                
+                landlordSignupStep.classList.remove('active');
+                landlordVerificationStep.classList.add('active');
+                startTimer('landlordTimer', 'landlordResendCode');
+            });
+
+            landlordResendCode.addEventListener('click', async function() {
+                const phone = document.getElementById('landlordPhone').value;
+                const code = await sendVerificationCode(phone);
+                console.log('New verification code:', code);
+                startTimer('landlordTimer', 'landlordResendCode');
+            });
+
+            // Auto-focus next input for verification code
+            landlordVerificationInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    if (this.value && index < landlordVerificationInputs.length - 1) {
+                        landlordVerificationInputs[index + 1].focus();
+                    }
+                });
+            });
+
+            // Sample property data based on university locations
+            const propertyData = {
+                ub: [
+                    {
+                        id: 1,
+                        title: "Modern Apartment near UB",
+                        price: 3500,
+                        location: "Gaborone, Near UB Campus",
+                        type: "apartment",
+                        image: "https://via.placeholder.com/300x200",
+                        features: {
+                            bedrooms: 2,
+                            bathrooms: 1,
+                            distance: "0.5km from UB"
+                        }
+                    },
+                    // Add more properties for UB
+                ],
+                baisago: [
+                    {
+                        id: 2,
+                        title: "Cozy Studio near Baisago",
+                        price: 2800,
+                        location: "Gaborone, Near Baisago Campus",
+                        type: "studio",
+                        image: "https://via.placeholder.com/300x200",
+                        features: {
+                            bedrooms: 1,
+                            bathrooms: 1,
+                            distance: "0.3km from Baisago"
+                        }
+                    },
+                    // Add more properties for Baisago
+                ],
+                // Add more universities and their properties
+            };
+
+            // Handle successful student signup
+            document.getElementById('studentSignupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const school = document.getElementById('tertiarySchool').value;
+                const name = document.getElementById('studentName').value;
+                
+                // Show welcome message
+                document.getElementById('student-signup').classList.remove('active');
+                document.getElementById('welcome-message').classList.add('active');
+                
+                // Store user data (in production, this would be sent to a server)
+                localStorage.setItem('studentData', JSON.stringify({
+                    name: name,
+                    school: school
+                }));
+            });
+
+            // Handle view listings button click
+            document.getElementById('viewListingsBtn').addEventListener('click', function() {
+                document.getElementById('welcome-message').classList.remove('active');
+                document.getElementById('property-listings').classList.add('active');
+                
+                // Get student data
+                const studentData = JSON.parse(localStorage.getItem('studentData'));
+                if (studentData) {
+                    displayProperties(studentData.school);
+                }
+            });
+
+            // Function to display properties
+            function displayProperties(school) {
+                const listingsContainer = document.querySelector('.property-listings');
+                listingsContainer.innerHTML = '';
+                
+                const properties = propertyData[school] || [];
+                
+                properties.forEach(property => {
+                    const propertyCard = createPropertyCard(property);
+                    listingsContainer.appendChild(propertyCard);
+                });
+            }
+
+            // Function to create property card
+            function createPropertyCard(property) {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                
+                card.innerHTML = `
+                    <img src="${property.image}" alt="${property.title}" class="property-image">
+                    <div class="property-details">
+                        <div class="property-price">P${property.price}/month</div>
+                        <div class="property-title">${property.title}</div>
+                        <div class="property-location">${property.location}</div>
+                        <div class="property-features">
+                            <span class="property-feature">
+                                <i class="fas fa-bed"></i> ${property.features.bedrooms}
+                            </span>
+                            <span class="property-feature">
+                                <i class="fas fa-bath"></i> ${property.features.bathrooms}
+                            </span>
+                            <span class="property-feature">
+                                <i class="fas fa-map-marker-alt"></i> ${property.features.distance}
+                            </span>
+                        </div>
+                        <button class="btn" onclick="viewPropertyDetails(${property.id})">View Details</button>
+                    </div>
+                `;
+                
+                return card;
+            }
+
+            // Handle filter changes
+            document.getElementById('priceRange').addEventListener('change', filterProperties);
+            document.getElementById('propertyType').addEventListener('change', filterProperties);
+
+            function filterProperties() {
+                const priceRange = document.getElementById('priceRange').value;
+                const propertyType = document.getElementById('propertyType').value;
+                const studentData = JSON.parse(localStorage.getItem('studentData'));
+                
+                if (studentData) {
+                    const properties = propertyData[studentData.school] || [];
+                    const filteredProperties = properties.filter(property => {
+                        const priceMatch = priceRange === 'all' || 
+                            (priceRange === '0-2000' && property.price <= 2000) ||
+                            (priceRange === '2000-4000' && property.price > 2000 && property.price <= 4000) ||
+                            (priceRange === '4000-6000' && property.price > 4000 && property.price <= 6000) ||
+                            (priceRange === '6000+' && property.price > 6000);
+                            
+                        const typeMatch = propertyType === 'all' || property.type === propertyType;
+                        
+                        return priceMatch && typeMatch;
+                    });
+                    
+                    const listingsContainer = document.querySelector('.property-listings');
+                    listingsContainer.innerHTML = '';
+                    filteredProperties.forEach(property => {
+                        const propertyCard = createPropertyCard(property);
+                        listingsContainer.appendChild(propertyCard);
+                    });
+                }
+            }
+
+            // Login form switching
+            const loginOptionBtns = document.querySelectorAll('.login-option-btn');
+            const studentLoginForm = document.getElementById('studentLoginForm');
+            const landlordLoginForm = document.getElementById('landlordLoginForm');
+
+            loginOptionBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Update active button
+                    loginOptionBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Show/hide appropriate form
+                    if (this.dataset.type === 'student') {
+                        studentLoginForm.style.display = 'block';
+                        landlordLoginForm.style.display = 'none';
+                    } else {
+                        studentLoginForm.style.display = 'none';
+                        landlordLoginForm.style.display = 'block';
+                    }
+                });
+            });
+
+            // Handle student login
+            studentLoginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('studentLoginEmail').value;
+                const password = document.getElementById('studentLoginPassword').value;
+                
+                // In production, this would validate against a backend
+                const studentData = JSON.parse(localStorage.getItem('studentData'));
+                
+                if (studentData && studentData.email === email) {
+                    // Close login modal
+                    document.getElementById('login').classList.remove('active');
+                    
+                    // Redirect to student dashboard
+                    window.location.href = 'student-dashboard.html';
+                } else {
+                    alert('Invalid email or password. Please try again.');
+                }
+            });
+
+            // Handle landlord login
+            landlordLoginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('landlordLoginEmail').value;
+                const password = document.getElementById('landlordLoginPassword').value;
+                
+                // In production, this would validate against a backend
+                alert('Landlord login functionality will be implemented in the next phase.');
+            });
+
+            // Handle sign-up links
+            document.querySelectorAll('.switch-to-signup').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const signupType = this.dataset.signup;
+                    document.getElementById('login').classList.remove('active');
+                    document.getElementById(`${signupType}-signup`).classList.add('active');
+                });
+            });
+
+            // Handle signup option buttons
+            document.querySelectorAll('.signup-option-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Close the signup options modal
+                    document.getElementById('signup-options').classList.remove('active');
+                    
+                    // Open the selected signup modal
+                    const modalId = this.getAttribute('data-modal');
+                    document.getElementById(modalId).classList.add('active');
+                });
+            });
+
+            // Chat functionality
+            const chatWidget = document.getElementById('chatWidget');
+            const chatToggle = document.getElementById('chatToggle');
+            const chatHeader = document.getElementById('chatHeader');
+            const chatContacts = document.getElementById('chatContacts');
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendMessage');
+
+            // Sample contacts data (in production, this would come from your backend)
+            const contacts = [
+                {
+                    id: 1,
+                    name: 'John Doe',
+                    role: 'Landlord',
+                    status: 'online',
+                    unread: 2
+                },
+                {
+                    id: 2,
+                    name: 'Jane Smith',
+                    role: 'Landlord',
+                    status: 'offline',
+                    unread: 0
+                }
+            ];
+
+            // Sample messages data (in production, this would come from your backend)
+            const messages = {
+                1: [
+                    {
+                        id: 1,
+                        senderId: 1,
+                        text: 'Hello! I saw you were interested in the apartment.',
+                        timestamp: '10:30 AM',
+                        type: 'received'
+                    },
+                    {
+                        id: 2,
+                        senderId: 'currentUser',
+                        text: 'Yes, I would like to schedule a viewing.',
+                        timestamp: '10:32 AM',
+                        type: 'sent'
+                    }
+                ]
+            };
+
+            let currentContact = null;
+
+            // Toggle chat widget
+            chatHeader.addEventListener('click', function() {
+                chatWidget.classList.toggle('expanded');
+                chatToggle.innerHTML = chatWidget.classList.contains('expanded') 
+                    ? '<i class="fas fa-chevron-down"></i>' 
+                    : '<i class="fas fa-chevron-up"></i>';
+            });
+
+            // Render contacts
+            function renderContacts() {
+                chatContacts.innerHTML = contacts.map(contact => `
+                    <div class="chat-contact" data-contact-id="${contact.id}">
+                        <div class="contact-avatar">
+                            ${contact.name.charAt(0)}
+                        </div>
+                        <div class="contact-info">
+                            <div class="contact-name">${contact.name}</div>
+                            <div class="contact-status">
+                                <span class="status-dot ${contact.status}"></span>
+                                ${contact.role}
+                            </div>
+                        </div>
+                        ${contact.unread ? `<span class="unread-badge">${contact.unread}</span>` : ''}
+                    </div>
+                `).join('');
+
+                // Add click event listeners to contacts
+                document.querySelectorAll('.chat-contact').forEach(contact => {
+                    contact.addEventListener('click', function() {
+                        const contactId = parseInt(this.dataset.contactId);
+                        setActiveContact(contactId);
+                    });
+                });
+            }
+
+            // Set active contact and load messages
+            function setActiveContact(contactId) {
+                currentContact = contacts.find(c => c.id === contactId);
+                
+                // Update active contact styling
+                document.querySelectorAll('.chat-contact').forEach(el => {
+                    el.classList.remove('active');
+                    if (parseInt(el.dataset.contactId) === contactId) {
+                        el.classList.add('active');
+                    }
+                });
+
+                // Clear unread messages
+                currentContact.unread = 0;
+                renderContacts();
+
+                // Load messages
+                renderMessages(messages[contactId] || []);
+            }
+
+            // Render messages
+            function renderMessages(messageList) {
+                chatMessages.innerHTML = messageList.map(message => `
+                    <div class="message ${message.type}">
+                        <div class="message-content">${message.text}</div>
+                        <div class="message-time">${message.timestamp}</div>
+                    </div>
+                `).join('');
+
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Send message
+            function sendMessage() {
+                const text = messageInput.value.trim();
+                if (!text || !currentContact) return;
+
+                const newMessage = {
+                    id: Date.now(),
+                    senderId: 'currentUser',
+                    text: text,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: 'sent'
+                };
+
+                // Add message to current chat
+                if (!messages[currentContact.id]) {
+                    messages[currentContact.id] = [];
+                }
+                messages[currentContact.id].push(newMessage);
+
+                // Clear input and render messages
+                messageInput.value = '';
+                renderMessages(messages[currentContact.id]);
+
+                // Simulate response (in production, this would be handled by your backend)
+                setTimeout(() => {
+                    const response = {
+                        id: Date.now(),
+                        senderId: currentContact.id,
+                        text: 'Thanks for your message. I will get back to you soon!',
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        type: 'received'
+                    };
+                    messages[currentContact.id].push(response);
+                    renderMessages(messages[currentContact.id]);
+                }, 1000);
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Initialize chat
+            renderContacts();
+
+            // Add this to the DOMContentLoaded event listener
+            // Track remaining landlord spots
+            let remainingLandlordSpots = 10;
+            const landlordsLeftSpan = document.getElementById('landlordsLeft');
+
+            // Handle successful student signup
+            document.getElementById('studentSignupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const school = document.getElementById('tertiarySchool').value;
+                const name = document.getElementById('studentName').value;
+                
+                // Close signup modal and show payment modal
+                document.getElementById('student-signup').classList.remove('active');
+                document.getElementById('payment-modal').classList.add('active');
+            });
+
+            // Handle payment form submission
+            document.getElementById('payment-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simulate payment processing
+                setTimeout(() => {
+                    // Close payment modal and show welcome message
+                    document.getElementById('payment-modal').classList.remove('active');
+                    document.getElementById('welcome-message').classList.add('active');
+                    
+                    // Store user data with payment status
+                    const studentData = JSON.parse(localStorage.getItem('studentData')) || {};
+                    studentData.paymentComplete = true;
+                    localStorage.setItem('studentData', JSON.stringify(studentData));
+                }, 1500);
+            });
+
+            // Handle landlord signup
+            document.getElementById('landlordSignupForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const landlordData = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    role: 'landlord',
+                    verified: false
+                };
+
+                // Store landlord data
+                localStorage.setItem('landlordData', JSON.stringify(landlordData));
+                
+                // Redirect to landlord dashboard
+                window.location.href = 'landlord-dashboard.html';
+            });
+
+            // Handle landlord login
+            document.getElementById('landlordLoginForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const email = formData.get('email');
+                const password = formData.get('password');
+
+                // Get stored landlord data
+                const landlordData = JSON.parse(localStorage.getItem('landlordData'));
+                
+                if (landlordData && landlordData.email === email) {
+                    // Store login state
+                    localStorage.setItem('landlordData', JSON.stringify({
+                        ...landlordData,
+                        isLoggedIn: true
+                    }));
+                    
+                    // Redirect to landlord dashboard
+                    window.location.href = 'landlord-dashboard.html';
+                } else {
+                    alert('Invalid email or password');
+                }
+            });
+
+            // Format card number input
+            document.getElementById('card-number').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue.substring(0, 19);
+            });
+
+            // Format expiry date input
+            document.getElementById('card-expiry').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                e.target.value = value.substring(0, 5);
+            });
+
+            // Only allow numbers in CVV
+            document.getElementById('card-cvv').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            });
+
+            // Add this to the DOMContentLoaded event listener
+            const addListingBtn = document.getElementById('addListingBtn');
+            const addListingModal = document.getElementById('add-listing-modal');
+            const documentUploads = document.querySelectorAll('.document-upload');
+            const amenityInput = document.getElementById('amenityInput');
+            const amenitiesList = document.getElementById('amenitiesList');
+            const conditionRating = document.getElementById('conditionRating');
+            const safetyRating = document.getElementById('safetyRating');
+            const conditionValue = document.getElementById('conditionValue');
+            const safetyValue = document.getElementById('safetyValue');
+
+            // Show add listing button only for logged-in landlords
+            const landlordData = JSON.parse(localStorage.getItem('landlordData'));
+            if (landlordData && landlordData.freeListings > 0) {
+                addListingBtn.style.display = 'flex';
+            } else {
+                addListingBtn.style.display = 'none';
+            }
+
+            // Open add listing modal
+            addListingBtn.addEventListener('click', function() {
+                addListingModal.classList.add('active');
+            });
+
+            // Handle document uploads
+            documentUploads.forEach(upload => {
+                const input = upload.querySelector('input[type="file"]');
+                const preview = upload.querySelector('.upload-preview');
+                const filename = preview.querySelector('.filename');
+
+                upload.addEventListener('click', () => input.click());
+
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('File size must be less than 5MB');
+                            this.value = '';
+                            return;
+                        }
+                        filename.textContent = file.name;
+                        preview.classList.add('active');
+                    }
+                });
+            });
+
+            // Handle amenities input
+            amenityInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const amenity = this.value.trim();
+                    if (amenity) {
+                        addAmenity(amenity);
+                        this.value = '';
+                    }
+                }
+            });
+
+            function addAmenity(amenity) {
+                const tag = document.createElement('div');
+                tag.className = 'amenity-tag';
+                tag.innerHTML = `
+                    ${amenity}
+                    <button onclick="this.parentElement.remove()">&times;</button>
+                `;
+                amenitiesList.appendChild(tag);
+            }
+
+            // Handle rating sliders
+            conditionRating.addEventListener('input', function() {
+                conditionValue.textContent = this.value;
+            });
+
+            safetyRating.addEventListener('input', function() {
+                safetyValue.textContent = this.value;
+            });
+
+            // Handle form submission
+            document.getElementById('addListingForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Check for minimum required photos
+                const uploadedPhotos = Array.from(photoUploadItems)
+                    .filter(item => item.querySelector('input[type="file"]').files.length > 0);
+                
+                if (uploadedPhotos.length < 3) {
+                    alert('Please upload at least 3 photos of your property');
+                    return;
+                }
+                
+                // Verify all required documents are uploaded
+                const uploads = Array.from(documentUploads).every(upload => 
+                    upload.querySelector('input[type="file"]').files.length > 0
+                );
+                
+                if (!uploads) {
+                    alert('Please upload all required documents');
+                    return;
+                }
+                
+                // Get amenities
+                const amenities = Array.from(amenitiesList.children).map(tag => 
+                    tag.textContent.trim()
+                );
+                
+                // In production, this would send the data to your backend
+                const listingData = {
+                    photos: uploadedPhotos.map(item => item.querySelector('input[type="file"]').files[0]),
+                    condition: conditionRating.value,
+                    safety: safetyRating.value,
+                    amenities: amenities,
+                    // Add other form data
+                };
+                
+                // Update remaining free listings
+                const landlordData = JSON.parse(localStorage.getItem('landlordData'));
+                if (landlordData) {
+                    landlordData.freeListings--;
+                    localStorage.setItem('landlordData', JSON.stringify(landlordData));
+                    
+                    if (landlordData.freeListings <= 0) {
+                        addListingBtn.style.display = 'none';
+                    }
+                }
+                
+                // Close modal and show success message
+                addListingModal.classList.remove('active');
+                alert('Your listing has been submitted for verification. We will review your documents and publish your listing soon.');
+            });
+
+            // Handle photo uploads
+            const photoUploadItems = document.querySelectorAll('.photo-upload-item');
+
+            photoUploadItems.forEach(item => {
+                const input = item.querySelector('input[type="file"]');
+                const placeholder = item.querySelector('.photo-upload-placeholder');
+
+                item.addEventListener('click', () => input.click());
+
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        if (file.size > 5 * 1024 * 1024) {
+                            alert('File size must be less than 5MB');
+                            this.value = '';
+                            return;
+                        }
+
+                        if (!file.type.startsWith('image/')) {
+                            alert('Please upload only image files');
+                            this.value = '';
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // Create image preview
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            item.appendChild(img);
+                            
+                            // Add delete button
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'photo-delete';
+                            deleteBtn.innerHTML = '×';
+                            deleteBtn.onclick = function(e) {
+                                e.stopPropagation();
+                                input.value = '';
+                                img.remove();
+                                deleteBtn.remove();
+                                placeholder.classList.remove('hidden');
+                            };
+                            item.appendChild(deleteBtn);
+                            
+                            // Hide placeholder
+                            placeholder.classList.add('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+
+            // Add rating and review functionality
+            const ratingStars = document.querySelectorAll('#ratingStars i');
+            const writeReviewBtn = document.getElementById('writeReviewBtn');
+            const reviewModal = document.getElementById('review-modal');
+            let selectedRating = 0;
+
+            // Handle star rating selection
+            ratingStars.forEach(star => {
+                star.addEventListener('mouseover', function() {
+                    const rating = this.dataset.rating;
+                    updateStars(rating);
+                });
+
+                star.addEventListener('mouseout', function() {
+                    updateStars(selectedRating);
+                });
+
+                star.addEventListener('click', function() {
+                    selectedRating = this.dataset.rating;
+                    updateStars(selectedRating);
+                });
+            });
+
+            function updateStars(rating) {
+                ratingStars.forEach(star => {
+                    const starRating = star.dataset.rating;
+                    if (starRating <= rating) {
+                        star.classList.remove('far');
+                        star.classList.add('fas');
+                    } else {
+                        star.classList.remove('fas');
+                        star.classList.add('far');
+                    }
+                });
+            }
+
+            // Open review modal
+            writeReviewBtn?.addEventListener('click', function() {
+                // Check if user is logged in
+                const studentData = JSON.parse(localStorage.getItem('studentData'));
+                if (!studentData || !studentData.verified) {
+                    alert('Please log in as a student to write a review.');
+                    return;
+                }
+                reviewModal.classList.add('active');
+            });
+
+            // Handle review submission
+            document.getElementById('reviewForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (selectedRating === 0) {
+                    alert('Please select a rating');
+                    return;
+                }
+
+                const reviewText = this.querySelector('textarea').value;
+                const studentData = JSON.parse(localStorage.getItem('studentData'));
+
+                // Create new review
+                const review = {
+                    id: Date.now(),
+                    rating: selectedRating,
+                    text: reviewText,
+                    reviewer: {
+                        name: studentData.name,
+                        initial: studentData.name.charAt(0).toUpperCase()
+                    },
+                    date: new Date().toLocaleDateString()
+                };
+
+                // Add review to localStorage
+                const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+                reviews.push(review);
+                localStorage.setItem('landlordReviews', JSON.stringify(reviews));
+
+                // Update UI
+                addReviewToList(review);
+                updateAverageRating();
+
+                // Close modal and reset form
+                reviewModal.classList.remove('active');
+                this.reset();
+                selectedRating = 0;
+                updateStars(0);
+            });
+
+            // Function to add review to the list
+            function addReviewToList(review) {
+                const reviewsList = document.querySelector('.reviews-list');
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                reviewCard.innerHTML = `
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">${review.reviewer.initial}</div>
+                            <div>
+                                <div class="reviewer-name">${review.reviewer.name}</div>
+                                <div class="review-date">${review.date}</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            ${Array(5).fill().map((_, i) => `
+                                <i class="${i < review.rating ? 'fas' : 'far'} fa-star"></i>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="review-content">${review.text}</div>
+                `;
+                reviewsList.insertBefore(reviewCard, reviewsList.firstChild);
+            }
+
+            // Function to update average rating
+            function updateAverageRating() {
+                const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+                if (reviews.length === 0) return;
+
+                const totalRating = reviews.reduce((sum, review) => sum + Number(review.rating), 0);
+                const averageRating = (totalRating / reviews.length).toFixed(1);
+
+                const ratingValue = document.querySelector('.landlord-rating .rating-value');
+                const reviewCount = document.querySelector('.landlord-rating .review-count');
+                if (ratingValue && reviewCount) {
+                    ratingValue.textContent = averageRating;
+                    reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
+                }
+
+                // Update rating stars
+                const ratingStarsContainer = document.querySelector('.landlord-rating .rating-stars');
+                if (ratingStarsContainer) {
+                    const fullStars = Math.floor(averageRating);
+                    const hasHalfStar = averageRating % 1 >= 0.5;
+
+                    ratingStarsContainer.innerHTML = Array(5).fill().map((_, i) => {
+                        if (i < fullStars) {
+                            return '<i class="fas fa-star"></i>';
+                        } else if (i === fullStars && hasHalfStar) {
+                            return '<i class="fas fa-star-half-alt"></i>';
+                        } else {
+                            return '<i class="far fa-star"></i>';
+                        }
+                    }).join('');
+                }
+            }
+
+            // Load existing reviews on page load
+            const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+            existingReviews.forEach(review => addReviewToList(review));
+            updateAverageRating();
+        });
+    </script>
+</body>
+</html>

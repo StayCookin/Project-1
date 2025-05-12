@@ -1,0 +1,970 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .messages-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            height: calc(100vh - 4rem);
+        }
+
+        /* Conversations List */
+        .conversations-list {
+            background: var(--white);
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+        }
+
+        .conversations-header {
+            padding: 1rem;
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .conversations-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .conversation-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .conversation-item:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .conversation-item.active {
+            background: rgba(34, 139, 34, 0.1);
+        }
+
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .conversation-info {
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.2rem;
+        }
+
+        .conversation-preview {
+            font-size: 0.9rem;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: var(--white);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-header-info h3 {
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .chat-header-info p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            margin-left: auto;
+        }
+
+        .message-content {
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message.sent .message-content {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.3rem;
+            text-align: right;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            background: var(--white);
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .no-chat-selected {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .no-chat-selected i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        @media (max-width: 768px) {
+            .messages-container {
+                grid-template-columns: 1fr;
+            }
+
+            .conversations-list {
+                display: none;
+            }
+
+            .conversations-list.active {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="messages-container">
+            <!-- Conversations List -->
+            <div class="conversations-list">
+                <div class="conversations-header">
+                    <h2>Messages</h2>
+                </div>
+                <div class="conversation-item active">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Landlord" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">John Smith</div>
+                        <div class="conversation-preview">Thank you for your interest in the property...</div>
+                    </div>
+                    <div class="conversation-time">2h ago</div>
+                </div>
+                <div class="conversation-item">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Property Manager" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">Sarah Johnson</div>
+                        <div class="conversation-preview">Your viewing request has been approved...</div>
+                    </div>
+                    <div class="conversation-time">1d ago</div>
+                    <span class="unread-badge">2</span>
+                </div>
+                <div class="conversation-item">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Agent" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">Michael Brown</div>
+                        <div class="conversation-preview">I have a new property that might interest you...</div>
+                    </div>
+                    <div class="conversation-time">3d ago</div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <div class="chat-header">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Landlord">
+                    <div class="chat-header-info">
+                        <h3>John Smith</h3>
+                        <p>Property Owner</p>
+                    </div>
+                </div>
+
+                <div class="chat-messages">
+                    <div class="message received">
+                        <div class="message-content">
+                            Hello! Thank you for your interest in the Modern Apartment near UB.
+                        </div>
+                        <div class="message-time">10:30 AM</div>
+                    </div>
+
+                    <div class="message sent">
+                        <div class="message-content">
+                            Hi! Yes, I'm very interested in the property. Is it still available?
+                        </div>
+                        <div class="message-time">10:32 AM</div>
+                    </div>
+
+                    <div class="message received">
+                        <div class="message-content">
+                            Yes, it's still available! Would you like to schedule a viewing?
+                        </div>
+                        <div class="message-time">10:33 AM</div>
+                    </div>
+
+                    <div class="message sent">
+                        <div class="message-content">
+                            That would be great! What times are available this week?
+                        </div>
+                        <div class="message-time">10:35 AM</div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" placeholder="Type your message...">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const studentData = JSON.parse(localStorage.getItem('studentData'));
+            if (!studentData || studentData.role !== 'student') {
+                // Redirect to landing page if not authenticated
+                window.location.href = 'InRent.html';
+                return;
+            }
+
+            // Handle conversation selection
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            conversationItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    conversationItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    this.classList.add('active');
+
+                    // Update chat header
+                    const name = this.querySelector('.conversation-name').textContent;
+                    const avatar = this.querySelector('.conversation-avatar').src;
+                    document.querySelector('.chat-header img').src = avatar;
+                    document.querySelector('.chat-header-info h3').textContent = name;
+
+                    // Clear unread badge
+                    const badge = this.querySelector('.unread-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    // Load conversation messages
+                    loadConversation(name);
+                });
+            });
+
+            // Handle message sending
+            const chatInput = document.querySelector('.chat-input input');
+            const sendButton = document.querySelector('.chat-input .btn');
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    const chatMessages = document.querySelector('.chat-messages');
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const messageHTML = `
+                        <div class="message sent">
+                            <div class="message-content">${message}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
+                    
+                    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+                    chatInput.value = '';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    // Save message to localStorage
+                    saveMessage(message);
+                }
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function loadConversation(name) {
+                // For demo purposes, load hardcoded messages
+                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                const conversationMessages = messages.filter(m => m.recipient === name);
+                
+                const chatMessages = document.querySelector('.chat-messages');
+                chatMessages.innerHTML = '';
+
+                conversationMessages.forEach(message => {
+                    const messageHTML = `
+                        <div class="message ${message.sent ? 'sent' : 'received'}">
+                            <div class="message-content">${message.text}</div>
+                            <div class="message-time">${message.time}</div>
+                        </div>
+                    `;
+                    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+                });
+
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function saveMessage(text) {
+                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                const currentChat = document.querySelector('.chat-header-info h3').textContent;
+                
+                messages.push({
+                    recipient: currentChat,
+                    text: text,
+                    sent: true,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+
+            // Load initial conversation
+            const firstConversation = document.querySelector('.conversation-item');
+            if (firstConversation) {
+                firstConversation.click();
+            }
+        });
+    </script>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .messages-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            height: calc(100vh - 4rem);
+        }
+
+        /* Conversations List */
+        .conversations-list {
+            background: var(--white);
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+        }
+
+        .conversations-header {
+            padding: 1rem;
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .conversations-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .conversation-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .conversation-item:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .conversation-item.active {
+            background: rgba(34, 139, 34, 0.1);
+        }
+
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .conversation-info {
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.2rem;
+        }
+
+        .conversation-preview {
+            font-size: 0.9rem;
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .unread-badge {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: var(--white);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chat-header-info h3 {
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .chat-header-info p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            margin-left: auto;
+        }
+
+        .message-content {
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message.sent .message-content {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .message-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.3rem;
+            text-align: right;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            background: var(--white);
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .no-chat-selected {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .no-chat-selected i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        @media (max-width: 768px) {
+            .messages-container {
+                grid-template-columns: 1fr;
+            }
+
+            .conversations-list {
+                display: none;
+            }
+
+            .conversations-list.active {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1000;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="messages-container">
+            <!-- Conversations List -->
+            <div class="conversations-list">
+                <div class="conversations-header">
+                    <h2>Messages</h2>
+                </div>
+                <div class="conversation-item active">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Landlord" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">John Smith</div>
+                        <div class="conversation-preview">Thank you for your interest in the property...</div>
+                    </div>
+                    <div class="conversation-time">2h ago</div>
+                </div>
+                <div class="conversation-item">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Property Manager" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">Sarah Johnson</div>
+                        <div class="conversation-preview">Your viewing request has been approved...</div>
+                    </div>
+                    <div class="conversation-time">1d ago</div>
+                    <span class="unread-badge">2</span>
+                </div>
+                <div class="conversation-item">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Agent" class="conversation-avatar">
+                    <div class="conversation-info">
+                        <div class="conversation-name">Michael Brown</div>
+                        <div class="conversation-preview">I have a new property that might interest you...</div>
+                    </div>
+                    <div class="conversation-time">3d ago</div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-interface">
+                <div class="chat-header">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Landlord">
+                    <div class="chat-header-info">
+                        <h3>John Smith</h3>
+                        <p>Property Owner</p>
+                    </div>
+                </div>
+
+                <div class="chat-messages">
+                    <div class="message received">
+                        <div class="message-content">
+                            Hello! Thank you for your interest in the Modern Apartment near UB.
+                        </div>
+                        <div class="message-time">10:30 AM</div>
+                    </div>
+
+                    <div class="message sent">
+                        <div class="message-content">
+                            Hi! Yes, I'm very interested in the property. Is it still available?
+                        </div>
+                        <div class="message-time">10:32 AM</div>
+                    </div>
+
+                    <div class="message received">
+                        <div class="message-content">
+                            Yes, it's still available! Would you like to schedule a viewing?
+                        </div>
+                        <div class="message-time">10:33 AM</div>
+                    </div>
+
+                    <div class="message sent">
+                        <div class="message-content">
+                            That would be great! What times are available this week?
+                        </div>
+                        <div class="message-time">10:35 AM</div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" placeholder="Type your message...">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const studentData = JSON.parse(localStorage.getItem('studentData'));
+            if (!studentData || studentData.role !== 'student') {
+                // Redirect to landing page if not authenticated
+                window.location.href = 'InRent.html';
+                return;
+            }
+
+            // Handle conversation selection
+            const conversationItems = document.querySelectorAll('.conversation-item');
+            conversationItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    conversationItems.forEach(i => i.classList.remove('active'));
+                    // Add active class to clicked item
+                    this.classList.add('active');
+
+                    // Update chat header
+                    const name = this.querySelector('.conversation-name').textContent;
+                    const avatar = this.querySelector('.conversation-avatar').src;
+                    document.querySelector('.chat-header img').src = avatar;
+                    document.querySelector('.chat-header-info h3').textContent = name;
+
+                    // Clear unread badge
+                    const badge = this.querySelector('.unread-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    // Load conversation messages
+                    loadConversation(name);
+                });
+            });
+
+            // Handle message sending
+            const chatInput = document.querySelector('.chat-input input');
+            const sendButton = document.querySelector('.chat-input .btn');
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    const chatMessages = document.querySelector('.chat-messages');
+                    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    const messageHTML = `
+                        <div class="message sent">
+                            <div class="message-content">${message}</div>
+                            <div class="message-time">${time}</div>
+                        </div>
+                    `;
+                    
+                    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+                    chatInput.value = '';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    // Save message to localStorage
+                    saveMessage(message);
+                }
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function loadConversation(name) {
+                // For demo purposes, load hardcoded messages
+                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                const conversationMessages = messages.filter(m => m.recipient === name);
+                
+                const chatMessages = document.querySelector('.chat-messages');
+                chatMessages.innerHTML = '';
+
+                conversationMessages.forEach(message => {
+                    const messageHTML = `
+                        <div class="message ${message.sent ? 'sent' : 'received'}">
+                            <div class="message-content">${message.text}</div>
+                            <div class="message-time">${message.time}</div>
+                        </div>
+                    `;
+                    chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+                });
+
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function saveMessage(text) {
+                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+                const currentChat = document.querySelector('.chat-header-info h3').textContent;
+                
+                messages.push({
+                    recipient: currentChat,
+                    text: text,
+                    sent: true,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+
+                localStorage.setItem('messages', JSON.stringify(messages));
+            }
+
+            // Load initial conversation
+            const firstConversation = document.querySelector('.conversation-item');
+            if (firstConversation) {
+                firstConversation.click();
+            }
+        });
+    </script>
+</body>
+>>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
+</html> 

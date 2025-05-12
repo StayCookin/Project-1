@@ -1,0 +1,834 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Review - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .review-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .review-title {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .review-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .review-form {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-label {
+            font-weight: 500;
+            color: var(--dark);
+            min-width: 120px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star.active {
+            color: #ffd700;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .property-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
+        }
+
+        .property-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .property-details h3 {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .property-details p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .rating-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .property-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="review-header">
+            <h1 class="review-title">Submit Your Review</h1>
+            <p class="review-subtitle">Share your experience with the property</p>
+        </div>
+
+        <div class="review-form">
+            <div class="property-info">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Property" class="property-image">
+                <div class="property-details">
+                    <h3>Modern Apartment near UB</h3>
+                    <p>Gaborone, Near UB Campus</p>
+                </div>
+            </div>
+
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label class="form-label">Overall Rating</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Your Rating:</span>
+                        <div class="star-rating" id="overallRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cleanliness</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="cleanlinessRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="locationRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Value for Money</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="valueRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Review Title</label>
+                    <input type="text" class="form-input" id="reviewTitle" placeholder="Summarize your experience">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Review</label>
+                    <textarea class="form-textarea" id="reviewText" placeholder="Share your experience with the property..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Would you recommend this property?</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Recommendation:</span>
+                        <div class="star-rating" id="recommendationRating">
+                            <i class="fas fa-thumbs-up star" data-rating="yes"></i>
+                            <i class="fas fa-thumbs-down star" data-rating="no"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const studentData = JSON.parse(localStorage.getItem('studentData'));
+            if (!studentData || studentData.role !== 'student') {
+                // Redirect to landing page if not authenticated
+                window.location.href = 'InRent.html';
+                return;
+            }
+
+            // Get property data from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyTitle = urlParams.get('title');
+
+            // Load property data
+            if (propertyTitle) {
+                const property = getPropertyData(propertyTitle);
+                if (property) {
+                    document.querySelector('.property-image').src = property.image;
+                    document.querySelector('.property-details h3').textContent = property.title;
+                    document.querySelector('.property-details p').textContent = property.location;
+                }
+            }
+
+            // Handle star ratings
+            const ratingGroups = document.querySelectorAll('.star-rating');
+            ratingGroups.forEach(group => {
+                const stars = group.querySelectorAll('.star');
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const rating = this.dataset.rating;
+                        stars.forEach(s => {
+                            if (group.id === 'recommendationRating') {
+                                s.classList.remove('active');
+                            } else {
+                                const starRating = parseInt(s.dataset.rating);
+                                s.classList.toggle('active', starRating <= rating);
+                            }
+                        });
+                        if (group.id === 'recommendationRating') {
+                            this.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Handle form submission
+            const reviewForm = document.getElementById('reviewForm');
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form values
+                const review = {
+                    propertyTitle: propertyTitle,
+                    overallRating: getRating('overallRating'),
+                    cleanlinessRating: getRating('cleanlinessRating'),
+                    locationRating: getRating('locationRating'),
+                    valueRating: getRating('valueRating'),
+                    title: document.getElementById('reviewTitle').value,
+                    text: document.getElementById('reviewText').value,
+                    recommendation: getRecommendation(),
+                    studentId: studentData.id,
+                    studentName: studentData.name,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save review to localStorage
+                const reviews = JSON.parse(localStorage.getItem('propertyReviews') || '[]');
+                reviews.push(review);
+                localStorage.setItem('propertyReviews', JSON.stringify(reviews));
+
+                alert('Thank you for your review!');
+                window.location.href = 'property-details.html?title=' + encodeURIComponent(propertyTitle);
+            });
+        });
+
+        function getRating(groupId) {
+            const stars = document.querySelectorAll(`#${groupId} .star.active`);
+            return stars.length;
+        }
+
+        function getRecommendation() {
+            const thumbsUp = document.querySelector('#recommendationRating .fa-thumbs-up.active');
+            return thumbsUp ? 'yes' : 'no';
+        }
+
+        function getPropertyData(title) {
+            // For demo purposes, return hardcoded data
+            const properties = {
+                'Modern Apartment near UB': {
+                    title: 'Modern Apartment near UB',
+                    location: 'Gaborone, Near UB Campus',
+                    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                },
+                'Cozy Studio near Baisago': {
+                    title: 'Cozy Studio near Baisago',
+                    location: 'Gaborone, Near Baisago Campus',
+                    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                },
+                'Luxury Apartment near Botho': {
+                    title: 'Luxury Apartment near Botho',
+                    location: 'Gaborone, Near Botho Campus',
+                    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                }
+            };
+            return properties[title];
+        }
+    </script>
+</body>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Review - InRent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #228B22;
+            --secondary: #2E7D32;
+            --dark: #1B5E20;
+            --light: #4CAF50;
+            --gray: #757575;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
+            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --font-heading: 'Poppins', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            line-height: 1.6;
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .review-header {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .review-title {
+            font-size: 2rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .review-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .review-form {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-label {
+            font-weight: 500;
+            color: var(--dark);
+            min-width: 120px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .star.active {
+            color: #ffd700;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .property-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.02);
+            border-radius: 8px;
+        }
+
+        .property-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .property-details h3 {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .property-details p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .rating-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .property-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="review-header">
+            <h1 class="review-title">Submit Your Review</h1>
+            <p class="review-subtitle">Share your experience with the property</p>
+        </div>
+
+        <div class="review-form">
+            <div class="property-info">
+                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Property" class="property-image">
+                <div class="property-details">
+                    <h3>Modern Apartment near UB</h3>
+                    <p>Gaborone, Near UB Campus</p>
+                </div>
+            </div>
+
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label class="form-label">Overall Rating</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Your Rating:</span>
+                        <div class="star-rating" id="overallRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cleanliness</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="cleanlinessRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="locationRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Value for Money</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Rating:</span>
+                        <div class="star-rating" id="valueRating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Review Title</label>
+                    <input type="text" class="form-input" id="reviewTitle" placeholder="Summarize your experience">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Review</label>
+                    <textarea class="form-textarea" id="reviewText" placeholder="Share your experience with the property..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Would you recommend this property?</label>
+                    <div class="rating-group">
+                        <span class="rating-label">Recommendation:</span>
+                        <div class="star-rating" id="recommendationRating">
+                            <i class="fas fa-thumbs-up star" data-rating="yes"></i>
+                            <i class="fas fa-thumbs-down star" data-rating="no"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const studentData = JSON.parse(localStorage.getItem('studentData'));
+            if (!studentData || studentData.role !== 'student') {
+                // Redirect to landing page if not authenticated
+                window.location.href = 'InRent.html';
+                return;
+            }
+
+            // Get property data from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const propertyTitle = urlParams.get('title');
+
+            // Load property data
+            if (propertyTitle) {
+                const property = getPropertyData(propertyTitle);
+                if (property) {
+                    document.querySelector('.property-image').src = property.image;
+                    document.querySelector('.property-details h3').textContent = property.title;
+                    document.querySelector('.property-details p').textContent = property.location;
+                }
+            }
+
+            // Handle star ratings
+            const ratingGroups = document.querySelectorAll('.star-rating');
+            ratingGroups.forEach(group => {
+                const stars = group.querySelectorAll('.star');
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const rating = this.dataset.rating;
+                        stars.forEach(s => {
+                            if (group.id === 'recommendationRating') {
+                                s.classList.remove('active');
+                            } else {
+                                const starRating = parseInt(s.dataset.rating);
+                                s.classList.toggle('active', starRating <= rating);
+                            }
+                        });
+                        if (group.id === 'recommendationRating') {
+                            this.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Handle form submission
+            const reviewForm = document.getElementById('reviewForm');
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Get form values
+                const review = {
+                    propertyTitle: propertyTitle,
+                    overallRating: getRating('overallRating'),
+                    cleanlinessRating: getRating('cleanlinessRating'),
+                    locationRating: getRating('locationRating'),
+                    valueRating: getRating('valueRating'),
+                    title: document.getElementById('reviewTitle').value,
+                    text: document.getElementById('reviewText').value,
+                    recommendation: getRecommendation(),
+                    studentId: studentData.id,
+                    studentName: studentData.name,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Save review to localStorage
+                const reviews = JSON.parse(localStorage.getItem('propertyReviews') || '[]');
+                reviews.push(review);
+                localStorage.setItem('propertyReviews', JSON.stringify(reviews));
+
+                alert('Thank you for your review!');
+                window.location.href = 'property-details.html?title=' + encodeURIComponent(propertyTitle);
+            });
+        });
+
+        function getRating(groupId) {
+            const stars = document.querySelectorAll(`#${groupId} .star.active`);
+            return stars.length;
+        }
+
+        function getRecommendation() {
+            const thumbsUp = document.querySelector('#recommendationRating .fa-thumbs-up.active');
+            return thumbsUp ? 'yes' : 'no';
+        }
+
+        function getPropertyData(title) {
+            // For demo purposes, return hardcoded data
+            const properties = {
+                'Modern Apartment near UB': {
+                    title: 'Modern Apartment near UB',
+                    location: 'Gaborone, Near UB Campus',
+                    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                },
+                'Cozy Studio near Baisago': {
+                    title: 'Cozy Studio near Baisago',
+                    location: 'Gaborone, Near Baisago Campus',
+                    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                },
+                'Luxury Apartment near Botho': {
+                    title: 'Luxury Apartment near Botho',
+                    location: 'Gaborone, Near Botho Campus',
+                    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'
+                }
+            };
+            return properties[title];
+        }
+    </script>
+</body>
+>>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
+</html> 
