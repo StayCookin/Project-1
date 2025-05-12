@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # InRent - Student Accommodation Platform
 
 ## Overview
@@ -252,3 +253,6 @@ This project is licensed under the MIT License.
 ## Support
 >>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
 For support, email support@inrent.com or create an issue in the repository. 
+=======
+# Project-1
+>>>>>>> 57897d82415d9f0cc33371e1ca8df8f836459a2f
