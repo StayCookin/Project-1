@@ -113,27 +113,6 @@
             overflow: hidden;
         }
 
-        .verified-banner {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--gradient-primary);
-            color: var(--white);
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border-bottom-left-radius: 12px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .verified-banner.show {
-            transform: translateX(0);
-        }
-
         .verification-pending {
             background: #ffc107;
             color: #000;
@@ -512,6 +491,101 @@
             font-weight: bold;
             font-size: 1.2rem;
         }
+
+        .fixed-verified-banner {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--gradient-primary);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .landlord-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding-top: 2rem;
+        }
+        .sidebar-logo {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .sidebar-logo .in {
+            color: white;
+            background: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 2px;
+        }
+        .sidebar-logo .rent {
+            color: var(--primary);
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex: 1;
+        }
+        .sidebar-menu li {
+            margin-bottom: 1.2rem;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 1.08rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px 0 0 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-menu a.active, .sidebar-menu a:hover {
+            background: var(--gradient-primary);
+            color: #fff;
+        }
+        .sidebar-menu i {
+            min-width: 20px;
+            text-align: center;
+        }
+        @media (max-width: 900px) {
+            .landlord-sidebar {
+                width: 60px;
+                padding-top: 1rem;
+            }
+            .sidebar-logo {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
+            .sidebar-menu a {
+                font-size: 0.95rem;
+                padding: 0.7rem 0.7rem;
+                gap: 0.5rem;
+            }
+            .sidebar-menu a span {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -532,12 +606,13 @@
             </div>
         </div>
 
+        <div class="fixed-verified-banner" id="fixedVerifiedBanner">
+            <i class="fas fa-check-circle"></i>
+            <span>Verified Landlord</span>
+        </div>
+
         <div class="dashboard-header">
             <div class="welcome-section">
-                <div class="verified-banner" id="verificationBanner">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Verified Landlord</span>
-                </div>
                 <h1>Welcome back, Mr. Smith!</h1>
                 <p>Here's what's happening with your properties today</p>
             </div>
@@ -796,6 +871,22 @@
                 </form>
             </div>
         </div>
+
+        <!-- Add a fixed sidebar for landlord navigation -->
+        <div class="landlord-sidebar">
+            <div class="sidebar-logo">
+                <span class="in">In</span><span class="rent">Rent</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="#properties"><i class="fas fa-home"></i> Properties</a></li>
+                <li><a href="#add-property" id="sidebarAddProperty"><i class="fas fa-plus"></i> Add Property</a></li>
+                <li><a href="#messages"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="#reviews"><i class="fas fa-star"></i> Reviews</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#logout" id="sidebarLogout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
     </div>
 
     <script>
@@ -1022,6 +1113,27 @@
                 // Remove the token from URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
+
+            // Sidebar navigation logic
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#logout') {
+                        e.preventDefault();
+                        if (confirm('Are you sure you want to logout?')) {
+                            localStorage.removeItem('landlordData');
+                            window.location.href = 'InRent.html';
+                        }
+                    } else if (this.getAttribute('href') === '#add-property') {
+                        e.preventDefault();
+                        document.querySelector('.popup-overlay').style.display = 'flex';
+                    } else {
+                        // Highlight active
+                        document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+                        // Optionally scroll to section or handle navigation
+                    }
+                });
+            });
         });
     </script>
 </body>
