@@ -337,12 +337,46 @@
             gap: 1rem;
         }
 
-        .profile-photo {
-            width: 50px;
-            height: 50px;
+        .profile-image-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 0 1rem 0;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--primary);
+            border: 3px solid var(--primary);
+        }
+
+        .image-upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 0 0 50% 50%;
+        }
+
+        .profile-image-container:hover .image-upload-overlay {
+            opacity: 1;
+        }
+
+        .image-upload-overlay i {
+            color: var(--white);
+            font-size: 1.2rem;
+        }
+
+        #imageUpload {
+            display: none;
         }
 
         .documents-section {
@@ -592,17 +626,13 @@
     <div class="container">
         <!-- Profile Section -->
         <div class="profile-section">
-            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Profile Photo" class="profile-photo">
-            <div class="documents-section">
-                <h3>Document Verification</h3>
-                <div class="document-item">
-                    <span>Land Deed/Lease Agreement</span>
-                    <span class="verification-badge verified">Verified</span>
-                </div>
-                <div class="document-item">
-                    <span>National ID</span>
-                    <span class="verification-badge pending">Pending</span>
-                </div>
+            <div class="profile-image-container">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Profile Photo" class="profile-image" id="profileImage">
+                <label for="imageUpload" class="image-upload-overlay">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" id="imageUpload" accept="image/*" onchange="handleLandlordImageUpload(event)">
+                <button id="removeProfileImage" style="display:none;position:absolute;top:8px;right:8px;background:#fff;border:none;border-radius:50%;padding:4px 7px;cursor:pointer;"><i class="fas fa-trash" style="color:#dc3545;"></i></button>
             </div>
         </div>
 
@@ -618,40 +648,39 @@
             </div>
             <div class="quick-actions">
                 <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Property</button>
-                <button class="btn btn-secondary"><i class="fas fa-cog"></i> Settings</button>
                 <button class="btn btn-secondary" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </div>
 
-        <div class="analytics-grid">
-            <div class="analytics-card">
+        <div class="analytics-grid" id="analyticsGrid">
+            <div class="analytics-card" id="totalPropertiesCard">
                 <h3>Total Properties</h3>
-                <div class="value">12</div>
-                <div class="trend positive">
+                <div class="value" id="totalPropertiesValue">12</div>
+                <div class="trend positive" id="totalPropertiesTrend">
                     <i class="fas fa-arrow-up"></i>
                     <span>+2 this month</span>
                 </div>
             </div>
-            <div class="analytics-card">
+            <div class="analytics-card" id="totalRevenueCard">
                 <h3>Total Revenue</h3>
-                <div class="value">P42,000</div>
-                <div class="trend positive">
+                <div class="value" id="totalRevenueValue">P42,000</div>
+                <div class="trend positive" id="totalRevenueTrend">
                     <i class="fas fa-arrow-up"></i>
                     <span>+15% from last month</span>
                 </div>
             </div>
-            <div class="analytics-card">
+            <div class="analytics-card" id="occupancyRateCard">
                 <h3>Occupancy Rate</h3>
-                <div class="value">92%</div>
-                <div class="trend positive">
+                <div class="value" id="occupancyRateValue">92%</div>
+                <div class="trend positive" id="occupancyRateTrend">
                     <i class="fas fa-arrow-up"></i>
                     <span>+5% from last month</span>
                 </div>
             </div>
-            <div class="analytics-card">
+            <div class="analytics-card" id="inrentFeesCard">
                 <h3>InRent Fees</h3>
-                <div class="value">P4,200</div>
-                <div class="trend negative">
+                <div class="value" id="inrentFeesValue">P4,200</div>
+                <div class="trend negative" id="inrentFeesTrend">
                     <i class="fas fa-arrow-down"></i>
                     <span>-10% from last month</span>
                 </div>
@@ -1133,6 +1162,56 @@
                         // Optionally scroll to section or handle navigation
                     }
                 });
+            });
+
+            function handleLandlordImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file');
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Image size should be less than 5MB');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImage').src = e.target.result;
+                    document.getElementById('removeProfileImage').style.display = 'block';
+                    // Save to landlordData in localStorage
+                    let landlordData = JSON.parse(localStorage.getItem('landlordData')) || {};
+                    landlordData.profileImage = e.target.result;
+                    localStorage.setItem('landlordData', JSON.stringify(landlordData));
+                };
+                reader.readAsDataURL(file);
+            }
+
+            document.getElementById('removeProfileImage').addEventListener('click', function() {
+                document.getElementById('profileImage').src = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80';
+                this.style.display = 'none';
+                let landlordData = JSON.parse(localStorage.getItem('landlordData')) || {};
+                delete landlordData.profileImage;
+                localStorage.setItem('landlordData', JSON.stringify(landlordData));
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                let landlordData = JSON.parse(localStorage.getItem('landlordData')) || {};
+                if (landlordData.profileImage) {
+                    document.getElementById('profileImage').src = landlordData.profileImage;
+                    document.getElementById('removeProfileImage').style.display = 'block';
+                }
+                // Blank analytics cards if no properties
+                if (!landlordData.properties || landlordData.properties.length === 0) {
+                    document.getElementById('totalPropertiesValue').textContent = '';
+                    document.getElementById('totalPropertiesTrend').textContent = '';
+                    document.getElementById('totalRevenueValue').textContent = '';
+                    document.getElementById('totalRevenueTrend').textContent = '';
+                    document.getElementById('occupancyRateValue').textContent = '';
+                    document.getElementById('occupancyRateTrend').textContent = '';
+                    document.getElementById('inrentFeesValue').textContent = '';
+                    document.getElementById('inrentFeesTrend').textContent = '';
+                }
             });
         });
     </script>
