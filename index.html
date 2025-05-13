@@ -2451,6 +2451,50 @@
         landlordVerificationStep.classList.add('active');
         startTimer('landlordTimer', 'landlordResendCode');
     });
+
+    // Landlord signup 2FA (now via email)
+    const landlordNextBtn = document.getElementById('landlordNextBtn');
+    const landlordResendCode = document.getElementById('landlordResendCode');
+    const landlordSignupStep = document.querySelector('#landlordSignupForm .signup-step');
+    const landlordVerificationStep = document.querySelector('#landlordSignupForm .verification-step');
+    const landlordVerificationInputs = document.querySelectorAll('#landlordSignupForm .verification-code input');
+
+    landlordNextBtn.addEventListener('click', async function() {
+        const email = document.getElementById('landlordEmail').value;
+        const name = document.getElementById('landlordFullName').value;
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            alert('Please enter a valid email address');
+            return;
+        }
+        if (!name.trim()) {
+            alert('Please enter your full name');
+            return;
+        }
+        // Send verification email
+        const code = await sendVerificationEmail(email, name);
+        if (code) {
+            landlordSignupStep.classList.remove('active');
+            landlordVerificationStep.classList.add('active');
+            startTimer('landlordTimer', 'landlordResendCode');
+        }
+    });
+
+    landlordResendCode.addEventListener('click', async function() {
+        const email = document.getElementById('landlordEmail').value;
+        const name = document.getElementById('landlordFullName').value;
+        const code = await sendVerificationEmail(email, name);
+        if (code) {
+            startTimer('landlordTimer', 'landlordResendCode');
+        }
+    });
+
+    landlordVerificationInputs.forEach((input, index) => {
+        input.addEventListener('input', function() {
+            if (this.value && index < landlordVerificationInputs.length - 1) {
+                landlordVerificationInputs[index + 1].focus();
+            }
+        });
+    });
     </script>
 </head>
 <body>
@@ -3052,8 +3096,8 @@
                 </div>
                 
                 <div class="verification-step">
-                    <h3>Verify Your Phone Number</h3>
-                    <p>We've sent a verification code to your phone number. Please enter it below:</p>
+                    <h3>Verify Your Email Address</h3>
+                    <p>We've sent a verification code to your email address. Please enter it below:</p>
                     <div class="verification-code">
                         <input type="text" maxlength="1" pattern="[0-9]" required>
                         <input type="text" maxlength="1" pattern="[0-9]" required>

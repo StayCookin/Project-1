@@ -544,6 +544,7 @@
             <div class="quick-actions">
                 <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Property</button>
                 <button class="btn btn-secondary"><i class="fas fa-cog"></i> Settings</button>
+                <button class="btn btn-secondary" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </div>
 
@@ -892,7 +893,7 @@
             }
 
             // Handle logout
-            const logoutBtn = document.querySelector('.sidebar-menu a[href="#logout"]');
+            const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();

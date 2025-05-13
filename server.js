@@ -1,11 +1,10 @@
-<<<<<<< HEAD
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const https = require('https');
 const http = require('http');
 const socketIo = require('socket.io');
 const rateLimit = require('express-rate-limit');
@@ -13,19 +12,35 @@ const compression = require('compression');
 const Redis = require('ioredis');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
+const sslConfig = require('./ssl-config');
+
+// Load environment variables
+require('dotenv').config();
 
 // Initialize express app
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: process.env.CLIENT_URL,
-        methods: ["GET", "POST"]
-    }
-});
 
-// Initialize Redis client
-const redisClient = new Redis(process.env.REDIS_URL);
+// Security middleware
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "cdn.jsdelivr.net", "cdnjs.cloudflare.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "cdnjs.cloudflare.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            connectSrc: ["'self'", "wss:", "https:"],
+            fontSrc: ["'self'", "cdnjs.cloudflare.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"]
+        }
+    },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -36,25 +51,19 @@ const limiter = rateLimit({
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(compression());
+app.use(morgan('combined'));
+app.use(limiter);
+
 app.use(cors({
     origin: process.env.CLIENT_URL,
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            styleSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", process.env.API_URL]
-        }
-    }
-}));
-app.use(morgan('dev'));
-app.use(compression());
-app.use(limiter);
+
+// Initialize Redis client
+const redisClient = new Redis(process.env.REDIS_URL);
 
 // Session configuration
 app.use(session({
@@ -63,17 +72,28 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: true,
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        sameSite: 'strict'
     }
 }));
 
-// Serve static files from the frontend
-app.use(express.static(path.join(__dirname, 'public'), {
-    maxAge: '1d',
-    etag: true
-}));
+// Create HTTPS server
+const httpsServer = https.createServer(sslConfig, app);
+const io = socketIo(httpsServer, {
+    cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Create HTTP server for redirect
+const httpServer = http.createServer((req, res) => {
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
+});
 
 // Database connection with connection pooling
 mongoose.connect(process.env.MONGODB_URI, {
@@ -87,140 +107,45 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const propertyRoutes = require('./routes/properties');
-const userRoutes = require('./routes/users');
-const reviewRoutes = require('./routes/reviews');
-const chatRoutes = require('./routes/chat');
-
-// Route middleware
-app.use('/api/auth', authRoutes);
-app.use('/api/properties', propertyRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/chat', chatRoutes);
+// Serve static files with caching
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d',
+    etag: true,
+    setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache');
+        }
+    }
+}));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Something went wrong!',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-});
-
-// Socket.io connection handling with authentication
-io.use((socket, next) => {
-    const session = socket.request.session;
-    if (session && session.userId) {
-        socket.userId = session.userId;
-        next();
-    } else {
-        next(new Error('Authentication error'));
-    }
-});
-
-io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    socket.on('join_chat', (data) => {
-        socket.join(data.chatId);
-    });
-
-    socket.on('send_message', (data) => {
-        io.to(data.chatId).emit('receive_message', data);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
+    res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message
     });
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
     console.log('SIGTERM received. Shutting down gracefully');
-    server.close(() => {
-        console.log('Process terminated');
+    httpsServer.close(() => {
+        console.log('HTTPS server terminated');
+    });
+    httpServer.close(() => {
+        console.log('HTTP server terminated');
     });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-=======
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const http = require('http');
-const socketIo = require('socket.io');
-const dotenv = require('dotenv');
+// Start servers
+const HTTPS_PORT = process.env.HTTPS_PORT || 443;
+const HTTP_PORT = process.env.HTTP_PORT || 80;
 
-// Load environment variables
-dotenv.config();
-
-// Create Express app
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
-        methods: ["GET", "POST"]
-    }
+httpsServer.listen(HTTPS_PORT, () => {
+    console.log(`HTTPS Server running on port ${HTTPS_PORT}`);
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/inrent', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
-
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-    console.log('New client connected');
-
-    // Handle joining a chat room
-    socket.on('joinRoom', (roomId) => {
-        socket.join(roomId);
-        console.log(`User joined room: ${roomId}`);
-    });
-
-    // Handle new messages
-    socket.on('sendMessage', (data) => {
-        io.to(data.roomId).emit('newMessage', data);
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-});
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/properties', require('./routes/properties'));
-app.use('/api/messages', require('./routes/messages'));
-app.use('/api/viewings', require('./routes/viewings'));
-app.use('/api/reviews', require('./routes/reviews'));
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
-});
-
-// Start server
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
->>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
+httpServer.listen(HTTP_PORT, () => {
+    console.log(`HTTP Server running on port ${HTTP_PORT} (redirecting to HTTPS)`);
 }); 
