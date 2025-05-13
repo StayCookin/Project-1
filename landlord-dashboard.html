@@ -109,6 +109,66 @@
             padding: 2rem;
             border-radius: 12px;
             box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .verified-banner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--gradient-primary);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom-left-radius: 12px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .verified-banner.show {
+            transform: translateX(0);
+        }
+
+        .verification-pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .verification-failed {
+            background: #dc3545;
+            color: var(--white);
+        }
+
+        .verification-success {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .verification-actions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .verification-actions .btn {
+            margin-right: 1rem;
+        }
+
+        .verification-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .verification-status i {
+            font-size: 1.1rem;
         }
 
         .welcome-section p {
@@ -474,6 +534,10 @@
 
         <div class="dashboard-header">
             <div class="welcome-section">
+                <div class="verified-banner" id="verificationBanner">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Verified Landlord</span>
+                </div>
                 <h1>Welcome back, Mr. Smith!</h1>
                 <p>Here's what's happening with your properties today</p>
             </div>
@@ -928,6 +992,35 @@
             promoteBtn.addEventListener('click', function() {
                 alert('Property promotion feature coming soon!');
             });
+
+            // Resend verification email
+            window.resendVerificationEmail = function() {
+                // In a real application, this would be an API call
+                alert('Verification email has been resent. Please check your inbox.');
+            };
+
+            // Contact support
+            window.contactSupport = function() {
+                window.location.href = 'contact-support.html';
+            };
+
+            // Initialize verification status
+            checkVerificationStatus();
+
+            // Handle verification link in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const verificationToken = urlParams.get('verify');
+            if (verificationToken) {
+                // In a real application, this would be an API call to verify the token
+                console.log('Verifying token:', verificationToken);
+                // Simulate successful verification
+                landlordData.verificationStatus = 'verification-success';
+                localStorage.setItem('landlordData', JSON.stringify(landlordData));
+                updateVerificationStatus('verification-success');
+                
+                // Remove the token from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
 </body>

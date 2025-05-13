@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmailJS Test</title>
+    <!-- Add EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #228B22;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1a6b1a;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .debug {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>EmailJS Test</h1>
+    <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" placeholder="Enter your email">
+    </div>
+    <button onclick="sendTestEmail()">Send Test Email</button>
+    <div id="result"></div>
+    <div id="debug" class="debug"></div>
+
+    <script type="module">
+        import EmailService from './email-service.js';
+
+        // Store original console methods
+        const originalConsole = {
+            log: console.log,
+            error: console.error
+        };
+
+        // Override console methods to also display in debug div
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            document.getElementById('debug').innerHTML += 'LOG: ' + args.join(' ') + '\n';
+        };
+
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            document.getElementById('debug').innerHTML += 'ERROR: ' + args.join(' ') + '\n';
+        };
+
+        window.sendTestEmail = async function() {
+            const email = document.getElementById('email').value;
+            const resultDiv = document.getElementById('result');
+            const debugDiv = document.getElementById('debug');
+            
+            // Clear previous results
+            resultDiv.textContent = '';
+            debugDiv.innerHTML = '';
+            
+            if (!email) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Please enter an email address';
+                return;
+            }
+
+            try {
+                console.log('Starting email test...');
+                console.log('Email:', email);
+                
+                // Initialize EmailJS
+                console.log('Initializing EmailJS...');
+                await EmailService.init();
+                
+                // Generate a test verification code
+                const testCode = '123456';
+                console.log('Generated test code:', testCode);
+                
+                // Send the test email
+                console.log('Sending test email...');
+                await EmailService.sendVerificationEmail(email, testCode);
+                
+                resultDiv.className = 'success';
+                resultDiv.textContent = 'Test email sent successfully! Check your inbox.';
+            } catch (error) {
+                console.error('Test failed:', error);
+                resultDiv.className = 'error';
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        };
+    </script>
+</body>
+</html> 
