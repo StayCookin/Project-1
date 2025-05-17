@@ -284,6 +284,23 @@ function updateAverageRating() {
 
 document.addEventListener('DOMContentLoaded', initialize);
 
+// Waitlist form functionality
+const universitySelect = document.getElementById('university');
+const otherUniversityDiv = document.getElementById('otherUniversity');
+const otherUniversityInput = document.getElementById('otherUniversityName');
+
+// Show/hide other university input based on selection
+universitySelect.addEventListener('change', function() {
+    if (this.value === 'other') {
+        otherUniversityDiv.style.display = 'block';
+        otherUniversityInput.required = true;
+    } else {
+        otherUniversityDiv.style.display = 'none';
+        otherUniversityInput.required = false;
+        otherUniversityInput.value = '';
+    }
+});
+
 // Load existing reviews on page load
 const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
 existingReviews.forEach(review => addReviewToList(review));

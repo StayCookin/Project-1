@@ -3736,6 +3736,77 @@
       </div>
     </section>
 
+    <!-- Waitlist Section -->
+    <section class="waitlist-section" id="waitlist">
+        <div class="container">
+            <div class="section-title">
+                <h2>Join the Waitlist</h2>
+                <p>Be among the first to experience InRent when we launch. Sign up now to get early access!</p>
+            </div>
+            <div class="waitlist-form">
+                <form id="waitlistForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="university">University</label>
+                            <select id="university" name="university" required>
+                                <option value="">Select your university</option>
+                                <option value="ub">University of Botswana</option>
+                                <option value="bac">Botswana Accountancy College</option>
+                                <option value="boitekanelo">Boitekanelo College</option>
+                                <option value="guc">GUC</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div id="otherUniversity" class="other-university" style="display: none;">
+                                <label for="otherUniversityName">Please specify your university:</label>
+                                <input type="text" id="otherUniversityName" name="otherUniversityName">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" name="role" required>
+                                <option value="">Select your role</option>
+                                <option value="student">Student</option>
+                                <option value="landlord">Landlord</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="interest">What interests you about InRent?</label>
+                        <textarea id="interest" name="interest" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required>
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Join Waitlist</button>
+                    <div class="waitlist-message"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <section id="testimonials" class="section testimonials">
       <div class="container">
         <div class="section-title">
