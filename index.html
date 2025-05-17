@@ -1875,8 +1875,124 @@
             color: white;
         }
 
-        <!-- Add Review Modal -->
-        <div class="modal" id="review-modal">
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .write-review-btn {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .write-review-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .photo-upload-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .photo-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .photo-upload-item {
+            position: relative;
+            height: 150px;
+            border: 2px dashed var(--gray);
+            border-radius: 8px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .photo-upload-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .photo-upload-item input[type="file"] {
+            display: none;
+        }
+
+        .photo-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .rating-stars i {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .rating-stars i.active {
+            color: var(--primary);
+        }
+    </style>
+
+    <!-- Review Modal -->
+    <div class="modal" id="review-modal">
             <div class="modal-content">
                 <span class="modal-close">&times;</span>
                 <h2>Write a Review</h2>
@@ -1938,8 +2054,8 @@
         </div>
   </style>
 
-    <!-- Add Payment Modal -->
-    <div class="modal payment-modal" id="payment-modal">
+    <!-- Payment Modal -->
+    <div class="modal" id="payment-modal">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>Complete Your Registration</h2>
@@ -2424,138 +2540,112 @@
         }
     });
 
-    // Add phone number validation
-    const phoneInputs = document.querySelectorAll('input[type="tel"]');
-    phoneInputs.forEach(input => {
-        input.addEventListener('input', function(e) {
-            // Remove any non-digit characters
-            let value = e.target.value.replace(/\D/g, '');
-            // Limit to 8 digits
-            value = value.substring(0, 8);
-            e.target.value = value;
+    // Landlord verification code
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle phone number validation
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                // Remove any non-digit characters
+                let value = e.target.value.replace(/\D/g, '');
+                // Limit to 8 digits
+                value = value.substring(0, 8);
+                e.target.value = value;
+            });
         });
-    });
 
-    // Update landlord verification check
-    landlordNextBtn.addEventListener('click', async function() {
-        const phone = document.getElementById('landlordPhone').value;
-        if (!phone.match(/^[0-9]{8}$/)) {
-            alert('Please enter a valid 8-digit mobile number');
-            return;
-        }
-        // Rest of the existing verification code
-        const code = await sendVerificationCode(phone);
-        console.log('Verification code:', code);
-        
-        landlordSignupStep.classList.remove('active');
-        landlordVerificationStep.classList.add('active');
-        startTimer('landlordTimer', 'landlordResendCode');
-    });
-
-    // Landlord signup 2FA (now via email)
-    const landlordNextBtn = document.getElementById('landlordNextBtn');
-    const landlordResendCode = document.getElementById('landlordResendCode');
-    const landlordSignupStep = document.querySelector('#landlordSignupForm .signup-step');
-    const landlordVerificationStep = document.querySelector('#landlordSignupForm .verification-step');
-    const landlordVerificationInputs = document.querySelectorAll('#landlordSignupForm .verification-code input');
-    const landlordVerificationHeading = document.getElementById('landlordVerificationHeading');
-    const landlordVerificationText = document.getElementById('landlordVerificationText');
-
-    function getLandlordVerificationMethod() {
-        return document.querySelector('input[name="landlordVerificationMethod"]:checked').value;
-    }
-
-    landlordNextBtn.addEventListener('click', async function() {
-        const email = document.getElementById('landlordEmail').value;
-        const name = document.getElementById('landlordFullName').value;
-        const phone = document.getElementById('landlordPhone').value;
-        const method = getLandlordVerificationMethod();
-        if (method === 'email') {
-            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                alert('Please enter a valid email address');
-                return;
-            }
-            if (!name.trim()) {
-                alert('Please enter your full name');
-                return;
-            }
-            const code = await sendVerificationEmail(email, name);
-            if (code) {
-                landlordVerificationHeading.textContent = 'Verify Your Email Address';
-                landlordVerificationText.textContent = "We've sent a verification code to your email address. Please enter it below:";
-                landlordSignupStep.classList.remove('active');
-                landlordVerificationStep.classList.add('active');
-                startTimer('landlordTimer', 'landlordResendCode');
-            }
-        } else {
+        // Handle landlord verification inputs
+        // Handle landlord signup verification
+        document.getElementById('landlordNextBtn').addEventListener('click', async function() {
+            const phone = document.getElementById('landlordPhone').value;
             if (!phone.match(/^[0-9]{8}$/)) {
-                alert('Please enter a valid 8-digit mobile number');
+                alert('Please enter a valid phone number (8 digits)');
                 return;
             }
-            const code = await sendVerificationCode(phone);
-            if (code) {
-                landlordVerificationHeading.textContent = 'Verify Your Phone Number';
-                landlordVerificationText.textContent = "We've sent a verification code to your phone number. Please enter it below:";
-                landlordSignupStep.classList.remove('active');
-                landlordVerificationStep.classList.add('active');
-                startTimer('landlordTimer', 'landlordResendCode');
-            }
-        }
-    });
 
-    landlordResendCode.addEventListener('click', async function() {
-        const email = document.getElementById('landlordEmail').value;
-        const name = document.getElementById('landlordFullName').value;
-        const phone = document.getElementById('landlordPhone').value;
-        const method = getLandlordVerificationMethod();
-        if (method === 'email') {
-            const code = await sendVerificationEmail(email, name);
-            if (code) {
-                startTimer('landlordTimer', 'landlordResendCode');
-            }
-        } else {
-            const code = await sendVerificationCode(phone);
-            if (code) {
-                startTimer('landlordTimer', 'landlordResendCode');
-            }
-        }
-    });
-
-    landlordVerificationInputs.forEach((input, index) => {
-        input.addEventListener('input', function() {
-            if (this.value && index < landlordVerificationInputs.length - 1) {
-                landlordVerificationInputs[index + 1].focus();
+            try {
+                // Send verification code
+                const code = await sendVerificationCode(phone);
+                if (code) {
+                    landlordVerificationHeading.textContent = 'Verify Your Phone Number';
+                    landlordVerificationText.textContent = "We've sent a verification code to your phone number. Please enter it below:";
+                    document.querySelector('#landlordSignupForm .signup-step').style.display = 'none';
+                    document.querySelector('#landlordSignupForm .verification-step').style.display = 'block';
+                    startTimer('landlordVerificationTimer', 'landlordResendCode');
+                }
+            } catch (error) {
+                alert(error.message || 'An error occurred. Please try again.');
             }
         });
-    });
 
-    // Landlord signup 2FA
-    const landlordNextBtn = document.getElementById('landlordNextBtn');
-    const landlordResendCode = document.getElementById('landlordResendCode');
-    const landlordSignupStep = document.querySelector('#landlordSignupForm .signup-step');
-    const landlordVerificationStep = document.querySelector('#landlordSignupForm .verification-step');
-    const landlordVerificationInputs = document.querySelectorAll('#landlordSignupForm .verification-code input');
+        // Handle resend verification code
+        document.getElementById('landlordResendCode').addEventListener('click', async function() {
+            const email = document.getElementById('landlordEmail').value;
+            const name = document.getElementById('landlordFullName').value;
+            const phone = document.getElementById('landlordPhone').value;
+            const method = getLandlordVerificationMethod();
+            try {
+                if (method === 'email') {
+                    const code = await sendVerificationEmail(email, name);
+                    if (code) {
+                        startTimer('landlordVerificationTimer', 'landlordResendCode');
+                    }
+                } else {
+                    const code = await sendVerificationCode(phone);
+                    if (code) {
+                        startTimer('landlordVerificationTimer', 'landlordResendCode');
+                    }
+                }
+            } catch (error) {
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        });
 
-    landlordNextBtn.addEventListener('click', async function() {
-        const phone = document.getElementById('landlordPhone').value;
-        if (!phone.match(/^[0-9]{8}$/)) {
-            alert('Please enter a valid 8-digit mobile number');
-            return;
-        }
+        // Handle verification code input focusing
+        landlordVerificationInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value && index < landlordVerificationInputs.length - 1) {
+                    landlordVerificationInputs[index + 1].focus();
+                }
+            });
+        });
 
-        const code = await sendVerificationCode(phone);
-        console.log('Verification code:', code);
-        
-        landlordSignupStep.classList.remove('active');
-        landlordVerificationStep.classList.add('active');
-        startTimer('landlordTimer', 'landlordResendCode');
-    });
+        // Handle landlord signup verification
+        document.getElementById('landlordNextBtn').addEventListener('click', async function() {
+            const phone = document.getElementById('landlordPhone').value;
+            if (!phone.match(/^[0-9]{8}$/)) {
+                alert('Please enter a valid phone number (8 digits)');
+                return;
+            }
 
-    landlordResendCode.addEventListener('click', async function() {
-        const phone = document.getElementById('landlordPhone').value;
-        const code = await sendVerificationCode(phone);
-        console.log('New verification code:', code);
-        startTimer('landlordTimer', 'landlordResendCode');
+            try {
+                // Send verification code
+                await sendVerificationCode(phone);
+                document.querySelector('#landlordSignupForm .signup-step').style.display = 'none';
+                document.querySelector('#landlordSignupForm .verification-step').style.display = 'block';
+
+                // Start timer
+                startTimer('landlordVerificationTimer', 'landlordResendCode');
+            } catch (error) {
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        });
+
+        // Handle resend verification code
+        document.getElementById('landlordResendCode').addEventListener('click', async function() {
+            const phone = document.getElementById('landlordPhone').value;
+            if (!phone.match(/^[0-9]{8}$/)) {
+                alert('Please enter a valid phone number (8 digits)');
+                return;
+            }
+
+            try {
+                await sendVerificationCode(phone);
+                startTimer('landlordVerificationTimer', 'landlordResendCode');
+            } catch (error) {
+                alert(error.message || 'An error occurred. Please try again.');
+            }
+        });
     });
 
     // Auto-focus next input for verification code
@@ -5013,148 +5103,43 @@
                 });
             });
 
-            // Add rating and review functionality
-            const ratingStars = document.querySelectorAll('#ratingStars i');
-            const writeReviewBtn = document.getElementById('writeReviewBtn');
-            const reviewModal = document.getElementById('review-modal');
-            let selectedRating = 0;
 
-            // Handle star rating selection
-            ratingStars.forEach(star => {
-                star.addEventListener('mouseover', function() {
-                    const rating = this.dataset.rating;
-                    updateStars(rating);
-                });
-
-                star.addEventListener('mouseout', function() {
-                    updateStars(selectedRating);
-                });
-
-                star.addEventListener('click', function() {
-                    selectedRating = this.dataset.rating;
-                    updateStars(selectedRating);
-                });
-            });
-
-            function updateStars(rating) {
-                ratingStars.forEach(star => {
-                    const starRating = star.dataset.rating;
-                    if (starRating <= rating) {
-                        star.classList.remove('far');
-                        star.classList.add('fas');
-                    } else {
-                        star.classList.remove('fas');
-                        star.classList.add('far');
-                    }
-                });
-            }
-
-            // Open review modal
-            writeReviewBtn?.addEventListener('click', function() {
-                // Check if user is logged in
-                const studentData = JSON.parse(localStorage.getItem('studentData'));
-                if (!studentData || !studentData.verified) {
-                    alert('Please log in as a student to write a review.');
-                    return;
-                }
-                reviewModal.classList.add('active');
-            });
-
-            // Handle review submission
-            document.getElementById('reviewForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                if (selectedRating === 0) {
-                    alert('Please select a rating');
-                    return;
-                }
-
-                const reviewText = this.querySelector('textarea').value;
-                const studentData = JSON.parse(localStorage.getItem('studentData'));
-
-                // Create new review
-                const review = {
-                    id: Date.now(),
-                    rating: selectedRating,
-                    text: reviewText,
-                    reviewer: {
-                        name: studentData.name,
-                        initial: studentData.name.charAt(0).toUpperCase()
-                    },
-                    date: new Date().toLocaleDateString()
-                };
-
-                // Add review to localStorage
-                const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-                reviews.push(review);
-                localStorage.setItem('landlordReviews', JSON.stringify(reviews));
-
-                // Update UI
-                addReviewToList(review);
-                updateAverageRating();
-
-                // Close modal and reset form
-                reviewModal.classList.remove('active');
-                this.reset();
-                selectedRating = 0;
-                updateStars(0);
-            });
-
-            // Function to add review to the list
-            function addReviewToList(review) {
-                const reviewsList = document.querySelector('.reviews-list');
-                const reviewCard = document.createElement('div');
-                reviewCard.className = 'review-card';
-                reviewCard.innerHTML = `
-                    <div class="review-header">
-                        <div class="reviewer-info">
-                            <div class="reviewer-avatar">${review.reviewer.initial}</div>
-                            <div>
-                                <div class="reviewer-name">${review.reviewer.name}</div>
-                                <div class="review-date">${review.date}</div>
-                            </div>
-                        </div>
-                        <div class="review-rating">
-                            ${Array(5).fill().map((_, i) => `
-                                <i class="${i < review.rating ? 'fas' : 'far'} fa-star"></i>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="review-content">${review.text}</div>
-                `;
-                reviewsList.insertBefore(reviewCard, reviewsList.firstChild);
-            }
 
             // Function to update average rating
             function updateAverageRating() {
-                const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-                if (reviews.length === 0) return;
+                try {
+                    const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+                    if (reviews.length === 0) return;
 
-                const totalRating = reviews.reduce((sum, review) => sum + Number(review.rating), 0);
-                const averageRating = (totalRating / reviews.length).toFixed(1);
+                    const totalRating = reviews.reduce((sum, review) => sum + Number(review.rating), 0);
+                    const averageRating = (totalRating / reviews.length).toFixed(1);
 
-                const ratingValue = document.querySelector('.landlord-rating .rating-value');
-                const reviewCount = document.querySelector('.landlord-rating .review-count');
-                if (ratingValue && reviewCount) {
-                    ratingValue.textContent = averageRating;
-                    reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
-                }
+                    // Update rating display
+                    const ratingValue = document.querySelector('.landlord-rating .rating-value');
+                    const reviewCount = document.querySelector('.landlord-rating .review-count');
+                    if (ratingValue && reviewCount) {
+                        ratingValue.textContent = averageRating;
+                        reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
+                    }
 
-                // Update rating stars
-                const ratingStarsContainer = document.querySelector('.landlord-rating .rating-stars');
-                if (ratingStarsContainer) {
-                    const fullStars = Math.floor(averageRating);
-                    const hasHalfStar = averageRating % 1 >= 0.5;
+                    // Update rating stars
+                    const ratingStarsContainer = document.querySelector('.landlord-rating .rating-stars');
+                    if (ratingStarsContainer) {
+                        const fullStars = Math.floor(averageRating);
+                        const hasHalfStar = averageRating % 1 >= 0.5;
 
-                    ratingStarsContainer.innerHTML = Array(5).fill().map((_, i) => {
-                        if (i < fullStars) {
-                            return '<i class="fas fa-star"></i>';
-                        } else if (i === fullStars && hasHalfStar) {
-                            return '<i class="fas fa-star-half-alt"></i>';
-                        } else {
-                            return '<i class="far fa-star"></i>';
-                        }
-                    }).join('');
+                        ratingStarsContainer.innerHTML = Array(5).fill().map((_, i) => {
+                            if (i < fullStars) {
+                                return '<i class="fas fa-star"></i>';
+                            } else if (i === fullStars && hasHalfStar) {
+                                return '<i class="fas fa-star-half-alt"></i>';
+                            } else {
+                                return '<i class="far fa-star"></i>';
+                            }
+                        }).join('');
+                    }
+                } catch (error) {
+                    console.error('Error updating average rating:', error);
                 }
             }
 
@@ -5165,7 +5150,7 @@
         });
     </script>
 
-    <!-- Add this before the closing body tag -->
+    <!-- Waitlist Section -->
     <section class="waitlist-section" id="waitlist">
         <div class="container">
             <div class="section-title">
@@ -5184,42 +5169,125 @@
                             <input type="text" id="lastName" name="lastName" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="university">University</label>
+                            <select id="university" name="university" required>
+                                <option value="">Select your university</option>
+                                <option value="ub">University of Botswana</option>
+                                <option value="botswana-intl">Botswana International University of Science and Technology</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" name="role" required>
+                                <option value="">Select your role</option>
+                                <option value="student">Student</option>
+                                <option value="landlord">Landlord</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="institution">Institution</label>
-                        <input type="text" id="institution" name="institution" required>
+                        <label for="interest">What interests you about InRent?</label>
+                        <textarea id="interest" name="interest" rows="3"></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="studentId">Student ID</label>
-                        <input type="text" id="studentId" name="studentId" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phoneNumber">Phone Number (8 digits)</label>
-                        <input type="tel" id="phoneNumber" name="phoneNumber" pattern="[0-9]{8}" required>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required>
+                            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                        </label>
                     </div>
                     <button type="submit" class="btn">Join Waitlist</button>
+                    <div class="waitlist-message"></div>
                 </form>
-                <div id="waitlistMessage" class="waitlist-message"></div>
             </div>
         </div>
     </section>
 
+    <style>
+        .waitlist-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .waitlist-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+
+        .waitlist-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .waitlist-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+
     <script>
         document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const messageDiv = document.getElementById('waitlistMessage');
+            const messageDiv = document.querySelector('.waitlist-message');
             
             try {
                 const formData = {
                     firstName: document.getElementById('firstName').value,
                     lastName: document.getElementById('lastName').value,
                     email: document.getElementById('email').value,
-                    institution: document.getElementById('institution').value,
-                    studentId: document.getElementById('studentId').value,
-                    phoneNumber: document.getElementById('phoneNumber').value
+                    phone: document.getElementById('phone').value,
+                    university: document.getElementById('university').value,
+                    role: document.getElementById('role').value,
+                    interest: document.getElementById('interest').value
                 };
 
                 const response = await fetch('/api/waitlist/join', {
@@ -5248,5 +5316,6 @@
             }
         });
     </script>
+    <script src="main.js"></script>
 </body>
 </html>

@@ -9,6 +9,61 @@ const EMAILJS_CONFIG = {
 let emailjs;
 
 const EmailService = {
+    // Email templates
+    templates: {
+        verification: {
+            subject: 'Verify your InRent account',
+            template: `
+                <h2>Welcome to InRent!</h2>
+                <p>Thank you for signing up. Please use the following code to verify your email address:</p>
+                <h1 style="font-size: 32px; color: #228B22; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px;">{{code}}</h1>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you didn't request this verification, please ignore this email.</p>
+                <p>Best regards,<br>The InRent Team</p>
+            `
+        },
+        viewingConfirmation: {
+            subject: 'Viewing Request Confirmation',
+            template: `
+                <h2>Viewing Request Confirmation</h2>
+                <p>Dear {{name}},</p>
+                <p>Thank you for requesting a viewing of the property at {{address}}.</p>
+                <p>Here are the details of your viewing:</p>
+                <ul>
+                    <li>Date: {{date}}</li>
+                    <li>Time: {{time}}</li>
+                    <li>Property: {{address}}</li>
+                </ul>
+                <p>Please arrive on time and bring your student ID for verification.</p>
+                <p>Best regards,<br>The InRent Team</p>
+            `
+        },
+        messageNotification: {
+            subject: 'Message Notification',
+            template: `
+                <h2>New Message Notification</h2>
+                <p>Dear {{name}},</p>
+                <p>You have received a new message from {{sender_name}} regarding {{property_title}}.</p>
+                <p>{{message_content}}</p>
+                <p>Please respond to this message if necessary.</p>
+                <p>Best regards,<br>The InRent Team</p>
+            `
+        },
+        passwordReset: {
+            subject: 'Password Reset Request',
+            template: `
+                <h2>Password Reset Request</h2>
+                <p>Dear {{name}},</p>
+                <p>You have requested to reset your password. Please use the following link to reset it:</p>
+                <p><a href="{{resetLink}}">Reset Password</a></p>
+                <p>If you did not request this password reset, please ignore this email.</p>
+                <p>This link will expire in 24 hours.</p>
+                <p>Best regards,<br>The InRent Team</p>
+            `
+        }
+    },
+
+    // Initialize EmailJS
     async init() {
         try {
             // Check if EmailJS is already loaded
@@ -54,44 +109,9 @@ const EmailService = {
             console.error('Error loading template:', error);
             throw new Error('Failed to load email template');
         }
-    }
-
-    // Email templates
-    verification: {
-        subject: 'Verify your InRent account',
-        template: `
-            <h2>Welcome to InRent!</h2>
-            <p>Thank you for signing up. Please use the following code to verify your email address:</p>
-            <h1 style="font-size: 32px; color: #228B22; text-align: center; padding: 20px; background: #f5f5f5; border-radius: 8px;">{{code}}</h1>
-            <p>This code will expire in 10 minutes.</p>
-            <p>If you didn't request this verification, please ignore this email.</p>
-            <p>Best regards,<br>The InRent Team</p>
-        `
-    },
-    viewingConfirmation: {
-        subject: 'Viewing Request Confirmation',
-        template: `
-            <h2>Viewing Request Confirmation</h2>
-            <p>Dear {{property_title}},</p>
-            <p>We are pleased to confirm your viewing request for {{viewing_date}} at {{viewing_time}}.</p>
-            <p>The viewing will take place at {{location}}.</p>
-            <p>Please let us know if you have any questions or concerns.</p>
-            <p>Best regards,<br>The InRent Team</p>
-        `
-    },
-    messageNotification: {
-        subject: 'Message Notification',
-        template: `
-            <h2>Message Notification</h2>
-            <p>Dear {{sender_name}},</p>
-            <p>You have received a message from {{property_title}}.</p>
-            <p>The message is as follows:</p>
-            <p>{{message_content}}</p>
-            <p>Please respond to this message if necessary.</p>
-            <p>Best regards,<br>The InRent Team</p>
-        `
     },
 
+    // Send verification email
     async sendVerificationEmail(email, code) {
         try {
             await this.init();
