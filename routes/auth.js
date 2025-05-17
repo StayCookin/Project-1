@@ -6,6 +6,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const EmailService = require('../services/email-service');
+
+// Initialize EmailJS
+EmailService.init();
 
 // @route   POST api/auth/register
 // @desc    Register a user
@@ -17,6 +23,124 @@ router.post('/register', [
     check('phone', 'Please enter a valid 8-digit phone number').matches(/^[0-9]{8}$/),
     check('role', 'Role must be either student or landlord').isIn(['student', 'landlord'])
 ], async (req, res) => {
+
+// Password reset request
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpire = Date.now() + 3600000; // 1 hour
+        await user.save();
+
+        // Send password reset email
+        await EmailService.sendPasswordResetEmail(
+            email,
+            resetToken,
+            user.name
+        );
+
+        res.json({ msg: 'Password reset email sent' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// Password reset
+router.put('/reset-password/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid or expired token' });
+        }
+
+        // Hash new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+        await user.save();
+
+        res.json({ msg: 'Password updated successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// Email verification
+router.post('/verify-email/:token', async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { email } = req.body;
+
+        const user = await User.findOne({
+            verificationToken: token,
+            email
+        });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Invalid verification token' });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.json({ msg: 'Email verified successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
+
+// Send verification email
+router.post('/resend-verification', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({ msg: 'Email already verified' });
+        }
+
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        user.verificationToken = verificationToken;
+        await user.save();
+
+        // Send verification email
+        await EmailService.sendVerificationEmail(
+            email,
+            verificationToken,
+            user.name
+        );
+
+        res.json({ msg: 'Verification email sent' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: 'Server error' });
+    }
+});
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });

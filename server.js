@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -13,6 +12,8 @@ const Redis = require('ioredis');
 const session = require('express-session');
 const RedisStore = require('connect-redis').default;
 const sslConfig = require('./ssl-config');
+const { sequelize, testConnection } = require('./config/database');
+const waitlistRoutes = require('./routes/waitlist');
 
 // Load environment variables
 require('dotenv').config();
@@ -79,6 +80,9 @@ app.use(session({
     }
 }));
 
+// API Routes
+app.use('/api/waitlist', waitlistRoutes);
+
 // Create HTTPS server
 const httpsServer = https.createServer(sslConfig, app);
 const io = socketIo(httpsServer, {
@@ -95,17 +99,18 @@ const httpServer = http.createServer((req, res) => {
     res.end();
 });
 
-// Database connection with connection pooling
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 50,
-    minPoolSize: 10,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+// Database connection
+const initializeDatabase = async () => {
+    try {
+        await testConnection();
+        // Sync all models with database
+        await sequelize.sync({ alter: true });
+        console.log('Database synchronized successfully');
+    } catch (error) {
+        console.error('Database initialization error:', error);
+        process.exit(1);
+    }
+};
 
 // Serve static files with caching
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -128,8 +133,9 @@ app.use((err, req, res, next) => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
     console.log('SIGTERM received. Shutting down gracefully');
+    await sequelize.close();
     httpsServer.close(() => {
         console.log('HTTPS server terminated');
     });
@@ -142,10 +148,13 @@ process.on('SIGTERM', () => {
 const HTTPS_PORT = process.env.HTTPS_PORT || 443;
 const HTTP_PORT = process.env.HTTP_PORT || 80;
 
-httpsServer.listen(HTTPS_PORT, () => {
-    console.log(`HTTPS Server running on port ${HTTPS_PORT}`);
-});
+// Initialize database and start servers
+initializeDatabase().then(() => {
+    httpsServer.listen(HTTPS_PORT, () => {
+        console.log(`HTTPS Server running on port ${HTTPS_PORT}`);
+    });
 
-httpServer.listen(HTTP_PORT, () => {
-    console.log(`HTTP Server running on port ${HTTP_PORT} (redirecting to HTTPS)`);
+    httpServer.listen(HTTP_PORT, () => {
+        console.log(`HTTP Server running on port ${HTTP_PORT} (redirecting to HTTPS)`);
+    });
 }); 

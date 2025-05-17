@@ -5164,5 +5164,89 @@
             updateAverageRating();
         });
     </script>
+
+    <!-- Add this before the closing body tag -->
+    <section class="waitlist-section" id="waitlist">
+        <div class="container">
+            <div class="section-title">
+                <h2>Join the Waitlist</h2>
+                <p>Be among the first to experience InRent when we launch. Sign up now to get early access!</p>
+            </div>
+            <div class="waitlist-form">
+                <form id="waitlistForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="institution">Institution</label>
+                        <input type="text" id="institution" name="institution" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentId">Student ID</label>
+                        <input type="text" id="studentId" name="studentId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number (8 digits)</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" pattern="[0-9]{8}" required>
+                    </div>
+                    <button type="submit" class="btn">Join Waitlist</button>
+                </form>
+                <div id="waitlistMessage" class="waitlist-message"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageDiv = document.getElementById('waitlistMessage');
+            
+            try {
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    institution: document.getElementById('institution').value,
+                    studentId: document.getElementById('studentId').value,
+                    phoneNumber: document.getElementById('phoneNumber').value
+                };
+
+                const response = await fetch('/api/waitlist/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                messageDiv.style.display = 'block';
+                if (response.ok) {
+                    messageDiv.className = 'waitlist-message success';
+                    messageDiv.textContent = data.message;
+                    document.getElementById('waitlistForm').reset();
+                } else {
+                    messageDiv.className = 'waitlist-message error';
+                    messageDiv.textContent = data.message;
+                }
+            } catch (error) {
+                messageDiv.style.display = 'block';
+                messageDiv.className = 'waitlist-message error';
+                messageDiv.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+    </script>
 </body>
 </html>
