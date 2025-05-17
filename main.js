@@ -89,9 +89,6 @@ function handleWaitlistSubmit(e) {
     }
 }
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', initialize);
-
 // Functions
 function handleListingSubmit(e) {
     e.preventDefault();
@@ -199,13 +196,13 @@ function handleReviewSubmit(e) {
         rating: selectedRating,
         text: reviewText,
         reviewer: {
-            name: studentData.name,
-            initial: studentData.name.charAt(0).toUpperCase()
+            name: `${studentData.firstName} ${studentData.lastName}`,
+            avatar: studentData.avatar || 'avatar-placeholder.png'
         },
-        date: new Date().toLocaleDateString()
+        timestamp: new Date().toISOString()
     };
     
-    // Add review
+    // Save review to localStorage
     const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
     reviews.push(review);
     localStorage.setItem('landlordReviews', JSON.stringify(reviews));
@@ -214,7 +211,7 @@ function handleReviewSubmit(e) {
     addReviewToList(review);
     updateAverageRating();
     
-    // Reset
+    // Close modal
     reviewModal.classList.remove('active');
     e.target.reset();
     selectedRating = 0;
@@ -222,8 +219,8 @@ function handleReviewSubmit(e) {
 }
 
 function handleStarHover() {
-    const rating = this.dataset.rating;
-    updateStars(rating);
+    const index = Array.from(ratingStars).indexOf(this);
+    updateStars(index + 1);
 }
 
 function handleStarHoverOut() {
@@ -231,80 +228,63 @@ function handleStarHoverOut() {
 }
 
 function handleStarClick() {
-    selectedRating = this.dataset.rating;
+    const index = Array.from(ratingStars).indexOf(this);
+    selectedRating = index + 1;
     updateStars(selectedRating);
 }
 
 function updateStars(rating) {
-    ratingStars.forEach(star => {
-        const starRating = star.dataset.rating;
-        if (starRating <= rating) {
-            star.classList.remove('far');
-            star.classList.add('fas');
-        } else {
-            star.classList.remove('fas');
-            star.classList.add('far');
-        }
+    ratingStars.forEach((star, index) => {
+        star.classList.toggle('fas', index < rating);
+        star.classList.toggle('far', index >= rating);
     });
 }
 
 function addReviewToList(review) {
-    try {
-        const reviewsList = document.querySelector('.reviews-list');
-        if (!reviewsList) {
-            console.error('Reviews list container not found');
-            return;
-        }
+    const reviewList = document.querySelector('.reviews-section .review-list');
+    if (!reviewList) return;
 
-        const reviewCard = document.createElement('div');
-        reviewCard.className = 'review-card';
-        reviewCard.innerHTML = `
-            <div class="review-header">
-                <div class="reviewer-info">
-                    <div class="reviewer-avatar">${review.reviewer.initial}</div>
-                    <div class="reviewer-name">${review.reviewer.name}</div>
-                </div>
-                <div class="review-date">${review.date}</div>
+    const reviewCard = document.createElement('div');
+    reviewCard.className = 'review-card';
+    reviewCard.innerHTML = `
+        <div class="review-header">
+            <div class="reviewer-info">
+                <div class="reviewer-avatar">${review.reviewer.name[0]}</div>
+                <div class="reviewer-name">${review.reviewer.name}</div>
             </div>
-            <div class="review-rating">
-                ${createStarRatingHTML(review.rating)}
-            </div>
-            <div class="review-text">${review.text}</div>
-        `;
-
-        reviewsList.insertBefore(reviewCard, reviewsList.firstChild);
-    } catch (error) {
-        console.error('Error adding review:', error);
-    }
+            <div class="review-date">${new Date(review.timestamp).toLocaleDateString()}</div>
+        </div>
+        <div class="review-rating">${createStarRatingHTML(review.rating)}</div>
+        <div class="review-content">${review.text}</div>
+    `;
+    
+    reviewList.appendChild(reviewCard);
 }
 
 function createStarRatingHTML(rating) {
-    let stars = '';
-    for (let i = 1; i <= 5; i++) {
-        stars += `<i class="fas fa-star ${i <= rating ? 'active' : ''}"></i>`;
-    }
-    return stars;
+    return Array(5).fill().map((_, i) => 
+        i < rating ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'
+    ).join('');
 }
 
 function updateAverageRating() {
-    try {
-        const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-        if (reviews.length === 0) return;
+    const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+    if (reviews.length === 0) return;
 
-        const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-        const average = (totalRating / reviews.length).toFixed(1);
-        document.getElementById('averageRating')?.textContent = average;
-    } catch (error) {
-        console.error('Error updating average rating:', error);
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    const averageRating = (totalRating / reviews.length).toFixed(1);
+
+    const ratingValue = document.querySelector('.landlord-rating .rating-value');
+    const reviewCount = document.querySelector('.landlord-rating .review-count');
+    if (ratingValue && reviewCount) {
+        ratingValue.textContent = averageRating;
+        reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
     }
 }
 
-// Initialize
-function initialize() {
-    // Load existing reviews
-    const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-    existingReviews.forEach(review => addReviewToList(review));
-    updateAverageRating();
-}
-
 document.addEventListener('DOMContentLoaded', initialize);
+
+// Load existing reviews on page load
+const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
+existingReviews.forEach(review => addReviewToList(review));
+updateAverageRating();

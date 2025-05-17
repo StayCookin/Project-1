@@ -1902,6 +1902,7 @@
             top: 1rem;
             font-size: 1.5rem;
             cursor: pointer;
+            color: var(--dark);
         }
 
         .write-review-btn {
@@ -1988,6 +1989,65 @@
 
         .rating-stars i.active {
             color: var(--primary);
+        }
+
+        /* Waitlist Form Styles */
+        .waitlist-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .waitlist-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .waitlist-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .waitlist-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 
@@ -2099,7 +2159,7 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>Add New Property Listing</h2>
-            <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Please provide the required documentation and property details</p>
+            <p>Please provide the required documentation and property details</p>
             
             <form id="addListingForm">
                 <div class="form-group">
@@ -2181,7 +2241,7 @@
 
                 <div class="form-group">
                     <label>Property Description</label>
-                    <textarea rows="4" placeholder="Describe your property..." required></textarea>
+                    <textarea rows="4" placeholder="Describe your property..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -5143,10 +5203,6 @@
                 }
             }
 
-            // Load existing reviews on page load
-            const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-            existingReviews.forEach(review => addReviewToList(review));
-            updateAverageRating();
         });
     </script>
 
@@ -5215,107 +5271,8 @@
         </div>
     </section>
 
-    <style>
-        .waitlist-form {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .waitlist-message {
-            margin-top: 1rem;
-            padding: 1rem;
-            border-radius: 4px;
-        }
-
-        .waitlist-message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .waitlist-message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
-
-    <script>
-        document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageDiv = document.querySelector('.waitlist-message');
-            
-            try {
-                const formData = {
-                    firstName: document.getElementById('firstName').value,
-                    lastName: document.getElementById('lastName').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    university: document.getElementById('university').value,
-                    role: document.getElementById('role').value,
-                    interest: document.getElementById('interest').value
-                };
-
-                const response = await fetch('/api/waitlist/join', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                messageDiv.style.display = 'block';
-                if (response.ok) {
-                    messageDiv.className = 'waitlist-message success';
-                    messageDiv.textContent = data.message;
-                    document.getElementById('waitlistForm').reset();
-                } else {
-                    messageDiv.className = 'waitlist-message error';
-                    messageDiv.textContent = data.message;
-                }
-            } catch (error) {
-                messageDiv.style.display = 'block';
-                messageDiv.className = 'waitlist-message error';
-                messageDiv.textContent = 'An error occurred. Please try again later.';
-            }
-        });
-    </script>
     <script src="main.js"></script>
 </body>
 </html>
