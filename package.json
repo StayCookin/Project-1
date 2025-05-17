@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "InRent Property Management System",
   "scripts": {
-    "build": "sh build.sh",
     "deploy": "vercel"
   },
   "dependencies": {},
