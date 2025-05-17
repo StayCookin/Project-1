@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { rateLimiters } from '../../utils/RateLimiter';
+import { useToast } from '../ui/ToastContext';
 
 const EmailVerification = () => {
+    const { addToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
     const [state, setState] = useState({
@@ -54,6 +56,9 @@ const EmailVerification = () => {
             const response = await axios.post(`/api/auth/verify-email/${state.token}`, {
                 email: sanitizedEmail
             });
+
+            // Show success toast
+            addToast('Email verified successfully! Redirecting to login...');
 
             setState({
                 loading: false,
@@ -127,6 +132,14 @@ const EmailVerification = () => {
     return (
         <div className="auth-container">
             <h2>Email Verification</h2>
+            
+            {!state.success && !state.code && (
+                <div className="email-check-message">
+                    Please check your email for the verification code. It may be in your spam folder.
+                </div>
+            )}
+            
+            {/* Toast container will be rendered by ToastProvider */}
             
             {state.error && (
                 <div className="error-message">
