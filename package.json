@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "InRent Property Management System",
   "scripts": {
-    "build": "echo \"Static site, no build needed\"",
+    "build": "sh build.sh",
     "deploy": "vercel"
   },
   "dependencies": {},
@@ -17,9 +17,5 @@
   "bugs": {
     "url": "https://github.com/StayCookin/Project-1/issues"
   },
-  "homepage": "https://github.com/StayCookin/Project-1#readme",
-  "build": {
-    "src": "index.html",
-    "use": "@vercel/static-build"
-  }
+  "homepage": "https://github.com/StayCookin/Project-1#readme"
 }
