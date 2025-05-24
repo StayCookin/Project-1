@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#228B22">
     
     <!-- Open Graph tags -->
-    <meta property="og:title" content="InRent - Student Accommodation in Botswana">
+    <meta property="og:title" content="InRent - Student Accommodation in Botswana ">
     <meta property="og:description" content="Find and list student accommodation in Botswana">
     <meta property="og:image" content="https://inrent.com/assets/images/og-image.jpg">
     <meta property="og:url" content="https://inrent.com">
@@ -22,7 +22,7 @@
   <style>
     :root {
       --primary: #228B22; /* Forest Green */
-      --primary-dark: #1B6B1B;
+      --primary-dark: #1B6B1B;  
       --secondary: #12B886;
       --dark: #212529;
       --light: #F8F9FA;
@@ -41,6 +41,12 @@
       color: var(--dark);
       line-height: 1.6;
       scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    
+    /* Smooth transitions */
+    * {
+      transition: all 0.5s ease;
     }
     
     
@@ -99,7 +105,24 @@
       text-decoration: none;
       color: var(--dark);
       font-weight: 500;
-      transition: color 0.3s;
+      transition: all 0.3s;
+      position: relative;
+      padding: 0.5rem 0;
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--primary);
+      transition: width 0.3s;
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
     }
     
     .nav-links a:hover {
@@ -124,28 +147,119 @@
     }
     
     .hero {
-      padding: 8rem 0 4rem;
+      padding: 12rem 0 6rem;
       text-align: center;
       background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('/api/placeholder/1200/600') center/cover;
       position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(34, 139, 34, 0.1), rgba(18, 184, 134, 0.1));
+      z-index: 0;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
     }
     
     .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--dark);
     }
     
     .hero p {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: var(--gray);
-      max-width: 700px;
-      margin: 0 auto 2rem;
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
     }
     
     .hero-buttons {
       display: flex;
       justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    .hero-buttons .btn {
+      padding: 1rem 2.5rem;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .hero-buttons .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .auth-buttons {
+      display: flex;
       gap: 1rem;
+      align-items: center;
+    }
+
+    .auth-buttons .btn {
+      padding: 0.5rem 1.5rem;
+      font-weight: 500;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .auth-buttons .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .auth-buttons .btn-outline:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .auth-options {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--light-gray);
+    }
+
+    .auth-options .option {
+      flex: 1;
+      padding: 1.5rem;
+      text-align: center;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .auth-options .option.active {
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .auth-options .option h3 {
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    .auth-options .option p {
+      color: var(--gray);
+      font-size: 0.9rem;
     }
     
     .btn-secondary {
@@ -160,37 +274,58 @@
     }
     
     .section {
-      padding: 5rem 0;
+      padding: 6rem 0;
       scroll-margin-top: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .section:nth-child(even) {
+      background-color: var(--light);
+    }
+    
+    .section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
     }
     
     .section-title {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 4rem;
+      padding: 0 1rem;
     }
     
     .section-title h2 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
       position: relative;
       display: inline-block;
+      font-weight: 700;
+      color: var(--dark);
     }
     
     .section-title h2::after {
       content: '';
       position: absolute;
-      bottom: -10px;
+      bottom: -15px;
       left: 50%;
       transform: translateX(-50%);
-      width: 80px;
-      height: 3px;
-      background-color: var(--primary);
+      width: 100px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
     }
     
     .section-title p {
       color: var(--gray);
-      max-width: 700px;
+      max-width: 900px;
       margin: 0 auto;
+      font-size: 1.1rem;
+      line-height: 1.8;
     }
         
         .section-subtitle {
@@ -1605,9 +1740,38 @@
             box-shadow: 0 6px 16px rgba(34, 139, 34, 0.3);
         }
 
-        .add-listing-modal .modal-content {
-            max-width: 800px;
+        .waitlist-form .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(34, 139, 34, 0.3);
         }
+    
+    /* Additional animations */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    /* Waitlist Form Animations */
+    .waitlist-form {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    /* Hero Section Animations */
+    .hero h1 {
+        animation: fadeIn 0.8s ease-out 0.2s forwards;
+    }
+
+    .hero p {
+        animation: fadeIn 0.8s ease-out 0.4s forwards;
+    }
+
+    .add-listing-modal .modal-content {
+        max-width: 800px;
+    }
 
         .document-upload {
             border: 2px dashed #ddd;
@@ -2051,37 +2215,6 @@
         }
     </style>
 
-    <!-- Review Modal -->
-    <div class="modal" id="review-modal">
-            <div class="modal-content">
-                <span class="modal-close">&times;</span>
-                <h2>Write a Review</h2>
-                <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Share your experience with this landlord</p>
-                
-                <form id="reviewForm">
-                    <div class="form-group">
-                        <label>Rating</label>
-                        <div class="rating-stars" id="ratingStars">
-                            <i class="far fa-star" data-rating="1"></i>
-                            <i class="far fa-star" data-rating="2"></i>
-                            <i class="far fa-star" data-rating="3"></i>
-                            <i class="far fa-star" data-rating="4"></i>
-                            <i class="far fa-star" data-rating="5"></i>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Your Review</label>
-                        <textarea rows="4" placeholder="Share your experience..." required></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" required>
-                            I confirm this is an honest review based on my personal experience
-                        </label>
-                    </div>
-
                     <button type="submit" class="btn">Submit Review</button>
                 </form>
             </div>
@@ -2100,15 +2233,10 @@
                     </div>
 
                 </div>
-                <button class="write-review-btn" id="writeReviewBtn">
-                    <i class="fas fa-pen"></i>
-                    Write a Review
-                </button>
+
             </div>
 
-            <div class="reviews-list">
-                <!-- Sample reviews will be dynamically added here -->
-            </div>
+
         </div>
   </style>
 
@@ -3193,135 +3321,57 @@
         e.target.value = e.target.value.replace(/[^0-9]/g, '');
     });
 
-    // Add this to the DOMContentLoaded event listener
-    const addListingBtn = document.getElementById('addListingBtn');
-    const addListingModal = document.getElementById('add-listing-modal');
-    const documentUploads = document.querySelectorAll('.document-upload');
-    const amenityInput = document.getElementById('amenityInput');
-    const amenitiesList = document.getElementById('amenitiesList');
-    const conditionRating = document.getElementById('conditionRating');
-    const safetyRating = document.getElementById('safetyRating');
-    const conditionValue = document.getElementById('conditionValue');
-    const safetyValue = document.getElementById('safetyValue');
-
-    // Show add listing button only for logged-in landlords
-    const landlordData = JSON.parse(localStorage.getItem('landlordData'));
-    if (landlordData && landlordData.freeListings > 0) {
-        addListingBtn.style.display = 'flex';
-    } else {
-        addListingBtn.style.display = 'none';
-    }
-
-    // Open add listing modal
-    addListingBtn.addEventListener('click', function() {
-        addListingModal.classList.add('active');
-    });
-
-    // Handle document uploads
-    documentUploads.forEach(upload => {
-        const input = upload.querySelector('input[type="file"]');
-        const preview = upload.querySelector('.upload-preview');
-        const filename = preview.querySelector('.filename');
-
-        upload.addEventListener('click', () => input.click());
-
-        input.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
+    // Landlord verification code
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle phone number validation
+        const landlordPhone = document.getElementById('landlordPhone');
+        if (landlordPhone) {
+            landlordPhone.addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
                 const file = this.files[0];
                 if (file.size > 5 * 1024 * 1024) {
                     alert('File size must be less than 5MB');
                     this.value = '';
                     return;
                 }
-                filename.textContent = file.name;
-                preview.classList.add('active');
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload only image files');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                    placeholder.classList.add('hidden');
+                    
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
             }
         });
-    });
 
-    // Handle amenities input
-    amenityInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const amenity = this.value.trim();
-            if (amenity) {
-                addAmenity(amenity);
-                this.value = '';
-            }
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                input.value = '';
+                preview.innerHTML = '';
+                placeholder.classList.remove('hidden');
+                this.style.display = 'none';
+            });
         }
     });
 
-    function addAmenity(amenity) {
-        const tag = document.createElement('div');
-        tag.className = 'amenity-tag';
-        tag.innerHTML = `
-            ${amenity}
-            <button onclick="this.parentElement.remove()">&times;</button>
-        `;
-        amenitiesList.appendChild(tag);
-    }
+    // Add rating and review functionality
+    const ratingStars = document.querySelectorAll('#ratingStars i');
+    const writeReviewBtn = document.getElementById('writeReviewBtn');
+    const reviewModal = document.getElementById('review-modal');
+    let selectedRating = 0;
 
-    // Handle rating sliders
-    conditionRating.addEventListener('input', function() {
-        conditionValue.textContent = this.value;
-    });
-
-    safetyRating.addEventListener('input', function() {
-        safetyValue.textContent = this.value;
-    });
-
-    // Handle form submission
-    document.getElementById('addListingForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Check for minimum required photos
-        const uploadedPhotos = Array.from(photoUploadItems)
-            .filter(item => item.querySelector('input[type="file"]').files.length > 0);
-        
-        if (uploadedPhotos.length < 3) {
-            alert('Please upload at least 3 photos of your property');
-            return;
-        }
-        
-        // Verify all required documents are uploaded
-        const uploads = Array.from(documentUploads).every(upload => 
-            upload.querySelector('input[type="file"]').files.length > 0
-        );
-        
-        if (!uploads) {
-            alert('Please upload all required documents');
-            return;
-        }
-        
-        // Get amenities
-        const amenities = Array.from(amenitiesList.children).map(tag => 
-            tag.textContent.trim()
-        );
-        
-        // In production, this would send the data to your backend
-        const listingData = {
-            photos: uploadedPhotos.map(item => item.querySelector('input[type="file"]').files[0]),
-            condition: conditionRating.value,
-            safety: safetyRating.value,
-            amenities: amenities,
-            // Add other form data
-        };
-        
-        // Update remaining free listings
-        const landlordData = JSON.parse(localStorage.getItem('landlordData'));
-        if (landlordData) {
-            landlordData.freeListings--;
-            localStorage.setItem('landlordData', JSON.stringify(landlordData));
-            
-            if (landlordData.freeListings <= 0) {
-                addListingBtn.style.display = 'none';
-            }
-        }
-        
-        // Close modal and show success message
-        addListingModal.classList.remove('active');
-        alert('Your listing has been submitted for verification. We will review your documents and publish your listing soon.');
-    });
 
     // Handle photo uploads
     const photoUploadItems = document.querySelectorAll('.photo-upload-item');
@@ -3340,7 +3390,6 @@
                     this.value = '';
                     return;
                 }
-
                 if (!file.type.startsWith('image/')) {
                     alert('Please upload only image files');
                     this.value = '';
@@ -3375,158 +3424,8 @@
         });
     });
 
-    // Add rating and review functionality
-    const ratingStars = document.querySelectorAll('#ratingStars i');
-    const writeReviewBtn = document.getElementById('writeReviewBtn');
-    const reviewModal = document.getElementById('review-modal');
-    let selectedRating = 0;
-
-    // Handle star rating selection
-    ratingStars.forEach(star => {
-        star.addEventListener('mouseover', function() {
-            const rating = this.dataset.rating;
-            updateStars(rating);
-        });
-
-        star.addEventListener('mouseout', function() {
-            updateStars(selectedRating);
-        });
-
-        star.addEventListener('click', function() {
-            selectedRating = this.dataset.rating;
-            updateStars(selectedRating);
-        });
-    });
-
-    function updateStars(rating) {
-        ratingStars.forEach(star => {
-            const starRating = star.dataset.rating;
-            if (starRating <= rating) {
-                star.classList.remove('far');
-                star.classList.add('fas');
-            } else {
-                star.classList.remove('fas');
-                star.classList.add('far');
-            }
-        });
-    }
-
-    // Open review modal
-    writeReviewBtn?.addEventListener('click', function() {
-        // Check if user is logged in
-        const studentData = JSON.parse(localStorage.getItem('studentData'));
-        if (!studentData || !studentData.verified) {
-            alert('Please log in as a student to write a review.');
-            return;
-        }
-        reviewModal.classList.add('active');
-    });
-
-    // Handle review submission
-    document.getElementById('reviewForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        if (selectedRating === 0) {
-            alert('Please select a rating');
-            return;
-        }
-
-        const reviewText = this.querySelector('textarea').value;
-        const studentData = JSON.parse(localStorage.getItem('studentData'));
-
-        // Create new review
-        const review = {
-            id: Date.now(),
-            rating: selectedRating,
-            text: reviewText,
-            reviewer: {
-                name: studentData.name,
-                initial: studentData.name.charAt(0).toUpperCase()
-            },
-            date: new Date().toLocaleDateString()
-        };
-
-        // Add review to localStorage
-        const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-        reviews.push(review);
-        localStorage.setItem('landlordReviews', JSON.stringify(reviews));
-
-        // Update UI
-        addReviewToList(review);
-        updateAverageRating();
-
-        // Close modal and reset form
-        reviewModal.classList.remove('active');
-        this.reset();
-        selectedRating = 0;
-        updateStars(0);
-    });
-
-    // Function to add review to the list
-    function addReviewToList(review) {
-        const reviewsList = document.querySelector('.reviews-list');
-        const reviewCard = document.createElement('div');
-        reviewCard.className = 'review-card';
-        reviewCard.innerHTML = `
-            <div class="review-header">
-                <div class="reviewer-info">
-                    <div class="reviewer-avatar">${review.reviewer.initial}</div>
-                    <div>
-                        <div class="reviewer-name">${review.reviewer.name}</div>
-                        <div class="review-date">${review.date}</div>
-                    </div>
-                </div>
-                <div class="review-rating">
-                    ${Array(5).fill().map((_, i) => `
-                        <i class="${i < review.rating ? 'fas' : 'far'} fa-star"></i>
-                    `).join('')}
-                </div>
-            </div>
-            <div class="review-content">${review.text}</div>
-        `;
-        reviewsList.insertBefore(reviewCard, reviewsList.firstChild);
-    }
-
-    // Function to update average rating
-    function updateAverageRating() {
-        const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-        if (reviews.length === 0) return;
-
-        const totalRating = reviews.reduce((sum, review) => sum + Number(review.rating), 0);
-        const averageRating = (totalRating / reviews.length).toFixed(1);
-
-        const ratingValue = document.querySelector('.landlord-rating .rating-value');
-        const reviewCount = document.querySelector('.landlord-rating .review-count');
-        if (ratingValue && reviewCount) {
-            ratingValue.textContent = averageRating;
-            reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
-        }
-
-        // Update rating stars
-        const ratingStarsContainer = document.querySelector('.landlord-rating .rating-stars');
-        if (ratingStarsContainer) {
-            const fullStars = Math.floor(averageRating);
-            const hasHalfStar = averageRating % 1 >= 0.5;
-
-            ratingStarsContainer.innerHTML = Array(5).fill().map((_, i) => {
-                if (i < fullStars) {
-                    return '<i class="fas fa-star"></i>';
-                } else if (i === fullStars && hasHalfStar) {
-                    return '<i class="fas fa-star-half-alt"></i>';
-                } else {
-                    return '<i class="far fa-star"></i>';
-                }
-            }).join('');
-        }
-    }
-
-    // Load existing reviews on page load
-    const existingReviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-    existingReviews.forEach(review => addReviewToList(review));
-    updateAverageRating();
-    </script>
+</script>
 </head>
-<body>
   <header>
     <div class="container">
       <nav>
@@ -3534,13 +3433,15 @@
           <span class="in">In</span><span class="rent">Rent</span>
         </div>
         <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
           <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#pricing">Pricing</a></li>
-                    <li><button class="btn btn-secondary open-modal" data-modal="login">Login</button></li>
-                    <li><button class="btn btn-student open-modal" data-modal="student-signup">Sign Up as Student</button></li>
-                    <li><button class="btn btn-landlord open-modal" data-modal="landlord-signup">Sign Up as Landlord</button></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
+        <div class="auth-buttons">
+          <button class="btn btn-secondary" id="loginBtn">Login</button>
+          <button class="btn btn-primary" id="signupBtn">Sign Up</button>
+        </div>
         <button class="mobile-menu-btn">☰</button>
       </nav>
     </div>
@@ -3591,24 +3492,7 @@
                     <p class="animate">Simple steps to get started with InRent</p>
         </div>
                 
-                <h3 class="section-subtitle">For Landlords</h3>
-        <div class="steps">
-          <div class="step animate">
-            <div class="step-number">1</div>
-                        <h3>Create Account</h3>
-                        <p>Sign up as a landlord and verify your identity with required documentation.</p>
-          </div>
-          <div class="step animate">
-            <div class="step-number">2</div>
-                        <h3>List Properties</h3>
-                        <p>Add your properties with detailed information, photos, and safety ratings.</p>
-          </div>
-          <div class="step animate">
-            <div class="step-number">3</div>
-                        <h3>Manage Inquiries</h3>
-                        <p>Receive and respond to verified student inquiries through our messaging system.</p>
-                    </div>
-                </div>
+
 
                 <h3 class="section-subtitle">For Tertiary Students</h3>
                 <div class="steps">
@@ -3711,24 +3595,6 @@
                         <button class="btn open-modal" data-modal="student-signup">Sign Up Now</button>
           </div>
                     
-                    <div class="membership-card landlord-card animate">
-                        <div class="membership-icon">
-                            <i class="fas fa-building"></i>
-                        </div>
-                        <div class="special-offer">Limited Time Offer!</div>
-                        <h3>Landlord Listing</h3>
-                        <div class="price">Free <span>first 5 listings</span></div>
-                        <p>Special offer for first 10 landlords</p>
-                        <ul class="membership-features">
-                            <li>5 free property listings</li>
-                            <li>Verified student inquiries</li>
-                            <li>Property management tools</li>
-                            <li>Messaging system access</li>
-                            <li>Premium support</li>
-            </ul>
-                        <div class="spots-left">Only <span id="landlordsLeft">10</span> spots remaining!</div>
-                        <button class="btn open-modal" data-modal="landlord-signup">Register Now</button>
-          </div>
         </div>
       </div>
     </section>
@@ -3818,11 +3684,6 @@
                             <i class="fas fa-user-graduate"></i>
                             <h3>Student</h3>
                             <p>Looking for accommodation?</p>
-                        </button>
-                        <button class="signup-option-btn landlord-btn open-modal" data-modal="landlord-signup">
-                            <i class="fas fa-building"></i>
-                            <h3>Landlord</h3>
-                            <p>Have property to rent?</p>
                         </button>
                     </div>
                 </div>
@@ -3922,15 +3783,15 @@
         <div class="modal-content">
             <span class="modal-close">&times;</span>
             <h2>Login to InRent</h2>
-            <div class="login-options">
-                <button class="login-option-btn active" data-type="student">
-                    <i class="fas fa-user-graduate"></i>
-                    <span>Student Login</span>
-                </button>
-                <button class="login-option-btn" data-type="landlord">
-                    <i class="fas fa-building"></i>
-                    <span>Landlord Login</span>
-                </button>
+             <div class="auth-options">
+                <div class="option active" data-form="student">
+                    <h3>Login as Student</h3>
+                    <p>Access your student account and start searching for accommodation</p>
+                </div>
+                <div class="option" data-form="landlord">
+                    <h3>Login as Landlord</h3>
+                    <p>Manage your properties and connect with verified students</p>
+                </div>
             </div>
             
             <form class="login-form" id="studentLoginForm">
@@ -4086,6 +3947,38 @@
         </div>
     </div>
 
+    <!-- Add new signup options modal -->
+    <div class="modal" id="signup-options">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Join InRent Today</h2>
+            <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Choose your account type to get started</p>
+            <div class="signup-options">
+                <button class="signup-option-btn student-btn open-modal" data-modal="student-signup">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Student</h3>
+                    <p>Looking for accommodation?</p>
+                    <div class="option-features">
+                        <li>Find verified student housing</li>
+                        <li>Easy booking process</li>
+                        <li>Direct contact with landlords</li>
+                    </div>
+                </button>
+                <button class="signup-option-btn landlord-btn open-modal" data-modal="landlord-signup">
+                    <i class="fas fa-building"></i>
+                    <h3>Landlord</h3>
+                    <p>Have property to rent?</p>
+                    <div class="option-features">
+                        <li>List your properties</li>
+                        <li>Reach verified students</li>
+                        <li>Manage bookings efficiently</li>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landlord Signup Modal -->
     <div class="modal" id="landlord-signup">
         <div class="modal-content">
             <span class="modal-close">&times;</span>
@@ -4184,68 +4077,14 @@
         </div>
     </div>
 
-    <!-- Add new signup options modal -->
-    <div class="modal" id="signup-options">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <h2>Join InRent Today</h2>
-            <p class="text-center" style="color: var(--gray); margin-bottom: 2rem;">Choose your account type to get started</p>
-            <div class="signup-options">
-                <button class="signup-option-btn student-btn open-modal" data-modal="student-signup">
-                    <i class="fas fa-user-graduate"></i>
-                    <h3>Student</h3>
-                    <p>Looking for accommodation?</p>
-                    <div class="option-features">
-                        <li>Find verified student housing</li>
-                        <li>Easy booking process</li>
-                        <li>Direct contact with landlords</li>
-                    </div>
-                </button>
-                <button class="signup-option-btn landlord-btn open-modal" data-modal="landlord-signup">
-                    <i class="fas fa-building"></i>
-                    <h3>Landlord</h3>
-                    <p>Have property to rent?</p>
-                    <div class="option-features">
-                        <li>List your properties</li>
-                        <li>Reach verified students</li>
-                        <li>Manage bookings efficiently</li>
-                    </div>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add chat widget before closing body tag -->
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-header" id="chatHeader">
-            <h3>Messages</h3>
-            <button class="chat-toggle" id="chatToggle">
-                <i class="fas fa-chevron-up"></i>
-            </button>
-        </div>
-        
-        <div class="chat-contacts" id="chatContacts">
-            <!-- Contacts will be dynamically added here -->
-        </div>
-        
-        <div class="chat-messages" id="chatMessages">
-            <!-- Messages will be dynamically added here -->
-        </div>
-        
-        <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button class="send-button" id="sendMessage">
-                <i class="fas fa-paper-plane"></i>
-            </button>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Modal functionality
             const modals = document.querySelectorAll('.modal');
             const closeBtns = document.querySelectorAll('.modal-close');
             const openModalButtons = document.querySelectorAll('.open-modal');
+            
+
 
             openModalButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
@@ -5011,6 +4850,60 @@
                 e.target.value = e.target.value.replace(/[^0-9]/g, '');
             });
 
+            // Login and signup button handlers
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginModal = document.getElementById('login');
+            const signupOptionsModal = document.getElementById('signup-options');
+
+            loginBtn.addEventListener('click', () => {
+                openModal(loginModal);
+            });
+
+            signupBtn.addEventListener('click', () => {
+                openModal(signupOptionsModal);
+            });
+
+            // Function to open modals
+            function openModal(modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Close modal when clicking the close button or outside the modal
+            const modalCloseBtns = document.querySelectorAll('.modal-close');
+            modalCloseBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                });
+            });
+
+            // Close modal when clicking outside
+            document.addEventListener('click', (e) => {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Handle escape key to close modals
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(modal => {
+                        if (modal.style.display === 'block') {
+                            modal.style.display = 'none';
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+            });
+
             // Add this to the DOMContentLoaded event listener
             const addListingBtn = document.getElementById('addListingBtn');
             const addListingModal = document.getElementById('add-listing-modal');
@@ -5184,9 +5077,6 @@
                                 placeholder.classList.remove('hidden');
                             };
                             item.appendChild(deleteBtn);
-                            
-                            // Hide placeholder
-                            placeholder.classList.add('hidden');
                         };
                         reader.readAsDataURL(file);
                     }
@@ -5195,49 +5085,9 @@
 
 
 
-            // Function to update average rating
-            function updateAverageRating() {
-                try {
-                    const reviews = JSON.parse(localStorage.getItem('landlordReviews')) || [];
-                    if (reviews.length === 0) return;
-
-                    const totalRating = reviews.reduce((sum, review) => sum + Number(review.rating), 0);
-                    const averageRating = (totalRating / reviews.length).toFixed(1);
-
-                    // Update rating display
-                    const ratingValue = document.querySelector('.landlord-rating .rating-value');
-                    const reviewCount = document.querySelector('.landlord-rating .review-count');
-                    if (ratingValue && reviewCount) {
-                        ratingValue.textContent = averageRating;
-                        reviewCount.textContent = `(${reviews.length} review${reviews.length === 1 ? '' : 's'})`;
-                    }
-
-                    // Update rating stars
-                    const ratingStarsContainer = document.querySelector('.landlord-rating .rating-stars');
-                    if (ratingStarsContainer) {
-                        const fullStars = Math.floor(averageRating);
-                        const hasHalfStar = averageRating % 1 >= 0.5;
-
-                        ratingStarsContainer.innerHTML = Array(5).fill().map((_, i) => {
-                            if (i < fullStars) {
-                                return '<i class="fas fa-star"></i>';
-                            } else if (i === fullStars && hasHalfStar) {
-                                return '<i class="fas fa-star-half-alt"></i>';
-                            } else {
-                                return '<i class="far fa-star"></i>';
-                            }
-                        }).join('');
-                    }
-                } catch (error) {
-                    console.error('Error updating average rating:', error);
-                }
-            }
-
-        });
     </script>
-
-    <!-- Waitlist Section -->
-    <section class="waitlist-section" id="waitlist">
+<body>
+   
         <div class="container">
             <div class="section-title">
                 <h2>Join the Waitlist</h2>
@@ -5269,11 +5119,15 @@
                         <div class="form-group">
                             <label for="university">University</label>
                             <select id="university" name="university" required>
-                                <option value="">Select your university</option>
+                                <option value="">Select your University</option>
                                 <option value="ub">University of Botswana</option>
                                 <option value="botswana-intl">Botswana International University of Science and Technology</option>
                                 <option value="other">Other</option>
                             </select>
+                        </div>
+
+                        <div id="other-university">
+                            <input type="text" id="other-university-name" placeholder="Enter your University name">
                         </div>
                         <div class="form-group">
                             <label for="role">Role</label>
@@ -5284,10 +5138,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="interest">What interests you about InRent?</label>
-                        <textarea id="interest" name="interest" rows="3"></textarea>
-                    </div>
+                    
                     <div class="form-group">
                         <label class="checkbox-label">
                             <input type="checkbox" name="terms" required>
@@ -5300,9 +5151,6 @@
             </div>
         </div>
     </section>
-
-
-
     <script src="main.js"></script>
 </body>
 </html>
