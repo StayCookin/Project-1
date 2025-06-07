@@ -1,1110 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Dashboard - InRent</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #228B22;
-            --secondary: #2E7D32;
-            --dark: #1B5E20;
-            --light: #4CAF50;
-            --gray: #757575;
-            --white: #ffffff;
-            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
-            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --font-heading: 'Poppins', sans-serif;
-            --font-body: 'Inter', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            font-weight: 400;
-            line-height: 1.6;
-            background-color: #f5f5f5;
-            background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-blend-mode: overlay;
-            background-color: rgba(245, 245, 245, 0.9);
-        }
-
-        h1, h2, h3, h4, h5, h6 {
-            font-family: var(--font-heading);
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .welcome-section h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .section-header h2 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-
-        .property-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            letter-spacing: -0.2px;
-        }
-
-        .btn {
-            font-family: var(--font-body);
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            min-height: 100vh;
-            backdrop-filter: blur(5px);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-            backdrop-filter: blur(10px);
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            color: var(--white);
-        }
-
-        .sidebar-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 1rem;
-            border: 3px solid var(--white);
-        }
-
-        .sidebar-header h2 {
-            font-size: 1.2rem;
-            color: var(--white);
-        }
-
-        .sidebar-menu {
-            list-style: none;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            color: var(--gray);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background: var(--gradient-primary);
-            color: var(--white);
-            transform: translateX(5px);
-        }
-
-        .sidebar-menu i {
-            margin-right: 1rem;
-            width: 20px;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-
-        /* Main Content Styles */
-        .main-content {
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .search-container {
-            flex: 1;
-            max-width: 800px;
-            margin-right: 2rem;
-        }
-
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background: var(--white);
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .search-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .search-filters {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .filter-select {
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: var(--white);
-            color: var(--gray);
-            cursor: pointer;
-            min-width: 150px;
-        }
-
-        .notifications-container {
-            position: relative;
-        }
-
-        .notifications {
-            position: relative;
-            background: var(--white);
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-        }
-
-        .notification-icon {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--gradient-primary);
-            color: var(--white);
-            border-radius: 50%;
-            padding: 0.2rem 0.4rem;
-            font-size: 0.7rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 350px;
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            display: none;
-            z-index: 1000;
-        }
-
-        .notification-dropdown.active {
-            display: block;
-        }
-
-        .notification-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-        }
-
-        .notification-tab {
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .notification-tab.active {
-            background: var(--gradient-primary);
-            color: var(--white);
-        }
-
-        .notification-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .notification-item {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .notification-item:hover {
-            background: rgba(0,0,0,0.02);
-        }
-
-        .notification-item .title {
-            font-weight: bold;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .notification-item .message {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .notification-item .time {
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-
-        .property-listings {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-        }
-
-        .property-listings-header {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--light);
-        }
-
-        .property-listings-header h2 {
-            color: var(--dark);
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .property-listings-header h2::before {
-            content: '🏠';
-            font-size: 1.8rem;
-        }
-
-        .location-badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            background: var(--gradient-primary);
-            color: var(--white);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-left: 1rem;
-        }
-
-        /* Dashboard Cards */
-        .dashboard-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .dashboard-card {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .dashboard-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: var(--gradient-primary);
-        }
-
-        .dashboard-card h3 {
-            color: var(--gray);
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .notification-asterisk {
-            color: var(--primary);
-            font-size: 1.2rem;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .dashboard-card p {
-            color: var(--dark);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        /* Property Listings */
-        .property-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .property-card {
-            background: var(--white);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .property-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .property-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.3s;
-        }
-
-        .property-card:hover .property-image {
-            transform: scale(1.05);
-        }
-
-        .property-details {
-            padding: 1.5rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .property-price {
-            color: var(--primary);
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .property-price::before {
-            content: '💰';
-            font-size: 1.2rem;
-        }
-
-        .property-title {
-            color: var(--dark);
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .property-location {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .property-location::before {
-            content: '📍';
-        }
-
-        .property-features {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .property-features span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            background: rgba(0,0,0,0.05);
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-        }
-
-        .property-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: var(--white);
-        }
-
-        .btn-secondary {
-            background: var(--white);
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .property-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                display: none;
-            }
-
-            .dashboard-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .property-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .dashboard-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .property-features {
-                flex-direction: column;
-            }
-
-            .property-actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .profile-menu {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .profile-image-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--white);
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            display: none;
-            z-index: 1000;
-            min-width: 200px;
-        }
-
-        .profile-dropdown.active {
-            display: block;
-        }
-
-        .profile-dropdown a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1rem;
-            color: var(--dark);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .profile-dropdown a:hover {
-            background: rgba(0,0,0,0.05);
-            color: var(--primary);
-        }
-
-        .profile-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 1rem;
-            border: 3px solid var(--white);
-        }
-
-        /* Footer Styles */
-        .footer {
-            background: var(--dark);
-            color: var(--white);
-            padding: 3rem 0;
-            margin-top: 4rem;
-        }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer-section h3 {
-            font-family: var(--font-heading);
-            font-size: 1.2rem;
-            margin-bottom: 1.5rem;
-            color: var(--white);
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links a {
-            color: var(--white);
-            text-decoration: none;
-            opacity: 0.8;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .footer-links a:hover {
-            opacity: 1;
-            color: var(--light);
-            transform: translateX(5px);
-        }
-
-        .footer-links i {
-            font-size: 0.9rem;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-bottom p {
-            color: var(--white);
-            opacity: 0.7;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .footer-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .footer-links a {
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/studentdashboard.css" />
+  </head>
+  <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Profile" class="profile-image">
-                <h2>Welcome, Student</h2>
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            alt="Profile"
+            class="profile-image"
+          />
+          <h2>Welcome, Student</h2>
+        </div>
+        <ul class="sidebar-menu">
+          <li>
+            <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="marketplace.html"
+              ><i class="fas fa-search"></i> Find Properties</a
+            >
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-heart"></i> Saved Properties</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-calendar"></i> Viewings</a>
+          </li>
+          <li>
+            <a href="messages.html"><i class="fas fa-envelope"></i> Messages</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-star"></i> Reviews</a>
+          </li>
+          <li>
+            <a href="user-profile.html"><i class="fas fa-user"></i> Profile</a>
+          </li>
+          <li>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+          <li>
+            <a href="index.html" id="logoutBtn"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="dashboard-header">
+          <div class="search-container">
+            <div class="search-bar">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search properties in Gaborone..."
+              />
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-search"></i> Find Properties</a></li>
-                <li><a href="#"><i class="fas fa-heart"></i> Saved Properties</a></li>
-                <li><a href="#"><i class="fas fa-calendar"></i> Viewings</a></li>
-                <li><a href="#"><i class="fas fa-envelope"></i> Messages</a></li>
-                <li><a href="#"><i class="fas fa-star"></i> Reviews</a></li>
-                <li><a href="user-profile.html"><i class="fas fa-user"></i> Profile</a></li>
-                <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </aside>
+            <div class="search-filters">
+              <select class="filter-select">
+                <option value="">All Amenities</option>
+                <option value="wifi">WiFi</option>
+                <option value="parking">Parking</option>
+                <option value="furnished">Furnished</option>
+                <option value="security">Security</option>
+                <option value="laundry">Laundry</option>
+              </select>
+              <select class="filter-select">
+                <option value="">All Areas</option>
+                <option value="ub">Near UB</option>
+                <option value="baisago">Near Baisago</option>
+                <option value="botho">Near Botho</option>
+                <option value="riverwalk">Riverwalk</option>
+                <option value="gamecity">Game City</option>
+              </select>
+              <select class="filter-select">
+                <option value="">Budget Range</option>
+                <option value="0-2000">P0 - P2,000</option>
+                <option value="2000-4000">P2,000 - P4,000</option>
+                <option value="4000-6000">P4,000 - P6,000</option>
+                <option value="6000+">P6,000+</option>
+              </select>
+              <select class="filter-select">
+                <option value="">Property Condition</option>
+                <option value="new">New</option>
+                <option value="renovated">Renovated</option>
+                <option value="good">Good</option>
+                <option value="needs-work">Needs Work</option>
+              </select>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="notifications-container">
+              <div class="notifications" id="notificationToggle">
+                <i class="fas fa-bell notification-icon"></i>
+                <span class="notification-badge">0</span>
+              </div>
+              <div class="notification-dropdown" id="notificationDropdown">
+                <div class="notification-tabs">
+                  <div
+                    class="notification-tab active"
+                    data-tab="messages"
+                    href="messages.html"
+                  >
+                    Messages
+                  </div>
+                  <div class="notification-tab" data-tab="properties">
+                    Properties
+                  </div>
+                </div>
+                <div class="notification-list">
+                  <div class="notification-item">
+                    <div class="title">New Message from Landlord</div>
+                    <div class="message">
+                      Your viewing request has been approved for tomorrow at 2
+                      PM.
+                    </div>
+                    <div class="time">2 hours ago</div>
+                  </div>
+                  <div class="notification-item">
+                    <div class="title">New Property Available</div>
+                    <div class="message">
+                      New apartment listed near UB Campus - P3,500/month
+                    </div>
+                    <div class="time">5 hours ago</div>
+                  </div>
+                  <div class="notification-item">
+                    <div class="title">Viewing Reminder</div>
+                    <div class="message">
+                      Don't forget your viewing appointment tomorrow at 10 AM.
+                    </div>
+                    <div class="time">1 day ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="profile-menu">
+              <img
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                alt="Profile"
+                class="profile-image-small"
+              />
+              <div class="profile-dropdown">
+                <a href="user-profile.html"
+                  ><i class="fas fa-user"></i> Profile</a
+                >
+                <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" id="headerLogoutBtn"
+                  ><i class="fas fa-sign-out-alt"></i> Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="dashboard-header">
-                <div class="search-container">
-                    <div class="search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" class="search-input" placeholder="Search properties in Gaborone...">
-                    </div>
-                    <div class="search-filters">
-                        <select class="filter-select">
-                            <option value="">All Amenities</option>
-                            <option value="wifi">WiFi</option>
-                            <option value="parking">Parking</option>
-                            <option value="furnished">Furnished</option>
-                            <option value="security">Security</option>
-                            <option value="laundry">Laundry</option>
-                        </select>
-                        <select class="filter-select">
-                            <option value="">All Areas</option>
-                            <option value="ub">Near UB</option>
-                            <option value="baisago">Near Baisago</option>
-                            <option value="botho">Near Botho</option>
-                            <option value="riverwalk">Riverwalk</option>
-                            <option value="gamecity">Game City</option>
-                        </select>
-                        <select class="filter-select">
-                            <option value="">Budget Range</option>
-                            <option value="0-2000">P0 - P2,000</option>
-                            <option value="2000-4000">P2,000 - P4,000</option>
-                            <option value="4000-6000">P4,000 - P6,000</option>
-                            <option value="6000+">P6,000+</option>
-                        </select>
-                        <select class="filter-select">
-                            <option value="">Property Condition</option>
-                            <option value="new">New</option>
-                            <option value="renovated">Renovated</option>
-                            <option value="good">Good</option>
-                            <option value="needs-work">Needs Work</option>
-                        </select>
-                    </div>
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+          <div class="dashboard-card">
+            <h3><i class="fas fa-heart"></i> Saved Properties</h3>
+            <p>12</p>
+          </div>
+          <div class="dashboard-card">
+            <h3><i class="fas fa-calendar"></i> Scheduled Viewings</h3>
+            <p>3</p>
+          </div>
+          <div class="dashboard-card">
+            <h3>
+              <i class="fas fa-envelope"></i> Messages
+              <span class="notification-asterisk">*</span>
+            </h3>
+            <p>5</p>
+          </div>
+          <div class="dashboard-card">
+            <h3><i class="fas fa-star"></i> Reviews</h3>
+            <p>2</p>
+          </div>
+        </div>
+
+        <!-- Property Listings -->
+        <div class="property-listings">
+          <div class="property-listings-header">
+            <h2>
+              Recommended Properties
+              <span class="location-badge">Gaborone</span>
+            </h2>
+          </div>
+
+          <div class="property-grid">
+            <!-- Property Card 1 -->
+            <div class="property-card">
+              <img
+                src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                alt="Modern Apartment"
+                class="property-image"
+              />
+              <div class="property-details">
+                <div>
+                  <div class="property-price">P3,500/month</div>
+                  <h3 class="property-title">Modern Apartment near UB</h3>
+                  <p class="property-location">Gaborone, Near UB Campus</p>
+                  <div class="property-features">
+                    <span><i class="fas fa-bed"></i> 2 Beds</span>
+                    <span><i class="fas fa-bath"></i> 1 Bath</span>
+                    <span><i class="fas fa-ruler-combined"></i> 800 sqft</span>
+                  </div>
                 </div>
-                <div class="header-actions">
-                    <div class="notifications-container">
-                        <div class="notifications" id="notificationToggle">
-                            <i class="fas fa-bell notification-icon"></i>
-                            <span class="notification-badge">3</span>
-                        </div>
-                        <div class="notification-dropdown" id="notificationDropdown">
-                            <div class="notification-tabs">
-                                <div class="notification-tab active" data-tab="messages">Messages</div>
-                                <div class="notification-tab" data-tab="properties">Properties</div>
-                            </div>
-                            <div class="notification-list">
-                                <div class="notification-item">
-                                    <div class="title">New Message from Landlord</div>
-                                    <div class="message">Your viewing request has been approved for tomorrow at 2 PM.</div>
-                                    <div class="time">2 hours ago</div>
-                                </div>
-                                <div class="notification-item">
-                                    <div class="title">New Property Available</div>
-                                    <div class="message">New apartment listed near UB Campus - P3,500/month</div>
-                                    <div class="time">5 hours ago</div>
-                                </div>
-                                <div class="notification-item">
-                                    <div class="title">Viewing Reminder</div>
-                                    <div class="message">Don't forget your viewing appointment tomorrow at 10 AM.</div>
-                                    <div class="time">1 day ago</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="profile-menu">
-                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Profile" class="profile-image-small">
-                        <div class="profile-dropdown">
-                            <a href="user-profile.html"><i class="fas fa-user"></i> Profile</a>
-                            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-                            <a href="#" id="headerLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                        </div>
-                    </div>
+                <div class="property-actions">
+                  <button class="btn btn-primary">
+                    <i class="fas fa-eye"></i> View Details
+                  </button>
+                  <button class="btn btn-secondary">
+                    <i class="fas fa-heart"></i> Save
+                  </button>
                 </div>
+              </div>
             </div>
 
-            <!-- Dashboard Cards -->
-            <div class="dashboard-cards">
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-heart"></i> Saved Properties</h3>
-                    <p>12</p>
+            <!-- Property Card 2 -->
+            <div class="property-card">
+              <img
+                src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                alt="Cozy Studio"
+                class="property-image"
+              />
+              <div class="property-details">
+                <div>
+                  <div class="property-price">P2,800/month</div>
+                  <h3 class="property-title">Cozy Studio near Baisago</h3>
+                  <p class="property-location">Gaborone, Near Baisago Campus</p>
+                  <div class="property-features">
+                    <span><i class="fas fa-bed"></i> 1 Bed</span>
+                    <span><i class="fas fa-bath"></i> 1 Bath</span>
+                    <span><i class="fas fa-ruler-combined"></i> 500 sqft</span>
+                  </div>
                 </div>
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-calendar"></i> Scheduled Viewings</h3>
-                    <p>3</p>
+                <div class="property-actions">
+                  <button class="btn btn-primary">
+                    <i class="fas fa-eye"></i> View Details
+                  </button>
+                  <button class="btn btn-secondary">
+                    <i class="fas fa-heart"></i> Save
+                  </button>
                 </div>
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-envelope"></i> Messages <span class="notification-asterisk">*</span></h3>
-                    <p>5</p>
-                </div>
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-star"></i> Reviews</h3>
-                    <p>2</p>
-                </div>
+              </div>
             </div>
 
-            <!-- Property Listings -->
-            <div class="property-listings">
-                <div class="property-listings-header">
-                    <h2>Recommended Properties <span class="location-badge">Gaborone</span></h2>
+            <!-- Property Card 3 -->
+            <div class="property-card">
+              <img
+                src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                alt="Luxury Apartment"
+                class="property-image"
+              />
+              <div class="property-details">
+                <div>
+                  <div class="property-price">P4,200/month</div>
+                  <h3 class="property-title">Luxury Apartment near Botho</h3>
+                  <p class="property-location">Gaborone, Near Botho Campus</p>
+                  <div class="property-features">
+                    <span><i class="fas fa-bed"></i> 3 Beds</span>
+                    <span><i class="fas fa-bath"></i> 2 Baths</span>
+                    <span><i class="fas fa-ruler-combined"></i> 1200 sqft</span>
+                  </div>
                 </div>
-
-                <div class="property-grid">
-                    <!-- Property Card 1 -->
-                    <div class="property-card">
-                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Modern Apartment" class="property-image">
-                        <div class="property-details">
-                            <div>
-                                <div class="property-price">P3,500/month</div>
-                                <h3 class="property-title">Modern Apartment near UB</h3>
-                                <p class="property-location">Gaborone, Near UB Campus</p>
-                                <div class="property-features">
-                                    <span><i class="fas fa-bed"></i> 2 Beds</span>
-                                    <span><i class="fas fa-bath"></i> 1 Bath</span>
-                                    <span><i class="fas fa-ruler-combined"></i> 800 sqft</span>
-                                </div>
-                            </div>
-                            <div class="property-actions">
-                                <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
-                                <button class="btn btn-secondary"><i class="fas fa-heart"></i> Save</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 2 -->
-                    <div class="property-card">
-                        <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Cozy Studio" class="property-image">
-                        <div class="property-details">
-                            <div>
-                                <div class="property-price">P2,800/month</div>
-                                <h3 class="property-title">Cozy Studio near Baisago</h3>
-                                <p class="property-location">Gaborone, Near Baisago Campus</p>
-                                <div class="property-features">
-                                    <span><i class="fas fa-bed"></i> 1 Bed</span>
-                                    <span><i class="fas fa-bath"></i> 1 Bath</span>
-                                    <span><i class="fas fa-ruler-combined"></i> 500 sqft</span>
-                                </div>
-                            </div>
-                            <div class="property-actions">
-                                <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
-                                <button class="btn btn-secondary"><i class="fas fa-heart"></i> Save</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Property Card 3 -->
-                    <div class="property-card">
-                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Luxury Apartment" class="property-image">
-                        <div class="property-details">
-                            <div>
-                                <div class="property-price">P4,200/month</div>
-                                <h3 class="property-title">Luxury Apartment near Botho</h3>
-                                <p class="property-location">Gaborone, Near Botho Campus</p>
-                                <div class="property-features">
-                                    <span><i class="fas fa-bed"></i> 3 Beds</span>
-                                    <span><i class="fas fa-bath"></i> 2 Baths</span>
-                                    <span><i class="fas fa-ruler-combined"></i> 1200 sqft</span>
-                                </div>
-                            </div>
-                            <div class="property-actions">
-                                <button class="btn btn-primary"><i class="fas fa-eye"></i> View Details</button>
-                                <button class="btn btn-secondary"><i class="fas fa-heart"></i> Save</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="property-actions">
+                  <button class="btn btn-primary">
+                    <i class="fas fa-eye"></i> View Details
+                  </button>
+                  <button class="btn btn-secondary">
+                    <i class="fas fa-heart"></i> Save
+                  </button>
                 </div>
+              </div>
             </div>
-        </main>
+          </div>
+        </div>
+      </main>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is authenticated
-            const studentData = JSON.parse(localStorage.getItem('studentData'));
-            if (!studentData || studentData.role !== 'student') {
-                // Redirect to landing page if not authenticated
-                window.location.href = 'InRent.html';
-                return;
-            }
-
-            // Update profile image and name
-            const profileImages = document.querySelectorAll('.profile-image, .profile-image-small');
-            profileImages.forEach(img => {
-                if (studentData.profileImage) {
-                    img.src = studentData.profileImage;
-                }
-            });
-
-            const welcomeHeader = document.querySelector('.sidebar-header h2');
-            if (welcomeHeader) {
-                welcomeHeader.textContent = `Welcome, ${studentData.name}`;
-            }
-
-            // Handle navigation
-            const navLinks = document.querySelectorAll('.sidebar-menu a');
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const href = this.getAttribute('href');
-                    
-                    if (href === '#') {
-                        // Dashboard link - stay on current page
-                        return;
-                    } else if (href === '#logout') {
-                        // Logout confirmation
-                        if (confirm('Are you sure you want to logout?')) {
-                            localStorage.removeItem('studentData');
-                            window.location.href = 'index.html';
-                        }
-                    } else {
-                        // Remove # from href and navigate
-                        window.location.href = href;
-                    }
-                });
-            });
-
-            // Handle property card actions
-            const propertyCards = document.querySelectorAll('.property-card');
-            propertyCards.forEach(card => {
-                const viewDetailsBtn = card.querySelector('.btn-primary');
-                const saveBtn = card.querySelector('.btn-secondary');
-                
-                // Handle view details button click
-                viewDetailsBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const title = card.querySelector('.property-title').textContent;
-                    window.location.href = `property-details.html?title=${encodeURIComponent(title)}`;
-                });
-
-                // Handle save button click
-                saveBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const title = card.querySelector('.property-title').textContent;
-                    console.log(`Saved property: ${title}`);
-                    this.textContent = this.textContent === 'Save' ? 'Saved' : 'Save';
-                });
-
-                // Handle card click (excluding buttons)
-                card.addEventListener('click', function(e) {
-                    if (!e.target.closest('.property-actions')) {
-                        const title = card.querySelector('.property-title').textContent;
-                        window.location.href = `property-details.html?title=${encodeURIComponent(title)}`;
-                    }
-                });
-            });
-
-            // Handle search and filter changes
-            const searchInput = document.querySelector('.search-input');
-            const filterSelects = document.querySelectorAll('.filter-select');
-            const propertyGrid = document.querySelector('.property-grid');
-
-            function filterProperties() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const amenities = filterSelects[0].value;
-                const location = filterSelects[1].value;
-                const budget = filterSelects[2].value;
-                const condition = filterSelects[3].value;
-
-                const filteredProperties = properties.filter(property => {
-                    // Search term filter
-                    const matchesSearch = property.title.toLowerCase().includes(searchTerm) ||
-                                        property.location.toLowerCase().includes(searchTerm);
-
-                    // Amenities filter
-                    const matchesAmenities = !amenities || property.amenities.includes(amenities);
-
-                    // Location filter
-                    const matchesLocation = !location || property.area === location;
-
-                    // Budget filter
-                    let matchesBudget = true;
-                    if (budget) {
-                        const [min, max] = budget.split('-').map(Number);
-                        if (max) {
-                            matchesBudget = property.price >= min && property.price <= max;
-                        } else {
-                            matchesBudget = property.price >= min;
-                        }
-                    }
-
-                    // Condition filter
-                    const matchesCondition = !condition || property.condition === condition;
-
-                    return matchesSearch && matchesAmenities && matchesLocation && matchesBudget && matchesCondition;
-                });
-
-                displayProperties(filteredProperties);
-            }
-
-            function displayProperties(properties) {
-                propertyGrid.innerHTML = properties.map(property => `
-                    <div class="property-card">
-                        <img src="${property.image}" alt="${property.title}" class="property-image">
-                        <div class="property-details">
-                            <div>
-                                <div class="property-price">P${property.price}/month</div>
-                                <h3 class="property-title">${property.title}</h3>
-                                <p class="property-location">${property.location}</p>
-                                <div class="property-features">
-                                    <span><i class="fas fa-bed"></i> ${property.beds} Beds</span>
-                                    <span><i class="fas fa-bath"></i> ${property.baths} Baths</span>
-                                    <span><i class="fas fa-ruler-combined"></i> ${property.area} sqft</span>
-                                </div>
-                            </div>
-                            <div class="property-actions">
-                                <button class="btn btn-primary" onclick="window.location.href='property-details.html?title=${encodeURIComponent(property.title)}'">
-                                    <i class="fas fa-eye"></i> View Details
-                                </button>
-                                <button class="btn btn-secondary" onclick="toggleSaveProperty(${property.id})">
-                                    <i class="fas fa-heart"></i> Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Event listeners for search and filters
-            searchInput.addEventListener('input', filterProperties);
-            filterSelects.forEach(select => {
-                select.addEventListener('change', filterProperties);
-            });
-
-            // Initial display
-            displayProperties(properties);
-
-            // Save property functionality
-            window.toggleSaveProperty = function(propertyId) {
-                const savedProperties = JSON.parse(localStorage.getItem('savedProperties') || '[]');
-                const index = savedProperties.indexOf(propertyId);
-                
-                if (index === -1) {
-                    savedProperties.push(propertyId);
-                    alert('Property saved successfully!');
-                } else {
-                    savedProperties.splice(index, 1);
-                    alert('Property removed from saved properties.');
-                }
-                
-                localStorage.setItem('savedProperties', JSON.stringify(savedProperties));
-                filterProperties(); // Refresh the display
-            };
-        });
-    </script>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul class="footer-links">
-                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="student-dashboard.html"><i class="fas fa-user"></i> Dashboard</a></li>
-                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Help & Support</h3>
-                <ul class="footer-links">
-                    <li><a href="faq.html"><i class="fas fa-question-circle"></i> FAQ</a></li>
-                    <li><a href="contact.html"><i class="fas fa-headset"></i> Support</a></li>
-                    <li><a href="reset-password.html"><i class="fas fa-key"></i> Reset Password</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <ul class="footer-links">
-                    <li><a href="terms.html"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
-                    <li><a href="privacy.html"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
-                </ul>
-            </div>
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            </li>
+            <li>
+              <a href="student-dashboard.html"
+                ><i class="fas fa-user"></i> Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="contact.html"
+                ><i class="fas fa-envelope"></i> Contact Us</a
+              >
+            </li>
+          </ul>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 InRent. All rights reserved.</p>
+        <div class="footer-section">
+          <h3>Help & Support</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="faq.html"><i class="fas fa-question-circle"></i> FAQ</a>
+            </li>
+            <li>
+              <a href="contact.html"><i class="fas fa-headset"></i> Support</a>
+            </li>
+            <li>
+              <a href="reset-password.html"
+                ><i class="fas fa-key"></i> Reset Password</a
+              >
+            </li>
+          </ul>
         </div>
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="terms.html"
+                ><i class="fas fa-file-contract"></i> Terms of Service</a
+              >
+            </li>
+            <li>
+              <a href="privacy.html"
+                ><i class="fas fa-shield-alt"></i> Privacy Policy</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 InRent. All rights reserved.</p>
+      </div>
     </footer>
-</body>
-</html> 
+    <script src="js/student-dashboard.js" defer></script>
+  </body>
+</html>

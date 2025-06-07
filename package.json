@@ -5,8 +5,9 @@
   "scripts": {
     "deploy": "vercel"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/StayCookin/Project-1.git"

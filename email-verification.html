@@ -1,700 +1,106 @@
-<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Email Verification - InRent</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #228B22;
-            --secondary: #2E7D32;
-            --dark: #1B5E20;
-            --light: #4CAF50;
-            --gray: #757575;
-            --white: #ffffff;
-            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
-            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --font-heading: 'Poppins', sans-serif;
-            --font-body: 'Inter', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            font-weight: 400;
-            line-height: 1.6;
-            background-color: #f5f5f5;
-            color: var(--dark);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
-            padding: 2rem;
-        }
-
-        .verification-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            text-align: center;
-        }
-
-        .verification-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-
-        .verification-icon i {
-            font-size: 2.5rem;
-            color: var(--white);
-        }
-
-        .verification-title {
-            font-size: 1.8rem;
-            color: var(--dark);
-            margin-bottom: 1rem;
-        }
-
-        .verification-subtitle {
-            color: var(--gray);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-
-        .verification-code {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .code-input {
-            width: 50px;
-            height: 60px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            color: var(--dark);
-            transition: all 0.3s;
-        }
-
-        .code-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: var(--white);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .resend-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            display: inline-block;
-        }
-
-        .resend-link:hover {
-            text-decoration: underline;
-        }
-
-        .timer {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .success-message {
-            display: none;
-            color: var(--primary);
-            font-size: 1.1rem;
-            margin-top: 1rem;
-        }
-
-        .error-message {
-            display: none;
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .verification-code {
-                gap: 0.5rem;
-            }
-
-            .code-input {
-                width: 40px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
-    </style>
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="email-verification.css" />
+  </head>
+  <body>
     <div class="container">
-        <div class="verification-card">
-            <div class="verification-icon">
-                <i class="fas fa-envelope"></i>
-            </div>
-            <h1 class="verification-title">Verify Your Email</h1>
-            <p class="verification-subtitle">Please enter the 6-digit code sent to your email address</p>
-
-            <form id="verificationForm">
-                <div class="verification-code">
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="verifyBtn">
-                    <i class="fas fa-check"></i>
-                    Verify Email
-                </button>
-
-                <div class="success-message" id="successMessage">
-                    <i class="fas fa-check-circle"></i>
-                    Email verified successfully!
-                </div>
-
-                <div class="error-message" id="errorMessage">
-                    Invalid verification code. Please try again.
-                </div>
-
-                <a href="#" class="resend-link" id="resendLink">Resend Code</a>
-                <div class="timer" id="timer">Resend available in: <span id="countdown">60</span>s</div>
-            </form>
+      <div class="verification-card">
+        <div class="verification-icon">
+          <i class="fas fa-envelope"></i>
         </div>
+        <h1 class="verification-title">Verify Your Email</h1>
+        <p class="verification-subtitle">
+          Please enter the 6-digit code sent to your email address
+        </p>
+
+        <form id="verificationForm">
+          <div class="verification-code">
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+            <input
+              type="text"
+              class="code-input"
+              maxlength="1"
+              pattern="[0-9]"
+              inputmode="numeric"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="verifyBtn">
+            <i class="fas fa-check"></i>
+            Verify Email
+          </button>
+
+          <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            Email verified successfully!
+          </div>
+
+          <div class="error-message" id="errorMessage">
+            Invalid verification code. Please try again.
+          </div>
+
+          <a href="#" class="resend-link" id="resendLink">Resend Code</a>
+          <div class="timer" id="timer">
+            Resend available in: <span id="countdown">60</span>s
+          </div>
+        </form>
+      </div>
     </div>
 
-    <script type="module">
-        import EmailService from './email-service.js';
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if there's pending user data
-            const pendingUserData = JSON.parse(localStorage.getItem('pendingUserData'));
-            if (!pendingUserData) {
-                window.location.href = 'InRent.html';
-                return;
-            }
-
-            const codeInputs = document.querySelectorAll('.code-input');
-            const verifyBtn = document.getElementById('verifyBtn');
-            const resendLink = document.getElementById('resendLink');
-            const timer = document.getElementById('timer');
-            const countdown = document.getElementById('countdown');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Handle code input
-            codeInputs.forEach((input, index) => {
-                input.addEventListener('input', function() {
-                    if (this.value.length === 1) {
-                        if (index < codeInputs.length - 1) {
-                            codeInputs[index + 1].focus();
-                        }
-                    }
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !this.value && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-            });
-
-            // Handle form submission
-            const verificationForm = document.getElementById('verificationForm');
-            verificationForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const code = Array.from(codeInputs).map(input => input.value).join('');
-                const storedCode = localStorage.getItem('verificationCode');
-
-                if (code === storedCode) {
-                    // Create user account
-                    const userData = {
-                        ...pendingUserData,
-                        id: Date.now().toString(),
-                        emailVerified: true,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    // Save user data
-                    localStorage.setItem('studentData', JSON.stringify(userData));
-
-                    // Clear pending data
-                    localStorage.removeItem('pendingUserData');
-                    localStorage.removeItem('verificationCode');
-
-                    // Show success message
-                    successMessage.style.display = 'block';
-                    errorMessage.style.display = 'none';
-                    verifyBtn.disabled = true;
-
-                    // Redirect to dashboard after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'student-dashboard.html';
-                    }, 2000);
-                } else {
-                    errorMessage.style.display = 'block';
-                    successMessage.style.display = 'none';
-                }
-            });
-
-            // Handle resend code
-            let countdownValue = 60;
-            let countdownInterval;
-
-            function startCountdown() {
-                countdownValue = 60;
-                resendLink.style.display = 'none';
-                timer.style.display = 'block';
-                
-                countdownInterval = setInterval(() => {
-                    countdownValue--;
-                    countdown.textContent = countdownValue;
-                    
-                    if (countdownValue <= 0) {
-                        clearInterval(countdownInterval);
-                        resendLink.style.display = 'inline-block';
-                        timer.style.display = 'none';
-                    }
-                }, 1000);
-            }
-
-            resendLink.addEventListener('click', async function(e) {
-                e.preventDefault();
-                
-                // Generate new verification code
-                const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-                localStorage.setItem('verificationCode', newCode);
-
-                // Send new verification email
-                const emailSent = await EmailService.sendVerificationEmail(pendingUserData.email, newCode);
-                
-                if (emailSent) {
-                    startCountdown();
-                } else {
-                    alert('Error sending verification email. Please try again.');
-                }
-            });
-
-            // Start initial countdown
-            startCountdown();
-        });
-    </script>
-</body>
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification - InRent</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #228B22;
-            --secondary: #2E7D32;
-            --dark: #1B5E20;
-            --light: #4CAF50;
-            --gray: #757575;
-            --white: #ffffff;
-            --gradient-primary: linear-gradient(135deg, #228B22, #2E7D32);
-            --gradient-secondary: linear-gradient(135deg, #2E7D32, #1B5E20);
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-            --font-heading: 'Poppins', sans-serif;
-            --font-body: 'Inter', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            font-weight: 400;
-            line-height: 1.6;
-            background-color: #f5f5f5;
-            color: var(--dark);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 500px;
-            width: 100%;
-            padding: 2rem;
-        }
-
-        .verification-card {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
-            text-align: center;
-        }
-
-        .verification-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-        }
-
-        .verification-icon i {
-            font-size: 2.5rem;
-            color: var(--white);
-        }
-
-        .verification-title {
-            font-size: 1.8rem;
-            color: var(--dark);
-            margin-bottom: 1rem;
-        }
-
-        .verification-subtitle {
-            color: var(--gray);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-
-        .verification-code {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
-
-        .code-input {
-            width: 50px;
-            height: 60px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-            color: var(--dark);
-            transition: all 0.3s;
-        }
-
-        .code-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: var(--white);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .resend-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            display: inline-block;
-        }
-
-        .resend-link:hover {
-            text-decoration: underline;
-        }
-
-        .timer {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .success-message {
-            display: none;
-            color: var(--primary);
-            font-size: 1.1rem;
-            margin-top: 1rem;
-        }
-
-        .error-message {
-            display: none;
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .verification-code {
-                gap: 0.5rem;
-            }
-
-            .code-input {
-                width: 40px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="verification-card">
-            <div class="verification-icon">
-                <i class="fas fa-envelope"></i>
-            </div>
-            <h1 class="verification-title">Verify Your Email</h1>
-            <p class="verification-subtitle">Please enter the 6-digit code sent to your email address</p>
-
-            <form id="verificationForm">
-                <div class="verification-code">
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                    <input type="text" class="code-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="verifyBtn">
-                    <i class="fas fa-check"></i>
-                    Verify Email
-                </button>
-
-                <div class="success-message" id="successMessage">
-                    <i class="fas fa-check-circle"></i>
-                    Email verified successfully!
-                </div>
-
-                <div class="error-message" id="errorMessage">
-                    Invalid verification code. Please try again.
-                </div>
-
-                <a href="#" class="resend-link" id="resendLink">Resend Code</a>
-                <div class="timer" id="timer">Resend available in: <span id="countdown">60</span>s</div>
-            </form>
-        </div>
-    </div>
-
-    <script type="module">
-        import EmailService from './email-service.js';
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if there's pending user data
-            const pendingUserData = JSON.parse(localStorage.getItem('pendingUserData'));
-            if (!pendingUserData) {
-                window.location.href = 'InRent.html';
-                return;
-            }
-
-            const codeInputs = document.querySelectorAll('.code-input');
-            const verifyBtn = document.getElementById('verifyBtn');
-            const resendLink = document.getElementById('resendLink');
-            const timer = document.getElementById('timer');
-            const countdown = document.getElementById('countdown');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
-
-            // Handle code input
-            codeInputs.forEach((input, index) => {
-                input.addEventListener('input', function() {
-                    if (this.value.length === 1) {
-                        if (index < codeInputs.length - 1) {
-                            codeInputs[index + 1].focus();
-                        }
-                    }
-                });
-
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !this.value && index > 0) {
-                        codeInputs[index - 1].focus();
-                    }
-                });
-            });
-
-            // Handle form submission
-            const verificationForm = document.getElementById('verificationForm');
-            verificationForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const code = Array.from(codeInputs).map(input => input.value).join('');
-                const storedCode = localStorage.getItem('verificationCode');
-
-                if (code === storedCode) {
-                    // Create user account
-                    const userData = {
-                        ...pendingUserData,
-                        id: Date.now().toString(),
-                        emailVerified: true,
-                        createdAt: new Date().toISOString()
-                    };
-
-                    // Save user data
-                    localStorage.setItem('studentData', JSON.stringify(userData));
-
-                    // Clear pending data
-                    localStorage.removeItem('pendingUserData');
-                    localStorage.removeItem('verificationCode');
-
-                    // Show success message
-                    successMessage.style.display = 'block';
-                    errorMessage.style.display = 'none';
-                    verifyBtn.disabled = true;
-
-                    // Redirect to dashboard after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'student-dashboard.html';
-                    }, 2000);
-                } else {
-                    errorMessage.style.display = 'block';
-                    successMessage.style.display = 'none';
-                }
-            });
-
-            // Handle resend code
-            let countdownValue = 60;
-            let countdownInterval;
-
-            function startCountdown() {
-                countdownValue = 60;
-                resendLink.style.display = 'none';
-                timer.style.display = 'block';
-                
-                countdownInterval = setInterval(() => {
-                    countdownValue--;
-                    countdown.textContent = countdownValue;
-                    
-                    if (countdownValue <= 0) {
-                        clearInterval(countdownInterval);
-                        resendLink.style.display = 'inline-block';
-                        timer.style.display = 'none';
-                    }
-                }, 1000);
-            }
-
-            resendLink.addEventListener('click', async function(e) {
-                e.preventDefault();
-                
-                // Generate new verification code
-                const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-                localStorage.setItem('verificationCode', newCode);
-
-                // Send new verification email
-                const emailSent = await EmailService.sendVerificationEmail(pendingUserData.email, newCode);
-                
-                if (emailSent) {
-                    startCountdown();
-                } else {
-                    alert('Error sending verification email. Please try again.');
-                }
-            });
-
-            // Start initial countdown
-            startCountdown();
-        });
-    </script>
-</body>
->>>>>>> c24ff08aad83fc64379c0b79e46151d3783b8082
-</html> 
+    <script src="js/email-verification.js" defer></script>
+  </body>
+</html>

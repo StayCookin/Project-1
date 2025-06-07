@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add a property</title>
+
+    <link rel="stylesheet" href="landlord_dashboard.css" />
+    <link rel="preconnect" href="https://font.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      
+
+        h1{
+            text-align: center;
+            text-color: green;
+        }
+        
+        btn btn-third{
+            background-color: red;
+            text-emphasis-color:white;
+            border-radius: 10px;
+            border-color: var(btn-third);
+        }
+        .site-header{
+            background-color: forestgreen;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--color-border);
+            height:90px;
+        }
+        .site-header .container{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .logo{
+            font-family: var(--font-primary);
+            font-size:1.75;
+            font-weight:500;
+            color:var(--color-primary);
+        }
+        .main-nav a{
+            font-family: var(--font-secondary);
+            font-weight: 600;
+            color: white;
+            margin-left: 1.5rem;
+            font-size: 0.95;
+        }
+        nav { 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        .nav-links a{
+            text-decoration: none;
+            color:var(--dark);
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after{
+            content:"";
+            position: absolute;
+            bottom:0;
+            left:0;
+            width:0;
+            height: 2px;
+            background-color: var(--primary);
+            transition:width 0.3s;
+        }
+        .nav-links a:hover::after{
+            width:100%;
+        }
+        .nav-links a:hover{
+            color:var(--primary);
+        }
+        .logo{
+            font-size:1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .logo .in{
+            color:white;
+            background-color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 1px;
+        }
+        .logo .rent{
+            color: var(--primary);
+        }
+
+        .main-nav a:hover{
+            color:var(--color-primary);
+            text-decoration: none;
+        }
+        .main-nav .btn btn-third{
+            background-color: var(--color-primary);
+            color: green;
+            padding: 0.6 1.2rem;
+            border-radius: var(--border-radius);
+            transition: background-color 0.2s ease-in-out;
+        }
+        .main-nav .btn btn-third:hover{
+            background-color: green;
+        }
+        .btn {
+            display: flex;
+            font-family: var(--font-secondary);
+            font-weight:600;
+            font-size: 1rem;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            transition:all 0.2s ease-in-out ;
+            user-select:none;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-third{
+            background-color:black;
+            color:black;
+            border-color:forestgreen;
+            border-radius: 5px;
+        }
+        .btn-third:hover{
+            background-color: var(--color-primary-dark);
+            border-color: var(--color-primary-dark);
+            color: white;
+            text-decoration: none;
+        }
+        .btn-outline-third{
+            color: var(--color-primary);
+            border-color:var(--color-primary);
+            background-color:transparent;
+        }
+        </style>
+  </head>
+
+  <header class="site-header">
+    <div class="container">
+      <nav class="main-nav">
+        <div class="sidebar">
+      <span class="in">In</span><span class="rent">Rent</span>
+      </div>
+
+      <li><a href="index.html" class="btn btn-third"">Home</a>
+        <li><a href="landlord-dashboard.html" class="btn btn-third">My Dashboard</a></li>
+        <li><a href="index.html" class="btn btn-third">Log Out</a> </a></li>
+    </div>
+    </nav>
+  </header>
+  <main>
+
+<div class="container">
+    <div class="form-container create-listing-container">
+        <h1>Add a Property</h1>
+
+        <form action="#" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <!--Form for adding property name-->
+                <label for="propertyname" class="form-label">Property Name</label>
+                <input type="text" name="propertyName" class="form-control" required/>
+                 
+ <div class="form-group">
+                    <label for="rentPrice" class="form-label">Rent (P)</label>
+                    <input type="text" class="form-control" name="rentPrice" required placeholder="Enter the rent amount"/>
+                </div
+
+                 <div class="form-group">
+                    <label for="securityFee" class="form-label">Security Fee (P)</label>
+                    <input type="text" class="form-control" name="securityFee" required />
+                 </div>
+                  
+                
+                <div class="form-group">
+                    <label for="ameneties" class="form-label">Amenities</label>
+                    <select name="amenities" class="form-control" required>
+                        <option value="">Choose available amenities</option>
+                        <option value="Wifi">Wifi</option>
+                    </select>
+                </div>
+
+                <!--Form for adding property location,amenities,condition-->
+                <div class="form-group">
+                <label for="propertyLocation" class="form-label">Property Location</label>
+                <select name="propertyLocation" class="form-control" required>
+                    <option value="">Select a Location</option>
+                    <option value="Gaborone">Gaborone</option>
+                    <option value="Francistown">Francistown</option>
+                    <option value="Palapye">Palapye</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem"> Add Property</button>
+            <a href="landlord-dashboard.html" class="btn btn-third" style="width: 100%; margin-top: 0.5rem; display: block; text-align: center; border-radius: 10px;background-color: forestgreen; text: white;">Return to Dashboard</a>
+        </form>
+    </div>
+</div>
+
+  </main>
+  <script src="js/create_listing.js" defer></script>
+</html>

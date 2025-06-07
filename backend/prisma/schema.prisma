@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User Model: Represents both Students and Landlords
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String   @db.VarChar(255) // It's good practice in MySQL to define a length
+  role      Role     @default(STUDENT)
+  isVerified Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties Property[]
+}
+
+// Property Model: Represents a rental listing
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  address     String
+  rentAmount  Int
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  landlord   User   @relation(fields: [landlordId], references: [id])
+  landlordId String
+}
+
+// Enum for User Roles
+enum Role {
+  STUDENT
+  LANDLORD
+}
+
+// Paste this new model at the bottom of your schema file
+
+model Inquiry {
+  id        String   @id @default(uuid())
+  message   String   @db.Text // The content of the inquiry message
+  createdAt DateTime @default(now())
+
+  // Relation to the property the inquiry is about
+  property   Property @relation(fields: [propertyId], references: [id])
+  propertyId String
+
+  // Relation to the user (student) who sent the inquiry
+  student    User     @relation(fields: [studentId], references: [id])
+  studentId  String
+}
