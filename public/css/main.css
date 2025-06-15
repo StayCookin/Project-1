@@ -3,25 +3,34 @@
    ========================================================================== */
 
 /* 1. Design System (Variables) - The Single Source of Truth
+   This section defines all your branding colors, fonts, and shadows.
+   To change a color everywhere, you only need to change it here.
    ========================================================================== */
 :root {
   /* Colors */
-  --primary: #228b22; /* Forest Green */
+  --primary-green: #228b22;
   --primary-dark: #1b6b1b;
-  --secondary: #12b886; /* A secondary teal/green for accents */
-  --dark: #212529;
-  --gray: #6c757d;
-  --light-gray: #f8f9fa;
-  --white: #ffffff;
+  --primary-blue: #4169e1; /* For special buttons like 'Sign up as Student' */
+  --dark-text: #212529;
+  --light-text: #6c757d;
   --border-color: #dee2e6;
+  --background-light: #f8f9fa; /* A very light gray for section backgrounds */
+  --white: #ffffff;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-green), #2e7d32);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.1);
 
   /* Fonts */
+  --font-heading: "Poppins", "Segoe UI", sans-serif;
   --font-body: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  --font-heading: "Poppins", "Segoe UI", sans-serif; /* Poppins is a good choice for headings if you import it */
 
-  /* Transitions & Shadows */
+  /* Transitions */
   --transition-speed: 0.3s ease;
-  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* ==========================================================================
@@ -38,8 +47,8 @@ body {
   font-family: var(--font-body);
   background-color: var(
     --white
-  ); /* Setting a clean white background as the default */
-  color: var(--dark);
+  ); /* Default background is now WHITE, fixing your issue */
+  color: var(--dark-text);
   line-height: 1.6;
   scroll-behavior: smooth;
   overflow-x: hidden;
@@ -57,11 +66,12 @@ h6 {
 }
 
 a {
+  color: var(--primary-green);
   text-decoration: none;
-  color: var(--primary);
   transition: color var(--transition-speed);
 }
 a:hover {
+  text-decoration: underline;
   color: var(--primary-dark);
 }
 
@@ -73,125 +83,54 @@ a:hover {
 }
 
 /* ==========================================================================
-   3. Main Layout Components (Header, Footer, Sections)
+   3. Main Layout Components (Header, Footer, Sections, Modals)
    ========================================================================== */
 
 header {
-  background-color: var(--white);
-  box-shadow: var(--shadow-md);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-sm);
   position: fixed;
   width: 100%;
   top: 0;
   z-index: 100;
-  padding: 1rem 0;
+  padding: 0.25rem 0; /* Reduced vertical padding */
+  border-bottom: 1px solid var(--border-color);
 }
 
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 90%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.logo {
-  font-size: 1.8rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-}
-.logo .in {
-  color: var(--white);
-  background-color: var(--primary);
-  padding: 2px 8px;
-  border-radius: 4px;
-  margin-right: 1px;
-}
-.logo .rent {
-  color: var(--primary);
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  align-items: center;
-  gap: 2rem;
-}
-.nav-links a {
-  color: var(--dark);
-  font-weight: 500;
-  transition: color var(--transition-speed);
-  position: relative;
-  padding-bottom: 0.5rem;
-}
-.nav-links a:hover {
-  color: var(--primary);
-  text-decoration: none;
-}
-.nav-links a::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--primary);
-  transition: width var(--transition-speed);
-}
-.nav-links a:hover::after {
-  width: 100%;
-}
-
-.auth-buttons {
-  display: flex;
-  gap: 1rem;
+  height: 56px; /* Reduced height from 64px */
 }
 
 footer {
-  background-color: var(--dark);
-  color: var(--light-gray);
+  background-color: var(--dark-text);
+  color: var(--light-text);
   padding: 3rem 0;
 }
 
-/* ==========================================================================
-   4. Reusable Components (Buttons, Modals, Cards)
-   ========================================================================== */
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all var(--transition-speed);
-  text-decoration: none;
-  display: inline-block;
+.section {
+  padding: 5rem 0;
 }
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.section:nth-child(even) {
+  background-color: var(--background-light);
 }
 
-.btn-primary {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: var(--white);
+.section-title {
+  text-align: center;
+  margin-bottom: 3rem;
 }
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-  border-color: var(--primary-dark);
+.section-title h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
 }
-
-.btn-secondary {
-  background-color: transparent;
-  border-color: var(--primary);
-  color: var(--primary);
-}
-.btn-secondary:hover {
-  background-color: var(--primary);
-  color: var(--white);
+.section-title p {
+  font-size: 1.1rem;
+  color: var(--light-text);
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .modal {
@@ -200,11 +139,12 @@ footer {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: none; /* Changed from flex to none by default */
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -212,58 +152,94 @@ footer {
   display: flex;
   opacity: 1;
 }
-
-/* ==========================================================================
-   5. Page-Specific Styles (Example: Landing Page Hero)
-   NOTE: It is best practice to move these into a separate index.css file
-   ========================================================================== */
-
-.hero {
-  padding: 12rem 0 6rem; /* Creates space below the fixed header */
-  text-align: center;
+.modal-content {
   background-color: var(--white);
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 90%;
+  width: 600px;
+  position: relative;
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
 }
-
-.hero h1 {
-  font-size: 3.5rem;
-  margin-bottom: 1.5rem;
+.modal.active .modal-content {
+  transform: translateY(0);
 }
-
-.hero p {
-  font-size: 1.25rem;
-  color: var(--gray);
-  max-width: 700px;
-  margin: 0 auto 2rem auto;
-}
-
-.hero-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-/* ==========================================================================
-   6. Responsive Design
-   ========================================================================== */
-
-.mobile-menu-btn {
-  display: none; /* Hidden by default */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
   background: none;
   border: none;
-  font-size: 1.5rem;
-  color: var(--dark);
+  font-size: 2rem;
   cursor: pointer;
+  color: var(--light-text);
 }
 
-@media (max-width: 768px) {
-  .nav-links,
-  .auth-buttons {
-    display: none; /* Hide desktop navigation on mobile */
-  }
-  .mobile-menu-btn {
-    display: block; /* Show the hamburger menu button */
-  }
-  .hero h1 {
-    font-size: 2.5rem;
-  }
+/* ==========================================================================
+   4. Reusable Components (Buttons, Forms, Cards)
+   ========================================================================== */
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid transparent;
+  transition: all var(--transition-speed);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  color: var(--white);
+}
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+.btn-secondary:hover {
+  background-color: var(--primary-green);
+  color: var(--white);
+}
+
+/* Form Styling */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
 }
