@@ -139,8 +139,8 @@ document.addEventListener("DOMContentLoaded", function () {
   animateOnScroll();
 
   // --- WAITLIST MODAL FUNCTIONALITY ---
-  const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbwRgILQofMrwRjWNp8XjmydDtkfsAUB5iJMS2_5RQWnQaU6Dbpax-qaFwuJZVrTtNkN/exec";
+  // The API endpoint for waitlist is now handled by the backend for security. Do not expose Google Apps Script or sensitive API URLs in frontend code.
+  // Example: const WAITLIST_API = '/api/waitlist';
 
   const waitlistForm = document.getElementById("waitlistForm");
   const waitlistFormSuccessMsg = document.getElementById("waitlistFormSuccess");
@@ -277,6 +277,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // --- REVIEW MODAL FORM SUBMISSION ---
+  // The API endpoint for reviews is now handled by the backend proxy. Do not expose direct backend URLs in frontend code.
+  // Example: const REVIEWS_API = '/api/reviews';
+
   const reviewModalForm = document.getElementById("reviewForm");
   if (reviewModalForm) {
     reviewModalForm.addEventListener("submit", async function (e) {

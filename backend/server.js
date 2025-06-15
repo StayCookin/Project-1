@@ -6,6 +6,7 @@ const socketIo = require("socket.io");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const pool = require("./db");
+const rateLimit = require("express-rate-limit");
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,14 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// DDoS protection: apply rate limiting to all API routes
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: "Too many requests, please try again later." },
+});
+app.use("/api/", apiLimiter);
 
 // Health check route
 app.get("/api/health", async (req, res) => {
@@ -75,6 +84,8 @@ app.use("/api/viewings", require("./routes/viewings"));
 app.use("/api/reviews", require("./routes/reviews"));
 const inquiryRoutes = require("./routes/inquiries.routes");
 app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/admin", require("./routes/admin"));
+app.use("/api/profile", require("./routes/profile"));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

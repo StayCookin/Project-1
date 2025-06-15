@@ -15,15 +15,21 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/property-details.css" />
+    <link rel="stylesheet" href="/css/index.css" />
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'G-1F24YHYS28');
-</script>
+      gtag("config", "G-1F24YHYS28");
+    </script>
   </head>
   <body>
     <div class="container">
@@ -215,6 +221,26 @@
         </div>
       </div>
     </div>
+    <!-- Review Modal -->
+    <div class="modal" id="review-modal">
+      <div class="modal-content" style="max-width: 550px">
+        <span class="modal-close">×</span>
+        <h3 id="reviewModalTitle">Write a Review</h3>
+        <form id="reviewForm">
+          <div class="form-group">
+            <label>Your Rating:</label>
+            <div class="rating-stars" id="reviewRatingStars"></div>
+          </div>
+          <div class="form-group">
+            <label for="reviewText">Your Review:</label>
+            <textarea id="reviewText" required rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn">Submit Review</button>
+          <div class="success-message" id="reviewFormSuccess"></div>
+        </form>
+      </div>
+    </div>
   </body>
+  <script src="/js/index.js" defer></script>
   <script src="js/property-details.js" defer></script>
 </html>

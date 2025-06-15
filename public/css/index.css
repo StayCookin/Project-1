@@ -1,0 +1,10 @@
+/* Main CSS for InRent - import or copy your main styles here */
+@import url("/css/styles.css");
+@import url("/css/main.css");
+@import url("/css/landlord_dashboard.css");
+@import url("/css/property-details.css");
+@import url("/css/reviews.css");
+@import url("/css/saved-properties.css");
+@import url("/css/schedule-viewing.css");
+@import url("/css/studentdashboard.css");
+@import url("/css/email-verification.css");
