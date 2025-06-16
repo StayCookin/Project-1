@@ -158,30 +158,85 @@ router.delete("/:id", auth, async (req, res) => {
 });
 
 module.exports = router;
-document.addEventListener("DOMContentLoaded", function () {
-  // Handle helpful button clicks
-  const helpfulButtons = document.querySelectorAll(".btn-primary");
-  helpfulButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const reviewCard = this.closest(".review-card");
-      const reviewerName =
-        reviewCard.querySelector(".reviewer-name").textContent;
-      alert(`Thank you for marking ${reviewerName}'s review as helpful!`);
-    });
-  });
 
-  // Handle report button clicks
-  const reportButtons = document.querySelectorAll(".btn-secondary");
-  reportButtons.forEach((button) => {
-    button.addEventListener("click", function () {
-      const reviewCard = this.closest(".review-card");
-      const reviewerName =
-        reviewCard.querySelector(".reviewer-name").textContent;
-      if (
-        confirm(`Are you sure you want to report ${reviewerName}'s review?`)
-      ) {
-        alert("Review reported. Our team will review it shortly.");
-      }
-    });
-  });
+document.addEventListener("DOMContentLoaded", function () {
+  fetchReviews();
 });
+
+async function fetchReviews() {
+  try {
+    const res = await fetch("/api/reviews");
+    if (!res.ok) throw new Error("Failed to fetch reviews");
+    const reviews = await res.json();
+    renderReviews(reviews);
+  } catch (err) {
+    document.getElementById("reviewsContainer").innerHTML =
+      '<div class="empty-state">Failed to load reviews.</div>';
+  }
+}
+
+function renderReviews(reviews) {
+  const container = document.getElementById("reviewsContainer");
+  container.innerHTML = "";
+  if (!reviews.length) {
+    container.innerHTML = '<div class="empty-state">No reviews found.</div>';
+    return;
+  }
+  reviews.forEach((review) => {
+    const card = document.createElement("div");
+    card.className = "review-card";
+    card.innerHTML = `
+      <div class="review-header">
+        <div class="reviewer-info">
+          <div class="reviewer-avatar">${review.reviewerInitials}</div>
+          <div>
+            <div class="reviewer-name">${review.reviewerName}</div>
+            <div class="review-date">${review.date}</div>
+          </div>
+        </div>
+        <div class="review-rating">${"★".repeat(review.rating)}${"☆".repeat(
+      5 - review.rating
+    )}</div>
+      </div>
+      <div class="review-content">${review.text}</div>
+      <div class="review-property">
+        <img
+          src="${review.propertyImage || "/img/default-property.jpg"}"
+          alt="${review.propertyTitle}"
+          class="property-image"
+        />
+        <div class="property-info">
+          <h4>${review.propertyTitle}</h4>
+          <p>${review.propertyLocation}</p>
+        </div>
+      </div>
+      <div class="review-actions">
+        <button
+          class="btn btn-primary"
+          onclick="markHelpful('${review._id}')"
+        >
+          <i class="fas fa-thumbs-up"></i> Helpful
+        </button>
+        <button
+          class="btn btn-secondary"
+          onclick="reportReview('${review._id}')"
+        >
+          <i class="fas fa-flag"></i> Report
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function markHelpful(reviewId) {
+  fetch(`/api/reviews/${reviewId}/helpful`, { method: "POST" }).then((res) =>
+    res.ok ? alert("Marked as helpful!") : alert("Failed to mark as helpful.")
+  );
+}
+
+function reportReview(reviewId) {
+  fetch(`/api/reviews/${reviewId}/report`, { method: "POST" }).then((res) =>
+    res.ok ? alert("Reported!") : alert("Failed to report.")
+  );
+}

@@ -14,16 +14,21 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/saved-properties.css" />
+    <link rel="stylesheet" href="/css/main.css" />
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'G-1F24YHYS28');
-</script>
+      gtag("config", "G-1F24YHYS28");
+    </script>
   </head>
   <body>
     <a href="student-dashboard.html" class="back-button">
@@ -34,62 +39,7 @@
         <i class="fas fa-heart"></i>
         <h1>Saved Properties</h1>
       </div>
-
-      <div class="saved-properties-grid">
-        <!-- Property Card 1 -->
-        <div class="property-card">
-          <img
-            src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-            alt="Modern Apartment"
-            class="property-image"
-          />
-          <div class="property-details">
-            <div class="property-price">P3,500/month</div>
-            <h3 class="property-title">Modern Apartment near UB</h3>
-            <p class="property-location">Gaborone, Near UB Campus</p>
-            <div class="property-features">
-              <span><i class="fas fa-bed"></i> 2 Beds</span>
-              <span><i class="fas fa-bath"></i> 1 Bath</span>
-              <span><i class="fas fa-ruler-combined"></i> 800 sqft</span>
-            </div>
-            <div class="property-actions">
-              <button class="btn btn-primary" href="property-details.html">
-                <i class="fas fa-eye"></i> View Details
-              </button>
-              <button class="btn btn-secondary">
-                <i class="fas fa-heart"></i> Remove
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Property Card 2 -->
-        <div class="property-card">
-          <img
-            src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-            alt="Cozy Studio"
-            class="property-image"
-          />
-          <div class="property-details">
-            <div class="property-price">P2,800/month</div>
-            <h3 class="property-title">Cozy Studio near Baisago</h3>
-            <p class="property-location">Gaborone, Near Baisago Campus</p>
-            <div class="property-features">
-              <span><i class="fas fa-bed"></i> 1 Bed</span>
-              <span><i class="fas fa-bath"></i> 1 Bath</span>
-              <span><i class="fas fa-ruler-combined"></i> 500 sqft</span>
-            </div>
-            <div class="property-actions">
-              <button class="btn btn-primary">
-                <i class="fas fa-eye"></i> View Details
-              </button>
-              <button class="btn btn-secondary">
-                <i class="fas fa-heart"></i> Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="saved-properties-grid" id="savedPropertiesGrid"></div>
     </div>
     <script src="js/saved-properties.js" defer></script>
   </body>

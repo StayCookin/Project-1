@@ -14,16 +14,21 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/schedule-viewing.css" />
+    <link rel="stylesheet" href="/css/main.css" />
     <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'G-1F24YHYS28');
-</script>
+      gtag("config", "G-1F24YHYS28");
+    </script>
   </head>
   <body>
     <div class="container">
@@ -33,84 +38,7 @@
           Choose a date and time that works for you
         </p>
       </div>
-
-      <div class="schedule-container">
-        <div class="calendar-section">
-          <div class="property-info">
-            <img
-              src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-              alt="Property"
-              class="property-image"
-            />
-            <div class="property-details">
-              <h3>Modern Apartment near UB</h3>
-              <p>Gaborone, Near UB Campus</p>
-            </div>
-          </div>
-
-          <div class="calendar">
-            <div class="calendar-header">
-              <h3>Select a Date</h3>
-              <div class="calendar-nav">
-                <button id="prevMonth">
-                  <i class="fas fa-chevron-left"></i>
-                </button>
-                <button id="nextMonth">
-                  <i class="fas fa-chevron-right"></i>
-                </button>
-              </div>
-            </div>
-            <div class="calendar-grid" id="calendarGrid">
-              <!-- Calendar will be populated by JavaScript -->
-            </div>
-          </div>
-        </div>
-
-        <div class="booking-section">
-          <div class="time-slots">
-            <h3>Available Time Slots</h3>
-            <div class="time-grid" id="timeGrid">
-              <!-- Time slots will be populated by JavaScript -->
-            </div>
-          </div>
-
-          <form id="bookingForm" class="booking-form">
-            <div class="form-group">
-              <label class="form-label">Your Name</label>
-              <input type="text" class="form-input" id="name" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Phone Number</label>
-              <input type="tel" class="form-input" id="phone" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-input" id="email" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Additional Notes</label>
-              <textarea
-                class="form-textarea"
-                id="notes"
-                placeholder="Any specific requirements or questions?"
-              ></textarea>
-            </div>
-
-            <button
-              type="submit"
-              class="btn btn-primary"
-              id="submitBtn"
-              disabled
-            >
-              <i class="fas fa-calendar-check"></i>
-              Schedule Viewing
-            </button>
-          </form>
-        </div>
-      </div>
+      <div class="schedule-container" id="scheduleContainer"></div>
     </div>
     <script src="js/schedule-viewing.js" defer></script>
   </body>

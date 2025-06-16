@@ -132,6 +132,98 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(`Opening conversation with ${sender}`);
     });
   });
+
+  // Fetch and render properties from backend
+  fetchProperties();
+
+  async function fetchProperties(filters = {}) {
+    try {
+      let url = "/api/properties";
+      const params = new URLSearchParams(filters);
+      if ([...params].length) url += "?" + params.toString();
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to fetch properties");
+      const properties = await res.json();
+      renderProperties(properties);
+    } catch (err) {
+      console.error("Properties fetch error:", err);
+      document.getElementById(
+        "propertyGrid"
+      ).innerHTML = `<div class="empty-state">Failed to load properties.</div>`;
+    }
+  }
+
+  function renderProperties(properties) {
+    const grid = document.getElementById("propertyGrid");
+    grid.innerHTML = "";
+    if (!properties.length) {
+      grid.innerHTML = `<div class="empty-state">No properties found.</div>`;
+      return;
+    }
+    properties.forEach((property) => {
+      const card = document.createElement("div");
+      card.className = "property-card";
+      card.innerHTML = `
+      <img src="${property.imageUrl || "/img/default-property.jpg"}" alt="${
+        property.title
+      }" class="property-image" />
+      <div class="property-details">
+        <div class="property-price">P${property.price}/month</div>
+        <h3 class="property-title">${property.title}</h3>
+        <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${
+          property.location
+        }</p>
+        <div class="property-features">
+          <span class="feature"><i class="fas fa-bed"></i> ${
+            property.beds
+          } Beds</span>
+          <span class="feature"><i class="fas fa-bath"></i> ${
+            property.baths
+          } Bath${property.baths > 1 ? "s" : ""}</span>
+          <span class="feature"><i class="fas fa-ruler-combined"></i> ${
+            property.size
+          } sqft</span>
+          ${
+            property.amenities
+              ? property.amenities
+                  .map(
+                    (a) =>
+                      `<span class='feature'><i class='fas fa-${a.icon}'></i> ${a.name}</span>`
+                  )
+                  .join("")
+              : ""
+          }
+        </div>
+        <div class="property-actions">
+          <button class="btn btn-primary" onclick="viewDetails('${
+            property._id
+          }')"><i class="fas fa-eye"></i> View Details</button>
+          <button class="btn btn-secondary" onclick="saveProperty('${
+            property._id
+          }')"><i class="fas fa-heart"></i> Save</button>
+          <button class="btn btn-message" onclick="messageLandlord('${
+            property.landlordId
+          }')"><i class="fas fa-comment"></i> Message</button>
+        </div>
+      </div>
+    `;
+      grid.appendChild(card);
+    });
+  }
+
+  window.viewDetails = function (propertyId) {
+    window.location.href = `/property-details.html?id=${propertyId}`;
+  };
+
+  window.saveProperty = function (propertyId) {
+    fetch(`/api/properties/${propertyId}/save`, { method: "POST" }).then(
+      (res) => (res.ok ? alert("Property saved!") : alert("Failed to save."))
+    );
+  };
+
+  window.messageLandlord = function (landlordId) {
+    window.location.href = `/messages.html?to=${landlordId}`;
+  };
 });
 
 // Mobile menu functionality
