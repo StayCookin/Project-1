@@ -89,6 +89,14 @@ const getAllProperties = async (req, res) => {
       if (startDate) where.createdAt.gte = new Date(startDate);
       if (endDate) where.createdAt.lte = new Date(endDate);
     }
+    // --- AMENITIES FILTER (multi) ---
+    if (Array.isArray(req.query.amenity)) {
+      // Multiple amenities: all must be present
+      where.AND = req.query.amenity.map((a) => ({ amenities: { has: a } }));
+    } else if (req.query.amenity) {
+      // Single amenity
+      where.amenities = { has: req.query.amenity };
+    }
     const properties = await prisma.property.findMany({
       where,
       include: {

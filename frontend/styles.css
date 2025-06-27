@@ -1,9 +1,9 @@
-wh/* InRent Website Styling */
+/* InRent Website Styling */
 
 /* Color Variables */
 :root {
   --light-grey: #f0f0f0;
-  --royal-blue: #4169e1;
+  --whitesmoke: whitesmoke;
   --forest-blue: #228b22;
   --hover-transition: 0.4s ease-in-out;
 }
@@ -330,7 +330,7 @@ nav {
 .hero {
   padding: 12rem 0 6rem;
   text-align: center;
-  background:white;
+  background: white;
   position: relative;
   overflow: hidden;
 }

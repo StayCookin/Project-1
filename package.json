@@ -6,7 +6,8 @@
     "deploy": "vercel"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.3"
   },
   "repository": {
     "type": "git",

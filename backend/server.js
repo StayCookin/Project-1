@@ -86,6 +86,8 @@ const inquiryRoutes = require("./routes/inquiries.routes");
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/profile", require("./routes/profile"));
+const savedPropertiesRoutes = require("./routes/saved-properties");
+app.use("/api/saved-properties", savedPropertiesRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup - InRent</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <script type="module" src="js/signup.js" defer></script>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-1F24YHYS28");
+    </script>
+    <style>
+      :root {
+        --forest-green: #228b22;
+        --black: #000000;
+        --white: #ffffff;
+      }
+      .bg-forest {
+        background-color: var(--forest-green);
+      }
+      .text-forest {
+        color: var(--forest-green);
+      }
+      .border-forest {
+        border-color: var(--forest-green);
+      }
+      .centered-form-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .centered-form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #fff;
+        padding: 2.5rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        min-width: 320px;
+        max-width: 400px;
+        width: 100%;
+      }
+      .centered-form-container label {
+        text-align: left;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+      }
+      .centered-form-container input[type="text"],
+      .centered-form-container input[type="email"],
+      .centered-form-container input[type="password"],
+      .centered-form-container select {
+        padding: 0.7rem;
+        border: 1px solid #228b22;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .centered-form-container .btn {
+        margin-top: 1rem;
+        background: var(--forest-green);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 5px;
+        padding: 0.7rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .centered-form-container .btn:hover {
+        background: #000;
+      }
+      .centered-form-container a.btn-link {
+        color: var(--forest-green);
+        text-decoration: underline;
+        background: none;
+        border: none;
+        padding: 0;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      @media (max-width: 600px) {
+        .centered-form-container form {
+          min-width: 100vw;
+          max-width: 100vw;
+          padding: 1.2rem 0.5rem;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .centered-form-container {
+          padding: 0;
+        }
+        label,
+        input,
+        select,
+        button {
+          font-size: 1.1rem;
+        }
+      }
+      input:focus,
+      select:focus,
+      button:focus {
+        outline: 2px solid #228b22;
+        outline-offset: 2px;
+      }
+      /* Modal styles */
+      #emailVerificationModal {
+        display: none !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      #emailVerificationModal > div {
+        background: #fff;
+        border-radius: 10px;
+        padding: 2rem 1.5rem;
+        max-width: 350px;
+        width: 90vw;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+        text-align: center;
+      }
+      #emailVerificationModal svg {
+        margin-bottom: 1rem;
+      }
+      #emailVerificationModal h3 {
+        color: #228b22;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      #emailVerificationModal p {
+        margin-bottom: 1.2rem;
+        color: #222;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-white min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden"
+  >
+    <!-- Floating 'In' pattern background -->
+    <div
+      aria-hidden="true"
+      class="fixed inset-0 z-0"
+      style="pointer-events: none; user-select: none"
+    >
+      <svg
+        width="100vw"
+        height="100vh"
+        class="w-full h-full"
+        style="position: absolute; top: 0; left: 0"
+      >
+        <defs>
+          <pattern
+            id="inPattern"
+            width="120"
+            height="120"
+            patternUnits="userSpaceOnUse"
+          >
+            <text
+              x="10"
+              y="60"
+              font-size="64"
+              font-family="Poppins, sans-serif"
+              fill="#228B22"
+              opacity="0.07"
+            >
+              In
+            </text>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#inPattern)" />
+      </svg>
+    </div>
+    <div class="w-full flex justify-center py-4 z-10 relative">
+      <span class="text-3xl font-bold text-forest"
+        >In<span class="text-black">Rent</span></span
+      >
+    </div>
+    <div class="centered-form-container z-10 relative">
+      <h2
+        style="
+          text-align: center;
+          color: var(--forest-green);
+          font-size: 2rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
+        "
+      >
+        Sign Up
+      </h2>
+      <form
+        id="signupForm"
+        action="/signup"
+        method="post"
+        autocomplete="off"
+        enctype="multipart/form-data"
+      >
+        <label for="role">I am a:</label>
+        <select id="role" name="role" required>
+          <option value="STUDENT">Student</option>
+          <option value="LANDLORD">Landlord</option>
+        </select>
+        <label for="firstName">First Name:</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          required
+          autocomplete="given-name"
+        />
+        <label for="surname">Surname:</label>
+        <input
+          type="text"
+          id="surname"
+          name="surname"
+          required
+          autocomplete="family-name"
+        />
+        <label for="emailAddress">Email Address:</label>
+        <input
+          type="email"
+          id="emailAddress"
+          name="email"
+          required
+          autocomplete="email"
+        />
+        <div id="studentFields" style="display: block">
+          <label for="studentId">Upload Student ID/Admission Letter:</label>
+          <input
+            type="file"
+            id="studentId"
+            name="studentId"
+            accept=".pdf,.jpg,.jpeg,.png"
+            aria-describedby="studentIdHelp"
+          />
+          <div
+            id="studentIdHelp"
+            style="font-size: 0.95em; color: #555; margin-top: 0.2em"
+          >
+            Accepted: PDF, JPG, PNG. Max size: 2MB.
+          </div>
+          <div
+            id="studentIdFileName"
+            style="font-size: 0.95em; color: #228b22; margin-top: 0.2em"
+          ></div>
+        </div>
+        <div id="landlordFields" style="display: none">
+          <label for="kycDoc">Upload KYC/Proof of Ownership:</label>
+          <input
+            type="file"
+            id="kycDoc"
+            name="kycDoc"
+            accept=".pdf,.jpg,.jpeg,.png"
+          />
+        </div>
+        <label for="password">Create Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          autocomplete="new-password"
+        />
+        <label for="passwordConfirm">Confirm Password:</label>
+        <input
+          type="password"
+          id="passwordConfirm"
+          name="passwordConfirm"
+          required
+          autocomplete="new-password"
+        />
+        <div style="margin-bottom: 1rem">
+          <input
+            type="checkbox"
+            id="termsConsent"
+            name="termsConsent"
+            required
+            aria-required="true"
+            style="margin-right: 0.5rem"
+          />
+          <label
+            for="termsConsent"
+            aria-label="Agree to terms and privacy policy"
+          >
+            I agree to the
+            <a
+              href="terms.html"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--forest-green); text-decoration: underline"
+              >Terms & Conditions</a
+            >
+            and
+            <a
+              href="privacy.html"
+              target="_blank"
+              rel="noopener"
+              style="color: var(--forest-green); text-decoration: underline"
+              >Privacy Policy</a
+            >.
+          </label>
+        </div>
+        <button class="btn btn-secondary" type="submit" aria-label="Sign Up">
+          Sign Up
+        </button>
+        <div style="text-align: center; margin-top: 1rem">
+          Already have an account?
+          <a href="login.html" class="btn-link" aria-label="Log In">Log In</a>
+        </div>
+        <div
+          id="signupError"
+          style="color: red; text-align: center; margin-top: 1rem"
+          aria-live="polite"
+        ></div>
+      </form>
+    </div>
+
+    <!-- Modal for email verification -->
+    <div
+      id="emailVerificationModal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.45);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          border-radius: 10px;
+          max-width: 350px;
+          width: 90vw;
+          margin: auto;
+          padding: 2rem 1.5rem;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+          text-align: center;
+        "
+      >
+        <h3
+          style="
+            color: var(--forest-green);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+          "
+        >
+          Check Your Email
+        </h3>
+        <p style="margin-bottom: 1.5rem">
+          We've sent a verification link to your email address. Please check
+          your inbox (and spam folder) and click the link to activate your
+          account.
+        </p>
+        <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
+      </div>
+    </div>
+
+    <script>
+      // Show/hide fields based on role
+      const roleSelect = document.getElementById("role");
+      const studentFields = document.getElementById("studentFields");
+      const landlordFields = document.getElementById("landlordFields");
+      roleSelect.addEventListener("change", function () {
+        if (this.value === "STUDENT") {
+          studentFields.style.display = "block";
+          landlordFields.style.display = "none";
+        } else {
+          studentFields.style.display = "none";
+          landlordFields.style.display = "block";
+        }
+      });
+      // Show selected file name for studentId
+      document
+        .getElementById("studentId")
+        .addEventListener("change", function () {
+          const file = this.files[0];
+          const fileNameDiv = document.getElementById("studentIdFileName");
+          if (file) {
+            fileNameDiv.textContent = `Selected: ${file.name}`;
+          } else {
+            fileNameDiv.textContent = "";
+          }
+        });
+      // AJAX form submission with validation and double-submit prevention
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const role = roleSelect.value;
+          const email = document.getElementById("emailAddress").value;
+          const errorDiv = document.getElementById("signupError");
+          errorDiv.textContent = "";
+          const submitBtn = this.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
+          // Validation (same as before)
+          if (role === "STUDENT") {
+            const uniPattern = /@.*\.ac\.bw$/i;
+            if (!uniPattern.test(email)) {
+              errorDiv.textContent =
+                "Please use your university email address (ending with .ac.bw)";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign Up";
+              return false;
+            }
+            const studentIdFile = document.getElementById("studentId").files[0];
+            if (!studentIdFile) {
+              errorDiv.textContent =
+                "Please upload your student ID or admission letter.";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign Up";
+              return false;
+            }
+          }
+          if (role === "LANDLORD") {
+            const kycFile = document.getElementById("kycDoc").files[0];
+            if (!kycFile) {
+              errorDiv.textContent =
+                "Please upload your KYC/proof of ownership document.";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign Up";
+              return false;
+            }
+          }
+          const pw = document.getElementById("password").value;
+          const pwc = document.getElementById("passwordConfirm").value;
+          if (pw !== pwc) {
+            errorDiv.textContent = "Passwords do not match.";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign Up";
+            return false;
+          }
+          const termsConsent = document.getElementById("termsConsent");
+          if (!termsConsent.checked) {
+            errorDiv.textContent =
+              "You must agree to the Terms & Conditions and Privacy Policy.";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign Up";
+            return false;
+          }
+          // Prepare form data
+          const formData = new FormData(this);
+          try {
+            // Set API base URL for local testing
+            const API_BASE = window.API_BASE_URL || "http://localhost:5001";
+            const response = await fetch(`${API_BASE}/api/auth/register`, {
+              method: "POST",
+              body: formData,
+            });
+            const result = await response.json();
+            if (response.ok) {
+              // Show modal instead of redirect
+              document.getElementById("emailVerificationModal").style.display =
+                "flex";
+              this.reset();
+              document.getElementById("studentIdFileName").textContent = "";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign Up";
+            } else {
+              errorDiv.textContent =
+                result.message || "Signup failed. Please try again.";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "Sign Up";
+            }
+          } catch (err) {
+            errorDiv.textContent = "Network error. Please try again.";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign Up";
+          }
+        });
+      // Spinner animation
+      const style = document.createElement("style");
+      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+      document.head.appendChild(style);
+      document.getElementById("closeModalBtn").onclick = function () {
+        document.getElementById("emailVerificationModal").style.display =
+          "none";
+        window.location.href = "login.html";
+      };
+      // Ensure modal is hidden on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("emailVerificationModal").style.display =
+          "none";
+      });
+    </script>
+    <!--
+      BACKEND EMAIL VERIFICATION FLOW:
+      - Use a service like Nodemailer (Node.js/Express) or SendGrid to send the verification email.
+      - The email contains a unique link (e.g., /verify?token=XYZ) tied to the user.
+      - When the user clicks the link, the backend verifies the token, marks the user as verified/active, and allows login.
+      - The verification link acts as a switch: only after clicking it can the user access the website.
+    -->
+  </body>
+</html>

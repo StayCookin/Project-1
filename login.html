@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - InRent</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <script type="module" src="js/login.js" defer></script>
+    <style>
+      :root {
+        --forest-green: #228b22;
+        --black: #000000;
+        --white: #ffffff;
+      }
+      .bg-forest {
+        background-color: var(--forest-green);
+      }
+      .text-forest {
+        color: var(--forest-green);
+      }
+      .border-forest {
+        border-color: var(--forest-green);
+      }
+      .centered-form-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .centered-form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        background: #fff;
+        padding: 2.5rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        min-width: 320px;
+        max-width: 400px;
+        width: 100%;
+      }
+      .centered-form-container label {
+        text-align: left;
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+      }
+      .centered-form-container input[type="email"],
+      .centered-form-container input[type="password"] {
+        padding: 0.7rem;
+        border: 1px solid #228b22;
+        border-radius: 5px;
+        font-size: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .centered-form-container .btn {
+        margin-top: 1rem;
+        background: var(--forest-green);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 5px;
+        padding: 0.7rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .centered-form-container .btn:hover {
+        background: #000;
+      }
+      .centered-form-container a.btn-link {
+        color: var(--forest-green);
+        text-decoration: underline;
+        background: none;
+        border: none;
+        padding: 0;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      @media (max-width: 600px) {
+        .centered-form-container form {
+          min-width: 100vw;
+          max-width: 100vw;
+          padding: 1.2rem 0.5rem;
+          border-radius: 0;
+          box-shadow: none;
+        }
+        .centered-form-container {
+          padding: 0;
+        }
+        label,
+        input,
+        button {
+          font-size: 1.1rem;
+        }
+      }
+      input:focus,
+      button:focus {
+        outline: 2px solid #228b22;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-white min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden"
+  >
+    <!-- Floating 'In' pattern background -->
+    <div
+      aria-hidden="true"
+      class="fixed inset-0 z-0"
+      style="pointer-events: none; user-select: none"
+    >
+      <svg
+        width="100vw"
+        height="100vh"
+        class="w-full h-full"
+        style="position: absolute; top: 0; left: 0"
+      >
+        <defs>
+          <pattern
+            id="inPattern"
+            width="120"
+            height="120"
+            patternUnits="userSpaceOnUse"
+          >
+            <text
+              x="10"
+              y="60"
+              font-size="64"
+              font-family="Poppins, sans-serif"
+              fill="#228B22"
+              opacity="0.07"
+            >
+              In
+            </text>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#inPattern)" />
+      </svg>
+    </div>
+    <div class="w-full flex justify-center py-4 z-10 relative">
+      <span class="text-3xl font-bold text-forest"
+        >In<span class="text-black">Rent</span></span
+      >
+    </div>
+    <div class="centered-form-container z-10 relative">
+      <h2
+        style="
+          text-align: center;
+          color: var(--forest-green);
+          font-size: 2rem;
+          font-weight: 600;
+          margin-bottom: 1.5rem;
+        "
+      >
+        Log In
+      </h2>
+      <form id="loginForm" autocomplete="off">
+        <label for="email">Email Address:</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          autocomplete="email"
+        />
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          autocomplete="current-password"
+        />
+        <button class="btn btn-secondary" type="submit" aria-label="Log In">
+          Log In
+        </button>
+        <div style="text-align: center; margin-top: 1rem">
+          Don't have an account?
+          <a href="signup.html" class="btn-link" aria-label="Sign Up"
+            >Sign Up</a
+          >
+        </div>
+        <div
+          id="loginError"
+          style="color: red; text-align: center; margin-top: 1rem"
+          aria-live="polite"
+        ></div>
+      </form>
+    </div>
+  </body>
+</html>

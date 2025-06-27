@@ -10,9 +10,13 @@ const safetyRating = document.getElementById("safetyRating");
 const writeReviewBtn = document.getElementById("writeReviewBtn");
 const reviewModal = document.getElementById("review-modal");
 const ratingStars = document.querySelectorAll("#ratingStars i");
+const landlordNextBtn = document;
 
 // State
 let selectedRating = 0;
+
+// --- API ENDPOINTS ---
+const API_BASE = "/api";
 
 // Initialize
 function initialize() {
@@ -55,15 +59,16 @@ function initialize() {
     input.addEventListener("change", handlePhotoUpload);
   });
 
-  // Load existing reviews
-  const existingReviews =
-    JSON.parse(localStorage.getItem("landlordReviews")) || [];
-  existingReviews.forEach((review) => addReviewToList(review));
-  updateAverageRating();
+  // Remove loading reviews from localStorage in initialize()
+  // const existingReviews =
+  //   JSON.parse(localStorage.getItem("landlordReviews")) || [];
+  // existingReviews.forEach((review) => addReviewToList(review));
+  // updateAverageRating();
+  // Instead, fetch reviews from backend if needed
 }
 
 // Waitlist form handler
-function handleWaitlistSubmit(e) {
+async function handleWaitlistSubmit(e) {
   e.preventDefault();
   const messageDiv = document.querySelector(".waitlist-message");
 
@@ -78,8 +83,13 @@ function handleWaitlistSubmit(e) {
       interest: document.getElementById("interest").value,
     };
 
-    // Here you would typically make an API call to submit the data
-    // For now, we'll just show a success message
+    const res = await fetch(`${API_BASE}/waitlist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+    if (!res.ok) throw new Error("Failed to join waitlist");
+
     messageDiv.classList.remove("error");
     messageDiv.classList.add("success");
     messageDiv.textContent = "Thank you for joining the waitlist!";
@@ -97,7 +107,7 @@ function handleWaitlistSubmit(e) {
 }
 
 // Functions
-function handleListingSubmit(e) {
+async function handleListingSubmit(e) {
   e.preventDefault();
 
   // Validate photos
@@ -120,25 +130,45 @@ function handleListingSubmit(e) {
     return;
   }
 
-  // Get amenities
+  // Gather form data
+  const form = e.target;
+  const formData = new FormData(form);
+
+  // Add amenities
   const amenities = Array.from(amenitiesList.children).map((tag) =>
     tag.textContent.trim()
   );
+  formData.append("amenities", JSON.stringify(amenities));
 
-  // Process listing
-  const landlordData = JSON.parse(localStorage.getItem("landlordData"));
-  if (landlordData) {
-    landlordData.freeListings--;
-    localStorage.setItem("landlordData", JSON.stringify(landlordData));
-
-    if (landlordData.freeListings <= 0) {
-      addListingBtn.style.display = "none";
-    }
+  try {
+    const res = await fetch(`${API_BASE}/properties`, {
+      method: "POST",
+      body: formData,
+      // credentials: 'include' // if using cookies for auth
+    });
+    if (!res.ok) throw new Error("Failed to submit listing");
+    alert("Your listing has been submitted for verification.");
+    addListingModal.classList.remove("active");
+    form.reset();
+    if (amenitiesList) amenitiesList.innerHTML = "";
+    if (photoPreviewContainer) photoPreviewContainer.innerHTML = "";
+    if (photoUploadGridInput) photoUploadGridInput.value = "";
+    document.querySelectorAll(".upload-preview").forEach((p) => {
+      p.classList.remove("active");
+      if (p.querySelector(".filename"))
+        p.querySelector(".filename").textContent = "";
+    });
+    document
+      .querySelectorAll(".document-upload p")
+      .forEach((p) => (p.style.display = "block"));
+    if (conditionValue)
+      conditionValue.textContent = conditionRating.value = "7";
+    if (safetyValue) safetyValue.textContent = safetyRating.value = "7";
+    displayProperties();
+  } catch (err) {
+    alert("Failed to submit listing. Please try again.");
+    console.error(err);
   }
-
-  // Close modal and show success
-  addListingModal.classList.remove("active");
-  alert("Your listing has been submitted for verification.");
 }
 
 function handlePhotoUpload(e) {
@@ -192,7 +222,7 @@ function openReviewModal() {
   reviewModal.classList.add("active");
 }
 
-function handleReviewSubmit(e) {
+async function handleReviewSubmit(e) {
   e.preventDefault();
 
   if (selectedRating === 0) {
@@ -202,32 +232,26 @@ function handleReviewSubmit(e) {
 
   const reviewText = e.target.querySelector("textarea").value;
   const studentData = JSON.parse(localStorage.getItem("studentData"));
-
-  const review = {
-    id: Date.now(),
-    rating: selectedRating,
-    text: reviewText,
-    reviewer: {
-      name: `${studentData.firstName} ${studentData.lastName}`,
-      avatar: studentData.avatar || "avatar-placeholder.png",
-    },
-    timestamp: new Date().toISOString(),
-  };
-
-  // Save review to localStorage
-  const reviews = JSON.parse(localStorage.getItem("landlordReviews")) || [];
-  reviews.push(review);
-  localStorage.setItem("landlordReviews", JSON.stringify(reviews));
-
-  // Update UI
-  addReviewToList(review);
-  updateAverageRating();
-
-  // Close modal
-  reviewModal.classList.remove("active");
-  e.target.reset();
-  selectedRating = 0;
-  updateStars(0);
+  const propertyId = e.target.dataset.propertyId; // Set this when opening modal
+  try {
+    const res = await fetch(`${API_BASE}/reviews/${propertyId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rating: selectedRating, text: reviewText }),
+      // credentials: 'include' // if using cookies for auth
+    });
+    if (!res.ok) throw new Error("Failed to submit review");
+    alert("Thank you for your review!");
+    reviewModal.classList.remove("active");
+    e.target.reset();
+    selectedRating = 0;
+    updateStars(0);
+    // Optionally refresh reviews
+    // displayReviews(propertyId);
+  } catch (err) {
+    alert("Failed to submit review. Please try again.");
+    console.error(err);
+  }
 }
 
 function handleStarHover() {
@@ -284,21 +308,25 @@ function createStarRatingHTML(rating) {
     .join("");
 }
 
+// Remove updateAverageRating() and any code that uses landlordReviews from localStorage
 function updateAverageRating() {
-  const reviews = JSON.parse(localStorage.getItem("landlordReviews")) || [];
-  if (reviews.length === 0) return;
-
-  const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-  const averageRating = (totalRating / reviews.length).toFixed(1);
-
-  const ratingValue = document.querySelector(".landlord-rating .rating-value");
-  const reviewCount = document.querySelector(".landlord-rating .review-count");
-  if (ratingValue && reviewCount) {
-    ratingValue.textContent = averageRating;
-    reviewCount.textContent = `(${reviews.length} review${
-      reviews.length === 1 ? "" : "s"
-    })`;
-  }
+  // Fetch reviews from backend and calculate average
+  // Example:
+  fetch(`${API_BASE}/reviews/landlord`)
+    .then((res) => res.json())
+    .then((reviews) => {
+      if (!Array.isArray(reviews) || reviews.length === 0) return;
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = (totalRating / reviews.length).toFixed(1);
+      const ratingValue = document.querySelector(".landlord-rating .rating-value");
+      const reviewCount = document.querySelector(".landlord-rating .review-count");
+      if (ratingValue && reviewCount) {
+        ratingValue.textContent = averageRating;
+        reviewCount.textContent = `(${reviews.length} review${
+          reviews.length === 1 ? "" : "s"
+        })`;
+      }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", initialize);
@@ -321,10 +349,10 @@ universitySelect.addEventListener("change", function () {
 });
 
 // Load existing reviews on page load
-const existingReviews =
-  JSON.parse(localStorage.getItem("landlordReviews")) || [];
-existingReviews.forEach((review) => addReviewToList(review));
-updateAverageRating();
+// const existingReviews =
+//   JSON.parse(localStorage.getItem("landlordReviews")) || [];
+// existingReviews.forEach((review) => addReviewToList(review));
+// updateAverageRating();
 // MAIN SCRIPT FILE (main.js)
 document.addEventListener("DOMContentLoaded", function () {
   // --- MODAL FUNCTIONALITY ---
@@ -645,168 +673,69 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // --- STUDENT LOGIN FORM SUBMISSION ---
+  // --- STUDENT LOGIN FORM SUBMISSION (API) ---
   const studentLoginForm = document.getElementById("studentLoginForm");
   if (studentLoginForm) {
-    studentLoginForm.addEventListener("submit", function (e) {
+    studentLoginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      // TODO: Add actual validation and authentication logic here
-      console.log("Student login attempt");
-      alert("Student login successful (simulation)!");
-      closeModal(document.getElementById("login"));
-      openModal("property-listings");
-      displayProperties();
+      const email = document.getElementById("studentLoginEmail").value.trim();
+      const password = document.getElementById("studentLoginPassword").value;
+      if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role: "student" }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Login failed");
+        localStorage.setItem("studentToken", data.token);
+        localStorage.setItem("studentData", JSON.stringify(data.user));
+        alert("Student login successful!");
+        closeModal(document.getElementById("login"));
+        openModal("property-listings");
+        displayProperties();
+      } catch (err) {
+        alert(err.message || "Login failed. Please try again.");
+      }
     });
   }
 
-  // --- LANDLORD LOGIN FORM SUBMISSION ---
+  // --- LANDLORD LOGIN FORM SUBMISSION (API) ---
   const landlordLoginForm = document.getElementById("landlordLoginForm");
   if (landlordLoginForm) {
-    landlordLoginForm.addEventListener("submit", function (e) {
+    landlordLoginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      // TODO: Add actual validation and authentication logic here
-      console.log("Landlord login attempt");
-      alert("Landlord login successful (simulation)!");
-      closeModal(document.getElementById("login"));
-      openModal("landlord-dashboard");
-      initializeCharts();
-    });
-  }
-
-  // --- "SWITCH TO SIGNUP" LINKS IN LOGIN MODAL ---
-  // These links allow users to navigate from the login modal to the signup flow.
-  document.querySelectorAll("#login .switch-to-signup").forEach((link) => {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      const modalToOpen = this.getAttribute("data-modal"); // e.g., "student-signup" or "landlord-signup"
-      closeModal(document.getElementById("login"));
-      // The signup flow starts with #signup-options, or directly to student/landlord if preferred.
-      // Current setup: data-modal on these links points to specific signup modals.
-      openModal(modalToOpen);
-    });
-  });
-
-  // --- PASSWORD VALIDATION UI ---
-  function setupPasswordValidation(passwordInputId, requirementsMap) {
-    const passwordInput = document.getElementById(passwordInputId);
-    if (!passwordInput) return;
-
-    const reqElements = {};
-    for (const key in requirementsMap) {
-      const el = document.getElementById(requirementsMap[key]);
-      if (el) reqElements[key] = el;
-    }
-
-    passwordInput.addEventListener("input", function () {
-      const pass = this.value;
-      if (reqElements.lengthReq)
-        reqElements.lengthReq.className =
-          pass.length >= 8 ? "valid" : "invalid";
-      if (reqElements.upperReq)
-        reqElements.upperReq.className = /[A-Z]/.test(pass)
-          ? "valid"
-          : "invalid";
-      if (reqElements.numReq)
-        reqElements.numReq.className = /[0-9]/.test(pass) ? "valid" : "invalid";
-      if (reqElements.specialReq)
-        reqElements.specialReq.className = /[^A-Za-z0-9]/.test(pass)
-          ? "valid"
-          : "invalid";
-    });
-  }
-  setupPasswordValidation("studentPassword", {
-    lengthReq: "lengthReq",
-    upperReq: "upperReq",
-    numReq: "numReq",
-    specialReq: "specialReq",
-  });
-
-  // --- "OTHER UNIVERSITY" INPUT VISIBILITY ---
-  const tertiarySchoolSelect = document.getElementById("tertiarySchool");
-  const otherStudentUniversityDiv = document.getElementById(
-    "otherStudentUniversity"
-  );
-  if (tertiarySchoolSelect && otherStudentUniversityDiv) {
-    tertiarySchoolSelect.addEventListener("change", function () {
-      otherStudentUniversityDiv.style.display =
-        this.value === "other" ? "block" : "none";
-      if (
-        this.value !== "other" &&
-        document.getElementById("otherStudentUniversityName")
-      ) {
-        document.getElementById("otherStudentUniversityName").value = "";
+      const email = document.getElementById("landlordLoginEmail").value.trim();
+      const password = document.getElementById("landlordLoginPassword").value;
+      if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role: "landlord" }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Login failed");
+        localStorage.setItem("landlordToken", data.token);
+        localStorage.setItem("landlordData", JSON.stringify(data.user));
+        alert("Landlord login successful!");
+        closeModal(document.getElementById("login"));
+        openModal("landlord-dashboard");
+        initializeCharts();
+      } catch (err) {
+        alert(err.message || "Login failed. Please try again.");
       }
     });
   }
 
-  // --- VERIFICATION CODE INPUTS (AUTO-TAB AND JOINING) ---
-  function setupVerificationInputs(containerSelector, onComplete) {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
-    const inputs = Array.from(container.querySelectorAll('input[type="text"]'));
-    inputs.forEach((input, index) => {
-      input.addEventListener("input", function () {
-        this.value = this.value.replace(/[^0-9]/g, "").substring(0, 1);
-        if (this.value && index < inputs.length - 1) {
-          inputs[index + 1].focus();
-        }
-        if (inputs.every((i) => i.value)) {
-          if (onComplete) onComplete(inputs.map((i) => i.value).join(""));
-        }
-      });
-      input.addEventListener("keydown", function (e) {
-        if (e.key === "Backspace" && !this.value && index > 0) {
-          inputs[index - 1].focus();
-        } else if (
-          e.key >= "0" &&
-          e.key <= "9" &&
-          this.value &&
-          index < inputs.length - 1
-        ) {
-          inputs[index + 1].value = e.key;
-          inputs[index + 1].focus();
-          e.preventDefault();
-        }
-      });
-    });
-  }
-
-  // --- TIMER FUNCTIONALITY ---
-  let otpTimerInterval;
-  function startOtpTimer(timerId, resendBtnId, duration = 60) {
-    clearInterval(otpTimerInterval);
-    let timeLeft = duration;
-    const timerElement = document.getElementById(timerId);
-    const resendBtn = document.getElementById(resendBtnId);
-
-    if (!timerElement || !resendBtn) return;
-
-    resendBtn.disabled = true;
-    timerElement.textContent = timeLeft;
-
-    otpTimerInterval = setInterval(() => {
-      timeLeft--;
-      timerElement.textContent = timeLeft;
-      if (timeLeft <= 0) {
-        clearInterval(otpTimerInterval);
-        resendBtn.disabled = false;
-        timerElement.textContent = "0";
-      }
-    }, 1000);
-  }
-
-  // --- STUDENT SIGNUP FLOW ---
-  const studentSignupForm = document.getElementById("studentSignupForm");
-  const studentNextBtn = document.getElementById("studentNextBtn");
-  const studentVerificationEmailDisplay = document.getElementById(
-    "studentVerificationEmailDisplay"
-  );
-  const studentResendCodeBtn = document.getElementById("studentResendCode");
-  const studentSignupStep1 = document.getElementById("studentSignupStep1");
-  const studentVerificationStep = document.getElementById(
-    "studentVerificationStep"
-  );
-
+  // --- STUDENT SIGNUP FLOW (API) ---
   if (
     studentSignupForm &&
     studentNextBtn &&
@@ -835,18 +764,34 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
-
-      console.log(`Simulating OTP send to ${email}`);
-      if (studentVerificationEmailDisplay)
-        studentVerificationEmailDisplay.textContent = email;
-
-      studentSignupStep1.classList.remove("active");
-      studentVerificationStep.classList.add("active");
-      setupVerificationInputs("#studentVerificationStep .verification-code");
-      startOtpTimer("studentTimer", "studentResendCode");
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            school,
+            studentId: studentIdVal,
+            phone,
+            role: "student",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Signup failed");
+        if (studentVerificationEmailDisplay)
+          studentVerificationEmailDisplay.textContent = email;
+        studentSignupStep1.classList.remove("active");
+        studentVerificationStep.classList.add("active");
+        setupVerificationInputs("#studentVerificationStep .verification-code");
+        startOtpTimer("studentTimer", "studentResendCode");
+      } catch (err) {
+        alert(err.message || "Signup failed. Please try again.");
+      }
     });
 
-    studentSignupForm.addEventListener("submit", function (e) {
+    studentSignupForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       const otpInputs = studentVerificationStep.querySelectorAll(
         ".verification-code input"
@@ -858,44 +803,48 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Please enter the complete 6-digit verification code.");
         return;
       }
-      console.log("Student signup submitted with OTP:", otp);
-      alert(
-        "Student account created successfully (simulation)! Please proceed to payment."
-      );
-      closeModal(document.getElementById("student-signup"));
-      openModal("payment-modal");
+      const email = document.getElementById("studentEmail").value.trim();
+      try {
+        const res = await fetch(`${API_BASE}/auth/verify-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Verification failed");
+        alert("Student account created successfully! Please proceed to payment.");
+        closeModal(document.getElementById("student-signup"));
+        openModal("payment-modal");
+      } catch (err) {
+        alert(err.message || "Verification failed. Please try again.");
+      }
     });
 
     if (studentResendCodeBtn) {
-      studentResendCodeBtn.addEventListener("click", () => {
+      studentResendCodeBtn.addEventListener("click", async () => {
         const email = document.getElementById("studentEmail").value.trim();
         if (!email) {
           alert("Please enter your email first.");
           return;
         }
-        console.log(`Resending OTP for student to ${email}...`);
-        alert(`Simulating OTP resend to ${email}.`);
-        startOtpTimer("studentTimer", "studentResendCode");
+        try {
+          const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Failed to resend code");
+          alert("Verification code resent!");
+          startOtpTimer("studentTimer", "studentResendCode");
+        } catch (err) {
+          alert(err.message || "Failed to resend code. Please try again.");
+        }
       });
     }
   }
 
-  // --- LANDLORD SIGNUP FLOW ---
-  const landlordSignupForm = document.getElementById("landlordSignupForm");
-  const landlordNextBtn = document.getElementById("landlordNextBtn");
-  const landlordVerificationText = document.getElementById(
-    "landlordVerificationText"
-  );
-  const landlordResendCodeBtn = document.getElementById("landlordResendCode");
-  const landlordSignupStep1 = document.getElementById("landlordSignupStep1");
-  const landlordVerificationStep = document.getElementById(
-    "landlordVerificationStep"
-  );
-  const landlordPasswordInput = document.getElementById("landlordPassword");
-  const landlordConfirmPasswordInput = document.getElementById(
-    "landlordConfirmPassword"
-  );
-
+  // --- LANDLORD SIGNUP FLOW (API) ---
   if (
     landlordSignupForm &&
     landlordNextBtn &&
@@ -908,7 +857,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const phone = document.getElementById("landlordPhone").value.trim();
       const password = landlordPasswordInput.value;
       const confirmPassword = landlordConfirmPasswordInput.value;
-
       if (!fullName || !email || !phone || !password || !confirmPassword) {
         alert("Please fill all required fields for landlord signup.");
         return;
@@ -923,23 +871,36 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         return;
       }
-
-      const verificationMethod = landlordSignupForm.querySelector(
-        'input[name="landlordVerificationMethod"]:checked'
-      ).value;
-      const target = verificationMethod === "email" ? email : phone;
-
-      console.log(`Simulating OTP send to ${target} via ${verificationMethod}`);
-      if (landlordVerificationText)
-        landlordVerificationText.innerHTML = `We've sent a verification code to <strong>${target}</strong>. Please enter it below:`;
-
-      landlordSignupStep1.classList.remove("active");
-      landlordVerificationStep.classList.add("active");
-      setupVerificationInputs("#landlordVerificationCodeInputs");
-      startOtpTimer("landlordTimer", "landlordResendCode");
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: fullName,
+            email,
+            password,
+            phone,
+            role: "landlord",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Signup failed");
+        const verificationMethod = landlordSignupForm.querySelector(
+          'input[name="landlordVerificationMethod"]:checked'
+        ).value;
+        const target = verificationMethod === "email" ? email : phone;
+        if (landlordVerificationText)
+          landlordVerificationText.innerHTML = `We've sent a verification code to <strong>${target}</strong>. Please enter it below:`;
+        landlordSignupStep1.classList.remove("active");
+        landlordVerificationStep.classList.add("active");
+        setupVerificationInputs("#landlordVerificationCodeInputs");
+        startOtpTimer("landlordTimer", "landlordResendCode");
+      } catch (err) {
+        alert(err.message || "Signup failed. Please try again.");
+      }
     });
 
-    landlordSignupForm.addEventListener("submit", function (e) {
+    landlordSignupForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       const otpInputs = landlordVerificationStep.querySelectorAll(
         ".verification-code input"
@@ -951,31 +912,83 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Please enter the complete 6-digit verification code.");
         return;
       }
-      console.log("Landlord signup submitted with OTP:", otp);
-      alert("Landlord account created successfully (simulation)!");
-      closeModal(document.getElementById("landlord-signup"));
-      openModal("landlord-dashboard");
-      initializeCharts();
+      const email = document.getElementById("landlordEmail").value.trim();
+      try {
+        const res = await fetch(`${API_BASE}/auth/verify-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Verification failed");
+        alert("Landlord account created successfully!");
+        closeModal(document.getElementById("landlord-signup"));
+        openModal("landlord-dashboard");
+        initializeCharts();
+      } catch (err) {
+        alert(err.message || "Verification failed. Please try again.");
+      }
     });
 
     if (landlordResendCodeBtn) {
-      landlordResendCodeBtn.addEventListener("click", () => {
-        const verificationMethod = landlordSignupForm.querySelector(
-          'input[name="landlordVerificationMethod"]:checked'
-        ).value;
-        const target =
-          verificationMethod === "email"
-            ? document.getElementById("landlordEmail").value.trim()
-            : document.getElementById("landlordPhone").value.trim();
-        if (!target) {
+      landlordResendCodeBtn.addEventListener("click", async () => {
+        const email = document.getElementById("landlordEmail").value.trim();
+        if (!email) {
+          alert("Please enter your email first.");
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Failed to resend code");
+          alert("Verification code resent!");
+          startOtpTimer("landlordTimer", "landlordResendCode");
+        } catch (err) {
+          alert(err.message || "Failed to resend code. Please try again.");
+        }
+      });
+    }
+  }
+
+  // --- PAYMENT FORM HANDLING ---
+  const paymentForm = document.getElementById("payment-form");
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("Processing payment...");
+      alert("Payment successful (simulation)! Welcome to InRent.");
+      closeModal(document.getElementById("payment-modal"));
+      openModal("welcome-message");
+    });
+    const cardNumberInput = document.getElementById("card-number");
+    if (cardNumberInput) {
+      cardNumberInput.addEventListener("input",
           alert(
             `Please ensure your ${verificationMethod} is entered in the previous step.`
           );
           return;
         }
-        console.log(`Resending OTP for landlord to ${target}...`);
-        alert(`Simulating OTP resend to ${target}.`);
-        startOtpTimer("landlordTimer", "landlordResendCode");
+        try {
+          const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: verificationMethod === "email" ? target : undefined,
+              phone: verificationMethod === "phone" ? target : undefined,
+              verificationMethod,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.message || "Failed to resend code");
+          alert("Verification code resent!");
+          startOtpTimer("landlordTimer", "landlordResendCode");
+        } catch (err) {
+          alert(err.message || "Failed to resend code. Please try again.");
+        }
       });
     }
   }
@@ -1194,7 +1207,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return card;
   }
 
-  function displayProperties() {
+  async function displayProperties() {
     if (!listingsContainer || !noListingsMessage) return;
     listingsContainer.innerHTML = "";
 
@@ -1203,7 +1216,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const typeFilter = document.getElementById("filterPropertyType").value;
     const bedroomsFilter = document.getElementById("filterBedrooms").value;
 
-    const filteredProperties = sampleProperties.filter((p) => {
+    const properties = await fetchProperties();
+    const filteredProperties = properties.filter((p) => {
       const priceMatch =
         priceFilter === "all" ||
         (priceFilter === "0-2000" && p.price <= 2000) ||
@@ -1213,22 +1227,19 @@ document.addEventListener("DOMContentLoaded", function () {
       const typeMatch = typeFilter === "all" || p.type === typeFilter;
       const locationMatch =
         locationFilter === "all" ||
-        p.location.toLowerCase().includes(locationFilter.toLowerCase());
-
+        (p.location &&
+          p.location.toLowerCase().includes(locationFilter.toLowerCase()));
       let bedroomsAsNumber = p.bedrooms;
       if (p.bedrooms === "studio" || p.bedrooms === "room")
         bedroomsAsNumber = 1;
       else bedroomsAsNumber = parseInt(p.bedrooms);
-
       const bedroomsMatch =
         bedroomsFilter === "all" ||
         (bedroomsFilter === "1" && bedroomsAsNumber == 1) ||
         (bedroomsFilter === "2" && bedroomsAsNumber == 2) ||
         (bedroomsFilter === "3" && bedroomsAsNumber >= 3);
-
       return priceMatch && typeMatch && locationMatch && bedroomsMatch;
     });
-
     if (filteredProperties.length === 0) {
       noListingsMessage.style.display = "block";
     } else {
@@ -1239,37 +1250,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  const locationFilterSelect = document.getElementById("filterLocation");
-  if (locationFilterSelect) {
-    const uniqueLocations = [
-      ...new Set(sampleProperties.map((p) => p.location.split("(")[0].trim())),
-    ];
-    uniqueLocations.sort().forEach((loc) => {
-      if (loc) {
-        const option = document.createElement("option");
-        option.value = loc.toLowerCase();
-        option.textContent = loc;
-        locationFilterSelect.appendChild(option);
-      }
-    });
-  }
-
-  [
-    "filterLocation",
-    "filterPriceRange",
-    "filterPropertyType",
-    "filterBedrooms",
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener("change", displayProperties);
-  });
-
-  if (document.getElementById("property-listings")) {
-    displayProperties();
-  }
-
   // --- ADD LISTING MODAL FUNCTIONALITY ---
-  const addListingModal = document.getElementById("add-listing-modal");
   const photoUploadGridInput = document.querySelector(
     '#photoUploadGrid input[type="file"]'
   );
@@ -1280,10 +1261,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const deedUploadInput = document.querySelector(
     '#deedUpload input[type="file"]'
   );
-  const amenityInput = document.getElementById("amenityInput");
   const amenitiesList = document.getElementById("amenitiesList");
-  const conditionRating = document.getElementById("conditionRating");
-  const safetyRating = document.getElementById("safetyRating");
   const conditionValue = document.getElementById("conditionValue");
   const safetyValue = document.getElementById("safetyValue");
 
@@ -1394,19 +1372,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
       });
-    }
-
-    if (conditionRating && conditionValue) {
-      conditionRating.addEventListener(
-        "input",
-        () => (conditionValue.textContent = conditionRating.value)
-      );
-    }
-    if (safetyRating && safetyValue) {
-      safetyRating.addEventListener(
-        "input",
-        () => (safetyValue.textContent = safetyRating.value)
-      );
     }
 
     const addListingForm = document.getElementById("addListingForm");

@@ -142,8 +142,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // The API endpoint for waitlist is now handled by the backend for security. Do not expose Google Apps Script or sensitive API URLs in frontend code.
   // Example: const WAITLIST_API = '/api/waitlist';
 
-  const waitlistForm = document.getElementById("waitlistForm");
-  const waitlistFormSuccessMsg = document.getElementById("waitlistFormSuccess");
   const waitlistModalTitle = document.getElementById("waitlistModalTitle");
   const waitlistModalSubtitle = document.getElementById(
     "waitlistModalSubtitle"
@@ -285,16 +283,28 @@ document.addEventListener("DOMContentLoaded", function () {
     reviewModalForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       // Example: get propertyId and userId from context or form
-      const studentData = JSON.parse(localStorage.getItem("studentData"));
+      // Replace localStorage with API call to get user info
+      let userId = null;
+      try {
+        const userRes = await fetch("/api/auth/me", { credentials: "include" });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          userId = userData.id;
+        }
+      } catch (err) {
+        document.getElementById("reviewFormSuccess").textContent =
+          "Unable to verify user. Please log in.";
+        return;
+      }
       const reviewText = document.getElementById("reviewText")?.value || "";
       const rating = document.getElementById("selectedRating")?.value || 0;
       const propertyId = window.currentPropertyId || 1; // Replace with real propertyId
-      const userId = studentData?.id || 1; // Replace with real userId
       const payload = { propertyId, userId, review: reviewText, rating };
       try {
-        const res = await fetch("http://localhost:5001/api/reviews", {
+        const res = await fetch("/api/reviews", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(payload),
         });
         const data = await res.json();
@@ -307,26 +317,109 @@ document.addEventListener("DOMContentLoaded", function () {
             data.error || "Failed to submit review.";
         }
       } catch (err) {
+        document.getElement
+      } catch (err) {
         document.getElementById("reviewFormSuccess").textContent =
           "Network error. Please try again.";
       }
     });
   }
 
-  // --- LOGIN MODAL: SIGN UP LINK ---
-  document
-    .querySelectorAll('.switch-to-signup[data-modal="student-signup"]')
-    .forEach((link) => {
-      link.addEventListener("click", function (e) {
-        e.preventDefault();
-        const modal = document.getElementById("login");
-        if (modal) modal.classList.remove("active");
-        setTimeout(() => {
-          const signupModal = document.getElementById("student-signup");
-          if (signupModal) signupModal.classList.add("active");
-        }, 200);
-      });
+  // --- LOGIN FORM SUBMISSION ---
+  const studentLoginForm = document.getElementById("studentLoginForm");
+  if (studentLoginForm) {
+    studentLoginForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("studentLoginEmail").value;
+      const password = document.getElementById("studentLoginPassword").value;
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert("Invalid email or password. Please try again.");
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
+      }
     });
+  }
+
+  // --- SIGNUP FORM SUBMISSION ---
+  const studentSignupForm = document.getElementById("studentSignupForm");
+  if (studentSignupForm) {
+    studentSignupForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("studentName").value;
+      const email = document.getElementById("studentEmail").value;
+      const password = document.getElementById("studentPassword").value;
+      const school = document.getElementById("tertiarySchool").value;
+      const studentId = document.getElementById("studentId").value;
+      const phone = document.getElementById("studentPhone").value;
+      try {
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            school,
+            studentId,
+            phone,
+          }),
+        });
+        if (res.ok) {
+          // Optionally, auto-login or show a success modal
+          window.location.reload();
+        } else {
+          alert("Signup failed. Please check your details and try again.");
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
+      }
+    });
+  }
+
+  // --- WAITLIST FORM SUBMISSION ---
+  const waitlistForm = document.getElementById("waitlistForm");
+  const waitlistFormSuccessMsg = document.getElementById("waitlistFormSuccess");
+  if (waitlistForm && waitlistFormSuccessMsg) {
+    waitlistForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(waitlistForm);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+      try {
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          waitlistFormSuccessMsg.textContent =
+            "Thank you! You've been added to our waitlist.";
+          waitlistFormSuccessMsg.style.display = "block";
+          waitlistForm.reset();
+        } else {
+          waitlistFormSuccessMsg.textContent =
+            "There was an error. Please try again.";
+          waitlistFormSuccessMsg.style.display = "block";
+        }
+      } catch (err) {
+        waitlistFormSuccessMsg.textContent =
+          "Network error. Please try again later.";
+        waitlistFormSuccessMsg.style.display = "block";
+      }
+    });
+  }
 
   // --- Ensure openModal and closeModal functions are defined before this script runs ---
   // (They are already in your provided script, just ensure correct order)

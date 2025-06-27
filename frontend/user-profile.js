@@ -42,6 +42,8 @@ function setupImageUpload() {
       if (!res.ok) throw new Error("Failed to upload image");
       const data = await res.json();
       document.getElementById("profileImage").src = data.photoUrl;
+      // Show the uploaded image in the circle immediately
+      document.getElementById("profileImage").style.display = "block";
       alert("Profile photo updated!");
     } catch (err) {
       alert("Failed to upload image: " + err.message);

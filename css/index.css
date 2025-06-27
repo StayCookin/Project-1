@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Marketplace Page Styles (marketplace.css)
+   - Consistent with main.css
+   ========================================================================== */
+
+/* 1. Page-Specific Layout
+   ========================================================================== */
+
+/* Add padding to the body to account for the fixed header */
+body {
+  padding-top: 72px; /* Height of header (56px) + some extra space */
+}
+
+/* Page Header */
+.page-header {
+  padding: 2rem 0;
+  text-align: center;
+  background-color: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+}
+.page-header h1 {
+  font-size: 2.5rem;
+  color: var(--dark-text);
+}
+.page-header p {
+  font-size: 1.1rem;
+  color: var(--light-text);
+  margin-top: 0.5rem;
+}
+
+/* ==========================================================================
+   2. Search & Filter Section
+   ========================================================================== */
+
+.search-section {
+  padding: 2rem;
+  margin: 2rem 0;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.search-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ==========================================================================
+   3. Property Listings Grid & Cards
+   ========================================================================== */
+
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.property-card {
+  background: var(--white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-speed);
+  display: flex;
+  flex-direction: column;
+}
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.property-image-container {
+  width: 100%;
+  padding-top: 66.66%; /* 3:2 Aspect Ratio */
+  position: relative;
+  overflow: hidden;
+}
+.property-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.property-details {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allows the card to grow to fill space */
+}
+
+.property-price {
+  color: var(--primary-green);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.property-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-text);
+  margin-bottom: 0.5rem;
+}
+
+.property-location {
+  color: var(--light-text);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.property-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--light-text);
+}
+.property-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.property-actions {
+  margin-top: auto; /* Pushes buttons to the bottom of the card */
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   4. Responsive Design
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 60px; /* Adjust for potentially smaller header on mobile */
+  }
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  .property-grid {
+    grid-template-columns: 1fr; /* Stack cards on top of each other */
+  }
+}
