@@ -317,8 +317,6 @@ document.addEventListener("DOMContentLoaded", function () {
             data.error || "Failed to submit review.";
         }
       } catch (err) {
-        document.getElement
-      } catch (err) {
         document.getElementById("reviewFormSuccess").textContent =
           "Network error. Please try again.";
       }
@@ -397,6 +395,8 @@ document.addEventListener("DOMContentLoaded", function () {
       formData.forEach((value, key) => {
         data[key] = value;
       });
+      waitlistFormSuccessMsg.setAttribute("aria-live", "polite");
+      waitlistFormSuccessMsg.setAttribute("tabindex", "-1");
       try {
         const res = await fetch("/api/waitlist", {
           method: "POST",
@@ -418,6 +418,17 @@ document.addEventListener("DOMContentLoaded", function () {
           "Network error. Please try again later.";
         waitlistFormSuccessMsg.style.display = "block";
       }
+      // Accessibility: focus the message
+      waitlistFormSuccessMsg.focus();
+      // Hide message and close modal after 3 seconds
+      setTimeout(() => {
+        waitlistFormSuccessMsg.style.display = "none";
+        const modal = document.getElementById("waitlist-modal");
+        if (modal) modal.classList.remove("active");
+        document.body.style.overflow = "";
+        waitlistForm.style.display = "block";
+        waitlistForm.reset();
+      }, 3000);
     });
   }
 

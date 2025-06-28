@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const auth = require("../middleware/auth"); // Assuming auth middleware is in this path
 
 // Get user profile
 router.get("/:userId", async (req, res) => {
@@ -31,6 +32,16 @@ router.put("/:userId", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// Get landlord profile (for dashboard)
+router.get("/landlord", auth, (req, res) => {
+  if (req.user && req.user.role === "landlord") {
+    const { _id, name, email, phone, isVerified, kycDocPath } = req.user;
+    res.json({ id: _id, name, email, phone, isVerified, kycDocPath });
+  } else {
+    res.status(403).json({ message: "Not authorized" });
   }
 });
 

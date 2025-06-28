@@ -1,0 +1,6 @@
+Delete the following files/folders for Vercel Docker deployment:
+- deployment/Dockerfile
+- deployment/docker-compose.yml
+- Any other Dockerfile or compose file not in the root
+
+Only keep the root Dockerfile and vercel.json.

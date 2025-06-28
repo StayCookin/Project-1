@@ -1,0 +1,1 @@
+This folder is for Vercel serverless functions (not used with Docker, but required for Vercel detection).

@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Check if user is authenticated
-  const studentData = JSON.parse(localStorage.getItem("studentData"));
-  if (!studentData || studentData.role !== "student") {
+  if (!window.currentUser || window.currentUser.role !== "student") {
     // Redirect to landing page if not authenticated
     window.location.href = "index.html";
     return;
@@ -12,14 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
     ".profile-image, .profile-image-small"
   );
   profileImages.forEach((img) => {
-    if (studentData.profileImage) {
-      img.src = studentData.profileImage;
+    if (window.currentUser.profileImage) {
+      img.src = window.currentUser.profileImage;
     }
   });
 
   const welcomeHeader = document.querySelector(".sidebar-header h2");
   if (welcomeHeader) {
-    welcomeHeader.textContent = `Welcome, ${studentData.name}`;
+    welcomeHeader.textContent = `Welcome, ${window.currentUser.name}`;
   }
 
   // Handle navigation

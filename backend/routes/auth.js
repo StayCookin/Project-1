@@ -120,17 +120,10 @@ router.post(
             .json({ message: "Student ID or admission letter is required." });
         }
       }
+      // Landlord registration: skip KYC doc validation if not provided
       if (role === "LANDLORD") {
-        if (!req.files || !req.files.kycDoc) {
-          if (req.files) {
-            Object.values(req.files)
-              .flat()
-              .forEach((f) => fs.unlink(f.path, () => {}));
-          }
-          return res
-            .status(400)
-            .json({ message: "KYC/proof of ownership document is required." });
-        }
+        // KYC doc is optional for landlords
+        // No error thrown if missing
       }
 
       // Check if user already exists
@@ -174,7 +167,7 @@ router.post(
       await user.save();
 
       // Send verification email
-      const verifyUrl = `https://yourdomain.com/verify?token=${verificationToken}`;
+      const verifyUrl = `https://inrent.vercel/verify?token=${verificationToken}`;
       const mailOptions = {
         from: "your_email@gmail.com",
         to: user.email,
@@ -286,14 +279,19 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
-// Logout
-router.post("/logout", auth, async (req, res) => {
-  try {
-    // In a real application, you might want to invalidate the token
-    // For now, we'll just send a success response
-    res.json({ message: "Logged out successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error logging out" });
+// Robust session handling and logout
+router.post("/logout", (req, res) => {
+  res.clearCookie("token");
+  req.session?.destroy?.();
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
+// Robust session check endpoint
+router.get("/session", (req, res) => {
+  if (req.user) {
+    res.json({ loggedIn: true, user: req.user });
+  } else {
+    res.json({ loggedIn: false });
   }
 });
 

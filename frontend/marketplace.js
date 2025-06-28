@@ -1,24 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Check if user is authenticated
-  const studentData = JSON.parse(localStorage.getItem("studentData"));
-  const landlordData = JSON.parse(localStorage.getItem("landlordData"));
+  // const studentData = JSON.parse(localStorage.getItem("studentData"));
+  // const landlordData = JSON.parse(localStorage.getItem("landlordData"));
 
   // If no user is logged in, redirect to landing page
-  if (!studentData && !landlordData) {
+  if (!window.currentUser) {
     window.location.href = "index.html";
     return;
   }
 
   // Update navigation based on user type
   const navLinks = document.querySelector(".nav-links");
-  if (studentData) {
+  if (window.currentUser.role === "student") {
     // Student is logged in
     navLinks.innerHTML = `
                     <a href="marketplace.html">Browse Properties</a>
                     <a href="student-dashboard.html">Student Dashboard</a>
                     <a href="#" id="logoutBtn">Logout</a>
                 `;
-  } else if (landlordData) {
+  } else if (window.currentUser.role === "landlord") {
     // Landlord is logged in
     navLinks.innerHTML = `
                     <a href="marketplace.html">Browse Properties</a>
@@ -33,8 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
       if (confirm("Are you sure you want to logout?")) {
-        localStorage.removeItem("studentData");
-        localStorage.removeItem("landlordData");
+        // localStorage.removeItem("studentData");
+        // localStorage.removeItem("landlordData");
+        window.currentUser = null;
         window.location.href = "index.html";
       }
     });
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     saveBtn.addEventListener("click", function () {
-      if (!studentData) {
+      if (window.currentUser.role !== "student") {
         alert("Please log in as a student to save properties.");
         return;
       }
@@ -109,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
       e.stopPropagation();
 
-      if (!studentData && !landlordData) {
+      if (!window.currentUser) {
         alert("Please log in to send messages.");
         return;
       }

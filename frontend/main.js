@@ -231,14 +231,17 @@ async function handleReviewSubmit(e) {
   }
 
   const reviewText = e.target.querySelector("textarea").value;
-  const studentData = JSON.parse(localStorage.getItem("studentData"));
-  const propertyId = e.target.dataset.propertyId; // Set this when opening modal
+  if (!currentUser || !currentUser.verified) {
+    alert("Please log in as a student to write a review.");
+    return;
+  }
+  const propertyId = e.target.dataset.propertyId;
   try {
     const res = await fetch(`${API_BASE}/reviews/${propertyId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rating: selectedRating, text: reviewText }),
-      // credentials: 'include' // if using cookies for auth
+      credentials: 'include'
     });
     if (!res.ok) throw new Error("Failed to submit review");
     alert("Thank you for your review!");
@@ -246,8 +249,6 @@ async function handleReviewSubmit(e) {
     e.target.reset();
     selectedRating = 0;
     updateStars(0);
-    // Optionally refresh reviews
-    // displayReviews(propertyId);
   } catch (err) {
     alert("Failed to submit review. Please try again.");
     console.error(err);
@@ -689,11 +690,11 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, role: "student" }),
+          credentials: 'include'
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
-        localStorage.setItem("studentToken", data.token);
-        localStorage.setItem("studentData", JSON.stringify(data.user));
+        await fetchCurrentUser();
         alert("Student login successful!");
         closeModal(document.getElementById("login"));
         openModal("property-listings");
@@ -720,11 +721,11 @@ document.addEventListener("DOMContentLoaded", function () {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password, role: "landlord" }),
+          credentials: 'include'
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Login failed");
         localStorage.setItem("landlordToken", data.token);
-        localStorage.setItem("landlordData", JSON.stringify(data.user));
         alert("Landlord login successful!");
         closeModal(document.getElementById("login"));
         openModal("landlord-dashboard");
@@ -1595,3 +1596,86 @@ document.addEventListener("DOMContentLoaded", function () {
     landlordsLeftSpan.textContent = spots;
   }
 }); // End DOMContentLoaded
+
+// Remove all localStorage usage for studentData/landlordData
+// Use currentUser (fetched from backend) for all user/session logic
+let currentUser = null;
+
+async function fetchCurrentUser() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+    if (res.ok) {
+      currentUser = await res.json();
+    } else {
+      currentUser = null;
+    }
+  } catch {
+    currentUser = null;
+  }
+}
+
+// On page load, fetch user if logged in
+fetchCurrentUser();
+
+// Example usage in login:
+const studentLoginForm = document.getElementById("studentLoginForm");
+if (studentLoginForm) {
+  studentLoginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("studentLoginEmail").value.trim();
+    const password = document.getElementById("studentLoginPassword").value;
+    if (!email || !password) {
+      alert("Please enter your email and password.");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: "student" }),
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      await fetchCurrentUser();
+      alert("Student login successful!");
+      closeModal(document.getElementById("login"));
+      openModal("property-listings");
+      displayProperties();
+    } catch (err) {
+      alert(err.message || "Login failed. Please try again.");
+    }
+  });
+}
+
+// Example usage in review:
+async function handleReviewSubmit(e) {
+  e.preventDefault();
+  if (selectedRating === 0) {
+    alert("Please select a rating");
+    return;
+  }
+  const reviewText = e.target.querySelector("textarea").value;
+  if (!currentUser || !currentUser.verified) {
+    alert("Please log in as a student to write a review.");
+    return;
+  }
+  const propertyId = e.target.dataset.propertyId;
+  try {
+    const res = await fetch(`${API_BASE}/reviews/${propertyId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rating: selectedRating, text: reviewText }),
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error("Failed to submit review");
+    alert("Thank you for your review!");
+    reviewModal.classList.remove("active");
+    e.target.reset();
+    selectedRating = 0;
+    updateStars(0);
+  } catch (err) {
+    alert("Failed to submit review. Please try again.");
+    console.error(err);
+  }
+}

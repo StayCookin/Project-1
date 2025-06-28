@@ -1,15 +1,89 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  // Fetch landlord profile and properties from backend
+  let landlord = null;
+  let properties = [];
+  let analytics = {};
+  try {
+    const profileRes = await fetch("/api/profile/landlord", {
+      credentials: "include",
+    });
+    if (profileRes.ok) {
+      landlord = await profileRes.json();
+      // Set welcome message
+      const welcomeHeader = document.querySelector(".welcome-section h1");
+      if (welcomeHeader && landlord.name) {
+        welcomeHeader.textContent = `Welcome, ${landlord.name}`;
+      }
+    }
+    const propsRes = await fetch("/api/properties/landlord", {
+      credentials: "include",
+    });
+    if (propsRes.ok) {
+      properties = await propsRes.json();
+    }
+    const analyticsRes = await fetch("/api/properties/landlord/analytics", {
+      credentials: "include",
+    });
+    if (analyticsRes.ok) {
+      analytics = await analyticsRes.json();
+    }
+  } catch (err) {
+    // Show error or redirect
+  }
+
+  // Populate analytics cards
+  if (analytics) {
+    document.getElementById("totalPropertiesValue").textContent =
+      analytics.totalProperties || 0;
+    document.getElementById("totalRevenueValue").textContent =
+      analytics.totalRevenue || "P0";
+    document.getElementById("occupancyRateValue").textContent =
+      analytics.occupancyRate ? analytics.occupancyRate + "%" : "0%";
+    document.getElementById("inrentFeesValue").textContent =
+      analytics.inrentFees || "P0";
+  }
+
+  // Populate property cards
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList && Array.isArray(properties)) {
+    propertyList.innerHTML = properties
+      .map(
+        (prop) => `
+      <div class="property-card">
+        <div class="property-title">${prop.title}</div>
+        <div class="property-details">${prop.details}</div>
+        <div class="property-price">P${prop.price}</div>
+        <button class="btn-primary" data-id="${prop.id}">Edit</button>
+        <button class="btn-secondary" data-id="${prop.id}">Analytics</button>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  // Logout
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function (e) {
+      e.preventDefault();
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      window.location.href = "/index.html";
+    });
+  }
+
   // Check if user is authenticated
-  const landlordData = JSON.parse(localStorage.getItem("landlordData"));
-  if (!landlordData) {
+  if (!window.currentUser) {
     // Redirect to landing page if not authenticated
     window.location.href = "index.html";
     return;
   }
 
   // Check for invalid login status
-  const isInvalidLogin = landlordData.isInvalidLogin || false;
-  const invalidLoginDate = landlordData.invalidLoginDate || null;
+  const isInvalidLogin = window.currentUser.isInvalidLogin || false;
+  const invalidLoginDate = window.currentUser.invalidLoginDate || null;
   const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
   if (isInvalidLogin) {
@@ -22,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (daysRemaining <= 0) {
       // Time limit expired, redirect to landing page
-      localStorage.removeItem("landlordData");
       window.location.href = "index.html";
       return;
     }
@@ -86,24 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".property-actions .btn").forEach((btn) => {
       btn.style.opacity = "0.5";
       btn.style.pointerEvents = "none";
-    });
-  }
-
-  // Update welcome message with landlord's name
-  const welcomeHeader = document.querySelector(".welcome-section h1");
-  if (welcomeHeader) {
-    welcomeHeader.textContent = `Welcome, ${landlordData.name}`;
-  }
-
-  // Handle logout
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", function (e) {
-      e.preventDefault();
-      if (confirm("Are you sure you want to logout?")) {
-        localStorage.removeItem("landlordData");
-        window.location.href = "index.html";
-      }
     });
   }
 
@@ -232,8 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // In a real application, this would be an API call to verify the token
     console.log("Verifying token:", verificationToken);
     // Simulate successful verification
-    landlordData.verificationStatus = "verification-success";
-    localStorage.setItem("landlordData", JSON.stringify(landlordData));
+    window.currentUser.verificationStatus = "verification-success";
     updateVerificationStatus("verification-success");
 
     // Remove the token from URL
@@ -246,7 +300,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (this.getAttribute("href") === "#logout") {
         e.preventDefault();
         if (confirm("Are you sure you want to logout?")) {
-          localStorage.removeItem("landlordData");
           window.location.href = "index.html";
         }
       } else if (this.getAttribute("href") === "#add-property") {
