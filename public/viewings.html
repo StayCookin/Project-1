@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduled Viewings - InRent</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/main.css" />
+    <style>
+      :root {
+        --primary: #228b22;
+        --secondary: #2e7d32;
+        --dark: #1b5e20;
+        --light: #4caf50;
+        --gray: #757575;
+        --white: #ffffff;
+        --gradient-primary: linear-gradient(135deg, #228b22, #2e7d32);
+        --gradient-secondary: linear-gradient(135deg, #2e7d32, #1b5e20);
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+      body {
+        font-family: "Poppins", "Inter", Arial, sans-serif;
+        background: #f5f5f5;
+        background-image: url("https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-blend-mode: overlay;
+        background-color: rgba(245, 245, 245, 0.9);
+      }
+      .back-button {
+        position: fixed;
+        top: 2rem;
+        left: 2rem;
+        background: var(--white);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+      .back-button i {
+        color: var(--primary);
+        font-size: 1.2rem;
+      }
+      .back-button:hover {
+        transform: translateX(-5px);
+        background: var(--gradient-primary);
+      }
+      .back-button:hover i {
+        color: var(--white);
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .page-header {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .page-header h1 {
+        color: var(--dark);
+        font-size: 2rem;
+      }
+      .page-header i {
+        font-size: 2rem;
+        color: var(--primary);
+      }
+      .viewings-container {
+        display: grid;
+        gap: 1.5rem;
+      }
+      .viewing-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+      }
+      .viewing-info h3 {
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+      }
+      .viewing-details {
+        display: flex;
+        gap: 1rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+      .viewing-details span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .viewing-actions {
+        display: flex;
+        gap: 1rem;
+      }
+      .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: var(--white);
+      }
+      .btn-secondary {
+        background: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+      }
+      .btn-danger {
+        background: #dc3545;
+        color: var(--white);
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+      .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      .status-confirmed {
+        background: #28a745;
+        color: var(--white);
+      }
+      .status-pending {
+        background: #ffc107;
+        color: var(--dark);
+      }
+      .status-cancelled {
+        background: #dc3545;
+        color: var(--white);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+      }
+      .empty-state i {
+        font-size: 3rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+      }
+      .empty-state h2 {
+        color: var(--dark);
+        margin-bottom: 1rem;
+      }
+      .empty-state p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+      }
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+        .page-header {
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 1rem;
+        }
+        .viewing-card {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="student-dashboard.html" class="back-button">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="container">
+      <div class="page-header">
+        <i class="fas fa-calendar"></i>
+        <h1>Scheduled Viewings</h1>
+      </div>
+      <div class="viewings-container">
+        <!-- Example Viewing Card -->
+        <div class="viewing-card">
+          <div class="viewing-info">
+            <h3>Modern Apartment near UB</h3>
+            <div class="viewing-details">
+              <span><i class="fas fa-calendar"></i> Tomorrow, 2:00 PM</span>
+              <span
+                ><i class="fas fa-map-marker-alt"></i> Gaborone, Near UB
+                Campus</span
+              >
+              <span><i class="fas fa-user"></i> Mr. Smith (Landlord)</span>
+            </div>
+          </div>
+          <div class="viewing-actions">
+            <span class="status-badge status-confirmed">Confirmed</span>
+            <button class="btn btn-primary">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button class="btn btn-secondary">
+              <i class="fas fa-calendar-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+        <div class="viewing-card">
+          <div class="viewing-info">
+            <h3>Cozy Studio near Baisago</h3>
+            <div class="viewing-details">
+              <span><i class="fas fa-calendar"></i> Friday, 10:00 AM</span>
+              <span
+                ><i class="fas fa-map-marker-alt"></i> Gaborone, Near Baisago
+                Campus</span
+              >
+              <span><i class="fas fa-user"></i> Ms. Johnson (Landlord)</span>
+            </div>
+          </div>
+          <div class="viewing-actions">
+            <span class="status-badge status-pending">Pending</span>
+            <button class="btn btn-primary">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button class="btn btn-secondary">
+              <i class="fas fa-calendar-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/js/viewings.js" defer></script>
+  </body>
+</html>

@@ -1,2 +1,251 @@
-<!-- Moved student-dashboard.html to public for Vercel static serving -->
-<script src="/frontend/student_dashboard.js" defer></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard - InRent</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <script>
+      // Session and role check for student
+      (async function () {
+        try {
+          const res = await fetch("/api/auth/me", { credentials: "include" });
+          if (!res.ok) throw new Error("Not authenticated");
+          const user = await res.json();
+          if (!user || user.role !== "student") {
+            window.location.href = "/login.html";
+            return;
+          }
+          // Fetch dashboard data after session check
+          await fetchUserProfile();
+          await fetchDashboardStats();
+          await fetchProperties();
+          await fetchReviews();
+        } catch {
+          window.location.href = "/login.html";
+        }
+      })();
+    </script>
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <img
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            alt="Profile"
+            class="profile-image"
+          />
+          <h2 id="sidebarWelcome">Welcome, Student</h2>
+        </div>
+        <ul class="sidebar-menu">
+          <li>
+            <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="marketplace.html"
+              ><i class="fas fa-search"></i> Find Properties</a
+            >
+          </li>
+          <li>
+            <a href="saved-properties.html"
+              ><i class="fas fa-heart"></i> Saved Properties</a
+            >
+          </li>
+          <li>
+            <a href="viewings.html"><i class="fas fa-calendar"></i> Viewings</a>
+          </li>
+          <li>
+            <a href="messages.html"><i class="fas fa-envelope"></i> Messages</a>
+          </li>
+          <li>
+            <a href="user-profile.html"><i class="fas fa-user"></i> Profile</a>
+          </li>
+          <li>
+            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+          </li>
+          <li>
+            <a href="index.html" id="logoutBtn"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </li>
+        </ul>
+      </aside>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="dashboard-header">
+          <div class="search-container">
+            <div class="search-bar">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search properties in Gaborone..."
+                id="propertySearchInput"
+              />
+            </div>
+            <div class="search-filters" id="searchFilters">
+              <select class="filter-select">
+                <option value="">All Amenities</option>
+                <option value="wifi">WiFi</option>
+                <option value="parking">Parking</option>
+                <option value="furnished">Furnished</option>
+                <option value="security">Security</option>
+                <option value="laundry">Laundry</option>
+              </select>
+              <select class="filter-select">
+                <option value="">All Areas</option>
+                <option value="ub">Near UB</option>
+                <option value="baisago">Near Baisago</option>
+                <option value="botho">Near Botho</option>
+                <option value="riverwalk">Riverwalk</option>
+                <option value="gamecity">Game City</option>
+              </select>
+              <select class="filter-select">
+                <option value="">Budget Range</option>
+                <option value="0-2000">P0 - P2,000</option>
+                <option value="2000-4000">P2,000 - P4,000</option>
+                <option value="4000-6000">P4,000 - P6,000</option>
+                <option value="6000+">P6,000+</option>
+              </select>
+              <select class="filter-select">
+                <option value="">Property Condition</option>
+                <option value="new">New</option>
+                <option value="renovated">Renovated</option>
+                <option value="good">Good</option>
+                <option value="needs-work">Needs Work</option>
+              </select>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="notifications-container">
+              <div class="notifications" id="notificationToggle">
+                <i class="fas fa-bell notification-icon"></i>
+                <span class="notification-badge" id="notificationBadge">0</span>
+              </div>
+              <div class="notification-dropdown" id="notificationDropdown">
+                <div class="notification-tabs">
+                  <div
+                    class="notification-tab active"
+                    data-tab="messages"
+                    href="messages.html"
+                  >
+                    Messages
+                  </div>
+                  <div class="notification-tab" data-tab="properties">
+                    Properties
+                  </div>
+                </div>
+                <div class="notification-list" id="notificationList">
+                  <!-- Dynamic notifications will be rendered here -->
+                </div>
+              </div>
+            </div>
+            <div class="profile-menu">
+              <img
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                alt="Profile"
+                class="profile-image-small"
+              />
+              <div class="profile-dropdown">
+                <a href="user-profile.html"
+                  ><i class="fas fa-user"></i> Profile</a
+                >
+                <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" id="headerLogoutBtn"
+                  ><i class="fas fa-sign-out-alt"></i> Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards" id="dashboardCards">
+          <!-- Cards will be rendered dynamically -->
+        </div>
+        <!-- Property Listings -->
+        <div class="property-listings">
+          <div class="property-listings-header">
+            <h2>
+              Recommended Properties
+              <span class="location-badge">Gaborone</span>
+            </h2>
+          </div>
+          <div class="property-grid" id="propertyGrid">
+            <!-- Property cards will be rendered dynamically -->
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            </li>
+            <li>
+              <a href="student-dashboard.html"
+                ><i class="fas fa-user"></i> Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="contact.html"
+                ><i class="fas fa-envelope"></i> Contact Us</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Help & Support</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="faq.html"><i class="fas fa-question-circle"></i> FAQ</a>
+            </li>
+            <li>
+              <a href="contact.html"><i class="fas fa-headset"></i> Support</a>
+            </li>
+            <li>
+              <a href="reset-password.html"
+                ><i class="fas fa-key"></i> Reset Password</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul class="footer-links">
+            <li>
+              <a href="terms.html"
+                ><i class="fas fa-file-contract"></i> Terms of Service</a
+              >
+            </li>
+            <li>
+              <a href="privacy.html"
+                ><i class="fas fa-shield-alt"></i> Privacy Policy</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 InRent. All rights reserved.</p>
+      </div>
+    </footer>
+    <script src="/js/student-dashboard.js" defer></script>
+    <script src="/js/index.js" defer></script>
+  </body>
+</html>

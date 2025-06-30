@@ -697,8 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
         await fetchCurrentUser();
         alert("Student login successful!");
         closeModal(document.getElementById("login"));
-        openModal("property-listings");
-        displayProperties();
+        window.location.href = "marketplace.html";
       } catch (err) {
         alert(err.message || "Login failed. Please try again.");
       }
@@ -728,8 +727,7 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("landlordToken", data.token);
         alert("Landlord login successful!");
         closeModal(document.getElementById("login"));
-        openModal("landlord-dashboard");
-        initializeCharts();
+        window.location.href = "landlord-dashboard.html";
       } catch (err) {
         alert(err.message || "Login failed. Please try again.");
       }
@@ -1640,8 +1638,7 @@ if (studentLoginForm) {
       await fetchCurrentUser();
       alert("Student login successful!");
       closeModal(document.getElementById("login"));
-      openModal("property-listings");
-      displayProperties();
+      window.location.href = "marketplace.html";
     } catch (err) {
       alert(err.message || "Login failed. Please try again.");
     }

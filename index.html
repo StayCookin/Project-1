@@ -40,6 +40,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
     <link rel="stylesheet" href="css/main.css"/>
+    
 <style>
   section .product-demo{
     padding: 4rem 4rem;
@@ -89,7 +90,7 @@
           </div>
           <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
-            <li><a href="marketplace.html">Accommodations</li>
+            <li><a href="marketplace.html">Browse Accommodations</li>
             <li><a href="#features">Features</a></li>
             <li><a href="#pricing">Pricing</a></li>
             <li><a href="#contact">Contact</a></li>
@@ -464,7 +465,7 @@
             <h3>For Students</h3>
             <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
               <a href="marketplace.html" data-modal="property-listings">Browse Accommodations</a>
-              <a href="#">Student Login</a>
+              <a href="login.html">Student Login</a>
               <a href="signup.html" class="open-modal" data-modal="student-signup" style="cursor: pointer">Student Signup</a>
             </div>
             <h3>For Landlords</h3>
@@ -543,112 +544,46 @@
 
     <!-- Login Modal: Student & Landlord Tabs -->
     <div class="modal" id="login">
-      <div class="modal-content" style="max-width: 500px">
-        <span class="modal-close">×</span>
-        <h2>Login to InRent</h2>
-        <div class="login-options">
-          <button class="login-option-btn active" data-form="studentLoginForm">
-            <i class="fas fa-user-graduate"></i> Student
-          </button>
-          <button class="login-option-btn" data-form="landlordLoginForm">
-            <i class="fas fa-building"></i> Landlord
-          </button>
+      <div class="modal-content" style="max-width: 420px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(34,139,34,0.12), 0 1.5px 6px rgba(0,0,0,0.04); padding: 2.5rem 2rem 2rem 2rem; margin: 0 auto; position: relative; animation: modalFadeIn 0.3s;">
+        <span class="modal-close" style="position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.5rem; color: #888; cursor: pointer; transition: color 0.2s;">×</span>
+        <h2 style="color: #176b16; font-size: 2rem; margin-bottom: 1.2rem; text-align: center;">Login to InRent</h2>
+        <div class="login-options" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
+          <button class="login-option-btn active" data-form="studentLoginForm" style="background: #f1f8e9; border: 1.5px solid #228b22; color: #176b16; border-radius: 6px; padding: 0.5rem 1.2rem; font-size: 1.1rem; cursor: pointer; transition: background 0.2s, color 0.2s;"> <i class="fas fa-user-graduate"></i> Student </button>
+          <button class="login-option-btn" data-form="landlordLoginForm" style="background: #f1f8e9; border: 1.5px solid #228b22; color: #176b16; border-radius: 6px; padding: 0.5rem 1.2rem; font-size: 1.1rem; cursor: pointer; transition: background 0.2s, color 0.2s;"> <i class="fas fa-building"></i> Landlord </button>
         </div>
-
         <!-- Student Login Form -->
-        <form class="login-form" id="studentLoginForm">
+        <form class="login-form" id="studentLoginForm" style="display: flex; flex-direction: column; gap: 1rem;">
           <div class="form-group">
             <label for="studentLoginEmail">Student Email</label>
-            <input
-              type="email"
-              id="studentLoginEmail"
-              name="email"
-              required
-              placeholder="Enter your student email"
-            />
+            <input type="email" id="studentLoginEmail" name="email" required placeholder="Enter your student email" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
           </div>
           <div class="form-group">
             <label for="studentLoginPassword">Password</label>
-            <input
-              type="password"
-              id="studentLoginPassword"
-              name="password"
-              required
-              placeholder="Enter your password"
-            />
+            <input type="password" id="studentLoginPassword" name="password" required placeholder="Enter your password" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
           </div>
-          <div
-            class="form-group"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <label class="checkbox-label" style="margin: 0">
-              <input type="checkbox" name="remember" /> Remember me
-            </label>
-            <a href="#" style="font-size: 0.9rem; color: var(--primary)"
-              >Forgot Password?</a
-            >
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="checkbox-label" style="margin: 0"><input type="checkbox" name="remember" /> Remember me</label>
+            <a href="#" style="font-size: 0.9rem; color: var(--primary)">Forgot Password?</a>
           </div>
-          <button type="submit" class="btn" style="width: 100%">
-            Login as Student
-          </button>
-          <p class="form-footer">
-            Don't have an account?
-            <a href="#" class="switch-to-signup" data-modal="student-signup"
-              >Sign up as Student</a
-            >
-          </p>
+          <button type="submit" class="btn" style="width: 100%; background: linear-gradient(90deg, #228b22 60%, #176b16 100%); color: #fff; border: none; border-radius: 6px; padding: 0.8rem 0; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">Login as Student</button>
+          <p class="form-footer" style="text-align: center; font-size: 0.98rem; margin-top: 0.5rem;">Don't have an account? <a href="signup.html" style="color: #228b22; text-decoration: underline; cursor: pointer;">Sign up as Student</a></p>
         </form>
-
         <!-- Landlord Login Form -->
-        <form class="login-form" id="landlordLoginForm" style="display: none">
+        <form class="login-form" id="landlordLoginForm" style="display: none; flex-direction: column; gap: 1rem;">
           <div class="form-group">
             <label for="landlordLoginEmail">Email Address</label>
-            <input
-              type="email"
-              id="landlordLoginEmail"
-              name="email"
-              required
-              placeholder="Enter your email"
-            />
+            <input type="email" id="landlordLoginEmail" name="email" required placeholder="Enter your email" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
           </div>
           <div class="form-group">
             <label for="landlordLoginPassword">Password</label>
-            <input
-              type="password"
-              id="landlordLoginPassword"
-              name="password"
-              required
-              placeholder="Enter your password"
-            />
+            <input type="password" id="landlordLoginPassword" name="password" required placeholder="Enter your password" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
           </div>
-          <div
-            class="form-group"
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <label class="checkbox-label" style="margin: 0">
-              <input type="checkbox" name="remember" /> Remember me
-            </label>
-            <a href="#" style="font-size: 0.9rem; color: var(--primary)"
-              >Forgot Password?</a
-            >
+          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="checkbox-label" style="margin: 0"><input type="checkbox" name="remember" /> Remember me</label>
+            <a href="#" style="font-size: 0.9rem; color: var(--primary)">Forgot Password?</a>
           </div>
-          <button type="submit" class="btn" style="width: 100%">
-            Login as Landlord
-          </button>
-          <p class="form-footer">
-            Don't have an account?
-            <a href="#" class="switch-to-signup" data-modal="landlord-signup"
-              >Sign up as Landlord</a
-            >
-          </p>
+          <button type="submit" class="btn" style="width: 100%; background: linear-gradient(90deg, #228b22 60%, #176b16 100%); color: #fff; border: none; border-radius: 6px; padding: 0.8rem 0; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">Login as Landlord</button>
+          <p class="form-footer" style="text-align: center; font-size: 0.98rem; margin-top: 0.5rem;">Don't have an account? <a href="signup.html" style="color: #228b22; text-decoration: underline; cursor: pointer;">Sign up as Landlord</a></p>
         </form>
       </div>
     </div>

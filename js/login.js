@@ -27,7 +27,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (result.token) {
           localStorage.setItem("token", result.token);
         }
-        window.location.href = "marketplace.html";
+        // Redirect based on user role
+        if (result.role === "student") {
+          window.location.href = "student-dashboard.html";
+        } else if (result.role === "landlord") {
+          window.location.href = "landlord-dashboard.html";
+        } else {
+          window.location.href = "marketplace.html"; // fallback
+        }
       } else {
         errorDiv.textContent =
           result.message || "Login failed. Please try again.";

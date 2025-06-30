@@ -4,35 +4,274 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Messages - InRent</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/main.css" />
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f8f9fa;
       }
-      gtag("js", new Date());
-      gtag("config", "G-1F24YHYS28");
-    </script>
+      .chat-scroll {
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      .chat-bubble {
+        max-width: 70%;
+        word-break: break-word;
+      }
+      .chat-bubble.student {
+        background: #e6f9ed;
+        color: #228b22;
+        align-self: flex-end;
+      }
+      .chat-bubble.landlord {
+        background: #f1f5f9;
+        color: #222;
+        align-self: flex-start;
+      }
+      .chat-bubble + .chat-bubble {
+        margin-top: 0.5rem;
+      }
+      .conversation-list::-webkit-scrollbar,
+      .chat-scroll::-webkit-scrollbar {
+        width: 8px;
+        background: #f1f5f9;
+      }
+      .conversation-list::-webkit-scrollbar-thumb,
+      .chat-scroll::-webkit-scrollbar-thumb {
+        background: #d1fae5;
+        border-radius: 8px;
+      }
+      .conversation-list {
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+      .conversation-item.active {
+        background: #e6f9ed;
+      }
+      .conversation-item:hover {
+        background: #f1f5f9;
+      }
+      .chat-input:focus {
+        outline: 2px solid #22c55e;
+      }
+      @media (max-width: 900px) {
+        .max-w-5xl {
+          max-width: 100vw !important;
+        }
+        .md\:flex-row {
+          flex-direction: column !important;
+        }
+        .md\:w-1\/3 {
+          width: 100% !important;
+        }
+        .border-r {
+          border-right: none !important;
+        }
+      }
+      @media (max-width: 600px) {
+        .p-4 {
+          padding: 0.5rem !important;
+        }
+        .rounded-2xl {
+          border-radius: 0.7rem !important;
+        }
+        .w-10,
+        .h-10 {
+          width: 2rem !important;
+          height: 2rem !important;
+        }
+        .text-xl {
+          font-size: 1.1rem !important;
+        }
+      }
+    </style>
   </head>
-  <body>
-    <div class="container">
-      <div class="messages-container" id="messagesContainer"></div>
+  <body class="min-h-screen flex items-center justify-center p-0">
+    <div
+      class="w-full min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa]"
+    >
+      <div
+        class="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden min-h-[80vh]"
+        style="padding: 0"
+      >
+        <!-- Sidebar: Conversation List -->
+        <aside
+          class="w-full md:w-1/3 border-r border-gray-200 bg-gray-50 p-4 conversation-list"
+        >
+          <button
+            onclick="window.location.href='property-details.html'"
+            class="mb-4 flex items-center gap-2 text-green-700 hover:text-green-900 font-semibold text-sm"
+          >
+            <i class="fas fa-arrow-left"></i> Back to Property
+          </button>
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-comments mr-2 text-green-600"></i>Conversations
+          </h2>
+          <div id="conversationList" class="flex flex-col gap-2"></div>
+        </aside>
+        <!-- Main Chat Area -->
+        <main class="flex-1 flex flex-col">
+          <div
+            class="flex items-center justify-between border-b border-gray-200 p-4 bg-white"
+          >
+            <div class="flex items-center gap-3">
+              <img
+                id="chatAvatar"
+                src=""
+                alt="User"
+                class="w-10 h-10 rounded-full border border-green-200"
+              />
+              <div>
+                <div id="chatName" class="font-semibold text-gray-800">
+                  Select a conversation
+                </div>
+                <div id="chatRole" class="text-xs text-gray-500"></div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="chatArea"
+            class="flex-1 flex flex-col gap-2 p-4 chat-scroll bg-gray-50"
+          ></div>
+          <form
+            id="chatForm"
+            class="flex gap-2 p-4 border-t border-gray-200 bg-white"
+            autocomplete="off"
+            style="display: none"
+          >
+            <input
+              id="chatInput"
+              type="text"
+              class="flex-1 p-3 rounded-lg border border-gray-300 chat-input"
+              placeholder="Type your message..."
+              required
+            />
+            <button
+              type="submit"
+              class="bg-green-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-green-700 transition"
+            >
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </form>
+        </main>
+      </div>
     </div>
-    <script src="js/messages.js" defer></script>
+    <script>
+      // Fetch conversations from backend
+      let userId = null;
+      let conversations = [];
+      let activeConvId = null;
+      async function fetchConversations() {
+        const res = await fetch("/api/messages/conversations", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        conversations = data.conversations;
+        userId = data.userId;
+        renderConversationList();
+      }
+      async function fetchMessages(convId) {
+        const res = await fetch(`/api/messages/${convId}`, {
+          credentials: "include",
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.messages;
+      }
+      // Render conversation list
+      function renderConversationList() {
+        const list = document.getElementById("conversationList");
+        list.innerHTML = "";
+        if (!conversations.length) {
+          list.innerHTML =
+            '<div class="text-gray-500 text-center py-8">No conversations yet.</div>';
+          return;
+        }
+        conversations.forEach((conv) => {
+          const item = document.createElement("div");
+          item.className =
+            "conversation-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition";
+          if (conv.id === activeConvId) item.classList.add("active");
+          item.innerHTML = `
+            <img
+              src="${
+                conv.avatar || "https://placehold.co/40x40/22c55e/fff?text=U"
+              }"
+              alt="Avatar"
+              class="w-10 h-10 rounded-full border border-green-200"
+            />
+            <div class="flex-1">
+              <div class="font-semibold text-gray-800">${conv.name}</div>
+              <div class="text-xs text-gray-500">${conv.role} • ${
+            conv.property
+          }</div>
+            </div>
+          `;
+          item.onclick = () => selectConversation(conv.id);
+          list.appendChild(item);
+        });
+      }
+      // Render chat area
+      async function renderChat(conv) {
+        document.getElementById("chatAvatar").src =
+          conv.avatar || "https://placehold.co/40x40/22c55e/fff?text=U";
+        document.getElementById("chatName").textContent = conv.name;
+        document.getElementById("chatRole").textContent =
+          conv.role + " • " + conv.property;
+        const chatArea = document.getElementById("chatArea");
+        chatArea.innerHTML = "";
+        const messages = await fetchMessages(conv.id);
+        messages.forEach((msg) => {
+          const bubble = document.createElement("div");
+          bubble.className =
+            "chat-bubble px-4 py-2 rounded-2xl shadow-sm " +
+            (msg.senderId === userId
+              ? "student self-end ml-auto"
+              : "landlord self-start mr-auto");
+          bubble.textContent = msg.text;
+          chatArea.appendChild(bubble);
+        });
+        chatArea.scrollTop = chatArea.scrollHeight;
+      }
+      // Select a conversation
+      function selectConversation(id) {
+        activeConvId = id;
+        renderConversationList();
+        const conv = conversations.find((c) => c.id === id);
+        renderChat(conv);
+        document.getElementById("chatForm").style.display = "flex";
+      }
+      // Handle sending a message
+      document
+        .getElementById("chatForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const input = document.getElementById("chatInput");
+          const text = input.value.trim();
+          if (!text || !activeConvId) return;
+          await fetch(`/api/messages/${activeConvId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ text }),
+          });
+          input.value = "";
+          const conv = conversations.find((c) => c.id === activeConvId);
+          renderChat(conv);
+        });
+      // Initial render
+      fetchConversations();
+    </script>
   </body>
 </html>

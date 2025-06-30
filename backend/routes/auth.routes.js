@@ -2,6 +2,8 @@ const express = require("express");
 // Import both controller functions
 const {
   registerUser,
+  verifyEmail,
+  resendOtp,
   loginUser,
   getCurrentUser,
 } = require("../controllers/auth.controller");
@@ -11,7 +13,10 @@ const router = express.Router();
 
 // POST /api/auth/register
 router.post("/register", registerUser);
-
+// POST /api/auth/verify-email
+router.post("/verify-email", verifyEmail);
+// POST /api/auth/resend-otp
+router.post("/resend-otp", resendOtp);
 // POST /api/auth/login  <-- ADD THIS NEW ROUTE
 router.post("/login", loginUser);
 

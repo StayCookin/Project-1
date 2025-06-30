@@ -1,12 +1,114 @@
 const prisma = require("../utils/prisma");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken"); // Import jsonwebtoken
+const jwt = require("jsonwebtoken");
+const { sendMail } = require("../utils/email");
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 const registerUser = async (req, res) => {
-  // ... your existing registerUser function ...
+  const { name, email, password, role, phone, school, studentId } = req.body;
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing)
+      return res.status(409).json({ error: "Email already registered." });
+    const hashed = await bcrypt.hash(password, 10);
+    const otp = generateOTP();
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashed,
+        role,
+        phone,
+        school,
+        studentId,
+        isVerified: false,
+        verificationToken: otp,
+        verificationTokenExpires: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+    await sendMail({
+      to: email,
+      subject: "InRent Email Verification Code",
+      text: `Your verification code is: ${otp}`,
+      html: `<p>Your InRent verification code is: <b>${otp}</b></p>`,
+    });
+    res.status(201).json({
+      success: true,
+      message: "User registered. Verification code sent to email.",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Registration failed." });
+  }
 };
 
-// --- ADD THE NEW FUNCTION BELOW ---
+const verifyEmail = async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp)
+    return res.status(400).json({ error: "Email and OTP required." });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: "User not found." });
+    if (user.isVerified)
+      return res.status(400).json({ error: "Already verified." });
+    if (
+      user.verificationToken !== otp ||
+      new Date() > user.verificationTokenExpires
+    ) {
+      return res.status(400).json({ error: "Invalid or expired OTP." });
+    }
+    await prisma.user.update({
+      where: { email },
+      data: {
+        isVerified: true,
+        verificationToken: null,
+        verificationTokenExpires: null,
+      },
+    });
+    res.json({
+      success: true,
+      message: "Email verified. You can now log in.",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Verification failed." });
+  }
+};
+
+const resendOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email required." });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: "User not found." });
+    if (user.isVerified)
+      return res.status(400).json({ error: "Already verified." });
+    const otp = generateOTP();
+    await prisma.user.update({
+      where: { email },
+      data: {
+        verificationToken: otp,
+        verificationTokenExpires: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+    await sendMail({
+      to: email,
+      subject: "InRent Email Verification Code (Resent)",
+      text: `Your new verification code is: ${otp}`,
+      html: `<p>Your new InRent verification code is: <b>${otp}</b></p>`,
+    });
+    res.json({ success: true, message: "Verification code resent to email." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to resend code." });
+  }
+};
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -27,6 +129,11 @@ const loginUser = async (req, res) => {
     if (!user) {
       // User not found
       return res.status(401).json({ error: "Invalid credentials." });
+    }
+
+    if (!user.isVerified) {
+      // Email not verified
+      return res.status(403).json({ error: "Email not verified." });
     }
 
     // 2. Compare the provided password with the stored hash
@@ -73,6 +180,8 @@ const getCurrentUser = async (req, res) => {
 
 module.exports = {
   registerUser,
+  verifyEmail,
+  resendOtp,
   loginUser,
-  getCurrentUser, // Export the new function
+  getCurrentUser,
 };

@@ -15,7 +15,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/main.css" />
-    
+
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -195,7 +195,7 @@
       <span class="in">In</span><span class="rent">Rent</span> Saved Properties
       <button
         class="btn"
-        id="homeBtn"
+        id="logoutBtn"
         style="
           position: absolute;
           right: 1.2rem;
@@ -216,7 +216,7 @@
           cursor: pointer;
         "
       >
-        <i class="fas fa-home" href="marketplace.html"></i> Home
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
       <a
         href="student-dashboard.html"
@@ -246,10 +246,20 @@
     <script src="./js/saved-properties.js" defer></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const homeBtn = document.getElementById("homeBtn");
-        if (homeBtn) {
-          homeBtn.addEventListener("click", function () {
-            window.location.href = "/marketplace.html";
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", async function () {
+            // Call backend logout endpoint if available
+            try {
+              await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+              });
+            } catch (e) {}
+            // Remove any session/local tokens if present
+            localStorage.removeItem("token");
+            // Redirect to login or home page
+            window.location.href = "/index.html";
           });
         }
       });
