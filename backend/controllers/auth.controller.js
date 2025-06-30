@@ -8,6 +8,7 @@ function generateOTP() {
 }
 
 const registerUser = async (req, res) => {
+  console.log("Incoming body:", req.body); // Debug log
   const { name, email, password, role, phone, school, studentId } = req.body;
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: "Missing required fields." });
@@ -43,8 +44,10 @@ const registerUser = async (req, res) => {
       message: "User registered. Verification code sent to email.",
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Registration failed." });
+    console.error("Registration error:", err);
+    res
+      .status(500)
+      .json({ error: "Registration failed.", details: err.message });
   }
 };
 

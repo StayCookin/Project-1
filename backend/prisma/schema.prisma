@@ -23,6 +23,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   properties Property[]
+  inquiries  Inquiry[] @relation("UserInquiries")
 }
 
 // Property Model: Represents a rental listing
@@ -38,6 +39,7 @@ model Property {
 
   landlord   User   @relation(fields: [landlordId], references: [id])
   landlordId String
+  inquiries  Inquiry[] @relation("PropertyInquiries")
 }
 
 // Enum for User Roles
@@ -54,10 +56,10 @@ model Inquiry {
   createdAt DateTime @default(now())
 
   // Relation to the property the inquiry is about
-  property   Property @relation(fields: [propertyId], references: [id])
+  property   Property @relation("PropertyInquiries", fields: [propertyId], references: [id])
   propertyId String
 
   // Relation to the user (student) who sent the inquiry
-  student    User     @relation(fields: [studentId], references: [id])
+  student    User     @relation("UserInquiries", fields: [studentId], references: [id])
   studentId  String
 }

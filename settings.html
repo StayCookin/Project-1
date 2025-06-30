@@ -8,7 +8,13 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -22,32 +28,358 @@
       gtag("js", new Date());
       gtag("config", "G-1F24YHYS28");
     </script>
-    <style>
-      @media (max-width: 600px) {
-        .container,
-        .settings-header,
-        .settings-form,
-        .form-group,
-        .btn {
-          width: 100vw !important;
-          min-width: 0 !important;
-          padding: 0.5rem !important;
-          margin: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-        }
-        .settings-title,
-        .settings-subtitle,
-        label,
-        input,
-        button {
-          font-size: 1.1rem !important;
-        }
-      }
-    </style>
   </head>
   <body>
-    ...existing code...
-    <script src="js/settings.js" defer></script>
+    <header>
+      <div class="container">
+        <nav
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <div class="logo">
+            <span class="in">In</span><span class="rent">Rent</span>
+          </div>
+          <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="marketplace.html">Browse Accommodations</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <button
+            id="logoutBtn"
+            class="btn btn-primary"
+            style="
+              margin-left: 2rem;
+              background: #fff;
+              color: #228b22;
+              border: 1.5px solid #228b22;
+              border-radius: 7px;
+              padding: 0.6rem 1.2rem;
+              font-size: 1rem;
+              font-weight: 600;
+              transition: background 0.2s;
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+    <main style="margin-top: 90px; min-height: 80vh">
+      <div
+        class="container"
+        style="
+          max-width: 500px;
+          margin: 0 auto;
+          background: #fff;
+          border-radius: 18px;
+          box-shadow: 0 4px 24px rgba(34, 139, 34, 0.08);
+          padding: 2.5rem 2rem 2rem 2rem;
+          margin-top: 2.5rem;
+        "
+      >
+        <div
+          class="settings-header"
+          style="text-align: center; margin-bottom: 2rem"
+        >
+          <h1
+            class="settings-title"
+            style="font-size: 2rem; color: #228b22; font-weight: 700"
+          >
+            Account Settings
+          </h1>
+          <p class="settings-subtitle" style="color: #666; font-size: 1.1rem">
+            Manage your account preferences
+          </p>
+        </div>
+        <form
+          id="settingsForm"
+          class="settings-form"
+          style="display: flex; flex-direction: column; gap: 1.3rem"
+          enctype="multipart/form-data"
+        >
+          <div
+            class="form-group"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+            "
+          >
+            <label for="profilePhoto" style="font-weight: 600; color: #228b22">
+              Change Profile Photo
+            </label>
+            <input
+              type="file"
+              id="profilePhoto"
+              accept="image/*"
+              style="margin-bottom: 0.5rem"
+            />
+            <img
+              id="profilePhotoPreview"
+              src=""
+              alt="Profile Preview"
+              style="
+                display: none;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #228b22;
+              "
+            />
+            <button
+              type="button"
+              id="uploadPhotoBtn"
+              class="btn btn-primary"
+              style="
+                background: #228b22;
+                color: #fff;
+                border: none;
+                border-radius: 7px;
+                padding: 0.5rem 1.2rem;
+                font-size: 1rem;
+                font-weight: 600;
+                transition: background 0.2s;
+                margin-top: 0.5rem;
+              "
+            >
+              Upload Photo
+            </button>
+            <div
+              id="photoUploadMsg"
+              style="color: #228b22; font-size: 0.98rem; margin-top: 0.3rem"
+            ></div>
+          </div>
+          <div
+            class="form-group"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+            "
+          >
+            <label for="email" style="font-weight: 600; color: #228b22">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              required
+              style="
+                width: 100%;
+                padding: 0.7rem 1rem;
+                border: 1.5px solid #228b22;
+                border-radius: 7px;
+                font-size: 1rem;
+              "
+            />
+          </div>
+          <div
+            class="form-group"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+            "
+          >
+            <label
+              for="currentPassword"
+              style="font-weight: 600; color: #228b22"
+            >
+              Current Password
+            </label>
+            <input
+              type="password"
+              id="currentPassword"
+              required
+              style="
+                width: 100%;
+                padding: 0.7rem 1rem;
+                border: 1.5px solid #228b22;
+                border-radius: 7px;
+                font-size: 1rem;
+              "
+            />
+          </div>
+          <div
+            class="form-group"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 0.5rem;
+            "
+          >
+            <label for="password" style="font-weight: 600; color: #228b22">
+              New Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              style="
+                width: 100%;
+                padding: 0.7rem 1rem;
+                border: 1.5px solid #228b22;
+                border-radius: 7px;
+                font-size: 1rem;
+              "
+            />
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="
+              background: #228b22;
+              color: #fff;
+              border: none;
+              border-radius: 7px;
+              padding: 0.8rem 0;
+              font-size: 1.1rem;
+              font-weight: 600;
+              transition: background 0.2s;
+            "
+          >
+            Update Settings
+          </button>
+          <div
+            class="success-message"
+            id="settingsFormSuccess"
+            style="
+              color: #228b22;
+              font-weight: 500;
+              margin-top: 0.7rem;
+              font-size: 1rem;
+            "
+          ></div>
+        </form>
+      </div>
+    </main>
+    <footer
+      class="footer"
+      style="
+        background: #f8fafb;
+        color: #228b22;
+        text-align: center;
+        padding: 2rem 0;
+        margin-top: 2.5rem;
+      "
+    >
+      <div class="container">
+        <p style="font-size: 1.1rem">
+          &copy; 2025 InRent. All rights reserved.
+        </p>
+      </div>
+    </footer>
+    <script src="./js/settings.js" defer></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", async function () {
+            try {
+              await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+              });
+            } catch (e) {}
+            window.location.href = "index.html";
+          });
+        }
+      });
+      // Profile photo preview
+      const profilePhotoInput = document.getElementById("profilePhoto");
+      const profilePhotoPreview = document.getElementById(
+        "profilePhotoPreview"
+      );
+      const uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+      const photoUploadMsg = document.getElementById("photoUploadMsg");
+
+      if (profilePhotoInput) {
+        profilePhotoInput.addEventListener("change", function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              profilePhotoPreview.src = e.target.result;
+              profilePhotoPreview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+          } else {
+            profilePhotoPreview.style.display = "none";
+          }
+        });
+      }
+      if (uploadPhotoBtn) {
+        uploadPhotoBtn.addEventListener("click", async function () {
+          const file = profilePhotoInput.files[0];
+          if (!file) {
+            photoUploadMsg.textContent = "Please select a photo.";
+            return;
+          }
+          const formData = new FormData();
+          formData.append("profilePhoto", file);
+          try {
+            const res = await fetch("/api/user/profile-photo", {
+              method: "POST",
+              credentials: "include",
+              body: formData,
+            });
+            if (res.ok) {
+              photoUploadMsg.textContent = "Profile photo updated!";
+              setTimeout(() => {
+                photoUploadMsg.textContent = "";
+              }, 2000);
+            } else {
+              photoUploadMsg.textContent = "Failed to update photo.";
+            }
+          } catch (e) {
+            photoUploadMsg.textContent = "Error uploading photo.";
+          }
+        });
+      }
+      // Password change and email update
+      const settingsForm = document.getElementById("settingsForm");
+      const settingsFormSuccess = document.getElementById(
+        "settingsFormSuccess"
+      );
+      settingsForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const currentPassword =
+          document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("password").value;
+        try {
+          const res = await fetch("/api/user/settings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, currentPassword, newPassword }),
+          });
+          if (res.ok) {
+            settingsFormSuccess.textContent = "Settings updated successfully!";
+            setTimeout(() => {
+              settingsFormSuccess.textContent = "";
+            }, 2000);
+          } else {
+            const data = await res.json();
+            settingsFormSuccess.textContent =
+              data.message || "Failed to update settings.";
+          }
+        } catch (err) {
+          settingsFormSuccess.textContent = "Error updating settings.";
+        }
+      });
+    </script>
   </body>
 </html>

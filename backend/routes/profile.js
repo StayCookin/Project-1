@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
-const auth = require("../middleware/auth"); // Assuming auth middleware is in this path
+const { auth } = require("../middleware/auth"); // Import named export
 
 // Get user profile
 router.get("/:userId", async (req, res) => {

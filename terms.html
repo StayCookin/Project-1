@@ -8,7 +8,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -20,10 +25,258 @@
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
+
       gtag("config", "G-1F24YHYS28");
     </script>
+    <style>
+      :root {
+        --primary: #228b22;
+        --secondary: #2e7d32;
+        --dark: #1b5e20;
+        --light: #4caf50;
+        --gray: #757575;
+        --white: #ffffff;
+        --gradient-primary: linear-gradient(135deg, #228b22, #2e7d32);
+        --gradient-secondary: linear-gradient(135deg, #2e7d32, #1b5e20);
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        --font-heading: "Poppins", sans-serif;
+        --font-body: "Inter", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background-color: #f5f5f5;
+        color: var(--dark);
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .terms-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .terms-header h1 {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        color: var(--dark);
+        margin-bottom: 1rem;
+      }
+
+      .terms-header p {
+        color: var(--gray);
+        font-size: 1.1rem;
+      }
+
+      .terms-content {
+        background: var(--white);
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+      }
+
+      .terms-section {
+        margin-bottom: 2.5rem;
+      }
+
+      .terms-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .terms-section h2 {
+        font-family: var(--font-heading);
+        color: var(--dark);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      .terms-section p {
+        color: var(--gray);
+        margin-bottom: 1rem;
+      }
+
+      .terms-section ul {
+        list-style: none;
+        margin-bottom: 1rem;
+      }
+
+      .terms-section ul li {
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+        padding-left: 1.5rem;
+        position: relative;
+      }
+
+      .terms-section ul li:before {
+        content: "•";
+        color: var(--primary);
+        position: absolute;
+        left: 0;
+      }
+
+      .last-updated {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .terms-header h1 {
+          font-size: 2rem;
+        }
+
+        .terms-content {
+          padding: 2rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    ...existing code...
+    <div class="container">
+      <div class="terms-header">
+        <h1>Terms of Service</h1>
+        <p>Last updated: June 07, 2025</p>
+      </div>
+
+      <div class="terms-content">
+        <div class="terms-section">
+          <h2>1. Introduction</h2>
+          <p>
+            Welcome to InRent. These Terms of Service ("Terms") govern your use
+            of our website and services. By accessing or using InRent, you agree
+            to be bound by these Terms and our Privacy Policy.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h2>2. Data Protection and Privacy</h2>
+          <p>
+            InRent is committed to protecting your privacy and handling your
+            data in accordance with Botswana's Data Protection Act of 2018. We
+            collect and process personal information only for specified,
+            explicit, and legitimate purposes.
+          </p>
+          <ul>
+            <li>
+              We collect only necessary personal information required for
+              providing our services
+            </li>
+            <li>Your data is processed lawfully, fairly, and transparently</li>
+            <li>
+              We implement appropriate security measures to protect your data
+            </li>
+            <li>We retain your data only for as long as necessary</li>
+            <li>
+              You have the right to access, correct, or delete your personal
+              information
+            </li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h2>3. User Responsibilities</h2>
+          <p>As a user of InRent, you agree to:</p>
+          <ul>
+            <li>Provide accurate and complete information</li>
+            <li>Maintain the security of your account credentials</li>
+            <li>Use the platform in compliance with all applicable laws</li>
+            <li>Respect the privacy and rights of other users</li>
+            <li>Not engage in any fraudulent or harmful activities</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h2>4. Property Listings and Viewings</h2>
+          <p>
+            Our platform facilitates property listings and viewings with the
+            following terms:
+          </p>
+          <ul>
+            <li>
+              Property owners must provide accurate and current information
+            </li>
+            <li>
+              Viewing appointments must be respected and cancelled with proper
+              notice
+            </li>
+            <li>All communications should be professional and respectful</li>
+            <li>
+              Property photos must accurately represent the current condition
+            </li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h2>5. Data Processing and Storage</h2>
+          <p>In accordance with Botswana's data protection laws:</p>
+          <ul>
+            <li>Your data is stored securely within Botswana's jurisdiction</li>
+            <li>
+              We implement appropriate technical and organizational measures
+            </li>
+            <li>Regular security assessments are conducted</li>
+            <li>Data breaches will be reported to relevant authorities</li>
+            <li>You will be notified of any significant data incidents</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h2>6. User Rights</h2>
+          <p>Under Botswana's data protection laws, you have the right to:</p>
+          <ul>
+            <li>Access your personal data</li>
+            <li>Request correction of inaccurate data</li>
+            <li>Request deletion of your data</li>
+            <li>Object to data processing</li>
+            <li>Request data portability</li>
+            <li>Withdraw consent at any time</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h2>7. Modifications to Terms</h2>
+          <p>
+            We reserve the right to modify these Terms at any time. We will
+            notify users of any material changes through our website or email.
+            Continued use of InRent after such modifications constitutes
+            acceptance of the updated Terms.
+          </p>
+        </div>
+
+        <div class="terms-section">
+          <h2>8. Contact Information</h2>
+          <p>
+            For any questions regarding these Terms or data protection, please
+            contact us at:
+          </p>
+          <ul>
+            <li>Email: privacy@inrent.co.bw</li>
+            <li>Phone: +267 76068664</li>
+          </ul>
+        </div>
+
+        <div class="last-updated">
+          <p>These Terms of Service were last updated on March 15, 2024.</p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

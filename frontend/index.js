@@ -360,23 +360,28 @@ document.addEventListener("DOMContentLoaded", function () {
       const studentId = document.getElementById("studentId").value;
       const phone = document.getElementById("studentPhone").value;
       try {
-        const res = await fetch("/api/auth/signup", {
+        const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name,
             email,
             password,
+            role: "student",
             school,
             studentId,
             phone,
           }),
         });
+        const data = await res.json();
         if (res.ok) {
           // Optionally, auto-login or show a success modal
           window.location.reload();
         } else {
-          alert("Signup failed. Please check your details and try again.");
+          alert(
+            data.error ||
+              "Signup failed. Please check your details and try again."
+          );
         }
       } catch (err) {
         alert("Network error. Please try again.");
