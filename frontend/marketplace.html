@@ -13,6 +13,252 @@
     />
     <meta name="theme-color" content="#228B22" />
     <title>Property Marketplace - InRent</title>
+    <style>
+      body {
+        background: #f8fafb;
+        font-family: "Poppins", "Inter", Arial, sans-serif;
+      }
+      .marketplace-header {
+        width: 100%;
+        background: var(--forest-green);
+        color: var(--forest-green);
+        padding: 1.2rem 0;
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 8px rgba(34, 139, 34, 0.08);
+        margin-bottom: 1.5rem;
+        position: relative;
+      }
+      .profile-btn,
+      .logout-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.3rem;
+        color: #228b22;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .logout-btn {
+        right: 1rem;
+        background: #fff;
+        border: 1.5px solid #228b22;
+        border-radius: 5px;
+        padding: 0.4rem 1.1rem;
+        font-weight: 600;
+        transition: background 0.2s;
+      }
+      .logout-btn:hover {
+        background: #f0f0f0;
+      }
+      .filter-bar {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 1rem;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        padding: 1rem 1.5rem;
+        margin: 0 auto 2rem auto;
+        max-width: 1100px;
+        overflow-x: auto;
+      }
+      .filter-bar select,
+      .filter-bar input[type="text"] {
+        padding: 0.6rem 1rem;
+        border: 1px solid #228b22;
+        border-radius: 5px;
+        font-size: 1rem;
+        min-width: 140px;
+        flex: 0 0 auto;
+      }
+      .filter-bar button.btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+      .property-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        max-width: 1100px;
+        margin: 0 auto 2rem auto;
+        padding: 0 1rem;
+      }
+      .property-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s;
+      }
+      .property-card:hover {
+        box-shadow: 0 8px 32px rgba(34, 139, 34, 0.13);
+      }
+      .property-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #e6e6e6;
+      }
+      .property-info {
+        padding: 1.2rem 1rem 1rem 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .property-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 0.2rem;
+      }
+      .property-location {
+        color: #228b22;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+      .property-details {
+        display: flex;
+        gap: 1.2rem;
+        font-size: 1rem;
+        color: #444;
+        margin: 0.5rem 0;
+      }
+      .property-price {
+        color: #176b16;
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+      }
+      .property-action {
+        margin-top: 1rem;
+        text-align: right;
+      }
+      .property-action .btn {
+        background: var(--forest-green);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .property-action .btn:hover {
+        background: #176b16;
+      }
+      .amenities-dropdown {
+        position: relative;
+        display: inline-block;
+        min-width: 140px;
+      }
+      .amenities-dropdown-btn {
+        padding: 0.6rem 1rem;
+        border: 1px solid #228b22;
+        border-radius: 5px;
+        font-size: 1rem;
+        background: #fff;
+        color: #222;
+        min-width: 140px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .amenities-list {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 110%;
+        z-index: 10;
+        background: #fff;
+        border: 1px solid #228b22;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        min-width: 180px;
+        padding: 0.5rem 0.7rem;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+      .amenities-list.show {
+        display: block;
+      }
+      .amenities-list label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        padding: 0.3rem 0;
+        cursor: pointer;
+      }
+      .amenities-list input[type="checkbox"] {
+        accent-color: #228b22;
+      }
+      @media (max-width: 900px) {
+        body,
+        .centered-form-container,
+        .main-content,
+        .container,
+        form {
+          min-width: 90vw !important;
+          max-width: 95vw !important;
+          padding: 1.5rem 0.5rem !important;
+        }
+      }
+      @media (max-width: 600px) {
+        body,
+        .centered-form-container,
+        .main-content,
+        .container,
+        form {
+          min-width: 100vw !important;
+          max-width: 100vw !important;
+          padding: 1.2rem 0.5rem !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+        }
+        label,
+        input,
+        select,
+        button,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+          font-size: 1.1rem !important;
+        }
+      }
+      @media (max-width: 400px) {
+        body,
+        .centered-form-container,
+        .main-content,
+        .container,
+        form {
+          padding: 0.5rem 0.2rem !important;
+        }
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+          font-size: 1.2rem !important;
+        }
+      }
+    </style>
 
     <!-- Preload critical assets -->
     <link
@@ -36,8 +282,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/main.css" />
-    <link rel="stylesheet" href="./css/index.css" />
+
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -212,6 +457,115 @@
       </div>
     </div>
 
-    <script src="marketplace.js" />
+    <script src="marketplace.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Newsletter form handler (Google Apps Script)
+        const newsletterForm = document.getElementById("newsletterForm");
+        if (newsletterForm) {
+          newsletterForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const email = document
+              .getElementById("newsletterEmail")
+              .value.trim();
+            if (!email) return;
+            try {
+              const res = await fetch(
+                "https://script.google.com/macros/s/AKfycby5aUU7sxOPAwHxniTeclh57DuLcp6oSSnXFBab0rTGCi4xkSMbSR2GNz69IcgTs4mBew/exec",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email }),
+                }
+              );
+              if (res.ok) {
+                alert("You've joined the waitlist!");
+                newsletterForm.reset();
+              } else {
+                alert("There was a problem joining the waitlist.");
+              }
+            } catch {
+              alert("Network error. Please try again.");
+            }
+          });
+        }
+        // Header login/signup buttons
+        const loginBtn = document.getElementById("loginBtn");
+        if (loginBtn) {
+          loginBtn.addEventListener("click", function () {
+            window.location.href = "login.html";
+          });
+        }
+        const signupBtn = document.getElementById("signupBtn");
+        if (signupBtn) {
+          signupBtn.addEventListener("click", function () {
+            window.location.href = "signup.html";
+          });
+        }
+        // Footer links
+        const footer = document.getElementById("footer");
+        if (footer) {
+          footer.addEventListener("click", function (e) {
+            if (e.target.tagName === "A") {
+              e.preventDefault();
+              const href = e.target.getAttribute("href");
+              if (href) window.location.href = href;
+            }
+          });
+        }
+      });
+      // Connect View Details to backend
+      window.viewDetails = async function (propertyId) {
+        try {
+          const res = await fetch(`/api/properties/${propertyId}`);
+          if (!res.ok) throw new Error("Property not found");
+          const property = await res.json();
+          // Store property in sessionStorage for details page
+          sessionStorage.setItem("selectedProperty", JSON.stringify(property));
+          window.location.href = `property-details.html?id=${propertyId}`;
+        } catch (err) {
+          alert("Could not load property details.");
+        }
+      };
+      // Connect Message Landlord to backend (start conversation)
+      window.messageLandlord = async function (landlordId) {
+        try {
+          const res = await fetch(`/api/messages/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ landlordId }),
+          });
+          if (!res.ok) throw new Error("Could not start conversation");
+          const data = await res.json();
+          window.location.href = `/messages.html?thread=${data.threadId}`;
+        } catch (err) {
+          alert("Could not start conversation with landlord.");
+        }
+      };
+      // Advanced Filters button (fetch with filters)
+      document.querySelectorAll(".btn-secondary").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          // Collect all filter values
+          const filters = {};
+          document.querySelectorAll(".filter-group select").forEach((sel) => {
+            filters[sel.id] = sel.value;
+          });
+          fetch(`/api/properties?${new URLSearchParams(filters)}`)
+            .then((res) => res.json())
+            .then((data) => {
+              // Render properties (assume renderPropertyGrid exists)
+              if (window.renderPropertyGrid) window.renderPropertyGrid(data);
+            })
+            .catch(() => alert("Could not apply filters."));
+        });
+      });
+      // Login button (API call)
+      if (window.loginBtn) {
+        loginBtn.addEventListener("click", async function () {
+          // Example: show login modal or redirect
+          window.location.href = "login.html";
+        });
+      }
+    </script>
   </body>
 </html>

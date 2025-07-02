@@ -21,84 +21,26 @@
     <style>
       /* Custom styles to complement Tailwind */
       body {
-        font-family: "Inter", sans-serif; /* Default body font */
+        font-family: 'Inter', sans-serif; /* Default body font */
         background-color: #f0f2f5; /* Light gray background */
       }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        font-family: "Poppins", sans-serif; /* Headings use Poppins */
+      h1, h2, h3, h4, h5, h6 {
+        font-family: 'Poppins', sans-serif; /* Headings use Poppins */
       }
       /* Custom scrollbar for main content */
       .main-content::-webkit-scrollbar {
-        width: 8px;
+          width: 8px;
       }
       .main-content::-webkit-scrollbar-track {
-        background: #e2e8f0; /* Light blue-gray */
-        border-radius: 10px;
+          background: #e2e8f0; /* Light blue-gray */
+          border-radius: 10px;
       }
       .main-content::-webkit-scrollbar-thumb {
-        background: #94a3b8; /* Slate gray */
-        border-radius: 10px;
+          background: #94a3b8; /* Slate gray */
+          border-radius: 10px;
       }
       .main-content::-webkit-scrollbar-thumb:hover {
-        background: #64748b; /* Darker slate gray */
-      }
-      @media (max-width: 900px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 90vw !important;
-          max-width: 95vw !important;
-          padding: 1.5rem 0.5rem !important;
-        }
-      }
-      @media (max-width: 600px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 100vw !important;
-          max-width: 100vw !important;
-          padding: 1.2rem 0.5rem !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-        }
-        label,
-        input,
-        select,
-        button,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.1rem !important;
-        }
-      }
-      @media (max-width: 400px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          padding: 0.5rem 0.2rem !important;
-        }
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.2rem !important;
-        }
+          background: #64748b; /* Darker slate gray */
       }
     </style>
   </head>
@@ -111,22 +53,14 @@
 
       async function fetchUserProfile() {
         try {
-          const res = await fetch(`${API_BASE}/api/user/profile`, {
-            credentials: "include",
-          });
+          const res = await fetch(`${API_BASE}/api/user/profile`, { credentials: "include" });
           if (res.ok) {
             const user = await res.json();
-            document.getElementById("sidebarWelcome").textContent = `Welcome, ${
-              user.firstName || "Student"
-            }`;
+            document.getElementById('sidebarWelcome').textContent = `Welcome, ${user.firstName || 'Student'}`;
             // Update profile images if user.profilePictureUrl is available
-            const profileImageUrl =
-              user.profilePictureUrl ||
-              "https://placehold.co/80x80/16A34A/FFFFFF?text=S";
-            document.querySelector(".sidebar-header .profile-image").src =
-              profileImageUrl;
-            document.querySelector(".profile-menu .profile-image-small").src =
-              profileImageUrl;
+            const profileImageUrl = user.profilePictureUrl || 'https://placehold.co/80x80/16A34A/FFFFFF?text=S';
+            document.querySelector('.sidebar-header .profile-image').src = profileImageUrl;
+            document.querySelector('.profile-menu .profile-image-small').src = profileImageUrl;
           }
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
@@ -135,51 +69,37 @@
 
       async function fetchDashboardStats() {
         try {
-          const res = await fetch(`${API_BASE}/api/dashboard/stats`, {
-            credentials: "include",
-          });
+          const res = await fetch(`${API_BASE}/api/dashboard/stats`, { credentials: "include" });
           if (res.ok) {
             const stats = await res.json();
-            const dashboardCardsContainer =
-              document.getElementById("dashboardCards");
+            const dashboardCardsContainer = document.getElementById('dashboardCards');
             dashboardCardsContainer.innerHTML = `
               <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties</h3>
-                <p class="text-4xl font-bold text-gray-900">${
-                  stats.savedProperties || 0
-                }</p>
+                <p class="text-4xl font-bold text-gray-900">${stats.savedProperties || 0}</p>
               </div>
               <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-calendar text-blue-500 mr-2"></i> Scheduled Viewings</h3>
-                <p class="text-4xl font-bold text-gray-900">${
-                  stats.scheduledViewings || 0
-                }</p>
+                <p class="text-4xl font-bold text-gray-900">${stats.scheduledViewings || 0}</p>
               </div>
               <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-2">
                   <i class="fas fa-envelope text-green-500 mr-2"></i> Messages
-                  <span class="notification-asterisk text-red-500 text-xl font-bold">${
-                    stats.unreadMessages > 0 ? "*" : ""
-                  }</span>
+                  <span class="notification-asterisk text-red-500 text-xl font-bold">${stats.unreadMessages > 0 ? '*' : ''}</span>
                 </h3>
-                <p class="text-4xl font-bold text-gray-900">${
-                  stats.unreadMessages || 0
-                }</p>
+                <p class="text-4xl font-bold text-gray-900">${stats.unreadMessages || 0}</p>
               </div>
               <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-star text-yellow-500 mr-2"></i> Reviews</h3>
-                <p class="text-4xl font-bold text-gray-900">${
-                  stats.reviewsCount || 0
-                }</p>
+                <p class="text-4xl font-bold text-gray-900">${stats.reviewsCount || 0}</p>
               </div>
             `;
-            document.getElementById("notificationBadge").textContent =
-              stats.unreadMessages || 0;
+            document.getElementById('notificationBadge').textContent = stats.unreadMessages || 0;
           }
         } catch (error) {
           console.error("Failed to fetch dashboard stats:", error);
           // Render default cards if fetching fails
-          document.getElementById("dashboardCards").innerHTML = `
+          document.getElementById('dashboardCards').innerHTML = `
             <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
               <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties</h3>
               <p class="text-4xl font-bold text-gray-900">N/A</p>
@@ -205,53 +125,34 @@
 
       async function fetchProperties() {
         try {
-          const res = await fetch(`${API_BASE}/api/properties/recommended`, {
-            credentials: "include",
-          });
+          const res = await fetch(`${API_BASE}/api/properties/recommended`, { credentials: "include" });
           if (res.ok) {
             const properties = await res.json();
-            const propertyGridContainer =
-              document.getElementById("propertyGrid");
-            propertyGridContainer.innerHTML = ""; // Clear loading message
+            const propertyGridContainer = document.getElementById('propertyGrid');
+            propertyGridContainer.innerHTML = ''; // Clear loading message
 
             if (properties.length === 0) {
-              propertyGridContainer.innerHTML =
-                '<p class="text-center text-gray-600 col-span-full py-8">No recommended properties found at the moment.</p>';
+              propertyGridContainer.innerHTML = '<p class="text-center text-gray-600 col-span-full py-8">No recommended properties found at the moment.</p>';
               return;
             }
 
-            properties.forEach((property) => {
+            properties.forEach(property => {
               const propertyCard = `
                 <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transform hover:scale-105 transition-transform duration-200">
                   <img
-                    src="${
-                      property.imageUrl ||
-                      "https://placehold.co/400x250/22C55E/FFFFFF?text=Property"
-                    }"
-                    alt="${property.title || "Property Image"}"
+                    src="${property.imageUrl || 'https://placehold.co/400x250/22C55E/FFFFFF?text=Property'}"
+                    alt="${property.title || 'Property Image'}"
                     class="property-image w-full h-48 object-cover"
                   />
                   <div class="property-details p-4 flex flex-col justify-between h-[calc(100%-12rem)]">
                     <div>
-                      <div class="property-price text-xl font-bold text-green-600 mb-1">P${
-                        property.price
-                      }/month</div>
-                      <h3 class="property-title text-lg font-semibold text-gray-800 mb-1">${
-                        property.title || "Unknown Property"
-                      }</h3>
-                      <p class="property-location text-gray-600 text-sm mb-3">${
-                        property.location || "Unknown Location"
-                      }</p>
+                      <div class="property-price text-xl font-bold text-green-600 mb-1">P${property.price}/month</div>
+                      <h3 class="property-title text-lg font-semibold text-gray-800 mb-1">${property.title || 'Unknown Property'}</h3>
+                      <p class="property-location text-gray-600 text-sm mb-3">${property.location || 'Unknown Location'}</p>
                       <div class="property-features flex flex-wrap gap-x-4 gap-y-2 text-gray-700 text-sm">
-                        <span class="flex items-center"><i class="fas fa-bed text-gray-500 mr-1"></i> ${
-                          property.beds || "N/A"
-                        } Beds</span>
-                        <span class="flex items-center"><i class="fas fa-bath text-gray-500 mr-1"></i> ${
-                          property.baths || "N/A"
-                        } Bath</span>
-                        <span class="flex items-center"><i class="fas fa-ruler-combined text-gray-500 mr-1"></i> ${
-                          property.sqft || "N/A"
-                        } sqft</span>
+                        <span class="flex items-center"><i class="fas fa-bed text-gray-500 mr-1"></i> ${property.beds || 'N/A'} Beds</span>
+                        <span class="flex items-center"><i class="fas fa-bath text-gray-500 mr-1"></i> ${property.baths || 'N/A'} Bath</span>
+                        <span class="flex items-center"><i class="fas fa-ruler-combined text-gray-500 mr-1"></i> ${property.sqft || 'N/A'} sqft</span>
                       </div>
                     </div>
                     <div class="property-actions flex space-x-2 mt-4">
@@ -265,19 +166,14 @@
                   </div>
                 </div>
               `;
-              propertyGridContainer.insertAdjacentHTML(
-                "beforeend",
-                propertyCard
-              );
+              propertyGridContainer.insertAdjacentHTML('beforeend', propertyCard);
             });
           } else {
-            document.getElementById("propertyGrid").innerHTML =
-              '<p class="text-center text-gray-600 col-span-full py-8">Failed to load recommended properties.</p>';
+            document.getElementById('propertyGrid').innerHTML = '<p class="text-center text-gray-600 col-span-full py-8">Failed to load recommended properties.</p>';
           }
         } catch (error) {
           console.error("Failed to fetch properties:", error);
-          document.getElementById("propertyGrid").innerHTML =
-            '<p class="text-center text-gray-600 col-span-full py-8">Error loading properties. Please try again later.</p>';
+          document.getElementById('propertyGrid').innerHTML = '<p class="text-center text-gray-600 col-span-full py-8">Error loading properties. Please try again later.</p>';
         }
       }
 
@@ -286,9 +182,7 @@
         // but it's kept for consistency with the original script's intent.
         // Reviews might be displayed on a separate 'reviews.html' page or in a modal.
         try {
-          const res = await fetch(`${API_BASE}/api/reviews`, {
-            credentials: "include",
-          });
+          const res = await fetch(`${API_BASE}/api/reviews`, { credentials: "include" });
           if (res.ok) {
             const reviews = await res.json();
             console.log("Fetched reviews:", reviews);
@@ -302,9 +196,7 @@
       // Initial authentication and data fetching
       (async function () {
         try {
-          const res = await fetch(`${API_BASE}/api/auth/me`, {
-            credentials: "include",
-          });
+          const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: "include" });
           if (!res.ok) throw new Error("Not authenticated");
           const user = await res.json();
           if (!user || user.role !== "student") {
@@ -324,18 +216,14 @@
     </script>
     <div class="flex flex-grow bg-gray-100">
       <!-- Sidebar -->
-      <aside
-        class="w-64 bg-white shadow-lg p-6 flex flex-col rounded-r-xl md:rounded-r-none"
-      >
+      <aside class="w-64 bg-white shadow-lg p-6 flex flex-col rounded-r-xl md:rounded-r-none">
         <div class="sidebar-header text-center mb-8">
           <img
             src="https://placehold.co/80x80/16A34A/FFFFFF?text=S"
             alt="Profile"
             class="profile-image w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-green-200"
           />
-          <h2 class="text-xl font-semibold text-gray-800" id="sidebarWelcome">
-            Welcome, Student
-          </h2>
+          <h2 class="text-xl font-semibold text-gray-800" id="sidebarWelcome">Welcome, Student</h2>
         </div>
         <ul class="sidebar-menu flex-grow space-y-2">
           <li>
@@ -401,13 +289,9 @@
 
       <!-- Main Content -->
       <main class="main-content flex-grow p-6 overflow-y-auto">
-        <div
-          class="dashboard-header bg-white p-6 rounded-xl shadow-md mb-6 flex flex-col md:flex-row items-center justify-between gap-4"
-        >
+        <div class="dashboard-header bg-white p-6 rounded-xl shadow-md mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="search-container w-full md:w-2/3 flex flex-col gap-3">
-            <div
-              class="search-bar flex items-center border border-gray-300 rounded-lg p-2 bg-gray-50 focus-within:ring-2 focus-within:ring-green-300 transition-all duration-200"
-            >
+            <div class="search-bar flex items-center border border-gray-300 rounded-lg p-2 bg-gray-50 focus-within:ring-2 focus-within:ring-green-300 transition-all duration-200">
               <i class="fas fa-search text-gray-400 mr-2"></i>
               <input
                 type="text"
@@ -416,13 +300,8 @@
                 id="propertySearchInput"
               />
             </div>
-            <div
-              class="search-filters grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-              id="searchFilters"
-            >
-              <select
-                class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200"
-              >
+            <div class="search-filters grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="searchFilters">
+              <select class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200">
                 <option value="">All Amenities</option>
                 <option value="wifi">WiFi</option>
                 <option value="parking">Parking</option>
@@ -430,9 +309,7 @@
                 <option value="security">Security</option>
                 <option value="laundry">Laundry</option>
               </select>
-              <select
-                class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200"
-              >
+              <select class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200">
                 <option value="">All Areas</option>
                 <option value="ub">Near UB</option>
                 <option value="baisago">Near Baisago</option>
@@ -440,18 +317,14 @@
                 <option value="riverwalk">Riverwalk</option>
                 <option value="gamecity">Game City</option>
               </select>
-              <select
-                class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200"
-              >
+              <select class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200">
                 <option value="">Budget Range</option>
                 <option value="0-2000">P0 - P2,000</option>
                 <option value="2000-4000">P2,000 - P4,000</option>
                 <option value="4000-6000">P4,000 - P6,000</option>
                 <option value="6000+">P6,000+</option>
               </select>
-              <select
-                class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200"
-              >
+              <select class="filter-select p-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all duration-200">
                 <option value="">Property Condition</option>
                 <option value="new">New</option>
                 <option value="renovated">Renovated</option>
@@ -462,23 +335,11 @@
           </div>
           <div class="header-actions flex items-center space-x-4">
             <div class="notifications-container relative">
-              <div
-                class="notifications cursor-pointer relative"
-                id="notificationToggle"
-              >
-                <i
-                  class="fas fa-bell text-gray-600 text-xl hover:text-green-600 transition-colors duration-200"
-                ></i>
-                <span
-                  class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center"
-                  id="notificationBadge"
-                  >0</span
-                >
+              <div class="notifications cursor-pointer relative" id="notificationToggle">
+                <i class="fas fa-bell text-gray-600 text-xl hover:text-green-600 transition-colors duration-200"></i>
+                <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center" id="notificationBadge">0</span>
               </div>
-              <div
-                class="notification-dropdown absolute right-0 mt-3 w-72 bg-white rounded-lg shadow-xl z-10 hidden"
-                id="notificationDropdown"
-              >
+              <div class="notification-dropdown absolute right-0 mt-3 w-72 bg-white rounded-lg shadow-xl z-10 hidden" id="notificationDropdown">
                 <div class="notification-tabs flex border-b border-gray-200">
                   <div
                     class="notification-tab active flex-1 text-center p-3 cursor-pointer text-green-700 font-semibold border-b-2 border-green-600"
@@ -487,20 +348,12 @@
                   >
                     Messages
                   </div>
-                  <div
-                    class="notification-tab flex-1 text-center p-3 cursor-pointer text-gray-600 hover:text-gray-800"
-                    data-tab="properties"
-                  >
+                  <div class="notification-tab flex-1 text-center p-3 cursor-pointer text-gray-600 hover:text-gray-800" data-tab="properties">
                     Properties
                   </div>
                 </div>
-                <div
-                  class="notification-list p-3 max-h-60 overflow-y-auto"
-                  id="notificationList"
-                >
-                  <p class="text-center text-gray-500 py-4">
-                    No new notifications.
-                  </p>
+                <div class="notification-list p-3 max-h-60 overflow-y-auto" id="notificationList">
+                  <p class="text-center text-gray-500 py-4">No new notifications.</p>
                   <!-- Dynamic notifications will be rendered here -->
                 </div>
               </div>
@@ -512,23 +365,12 @@
                 class="profile-image-small w-10 h-10 rounded-full object-cover cursor-pointer border-2 border-green-300"
                 id="profileMenuToggle"
               />
-              <div
-                class="profile-dropdown absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-xl z-10 hidden"
-              >
-                <a
-                  href="user-profile.html"
-                  class="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-t-lg transition-colors duration-200"
+              <div class="profile-dropdown absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-xl z-10 hidden">
+                <a href="user-profile.html" class="flex items-center p-3 text-gray-700 hover:bg-gray-100 rounded-t-lg transition-colors duration-200"
                   ><i class="fas fa-user mr-3"></i> Profile</a
                 >
-                <a
-                  href="settings.html"
-                  class="flex items-center p-3 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                  ><i class="fas fa-cog mr-3"></i> Settings</a
-                >
-                <a
-                  href="#"
-                  id="headerLogoutBtn"
-                  class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-b-lg transition-colors duration-200"
+                <a href="settings.html" class="flex items-center p-3 text-gray-700 hover:bg-gray-100 transition-colors duration-200"><i class="fas fa-cog mr-3"></i> Settings</a>
+                <a href="#" id="headerLogoutBtn" class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-b-lg transition-colors duration-200"
                   ><i class="fas fa-sign-out-alt mr-3"></i> Logout</a
                 >
               </div>
@@ -536,32 +378,21 @@
           </div>
         </div>
         <!-- Dashboard Cards -->
-        <div
-          class="dashboard-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-          id="dashboardCards"
-        >
+        <div class="dashboard-cards grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" id="dashboardCards">
           <!-- Loading state for cards -->
-          <div
-            class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse"
-          >
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse">
             <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-10 bg-gray-300 rounded w-1/2 mx-auto"></div>
           </div>
-          <div
-            class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse"
-          >
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse">
             <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-10 bg-gray-300 rounded w-1/2 mx-auto"></div>
           </div>
-          <div
-            class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse"
-          >
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse">
             <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-10 bg-gray-300 rounded w-1/2 mx-auto"></div>
           </div>
-          <div
-            class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse"
-          >
+          <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center animate-pulse">
             <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-10 bg-gray-300 rounded w-1/2 mx-auto"></div>
           </div>
@@ -569,30 +400,16 @@
         </div>
         <!-- Property Listings -->
         <div class="property-listings bg-white p-6 rounded-xl shadow-md">
-          <div
-            class="property-listings-header flex items-center justify-between mb-6"
-          >
+          <div class="property-listings-header flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-gray-800">
               Recommended Properties
-              <span
-                class="location-badge bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full ml-2"
-                >Gaborone</span
-              >
+              <span class="location-badge bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full ml-2">Gaborone</span>
             </h2>
-            <a
-              href="marketplace.html"
-              class="text-green-600 hover:text-green-800 font-medium transition-colors duration-200"
-              >View All <i class="fas fa-arrow-right ml-1 text-sm"></i
-            ></a>
+            <a href="marketplace.html" class="text-green-600 hover:text-green-800 font-medium transition-colors duration-200">View All <i class="fas fa-arrow-right ml-1 text-sm"></i></a>
           </div>
-          <div
-            class="property-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            id="propertyGrid"
-          >
+          <div class="property-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="propertyGrid">
             <!-- Loading state for properties -->
-            <div
-              class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse"
-            >
+            <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
               <div class="w-full h-48 bg-gray-200"></div>
               <div class="p-4">
                 <div class="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -604,9 +421,7 @@
                 </div>
               </div>
             </div>
-            <div
-              class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse"
-            >
+            <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
               <div class="w-full h-48 bg-gray-200"></div>
               <div class="p-4">
                 <div class="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -618,9 +433,7 @@
                 </div>
               </div>
             </div>
-            <div
-              class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse"
-            >
+            <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden animate-pulse">
               <div class="w-full h-48 bg-gray-200"></div>
               <div class="p-4">
                 <div class="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -639,58 +452,42 @@
     </div>
     <!-- Footer -->
     <footer class="footer bg-gray-800 text-white p-8">
-      <div
-        class="footer-container max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8"
-      >
+      <div class="footer-container max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="footer-section">
           <h3 class="text-xl font-semibold mb-4 text-green-300">Quick Links</h3>
           <ul class="footer-links space-y-2">
             <li>
-              <a
-                href="index.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="index.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-home mr-2"></i> Home</a
               >
             </li>
             <li>
-              <a
-                href="student-dashboard.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="student-dashboard.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-user mr-2"></i> Dashboard</a
               >
             </li>
             <li>
-              <a
-                href="contact.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="contact.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-envelope mr-2"></i> Contact Us</a
               >
             </li>
           </ul>
         </div>
         <div class="footer-section">
-          <h3 class="text-xl font-semibold mb-4 text-green-300">
-            Help & Support
-          </h3>
+          <h3 class="text-xl font-semibold mb-4 text-green-300">Help & Support</h3>
           <ul class="footer-links space-y-2">
             <li>
-              <a
-                href="faq.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="faq.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-question-circle mr-2"></i> FAQ</a
               >
             </li>
             <li>
-              <a
-                href="contact.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="contact.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-headset mr-2"></i> Support</a
               >
             </li>
             <li>
-              <a
-                href="reset-password.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="reset-password.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-key mr-2"></i> Reset Password</a
               >
             </li>
@@ -700,56 +497,31 @@
           <h3 class="text-xl font-semibold mb-4 text-green-300">Legal</h3>
           <ul class="footer-links space-y-2">
             <li>
-              <a
-                href="terms.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="terms.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-file-contract mr-2"></i> Terms of Service</a
               >
             </li>
             <li>
-              <a
-                href="privacy.html"
-                class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+              <a href="privacy.html" class="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
                 ><i class="fas fa-shield-alt mr-2"></i> Privacy Policy</a
               >
             </li>
           </ul>
         </div>
       </div>
-      <div
-        class="footer-bottom text-center text-gray-400 mt-8 pt-4 border-t border-gray-700"
-      >
+      <div class="footer-bottom text-center text-gray-400 mt-8 pt-4 border-t border-gray-700">
         <p>&copy; 2025 InRent. All rights reserved.</p>
       </div>
     </footer>
     <!-- Review Modal -->
-    <div
-      class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden"
-      id="review-modal"
-    >
-      <div
-        class="modal-content bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative transform scale-95 opacity-0 transition-all duration-300 ease-out"
-        style="max-width: 550px"
-      >
-        <span
-          class="modal-close absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-3xl font-light cursor-pointer"
-          >&times;</span
-        >
-        <h3
-          id="reviewModalTitle"
-          class="text-2xl font-bold text-gray-800 mb-6 text-center"
-        >
-          Write a Review
-        </h3>
+    <div class="modal fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden" id="review-modal">
+      <div class="modal-content bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg relative transform scale-95 opacity-0 transition-all duration-300 ease-out" style="max-width: 550px">
+        <span class="modal-close absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-3xl font-light cursor-pointer">&times;</span>
+        <h3 id="reviewModalTitle" class="text-2xl font-bold text-gray-800 mb-6 text-center">Write a Review</h3>
         <form id="reviewForm" class="space-y-6">
           <div class="form-group">
-            <label class="block text-gray-700 text-sm font-medium mb-2"
-              >Your Rating:</label
-            >
-            <div
-              class="rating-stars flex justify-center space-x-1 text-yellow-400 text-2xl"
-              id="reviewRatingStars"
-            >
+            <label class="block text-gray-700 text-sm font-medium mb-2">Your Rating:</label>
+            <div class="rating-stars flex justify-center space-x-1 text-yellow-400 text-2xl" id="reviewRatingStars">
               <!-- Example stars - these would typically be interactive via JS -->
               <i class="fas fa-star cursor-pointer hover:text-yellow-500"></i>
               <i class="fas fa-star cursor-pointer hover:text-yellow-500"></i>
@@ -759,102 +531,65 @@
             </div>
           </div>
           <div class="form-group">
-            <label
-              for="reviewText"
-              class="block text-gray-700 text-sm font-medium mb-2"
-              >Your Review:</label
-            >
-            <textarea
-              id="reviewText"
-              required
-              rows="4"
-              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              placeholder="Share your experience..."
-            ></textarea>
+            <label for="reviewText" class="block text-gray-700 text-sm font-medium mb-2">Your Review:</label>
+            <textarea id="reviewText" required rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200" placeholder="Share your experience..."></textarea>
           </div>
-          <button
-            type="submit"
-            class="btn w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105"
-          >
-            Submit Review
-          </button>
-          <div
-            class="success-message text-green-600 text-center mt-4 hidden"
-            id="reviewFormSuccess"
-          >
-            Review submitted successfully!
-          </div>
+          <button type="submit" class="btn w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105">Submit Review</button>
+          <div class="success-message text-green-600 text-center mt-4 hidden" id="reviewFormSuccess">Review submitted successfully!</div>
         </form>
       </div>
     </div>
     <script>
       // Basic JS for dropdowns and modal (for demonstration)
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
         // Notification Dropdown
-        const notificationToggle =
-          document.getElementById("notificationToggle");
-        const notificationDropdown = document.getElementById(
-          "notificationDropdown"
-        );
+        const notificationToggle = document.getElementById('notificationToggle');
+        const notificationDropdown = document.getElementById('notificationDropdown');
 
         if (notificationToggle && notificationDropdown) {
-          notificationToggle.addEventListener("click", () => {
-            notificationDropdown.classList.toggle("hidden");
+          notificationToggle.addEventListener('click', () => {
+            notificationDropdown.classList.toggle('hidden');
           });
 
-          document.addEventListener("click", (event) => {
-            if (
-              !notificationToggle.contains(event.target) &&
-              !notificationDropdown.contains(event.target)
-            ) {
-              notificationDropdown.classList.add("hidden");
+          document.addEventListener('click', (event) => {
+            if (!notificationToggle.contains(event.target) && !notificationDropdown.contains(event.target)) {
+              notificationDropdown.classList.add('hidden');
             }
           });
         }
 
         // Profile Menu Dropdown
-        const profileMenuToggle = document.getElementById("profileMenuToggle");
-        const profileDropdown = document.querySelector(
-          ".profile-menu .profile-dropdown"
-        );
+        const profileMenuToggle = document.getElementById('profileMenuToggle');
+        const profileDropdown = document.querySelector('.profile-menu .profile-dropdown');
 
         if (profileMenuToggle && profileDropdown) {
-          profileMenuToggle.addEventListener("click", (event) => {
+          profileMenuToggle.addEventListener('click', (event) => {
             event.stopPropagation(); // Prevent immediate closing from document click
-            profileDropdown.classList.toggle("hidden");
+            profileDropdown.classList.toggle('hidden');
           });
 
-          document.addEventListener("click", (event) => {
-            if (
-              !profileMenuToggle.contains(event.target) &&
-              !profileDropdown.contains(event.target)
-            ) {
-              profileDropdown.classList.add("hidden");
+          document.addEventListener('click', (event) => {
+            if (!profileMenuToggle.contains(event.target) && !profileDropdown.contains(event.target)) {
+              profileDropdown.classList.add('hidden');
             }
           });
         }
 
         // Review Modal
-        const reviewModal = document.getElementById("review-modal");
-        const modalCloseBtn = reviewModal
-          ? reviewModal.querySelector(".modal-close")
-          : null;
-        const reviewForm = document.getElementById("reviewForm");
-        const reviewFormSuccess = document.getElementById("reviewFormSuccess");
-        const reviewRatingStars = document.getElementById("reviewRatingStars");
+        const reviewModal = document.getElementById('review-modal');
+        const modalCloseBtn = reviewModal ? reviewModal.querySelector('.modal-close') : null;
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewFormSuccess = document.getElementById('reviewFormSuccess');
+        const reviewRatingStars = document.getElementById('reviewRatingStars');
         let currentRating = 0;
 
         // Function to open the modal (you'd call this from a button click)
         function openReviewModal() {
           if (reviewModal) {
-            reviewModal.classList.remove("hidden");
+            reviewModal.classList.remove('hidden');
             setTimeout(() => {
-              reviewModal
-                .querySelector(".modal-content")
-                .classList.remove("opacity-0", "scale-95");
-              reviewModal
-                .querySelector(".modal-content")
-                .classList.add("opacity-100", "scale-100");
+              reviewModal.querySelector('.modal-content').classList.remove('opacity-0', 'scale-95');
+              reviewModal.querySelector('.modal-content').classList.add('opacity-100', 'scale-100');
             }, 10); // Small delay for transition
           }
         }
@@ -862,15 +597,11 @@
         // Function to close the modal
         function closeReviewModal() {
           if (reviewModal) {
-            reviewModal
-              .querySelector(".modal-content")
-              .classList.remove("opacity-100", "scale-100");
-            reviewModal
-              .querySelector(".modal-content")
-              .classList.add("opacity-0", "scale-95");
+            reviewModal.querySelector('.modal-content').classList.remove('opacity-100', 'scale-100');
+            reviewModal.querySelector('.modal-content').classList.add('opacity-0', 'scale-95');
             setTimeout(() => {
-              reviewModal.classList.add("hidden");
-              reviewFormSuccess.classList.add("hidden"); // Hide success message on close
+              reviewModal.classList.add('hidden');
+              reviewFormSuccess.classList.add('hidden'); // Hide success message on close
               reviewForm.reset(); // Reset form
               currentRating = 0; // Reset rating
               updateStarRating();
@@ -879,13 +610,12 @@
         }
 
         if (modalCloseBtn) {
-          modalCloseBtn.addEventListener("click", closeReviewModal);
+          modalCloseBtn.addEventListener('click', closeReviewModal);
         }
 
         if (reviewModal) {
-          reviewModal.addEventListener("click", (event) => {
-            if (event.target === reviewModal) {
-              // Close if clicked outside modal content
+          reviewModal.addEventListener('click', (event) => {
+            if (event.target === reviewModal) { // Close if clicked outside modal content
               closeReviewModal();
             }
           });
@@ -893,11 +623,9 @@
 
         // Example: Open modal from a dashboard card (for testing)
         // You'd typically trigger this from a 'Write Review' button or similar
-        const messagesCard = document.querySelector(
-          ".dashboard-card:nth-child(3)"
-        ); // Assuming messages card triggers review modal for demo
+        const messagesCard = document.querySelector('.dashboard-card:nth-child(3)'); // Assuming messages card triggers review modal for demo
         if (messagesCard) {
-          messagesCard.addEventListener("click", openReviewModal);
+          messagesCard.addEventListener('click', openReviewModal);
         }
 
         // Star rating functionality
@@ -905,11 +633,11 @@
           if (reviewRatingStars) {
             Array.from(reviewRatingStars.children).forEach((star, index) => {
               if (index < currentRating) {
-                star.classList.remove("far");
-                star.classList.add("fas");
+                star.classList.remove('far');
+                star.classList.add('fas');
               } else {
-                star.classList.remove("fas");
-                star.classList.add("far");
+                star.classList.remove('fas');
+                star.classList.add('far');
               }
             });
           }
@@ -917,7 +645,7 @@
 
         if (reviewRatingStars) {
           Array.from(reviewRatingStars.children).forEach((star, index) => {
-            star.addEventListener("click", () => {
+            star.addEventListener('click', () => {
               currentRating = index + 1;
               updateStarRating();
             });
@@ -925,32 +653,16 @@
         }
 
         if (reviewForm) {
-          reviewForm.addEventListener("submit", async (event) => {
+          reviewForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            const reviewText = document.getElementById("reviewText").value;
-            // POST review to backend API
-            try {
-              const res = await fetch(`${API_BASE}/api/reviews`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                  rating: currentRating,
-                  review: reviewText,
-                }),
-              });
-              if (res.ok) {
-                reviewFormSuccess.classList.remove("hidden");
-                // Optionally close modal after a short delay
-                // setTimeout(closeReviewModal, 2000);
-              } else {
-                alert("Failed to submit review. Please try again.");
-              }
-            } catch (err) {
-              alert("Error submitting review. Please try again.");
-            }
+            // In a real app, you'd send this data to a server
+            console.log('Review Submitted:', {
+              rating: currentRating,
+              review: document.getElementById('reviewText').value
+            });
+            reviewFormSuccess.classList.remove('hidden');
+            // Optionally close modal after a short delay
+            // setTimeout(closeReviewModal, 2000);
           });
         }
       });
