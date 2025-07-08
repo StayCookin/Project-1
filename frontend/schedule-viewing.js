@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const studentData = JSON.parse(localStorage.getItem("studentData"));
   if (!studentData || studentData.role !== "student") {
     // Redirect to landing page if not authenticated
-    window.location.href = "InRent.html";
+    window.location.href = "index.html";
     return;
   }
 

@@ -39,8 +39,84 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
-    <link rel="stylesheet" href="css/main.css"/>
     
+    <style>
+      
+      /* All styles consolidated here, no external CSS */
+      body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f8f8f8; color: #222; }
+      .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+      header { background: #fff; box-shadow: 0 2px 8px rgba(34,139,34,0.05); }
+      .logo { font-size: 2rem; font-weight: bold; color: #176b16; }
+      .logo .in { color: #176b16; }
+      .logo .rent { color: #228b22; }
+      nav { display: flex; align-items: center; justify-content: space-between; }
+      .nav-links { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
+      .nav-links li a { text-decoration: none; color: #222; font-weight: 500; transition: color 0.2s; }
+      .nav-links li a:hover { color: #228b22; }
+      .auth-buttons { display: flex; gap: 1rem; }
+      .btn { background: #228b22; color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+      .btn-secondary { background: #fff; color: #228b22; border: 1.5px solid #228b22; }
+      .btn-secondary:hover { background: #228b22; color: #fff; }
+      .btn-forest { background: whitesmoke !important; color: black !important; border: 1.5px solid green !important; }
+      .btn-forest:hover { background: #176b16 !important; color: #fff !important; }
+      .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; }
+      .hero { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 4rem 0 2rem 0; text-align: center; }
+      .hero-content h1 { font-size: 2.5rem; color: #176b16; margin-bottom: 1rem; }
+      .hero-content p { font-size: 1.2rem; color: #333; margin-bottom: 2rem; }
+      .hero-buttons { display: flex; justify-content: center; gap: 1rem; }
+      .features { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
+      .feature-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 2rem; flex: 1; min-width: 220px; text-align: center; transition: box-shadow 0.2s; }
+      .feature-card:hover { box-shadow: 0 4px 16px rgba(34,139,34,0.13); }
+      .feature-icon { font-size: 2.5rem; color: #228b22; margin-bottom: 1rem; }
+      .section-title h2 { color: #176b16; font-size: 2rem; margin-bottom: 0.5rem; }
+      .steps { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
+      .step { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 1.5rem; flex: 1; min-width: 180px; text-align: center; }
+      .step-number { background: #228b22; color: #fff; border-radius: 50%; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-weight: bold; font-size: 1.2rem; }
+      .product-demo { padding: 4rem 0; background: #fff; }
+      .demo-video { position: relative; cursor: pointer; }
+      .demo-video img { width: 100%; border-radius: 12px; }
+      .demo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(34,139,34,0.15); border-radius: 12px; }
+      .play-button { width: 60px; height: 60px; background: #228b22; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+      .price { font-size: 1.5rem; color: #176b16; font-weight: bold; }
+      .membership-options { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
+      .membership-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 2rem; flex: 1; min-width: 220px; text-align: center; }
+      .membership-card .special-offer { color: #fff; background: #228b22; border-radius: 8px; padding: 0.2rem 0.7rem; font-size: 0.9rem; margin-bottom: 0.5rem; display: inline-block; }
+      .testimonial-container { margin-top: 2rem; }
+      .testimonial-slider { min-height: 80px; }
+      .footer { background: #176b16; color: #fff; padding: 2rem 0 1rem 0; }
+      .footer a { color: #fff; text-decoration: none; transition: color 0.2s; }
+      .footer a:hover { color: #b2ffb2; }
+      .footer-content { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
+      .footer-about { flex: 2; min-width: 220px; }
+      .footer-links { flex: 1; min-width: 180px; }
+      .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+      .social-link { color: #fff; font-size: 1.3rem; }
+      .social-link:hover { color: #b2ffb2; }
+      .copyright { text-align: center; margin-top: 2rem; color: #b2ffb2; font-size: 0.95rem; }
+      .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(0,0,0,0.3); }
+      .modal-content { background: #fff; margin: 5% auto; padding: 2rem; border-radius: 12px; max-width: 600px; position: relative; }
+      .modal-close { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: #888; cursor: pointer; }
+      .form-group { margin-bottom: 1.2rem; }
+      .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 500; }
+      .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s; }
+      .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #228b22; outline: none; }
+      .btn.full { width: 100%; }
+      .success-message { color: #176b16; font-weight: 600; margin-top: 1rem; }
+      .rating-group { display: flex; align-items: center; gap: 1rem; }
+      .rating-slider { outline: none; }
+      .rating-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #228b22; cursor: pointer; }
+      .rating-value { font-weight: 500; min-width: 2rem; text-align: center; }
+      .amenities-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+      .amenity-tag { background: #228b22; color: #fff; padding: 0.5rem 1rem; border-radius: 16px; font-size: 0.9rem; }
+      @media (max-width: 600px) {
+        .container, section, header, nav, .features, .steps, .membership-card, .testimonial, .footer { padding: 0.5rem !important; margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+        .logo, .nav-links, .section-title, h1, h2, h3, h4, h5, h6, p, a, button { font-size: 1.1rem !important; }
+        .features, .steps, .membership-card, .testimonial { flex-direction: column !important; align-items: stretch !important; }
+        .feature-card, .membership-card, .testimonial { width: 100% !important; min-width: 0 !important; margin-bottom: 1rem !important; }
+        .footer { font-size: 1rem !important; }
+      }
+    
+    </style>
 <style>
   section .product-demo{
     padding: 4rem 4rem;
@@ -79,6 +155,7 @@
         background: #176b16 !important;
         color: #fff !important;
       }
+      
   </style>
   </head>  <body>
     <!-- HEADER: Navigation bar with logo and links -->
@@ -96,10 +173,8 @@
             <li><a href="#contact">Contact</a></li>
           </ul>
           <div class="auth-buttons">
-            <button class="btn btn-secondary" id="headerLoginBtn">Login</button>
-            <button class="btn btn-primary" id="headerSignupBtn" href="signup.html">
-              Sign Up
-            </button>
+           <a class="btn btn-secondary" id="headerLoginBtn" href="login.html">Login</a>
+           <a class="btn btn-primary" id="headerSignupBtn" href="signup.html">Sign up</a>
           </div>
           <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
         </nav>

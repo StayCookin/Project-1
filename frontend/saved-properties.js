@@ -61,8 +61,26 @@ function viewDetails(propertyId) {
 }
 
 function removeSavedProperty(propertyId) {
-  fetch(`/api/properties/${propertyId}/unsave`, { method: "POST" }).then(
-    (res) =>
-      res.ok ? fetchSavedProperties() : alert("Failed to remove property.")
-  );
+  fetch(`/api/properties/${propertyId}/unsave`, { method: "POST" })
+    .then(async (res) => {
+      // Use async here to await res.json()
+      if (res.ok) {
+        fetchSavedProperties();
+      } else {
+        const errorText = await res.text(); // Get potential error message from server
+        console.error(
+          `Failed to remove property ${propertyId}:`,
+          res.status,
+          errorText
+        );
+        // Use a custom notification system instead of alert
+        // showNotification('Error', 'Failed to remove property. Please try again.');
+        alert("Failed to remove property."); // Temporary
+      }
+    })
+    .catch((error) => {
+      console.error("Network error removing property:", error);
+      // showNotification('Error', 'Network error. Please check your connection.');
+      alert("Network error removing property."); // Temporary
+    });
 }

@@ -1,4 +1,5 @@
 // Modal Functions
+require ("dotenv").config();
 function showStudentSignup() {
     document.getElementById('student-signup-modal').style.display = 'block';
 }

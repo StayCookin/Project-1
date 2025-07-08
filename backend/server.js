@@ -7,7 +7,7 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const pool = require("./db");
 const rateLimit = require("express-rate-limit");
-
+require("dotenv").config();
 // Load environment variables
 dotenv.config();
 
@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "https://project-1-2alx.onrender.com",
     methods: ["GET", "POST"],
   },
 });

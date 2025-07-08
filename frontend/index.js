@@ -465,3 +465,74 @@ document.addEventListener("DOMContentLoaded", function () {
     updateLandlordSignupButton(currentLandlordSpots);
   }
 });
+ const WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+        const waitlistBtn = document.getElementById('waitlistBtn');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const messageDiv = document.getElementById('message');
+
+        waitlistBtn.addEventListener('click', async () => {
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+
+            // Basic validation
+            if (!name || !email) {
+                showMessage('Please fill in both your name and email.', 'error');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            // Disable button and show loading
+            waitlistBtn.disabled = true;
+            waitlistBtn.textContent = 'Submitting...';
+            showMessage('Submitting your information...', ''); // Clear previous messages
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors', // Enable CORS
+                    headers: {
+                        'Content-Type': 'application/json', // Send as JSON
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email
+                    })
+                });
+
+                const result = await response.json(); // Parse the JSON response from Apps Script
+
+                if (result.result === 'success') {
+                    showMessage('Successfully joined the waitlist! Thank you.', 'success');
+                    // Optionally clear the form
+                    nameInput.value = '';
+                    emailInput.value = '';
+                } else {
+                    showMessage(`Error: ${result.error || 'Something went wrong.'}`, 'error');
+                    console.error('Apps Script Error:', result.error);
+                }
+
+            } catch (error) {
+                showMessage('Network error. Please try again.', 'error');
+                console.error('Fetch Error:', error);
+            } finally {
+                // Re-enable button
+                waitlistBtn.disabled = false;
+                waitlistBtn.textContent = 'Join Waitlist';
+            }
+        });
+
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = ''; // Clear existing classes
+            messageDiv.classList.add(type); // Add new type class (success/error)
+            messageDiv.style.display = 'block'; // Make it visible
+        }
+
+        function isValidEmail(email) {
+            // Simple regex for email validation
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

@@ -494,7 +494,7 @@
           submitBtnText.classList.add("hidden");
           submitSpinner.classList.remove("hidden");
 
-          // Simulate API call
+          // Real API call
           setTimeout(() => {
             // Update confirmation modal
             const dateOptions = {
@@ -513,6 +513,50 @@
             formContainer.classList.add("hidden");
             successModal.classList.remove("hidden");
           }, 1500);
+          try{
+            const response = await fetch("/api/schedule-viewing",{
+              method: 'POST',
+              headers: {
+                "Content-Type": "application/json" },
+                body: JSON.stringify ({
+                  date: selectedDate.toISOString(),
+                  time: selectedTime,
+                  viewingType: selectedViewingType,
+                  name:document.getElementById("name-input").value,
+                  email:document.getElementById("email-input").value
+                })
+              })
+              if (!response.ok){
+                const errorData= await response.json();
+                throw new Error(errorData.message) || "Failed to schedule a viewing";
+              }
+              const dateOptions = {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              };
+              confirmDateEl.textContent = selectedDate.toLocaleDateString(
+                "en-US",
+                dateOptions
+              );
+              confirmTimeEl.textContent = selectedTime;
+              formContainer.classList.add("hidden");
+              successModal.classList.remove("hidden");
+
+              submitBtn.disabled=false;
+              submitBtnText.classList.remove("hidden");
+              submitSpinner.classList.add("hidden");
+
+            }
+            catch (error){
+              console.error( "Error scheduling viewing", error);
+              alert("Failed to schedule viewing: " + error.message);
+              submitBtn.disabled=false;
+              submitBtnText.classList.remove("hidden");
+              submitSpinner.classList.add("hidden");
+            }
+          }
         });
 
         // Add redirect for close button
@@ -528,6 +572,5 @@
         updateViewingTypeButtons();
       });
     </script>
-    
   </body>
 </html>
