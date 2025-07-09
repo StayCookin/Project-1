@@ -1,5 +1,11 @@
 -- Create tables for InRent database
 
+--Datasource uses environment variable
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
 -- Landlords table
 CREATE TABLE landlords (
     id INT PRIMARY KEY AUTO_INCREMENT,

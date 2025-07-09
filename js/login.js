@@ -1,7 +1,7 @@
 // login.js - Handles login form submission and UI logic
 
 // Set API base URL for local testing
-const API_BASE = window.API_BASE_URL || "http://localhost:5001";
+const API_BASE = window.API_BASE_URL || "https://project-1-2alx.onrender.com";
 
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("loginForm");

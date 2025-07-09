@@ -102,7 +102,7 @@
       }
     </style>
   </head>
-  <body class="min-h-screen flex">
+  <body class="min-h-screen flex flex-col">
     <script>
       // Session and role check for student
       // This script runs before the DOM content is fully loaded
@@ -308,7 +308,7 @@
           if (!res.ok) throw new Error("Not authenticated");
           const user = await res.json();
           if (!user || user.role !== "student") {
-            window.location.href = "/login.html";
+            window.location.href = "login.html";
             return;
           }
           // Fetch dashboard data after successful authentication
@@ -318,7 +318,7 @@
           await fetchReviews(); // Call fetchReviews here
         } catch (error) {
           console.error("Authentication check failed:", error);
-          window.location.href = "/login.html";
+          window.location.href = "login.html";
         }
       })();
     </script>
@@ -638,7 +638,7 @@
       </main>
     </div>
     <!-- Footer -->
-    <footer class="footer bg-gray-800 text-white p-8">
+    <footer class="footer bg-gray-800 text-white p-8 mt-auto">
       <div
         class="footer-container max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8"
       >
