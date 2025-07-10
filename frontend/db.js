@@ -5,7 +5,7 @@ const mysql = require("mysql2");
 
 // Update these credentials as needed
 dbConfig = {
-  host: process.env.DB_HOST || "localhost",
+  host: process.env.DB_HOST || "34.135.188.4",
   user: process.env.DB_USER || "Lethabo",
   password: process.env.DB_PASSWORD || "76068664Hanzu!",
   database: process.env.DB_NAME || "inrent_db",
