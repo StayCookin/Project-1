@@ -7,7 +7,7 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const pool = require("./db");
 const rateLimit = require("express-rate-limit");
-require("dotenv").config();
+
 // Load environment variables
 dotenv.config();
 
