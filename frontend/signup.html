@@ -577,7 +577,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
 
     // Redirect to marketplace.html (assumes marketplace.html is in frontend/ folder)
     console.log("Redirecting to marketplace.html");
-    window.location.href = "./marketplace.html";
+    window.location.href = "marketplace.html";
   } catch (err) {
     console.error("Signup error:", err.code, err.message);
     let msg = "Signup failed. Please try again.";
@@ -603,7 +603,7 @@ document.head.appendChild(style);
 
 // Update login links
 document.querySelectorAll('a.btn-link[aria-label="Log In"]').forEach((link) => {
-  link.setAttribute("href", "./login.html");
+  link.setAttribute("href", "login.html");
 });
     </script>
     <!--
