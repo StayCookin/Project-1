@@ -399,10 +399,16 @@
     </div>
 
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+
+// Catch unhandled promise rejections
+window.addEventListener("unhandledrejection", (event) => {
+  console.warn("Unhandled promise rejection:", event.reason);
+  document.getElementById("signupError").textContent = `Error: ${event.reason}`;
+});
 
 // Firebase configuration
 const firebaseConfig = {
@@ -461,6 +467,7 @@ function isValidPassword(pw) {
 // Form submission
 document.getElementById("signupForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+  console.log("Form submission started");
   const role = roleSelect.value;
   const email = document.getElementById("emailAddress").value;
   const errorDiv = document.getElementById("signupError");
@@ -568,7 +575,8 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     submitBtn.disabled = false;
     submitBtn.textContent = "Sign Up";
 
-    // Redirect to marketplace.html for both roles
+    // Redirect to marketplace.html (assumes marketplace.html is in frontend/ folder)
+    console.log("Redirecting to marketplace.html");
     window.location.href = "./marketplace.html";
   } catch (err) {
     console.error("Signup error:", err.code, err.message);
@@ -577,6 +585,8 @@ document.getElementById("signupForm").addEventListener("submit", async function 
       msg = "Email already in use.";
     } else if (err.code === "auth/weak-password") {
       msg = "Password is too weak.";
+    } else if (err.message.includes("failed to resolve specific modifier")) {
+      msg = "Unexpected error in form processing. Please check your input and try again.";
     } else if (err.message) {
       msg = err.message;
     }
@@ -587,7 +597,7 @@ document.getElementById("signupForm").addEventListener("submit", async function 
 });
 
 // Spinner animation
-const style = document.createElement("style");
+const style = document.createElement("style"); 
 style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
 document.head.appendChild(style);
 
