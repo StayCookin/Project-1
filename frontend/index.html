@@ -40,125 +40,126 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
     />
     
-    <style>
-      html,body{
-        max-width: 100vw;
-        overflow-x: hidden;
-      }
-      /* All styles consolidated here, no external CSS */
-      body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f8f8f8; color: #222; }
-      .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
-      header { background: #fff; box-shadow: 0 2px 8px rgba(34,139,34,0.05); }
-      .logo { font-size: 2rem; font-weight: bold; color: #176b16; }
-      .logo .in { color: #176b16; }
-      .logo .rent { color: #228b22; }
-      nav { display: flex; align-items: center; justify-content: space-between; }
-      .nav-links { list-style: none; display: flex; gap: 2rem; margin: 0; padding: 0; }
-      .nav-links li a { text-decoration: none; color: #222; font-weight: 500; transition: color 0.2s; }
-      .nav-links li a:hover { color: #228b22; }
-      .auth-buttons { display: flex; gap: 1rem; }
-      .btn { background: #228b22; color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-      .btn-secondary { background: #fff; color: #228b22; border: 1.5px solid #228b22; }
-      .btn-secondary:hover { background: #228b22; color: #fff; }
-      .btn-forest { background: whitesmoke !important; color: black !important; border: 1.5px solid green !important; }
-      .btn-forest:hover { background: #176b16 !important; color: #fff !important; }
-      .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; }
-      .hero { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 4rem 0 2rem 0; text-align: center; }
-      .hero-content h1 { font-size: 2.5rem; color: #176b16; margin-bottom: 1rem; }
-      .hero-content p { font-size: 1.2rem; color: #333; margin-bottom: 2rem; }
-      .hero-buttons { display: flex; justify-content: center; gap: 1rem; }
-      .features { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
-      .feature-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 2rem; flex: 1; min-width: 220px; text-align: center; transition: box-shadow 0.2s; }
-      .feature-card:hover { box-shadow: 0 4px 16px rgba(34,139,34,0.13); }
-      .feature-icon { font-size: 2.5rem; color: #228b22; margin-bottom: 1rem; }
-      .section-title h2 { color: #176b16; font-size: 2rem; margin-bottom: 0.5rem; }
-      .steps { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
-      .step { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 1.5rem; flex: 1; min-width: 180px; text-align: center; }
-      .step-number { background: #228b22; color: #fff; border-radius: 50%; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-weight: bold; font-size: 1.2rem; }
-      .product-demo { padding: 4rem 0; background: #fff; }
-      .demo-video { position: relative; cursor: pointer; }
-      .demo-video img { width: 100%; border-radius: 12px; }
-      .demo-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(34,139,34,0.15); border-radius: 12px; }
-      .play-button { width: 60px; height: 60px; background: #228b22; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-      .price { font-size: 1.5rem; color: #176b16; font-weight: bold; }
-      .membership-options { display: flex; gap: 2rem; justify-content: center; margin-top: 2rem; }
-      .membership-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34,139,34,0.07); padding: 2rem; flex: 1; min-width: 220px; text-align: center; }
-      .membership-card .special-offer { color: #fff; background: #228b22; border-radius: 8px; padding: 0.2rem 0.7rem; font-size: 0.9rem; margin-bottom: 0.5rem; display: inline-block; }
-      .testimonial-container { margin-top: 2rem; }
-      .testimonial-slider { min-height: 80px; }
-      .footer { background: #176b16; color: #fff; padding: 2rem 0 1rem 0; }
-      .footer a { color: #fff; text-decoration: none; transition: color 0.2s; }
-      .footer a:hover { color: #b2ffb2; }
-      .footer-content { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
-      .footer-about { flex: 2; min-width: 220px; }
-      .footer-links { flex: 1; min-width: 180px; }
-      .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
-      .social-link { color: #fff; font-size: 1.3rem; }
-      .social-link:hover { color: #b2ffb2; }
-      .copyright { text-align: center; margin-top: 2rem; color: #b2ffb2; font-size: 0.95rem; }
-      .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background: rgba(0,0,0,0.3); }
-      .modal-content { background: #fff; margin: 5% auto; padding: 2rem; border-radius: 12px; max-width: 600px; position: relative; }
-      .modal-close { position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: #888; cursor: pointer; }
-      .form-group { margin-bottom: 1.2rem; }
-      .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 500; }
-      .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s; }
-      .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #228b22; outline: none; }
-      .btn.full { width: 100%; }
-      .success-message { color: #176b16; font-weight: 600; margin-top: 1rem; }
-      .rating-group { display: flex; align-items: center; gap: 1rem; }
-      .rating-slider { outline: none; }
-      .rating-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #228b22; cursor: pointer; }
-      .rating-value { font-weight: 500; min-width: 2rem; text-align: center; }
-      .amenities-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-      .amenity-tag { background: #228b22; color: #fff; padding: 0.5rem 1rem; border-radius: 16px; font-size: 0.9rem; }
-      @media (max-width: 600px) {
-        .container, section, header, nav, .features, .steps, .membership-card, .testimonial, .footer { padding: 0.5rem !important; margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
-        .logo, .nav-links, .section-title, h1, h2, h3, h4, h5, h6, p, a, button { font-size: 1.1rem !important; }
-        .features, .steps, .membership-card, .testimonial { flex-direction: column !important; align-items: stretch !important; }
-        .feature-card, .membership-card, .testimonial { width: 100% !important; min-width: 0 !important; margin-bottom: 1rem !important; }
-        .footer { font-size: 1rem !important; }
-      }
-    
-    </style>
-<style>
-  section .product-demo{
-    padding: 4rem 4rem;
-    background: var(--white);
-  }
-  @media (max-width: 600px) {
-    .container, section, header, nav, .features, .steps, .membership-card, .testimonial, .footer {
-      padding: 0.5rem !important;
-      margin: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
+  <style>
+    :root {
+      --forest-green: #228b22;
+      --black: #000000;
+      --white: #ffffff;
+      --light-green: #e8f5e9;
+      --dark-green: #176b16;
+      --accent-green: #b2ffb2;
     }
-    .logo, .nav-links, .section-title, h1, h2, h3, h4, h5, h6, p, a, button {
-      font-size: 1.1rem !important;
+    /* Reset & Base Styles */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f8f8f8; color: #222; line-height: 1.6; overflow-x: hidden; }
+    img { max-width: 100%; height: auto; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+    header { background: #fff; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.05); position: sticky; top: 0; z-index: 100; }
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
+    .logo { font-size: 2rem; font-weight: bold; }
+    .logo .in { color: var(--dark-green); } .logo .rent { color: var(--forest-green); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links li a { font-weight: 500; transition: color 0.2s; }
+    .nav-links li a:hover { color: var(--forest-green); }
+    .auth-buttons { display: flex; gap: 1rem; }
+    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .btn { display: inline-block; background: var(--forest-green); color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #000; }
+    .btn-secondary { background: #fff; color: var(--forest-green); border: 1.5px solid var(--forest-green); }
+    .btn-secondary:hover { background: var(--forest-green); color: #fff; }
+    .btn-forest { background: whitesmoke; color: black; border: 1.5px solid green; }
+    .btn-forest:hover { background: var(--dark-green); color: #fff; }
+    .btn-become-a-landlord { background: var(--dark-green); color: #fff; border-radius: 8px; border: none; font-weight: 600; transition: background 0.2s; }
+    .btn-become-a-landlord:hover { background: var(--forest-green); }
+    .hero { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 4rem 0; }
+    .hero-content { text-align: center; max-width: 800px; margin: 0 auto; }
+    .hero-content h1 { font-size: 2.5rem; color: var(--dark-green); margin-bottom: 1rem; }
+    .hero-content p { font-size: 1.2rem; color: #333; margin-bottom: 2rem; }
+    .hero-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .features-section { padding: 4rem 0; }
+    .section-title { text-align: center; margin-bottom: 3rem; }
+    .section-title h2 { color: var(--dark-green); font-size: 2rem; margin-bottom: 0.5rem; }
+    .features { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+    .feature-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 4px 16px rgba(34, 139, 34, 0.13); }
+    .feature-icon { font-size: 2.5rem; color: var(--forest-green); margin-bottom: 1rem; }
+    .feature-card h3 { margin-bottom: 1rem; color: var(--dark-green); }
+    .how-it-works { padding: 4rem 0; background: var(--light-green); }
+    .steps { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+    .step { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 1.5rem; flex: 1 1 250px; max-width: 300px; text-align: center; }
+    .step-number { background: var(--forest-green); color: #fff; border-radius: 50%; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-weight: bold; font-size: 1.2rem; }
+    .pricing { padding: 4rem 0; }
+    .membership-options { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+    .membership-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease; }
+    .membership-card:hover { transform: scale(1.03); }
+    .membership-card .special-offer { color: #fff; background: var(--forest-green); border-radius: 8px; padding: 0.2rem 0.7rem; font-size: 0.9rem; margin-bottom: 0.5rem; display: inline-block; }
+    .price { font-size: 1.5rem; color: var(--dark-green); font-weight: bold; margin: 1rem 0; }
+    .membership-features { margin: 1.5rem 0; text-align: left; }
+    .perk-item { margin-bottom: 0.7rem; font-size: 1.08rem; display: flex; align-items: center; gap: 0.5rem; }
+    .perk-item::before { content: "✓"; color: var(--forest-green); font-weight: bold; }
+    .footer { background: var(--dark-green); color: #fff; padding: 3rem 0 1.5rem; }
+    .footer a { color: #fff; transition: color 0.2s; }
+    .footer a:hover { color: var(--accent-green); }
+    .footer-content { display: flex; flex-wrap: wrap; gap: 3rem; justify-content: space-between; }
+    .footer-about { flex: 2; min-width: 300px; }
+    .footer-about p { margin: 1rem 0; }
+    .footer-links { display:flex; flex-direction:row;  gap: 20px; flex: 1; min-width: 180px; }
+    .footer-links h3 { margin-bottom: 1.5rem; }
+    .footer-links ul { display: flex; flex-direction: column; gap: 0.8rem; }
+    .footer-section{ flex:1; min-width: 150px;}
+    .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+    .social-link { color: #fff; font-size: 1.5rem; }
+    .social-link:hover { color: var(--accent-green); }
+    .copyright { text-align: center; margin-top: 3rem; color: var(--accent-green); font-size: 0.95rem; }
+    @media (max-width: 992px) {
+      .hero-content h1 { font-size: 2.2rem; }
+      .hero-content p { font-size: 1.1rem; }
+      .features, .steps, .membership-options { gap: 1.5rem; }
     }
-    .features, .steps, .membership-card, .testimonial {
-      flex-direction: column !important;
-      align-items: stretch !important;
+    @media (max-width: 768px) {
+      html { font-size: 15px; }
+      .mobile-menu-btn { display: block; }
+      .nav-links, .auth-buttons { display: none; }
+      .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
+      .hero { padding: 3rem 0; }
+      .hero-content h1 { font-size: 2rem; }
+      .section-title h2 { font-size: 1.8rem; }
+      .feature-card, .step, .membership-card { flex: 1 1 100%; max-width: 500px; }
+      .footer-content { gap: 2rem; }
     }
-    .feature-card, .membership-card, .testimonial {
-      width: 100% !important;
-      min-width: 0 !important;
-      margin-bottom: 1rem !important;
+    @media (max-width: 576px) {
+      html { font-size: 14px; }
+      .container { padding: 0 1rem; }
+      .hero { padding: 2rem 0; }
+      .hero-content h1 { font-size: 1.8rem; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .features-section, .how-it-works, .pricing { padding: 3rem 0; }
+      .feature-card, .step, .membership-card { padding: 1.5rem; }
+      .footer-about, .footer-links { min-width: 100%; }
     }
-    .footer {
-      font-size: 1rem !important;
+    @media (max-width: 400px) {
+      .hero-content h1 { font-size: 1.6rem; }
+      .section-title h2 { font-size: 1.5rem; }
+      .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
     }
-  }
-  .btn-forest {
-        background: whitesmoke !important;
-        color: black !important;
-        border: #176b16!important;
-        border-color: green !important;
-      }
-      .btn-forest:hover {
-        background: #176b16 !important;
-        color: #fff !important;
-      }
-      
+    .inrent_image{
+  
+      width: 100%;
+      height: auto;
+      display :block;
+    }
+    .footer-features{
+      margin-top: 20px;
+      list-style-type: none;
+    }
+    .footer-features li{
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+    }
   </style>
   </head>  
   <body>
@@ -220,6 +221,9 @@
             <p class="animate">
               Discover how InRent makes property management easier
             </p>
+            <h3 class="animate">
+              For Landlords
+            </h3>
           </div>
           <div class="features">
             <!-- Feature Card: Tenant Portal -->
@@ -266,7 +270,7 @@
           </div>
 
           <div class="user-section">
-            <h3 class="section-subtitle">For Tertiary Students</h3>
+            <h3 class="user-section" >For Tertiary Students</h3>
             <div class="steps">
               <!-- Step 1: Register -->
               <div class="step animate">
@@ -274,7 +278,7 @@
                 <h3>Register & Verify</h3>
                 <p>
                   Create your student account and verify with your student ID
-                  for a one-time fee of P50.00.
+                  for just P50.00.
                 </p>
               </div>
               <!-- Step 2: Browse -->
@@ -310,10 +314,11 @@
             </p>
           </div>
           <div class="demo-video animate open-modal" data-modal="demo">
-            <img
-              src="https://placehold.co/800x450/228B22/ffffff?text=InRent+Demo"
-              alt="Product demo video placeholder"
-            />
+            <iframe  width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Youtube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen>
+
+            </iframe>
+            
+            
             <div class="demo-overlay">
               <div class="play-button"></div>
             </div>
@@ -340,11 +345,11 @@
               <div class="price">P50.00 <span>/once-off</span></div>
               <p>Get unlimited access to verified student accommodations</p>
               <ul class="membership-features">
-                <li>View all property listings</li>
-                <li>Direct message landlords</li>
-                <li>Save favorite properties</li>
-                <li>Get notified of new listings</li>
-                <li>Schedule property viewings</li>
+                <li class="perk-item">View all property listings</li>
+                <li class="perk-item">Direct message landlords</li>
+                <li class="perk-item">Save favorite properties</li>
+                <li class="perk-item">Get notified of new listings</li>
+                <li class="perk-item">Schedule property viewings</li>
               </ul>
               <a class="btn" href="signup.html">Sign Up Now</a>
             </div>
@@ -359,30 +364,24 @@
               <div class="price">Free <span>/month</span></div>
               <p>List unlimited properties and access premium features.</p>
               <ul class="membership-features">
-                <li>Unlimited Property Listings</li>
-                <li>Verified Tenant Matching</li>
-                <li>Advanced Analytics</li>
-                <li>Priority Support</li>
-                <li>Lease Management Tools</li>
+                <li class="perk-item"><i class="fas fa-home" style="color:#228b22;margin-right:8px;"></i>Unlimited Property Listings</li>
+                <li class="perk-item"><i class="fas fa-check-circle" style="color:#228b22;margin-right:8px;"></i>Verified Tenant Matching</li>
+                <li class="perk-item"><i class="fas fa-chart-line" style="color:#228b22;margin-right:8px;"></i>Advanced Analytics</li>
+                <li class="perk-item"><i class="fas fa-headset" style="color:#228b22;margin-right:8px;"></i>Priority Support</li>
+                <li class="perk-item"><i class="fas fa-file-signature" style="color:#228b22;margin-right:8px;"></i>Lease Management Tools</li>
               </ul>
               <div class="spots-left">
                 Only <span id="landlordsLeft">10</span> spots left for free
               </div>
-              <a class="btn" href="signup.html">Become a Landlord</a>
+              <a class="btn btn-become-a-landlord" style="padding: 15px 30px; display: inline-block; font-size: 1.1rem; margin-top: 1rem;" href="signup.html">Become a Landlord</a>
+      
             </div>
           </div>
         </div>
       </section>
 
       <!-- TESTIMONIALS SECTION: User feedback -->
-      <section id="testimonials" class="section testimonials">
-        <div class="container">
-          <div class="section-title">
-            <h2 class="animate">What Our Users Say</h2>
-            <p class="animate">Real feedback from students and landlords.</p>
-          </div>
-          <div class="testimonial-container">
-            <div class="testimonial-slider">
+     
               <!-- No testimonials yet. -->
             </div>
             <div class="testimonial-controls" style="display:none;"></div>
@@ -401,17 +400,16 @@
             <div style="display: flex; width: 100%; max-width: 400px; gap: 0.5rem;">
               <input
                 type="email"
-                placeholder="Enter your email for updates"
+                placeholder="Join our waitlist today for new updates"
                 id="newsletterEmail"
                 style="flex: 1; padding: 0.75rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1.1rem;"
               />
-              <button class="btn" id="subscribeBtn" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">Subscribe</button>
-            </div>
+             </div>
             <div class="success-message" id="newsletterSuccess" style="display: none; color: #176b16; font-weight: 600;">Thank you for subscribing!</div>
           </div>
           <div style="margin-top: 2rem;">
             <button class="btn btn-forest open-modal" data-modal="waitlist-modal" id="openWaitlistBtn" style="font-size: 1.1rem; padding: 0.75rem 2rem; border-radius: 6px;">
-              Join the Waitlist
+              Join
             </button>
           </div>
         </div>
@@ -456,38 +454,7 @@
           <div style="text-align: center; margin-top: 2rem">
            
       <!-- Waitlist Modal: Join our waitlist for updates -->
-      <div class="modal" id="waitlist-modal">
-      <div class="modal-content" style="max-width: 550px">
-        <span class="modal-close">×</span>
-        <h2 id="waitlistModalTitle">Join Our Waitlist!</h2>
-        <p id="waitlistModalSubtitle" style="text-align: center; color: var(--gray); margin-bottom: 1.5rem;">
-          Be the first to know about updates, new features, and when we launch.
-        </p>
-        <form id="waitlistForm">
-          <div class="form-group">
-            <label for="waitlistName">Full Name</label>
-            <input type="text" id="waitlistName" name="waitlistName" placeholder="Enter your full name" required />
-          </div>
-          <div class="form-group">
-            <label for="waitlistEmail">Email Address</label>
-            <input type="email" id="waitlistEmail" name="waitlistEmail" placeholder="Enter your email address" required />
-          </div>
-          <div class="form-group">
-            <label for="waitlistUserType">I am a...</label>
-            <select id="waitlistUserType" name="waitlistUserType" required>
-              <option value="">Select an option</option>
-              <option value="student">Student</option>
-              <option value="landlord">Landlord</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <button type="submit" class="btn" style="width: 100%;">Notify Me</button>
-        </form>
-        <div class="success-message" id="waitlistFormSuccess" style="text-align: center; margin-top: 1rem; display: none;">
-          Thank you! You've been added to our waitlist.
-        </div>
-      </div>
-    </div>
+     
 
     <!-- FOOTER: About, links, and social media -->
     <footer>
@@ -496,13 +463,12 @@
           <!-- About InRent -->
           <div class="footer-about">
             <h3><span class="in">In</span><span class="rent">Rent</span></h3>
-            <p>
-              InRent is Botswana's leading student accommodation marketplace,
-              bringing together students and landlords in one trusted platform.
-              We simplify the process of finding and managing student housing
-              while ensuring a safe and reliable experience for both parties.
-            </p>
+            <img src="/inrent_image.jpg" class="inrent_image"></src>
+            
+            
+            
             <div class="social-links">
+              <ul class="footer-features">
               <a href="#" class="social-link" aria-label="Facebook"
                 ><i class="fab fa-facebook-f"></i
               ></a>
@@ -515,44 +481,48 @@
               <a href="#" class="social-link" aria-label="LinkedIn"
                 ><i class="fab fa-linkedin-in"></i
               ></a>
+              </ul>
             </div>
           </div>
           <!-- Quick Links -->
           <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
             <h3>Quick Links</h3>
             <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <a href="index.html">Home</a>
-              <a href="#features">Features</a>
-              <a href="#how-it-works">How It Works</a>
-              <a href="#pricing">Pricing</a>
-              <a href="#testimonials">Testimonials</a>
-              <a href="#">Waitlist</a>
-              <a href="#contact">Contact</a>
+              <ul class="footer-features">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#how-it-works">How It Works</a></li>
+              <li><a href="#pricing">Pricing </a>< 
+              <li><a href="#">Waitlist</a></li>
+             <li> <a href="#">Contact</a></li>
+              </ul>
             </div>
           </div>
           <!-- Support Links -->
           <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
             <h3>Support</h3>
             <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <a href="faq.html">FAQ</a>
-              <a href="#">Help Center</a>
-              <a href="terms.html">Terms of Service</a>
-              <a href="privacy.html">Privacy Policy</a>
+              <ul class="footer-features">
+              <li><a href="faq.html">FAQ</a></li>
+              <li><a >Help Center, send an email</a></li>
+              <li><a href="terms.html">Terms of Service</a></li>
+             <li> <a href="privacy.html">Privacy Policy</a></li></ul>
             </div>
           </div>
           <!-- Student & Landlord Links -->
           <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
             <h3>For Students</h3>
             <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <a href="marketplace.html" data-modal="property-listings">Browse Accommodations</a>
-              <a href="login.html">Student Login</a>
-              <a href="signup.html" class="open-modal" data-modal="student-signup" style="cursor: pointer">Student Signup</a>
+              <ul>
+            <li>  <a href="marketplace.html" data-modal="property-listings">Browse Accommodations</a></li>
+              <li><a href="login.html">Student Login</a> </li>
+             <li> <a href="signup.html" class="open-modal" data-modal="student-signup" style="cursor: pointer">Student Signup</a></li></ul>
             </div>
             <h3>For Landlords</h3>
             <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
               <a href="#" class="open-modal" data-modal="add-listing-modal">List Your Property</a>
               <a href="#">Landlord Guidelines</a>
-              <a class="open-modal" data-modal="landlord-signup" style="cursor: pointer">Landlord Signup</a>
+              <a class="open-modal" data-modal="landlord-signup" style="cursor: pointer" href="signup.html">Landlord Signup</a>
             </div>
           </div>
         </div>
@@ -560,898 +530,10 @@
           <p>© <span id="currentYear"></span> InRent. All rights reserved.</p>
         </div>
       </div>
+      <script src="./index.js" defer ></script>
     </footer>
+
 
     <!-- MODALS: Contact, Demo, Login, Signup, Listings, Payment, Add Listing, Dashboard, Review -->
     <!-- Contact Form Modal -->
-    <div class="modal" id="contact-form-modal">
-      <div class="modal-content">
-        <span class="modal-close">×</span>
-        <h2>Send Us a Message</h2>
-        <form class="contact-form" id="mainContactForm">
-          <div class="form-group">
-            <label for="contactName">Name</label>
-            <input type="text" id="contactName" name="name" required />
-          </div>
-          <div class="form-group">
-            <label for="contactEmail">Email</label>
-            <input type="email" id="contactEmail" name="email" required />
-          </div>
-          <div class="form-group full">
-            <label for="contactSubject">Subject</label>
-            <input type="text" id="contactSubject" name="subject" required />
-          </div>
-          <div class="form-group full">
-            <label for="contactMessage">Message</label>
-            <textarea
-              id="contactMessage"
-              name="message"
-              required
-              rows="4"
-            ></textarea>
-          </div>
-          <button type="submit" class="btn full">Send Message</button>
-        </form>
-        <div
-          class="success-message"
-          id="contactFormSuccess"
-          style="text-align: center; margin-top: 1rem"
-        ></div>
-      </div>
-    </div>
-
-    <!-- Demo Video Modal -->
-    <div class="modal" id="demo">
-      <div class="modal-content" style="max-width: 800px">
-        <span class="modal-close">×</span>
-        <h2>Watch Demo</h2>
-        <div
-          class="demo-video"
-          style="aspect-ratio: 16 / 9; background-color: #000"
-        >
-          <iframe
-            width="100%"
-            height="100%"
-            src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        </div>
-      </div>
-    </div>
-
-    <!-- Login Modal: Student & Landlord Tabs -->
-    <div class="modal" id="login">
-      <div class="modal-content" style="max-width: 420px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(34,139,34,0.12), 0 1.5px 6px rgba(0,0,0,0.04); padding: 2.5rem 2rem 2rem 2rem; margin: 0 auto; position: relative; animation: modalFadeIn 0.3s;">
-        <span class="modal-close" style="position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.5rem; color: #888; cursor: pointer; transition: color 0.2s;">×</span>
-        <h2 style="color: #176b16; font-size: 2rem; margin-bottom: 1.2rem; text-align: center;">Login to InRent</h2>
-        <div class="login-options" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1.5rem;">
-          <button class="login-option-btn active" data-form="studentLoginForm" style="background: #f1f8e9; border: 1.5px solid #228b22; color: #176b16; border-radius: 6px; padding: 0.5rem 1.2rem; font-size: 1.1rem; cursor: pointer; transition: background 0.2s, color 0.2s;"> <i class="fas fa-user-graduate"></i> Student </button>
-          <button class="login-option-btn" data-form="landlordLoginForm" style="background: #f1f8e9; border: 1.5px solid #228b22; color: #176b16; border-radius: 6px; padding: 0.5rem 1.2rem; font-size: 1.1rem; cursor: pointer; transition: background 0.2s, color 0.2s;"> <i class="fas fa-building"></i> Landlord </button>
-        </div>
-        <!-- Student Login Form -->
-        <form class="login-form" id="studentLoginForm" style="display: flex; flex-direction: column; gap: 1rem;">
-          <div class="form-group">
-            <label for="studentLoginEmail">Student Email</label>
-            <input type="email" id="studentLoginEmail" name="email" required placeholder="Enter your student email" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
-          </div>
-          <div class="form-group">
-            <label for="studentLoginPassword">Password</label>
-            <input type="password" id="studentLoginPassword" name="password" required placeholder="Enter your password" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
-          </div>
-          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="checkbox-label" style="margin: 0"><input type="checkbox" name="remember" /> Remember me</label>
-            <a href="#" style="font-size: 0.9rem; color: var(--primary)">Forgot Password?</a>
-          </div>
-          <button type="submit" class="btn" style="width: 100%; background: linear-gradient(90deg, #228b22 60%, #176b16 100%); color: #fff; border: none; border-radius: 6px; padding: 0.8rem 0; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">Login as Student</button>
-          <p class="form-footer" style="text-align: center; font-size: 0.98rem; margin-top: 0.5rem;">Don't have an account? <a href="signup.html" style="color: #228b22; text-decoration: underline; cursor: pointer;">Sign up as Student</a></p>
-        </form>
-        <!-- Landlord Login Form -->
-        <form class="login-form" id="landlordLoginForm" style="display: none; flex-direction: column; gap: 1rem;">
-          <div class="form-group">
-            <label for="landlordLoginEmail">Email Address</label>
-            <input type="email" id="landlordLoginEmail" name="email" required placeholder="Enter your email" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
-          </div>
-          <div class="form-group">
-            <label for="landlordLoginPassword">Password</label>
-            <input type="password" id="landlordLoginPassword" name="password" required placeholder="Enter your password" style="padding: 0.7rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1rem; background: #f9f9f9; transition: border 0.2s;" />
-          </div>
-          <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="checkbox-label" style="margin: 0"><input type="checkbox" name="remember" /> Remember me</label>
-            <a href="#" style="font-size: 0.9rem; color: var(--primary)">Forgot Password?</a>
-          </div>
-          <button type="submit" class="btn" style="width: 100%; background: linear-gradient(90deg, #228b22 60%, #176b16 100%); color: #fff; border: none; border-radius: 6px; padding: 0.8rem 0; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; transition: background 0.2s;">Login as Landlord</button>
-          <p class="form-footer" style="text-align: center; font-size: 0.98rem; margin-top: 0.5rem;">Don't have an account? <a href="signup.html" style="color: #228b22; text-decoration: underline; cursor: pointer;">Sign up as Landlord</a></p>
-        </form>
-      </div>
-    </div>
-
-    <!-- Student Signup Modal: Multi-step form -->
-    <div class="modal student-modal" id="student-signup">
-      <div class="modal-content">
-        <span class="modal-close">×</span>
-        <h2>Student Sign Up</h2>
-        <form id="studentSignupForm">
-          <div class="signup-step active" id="studentSignupStep1">
-            <!-- Student Info Fields -->
-            <div class="form-group">
-              <label for="studentName">Full Name</label>
-              <input
-                type="text"
-                id="studentName"
-                name="name"
-                required
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div class="form-group">
-              <label for="studentEmail">Student Email</label>
-              <input
-                type="email"
-                id="studentEmail"
-                name="email"
-                required
-                placeholder="Enter your student email"
-              />
-            </div>
-            <div class="form-group">
-              <label for="studentPassword">Password</label>
-              <input
-                type="password"
-                id="studentPassword"
-                name="password"
-                required
-                placeholder="Create a password"
-              />
-              <div class="password-requirements">
-                <ul>
-                  <li id="lengthReq">At least 8 characters</li>
-                  <li id="upperReq">At least one uppercase letter</li>
-                  <li id="numReq">At least one number</li>
-                  <li id="specialReq">At least one special character</li>
-                </ul>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="tertiarySchool">Tertiary Institution</label>
-              <select id="tertiarySchool" name="school" required>
-                <option value="">Select your institution</option>
-                <option value="ub">University of Botswana</option>
-                <option value="baisago">Baisago University</option>
-                <option value="botho">Botho University</option>
-                <option value="limkokwing">Limkokwing University</option>
-                <option value="bac">Botswana Accountancy College</option>
-                <option value="biust">Botswana Int'l Uni of Sci & Tech</option>
-                <option value="other">Other</option>
-              </select>
-              <div
-                id="otherStudentUniversity"
-                class="other-university"
-                style="display: none"
-              >
-                <input
-                  type="text"
-                  id="otherStudentUniversityName"
-                  name="otherStudentUniversityName"
-                  placeholder="Please specify your university"
-                />
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="studentId">Student ID</label>
-              <input
-                type="text"
-                id="studentId"
-                name="studentId"
-                required
-                placeholder="Enter your student ID"
-              />
-            </div>
-            <div class="form-group">
-              <label for="studentPhone">Mobile Number (Botswana)</label>
-              <input
-                type="tel"
-                id="studentPhone"
-                name="phone"
-                pattern="[72][0-9]{7}"
-                placeholder="e.g., 71234567"
-                required
-                maxlength="8"
-              />
-              <small>Format: 7XXXXXXX or 2XXXXXXX (8 digits)</small>
-            </div>
-            <button type="button" class="btn" id="studentNextBtn">Next</button>
-          </div>
-
-          <!-- Student Email Verification Step -->
-          <div class="verification-step" id="studentVerificationStep">
-            <h3>Verify Your Email</h3>
-            <p>
-              We've sent a verification code to
-              <strong id="studentVerificationEmailDisplay">your email</strong>.
-              Please enter it below:
-            </p>
-            <div class="verification-code">
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-            </div>
-            <div class="resend-code">
-              <button type="button" id="studentResendCode" disabled>
-                Resend Code
-              </button>
-              <div class="timer">
-                Time remaining: <span id="studentTimer">60</span>s
-              </div>
-            </div>
-            <button type="submit" class="btn">Verify & Sign Up</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Welcome Modal: After successful signup -->
-    <div class="modal" id="welcome-message" style="text-align: center">
-      <div class="modal-content">
-        <span class="modal-close">×</span>
-        <h2>Welcome to InRent!</h2>
-        <div class="welcome-content">
-          <i
-            class="fas fa-check-circle"
-            style="color: var(--primary); font-size: 4rem; margin-bottom: 1rem"
-          ></i>
-          <p>Your account has been successfully created!</p>
-          <p>
-            We're excited to help you find the perfect accommodation near your
-            institution.
-          </p>
-          <button
-          href="marketplace.html"
-            class="btn open-modal"
-            data-modal="property-listings"
-            id="viewListingsBtnWelcome"
-          >
-            View Available Properties
-          </button> 
-        </div>
-      </div>
-    </div>
-
-    <!-- Property Listings Modal: Filter and view properties -->
-    <div class="modal" id="property-listings" style="z-index: 1001">
-      <div class="modal-content" style="max-width: 900px">
-        <span class="modal-close">×</span>
-        <h2>Available Properties</h2>
-        <div class="listings-filters">
-          <div class="form-group">
-            <label for="filterLocation">Location (Near)</label>
-            <select id="filterLocation">
-              <option value="all">All Locations</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="filterPriceRange">Price Range (P/month)</label>
-            <select id="filterPriceRange">
-              <option value="all">All Prices</option>
-              <option value="0-2000">0 - 2,000</option>
-              <option value="2001-4000">2,001 - 4,000</option>
-              <option value="4001-6000">4,001 - 6,000</option>
-              <option value="6000+">6,000+</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="filterPropertyType">Property Type</label>
-            <select id="filterPropertyType">
-              <option value="all">All Types</option>
-              <option value="apartment">Apartment</option>
-              <option value="house">House</option>
-              <option value="studio">Studio</option>
-              <option value="room">Shared Room</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="filterBedrooms">Bedrooms</label>
-            <select id="filterBedrooms">
-              <option value="all">Any</option>
-              <option value="1">1 Bedroom</option>
-              <option value="2">2 Bedrooms</option>
-              <option value="3">3+ Bedrooms</option>
-            </select>
-          </div>
-        </div>
-        <div
-          class="property-listings-container"
-          style="max-height: 60vh; overflow-y: auto"
-        >
-          <p
-            id="noListingsMessage"
-            style="
-              text-align: center;
-              color: var(--gray);
-              padding: 2rem;
-              display: none;
-            "
-          >
-            No properties match your current filters. Try adjusting your search.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Signup Options Modal: Choose account type -->
-    <div class="modal" id="signup-options">
-      <div class="modal-content" style="max-width: 700px">
-        <span class="modal-close">×</span>
-        <h2>Join InRent Today</h2>
-        <p class="text-center" style="color: var(--gray); margin-bottom: 2rem">
-          Choose your account type to get started
-        </p>
-        <div class="signup-options">
-          <button
-            class="signup-option-btn open-modal"
-            data-modal="student-signup"
-          >
-            <i class="fas fa-user-graduate"></i>
-            <h3>Student</h3>
-            <p>Looking for accommodation?</p>
-            <ul class="option-features">
-              <li>Find verified student housing</li>
-              <li>Easy booking process</li>
-              <li>Direct contact with landlords</li>
-            </ul>
-          </button>
-          <button
-            class="signup-option-btn open-modal"
-            data-modal="landlord-signup"
-          >
-            <i class="fas fa-building"></i>
-            <h3>Landlord</h3>
-            <p>Have property to rent?</p>
-            <ul class="option-features">
-              <li>List your properties easily</li>
-              <li>Reach verified students</li>
-              <li>Manage bookings efficiently</li>
-            </ul>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Landlord Signup Modal: Multi-step form -->
-    <div class="modal" id="landlord-signup">
-      <div class="modal-content" style="max-width: 600px">
-        <span class="modal-close">×</span>
-        <h2>Landlord Sign Up</h2>
-        <form id="landlordSignupForm">
-          <div class="signup-step active" id="landlordSignupStep1">
-            <!-- Landlord Info Fields -->
-            <div class="form-group">
-              <label for="landlordFullName">Full Name</label>
-              <input
-                type="text"
-                id="landlordFullName"
-                name="fullName"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="landlordEmail">Email Address</label>
-              <input type="email" id="landlordEmail" name="email" required />
-            </div>
-            <div class="form-group">
-              <label for="landlordPhone">Mobile Number (Botswana)</label>
-              <input
-                type="tel"
-                id="landlordPhone"
-                name="phone"
-                pattern="[72][0-9]{7}"
-                placeholder="e.g., 71234567"
-                required
-                maxlength="8"
-              />
-            </div>
-            <div class="form-group">
-              <label for="landlordLocation"
-                >Primary Location of Properties</label
-              >
-              <select id="landlordLocation" name="location" required>
-                <option value="">Select location</option>
-                <option value="gaborone">Gaborone</option>
-                <option value="francistown">Francistown</option>
-                <option value="maun">Maun</option>
-                <option value="palapye">Palapye</option>
-                <option value="serowe">Serowe</option>
-                <option value="molepolole">Molepolole</option>
-                <option value="kanye">Kanye</option>
-                <option value="mahalapye">Mahalapye</option>
-                <option value="mochudi">Mochudi</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="landlordPassword">Password</label>
-              <input
-                type="password"
-                id="landlordPassword"
-                name="password"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="landlordConfirmPassword">Confirm Password</label>
-              <input
-                type="password"
-                id="landlordConfirmPassword"
-                name="confirmPassword"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  id="landlordTerms"
-                  name="terms"
-                  required
-                />
-                I agree to the
-                <a href="terms.html" target="_blank">Terms of Service</a> and
-                <a href="privacy.html" target="_blank">Privacy Policy</a>
-              </label>
-            </div>
-            <div class="form-group">
-              <label>Choose Verification Method</label>
-              <div style="display: flex; gap: 1rem">
-                <label class="checkbox-label"
-                  ><input
-                    type="radio"
-                    name="landlordVerificationMethod"
-                    value="email"
-                    checked
-                  />
-                  Email</label
-                >
-                <label class="checkbox-label"
-                  ><input
-                    type="radio"
-                    name="landlordVerificationMethod"
-                    value="phone"
-                  />
-                  Phone</label
-                >
-              </div>
-            </div>
-            <button type="button" class="btn" id="landlordNextBtn">Next</button>
-          </div>
-
-          <!-- Landlord Verification Step -->
-          <div class="verification-step" id="landlordVerificationStep">
-            <h3 id="landlordVerificationHeading">Verify Your Account</h3>
-            <p id="landlordVerificationText">
-              We've sent a verification code. Please enter it below:
-            </p>
-            <div class="verification-code" id="landlordVerificationCodeInputs">
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-              <input type="text" maxlength="1" pattern="[0-9]" required />
-            </div>
-            <div class="resend-code">
-              <button type="button" id="landlordResendCode" disabled>
-                Resend Code
-              </button>
-              <div class="timer">
-                Time remaining: <span id="landlordTimer">60</span>s
-              </div>
-            </div>
-            <button type="submit" class="btn" >Verify & Sign Up</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Payment Modal: Student registration payment -->
-    <div class="modal payment-modal" id="payment-modal">
-      <div class="modal-content">
-        <span class="modal-close">×</span>
-        <h2>Complete Your Student Registration</h2>
-        <p style="text-align: center; color: var(--gray)">
-          A one-time payment is required to access all student features and
-          ensure a secure community.
-        </p>
-
-        <div class="payment-details">
-          <div class="payment-amount">
-            P20.00
-            <span style="font-size: 1rem; color: var(--gray)"
-              >(approx $2.00)</span
-            >
-          </div>
-          <form id="payment-form" class="payment-form">
-            <div class="form-group">
-              <label for="card-name">Cardholder Name</label>
-              <input
-                type="text"
-                id="card-name"
-                required
-                placeholder="Name on card"
-              />
-            </div>
-            <div class="form-group">
-              <label for="card-number">Card Number</label>
-              <input
-                type="text"
-                id="card-number"
-                required
-                placeholder="0000 0000 0000 0000"
-                maxlength="19"
-              />
-            </div>
-            <div class="form-group card-input">
-              <div>
-                <label for="card-expiry">Expiry Date</label>
-                <input
-                  type="text"
-                  id="card-expiry"
-                  name="expiry"
-                  required
-                  placeholder="MM/YY"
-                  maxlength="5"
-                />
-              </div>
-              <div>
-                <label for="card-cvv">CVV</label>
-                <input
-                  type="text"
-                  id="card-cvv"
-                  name="cvv"
-                  required
-                  placeholder="123"
-                  maxlength="4"
-                />
-              </div>
-            </div>
-            <button type="submit" class="btn" style="width: 100%">
-              Pay P20.00
-            </button>
-            <p
-              style="
-                font-size: 0.8rem;
-                text-align: center;
-                margin-top: 1rem;
-                color: var(--gray);
-              "
-            >
-              <i class="fas fa-lock"></i> Secure Payment via Stripe (Example
-              Gateway)
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Listing Modal: Landlord property submission -->
-    <div class="modal add-listing-modal" id="add-listing-modal">
-      <div class="modal-content">
-        <span class="modal-close">×</span>
-        <h2>Add New Property Listing</h2>
-        <p>
-          Please provide the required documentation and property details. Ensure
-          all information is accurate.
-        </p>
-
-        <form id="addListingForm">
-          <div class="form-group">
-            <label
-              >Property Photos (Required - Min. 3 photos, Max 5MB each)</label
-            >
-            <div class="photo-upload-container">
-              <div class="photo-upload-grid" id="photoUploadGrid">
-                <label class="photo-upload-item">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    data-max-files="5"
-                  />
-                  <div class="photo-upload-placeholder">
-                    <i class="fas fa-camera"></i>
-                    <small>Add Photos (up to 5)</small>
-                  </div>
-                </label>
-              </div>
-              <div
-                id="photoPreviewContainer"
-                class="photo-upload-grid"
-                style="margin-top: 1rem"
-              ></div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>National ID/Passport (Landlord Verification)</label>
-            <div class="document-upload" id="idUpload">
-              <i class="fas fa-id-card"></i>
-              <p>Click to upload ID or Passport</p>
-              <small>Supported: JPG, PNG, PDF (Max 5MB)</small>
-              <input
-                type="file"
-                hidden
-                accept=".jpg,.jpeg,.png,.pdf"
-                required
-              />
-              <div class="upload-preview">
-                <i class="fas fa-check-circle"></i>
-                <span class="filename"></span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Property Title Deed / Proof of Ownership</label>
-            <div class="document-upload" id="deedUpload">
-              <i class="fas fa-file-alt"></i>
-              <p>Click to upload Title Deed</p>
-              <small>Supported: JPG, PNG, PDF (Max 5MB)</small>
-              <input
-                type="file"
-                hidden
-                accept=".jpg,.jpeg,.png,.pdf"
-                required
-              />
-              <div class="upload-preview">
-                <i class="fas fa-check-circle"></i>
-                <span class="filename"></span>
-              </div>
-            </div>
-          </div>
-          <hr style="margin: 1.5rem 0" />
-
-          <!-- Property Details Fields -->
-          <div class="form-group">
-            <label for="listingTitle">Property Title</label>
-            <input
-              type="text"
-              id="listingTitle"
-              placeholder="e.g., Cozy 2-Bedroom near UB"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="listingAddress">Full Property Address</label>
-            <input
-              type="text"
-              id="listingAddress"
-              placeholder="e.g., Plot 123, Main Mall, Gaborone"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="listingDescription">Property Description</label>
-            <textarea
-              id="listingDescription"
-              rows="4"
-              placeholder="Describe your property, its features, and nearby amenities..."
-            ></textarea>
-          </div>
-
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-              gap: 1rem;
-            "
-          >
-            <div class="form-group">
-              <label for="listingPrice">Monthly Rent (BWP)</label>
-              <input
-                type="number"
-                id="listingPrice"
-                placeholder="e.g., 3500"
-                required
-                min="0"
-              />
-            </div>
-            <div class="form-group">
-              <label for="listingBedrooms">Number of Bedrooms</label>
-              <select id="listingBedrooms" required>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5+">5+</option>
-                <option value="studio">Studio</option>
-                <option value="room">Single Room (Shared)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="listingBathrooms">Number of Bathrooms</label>
-              <select id="listingBathrooms" required>
-                <option value="1">1</option>
-                <option value="1.5">1.5</option>
-                <option value="2">2</option>
-                <option value="2.5">2.5</option>
-                <option value="3+">3+</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label
-              >Amenities (Type and press Enter, or select common ones)</label
-            >
-            <input
-              type="text"
-              id="amenityInput"
-              placeholder="e.g., WiFi, Air Conditioning, Parking"
-            />
-            <div class="amenities-tags" id="amenitiesList"></div>
-          </div>
-
-          <div class="form-group">
-            <label>House Condition (1=Poor, 10=Excellent)</label>
-            <div class="rating-group">
-              <input
-                type="range"
-                class="rating-slider"
-                min="1"
-                max="10"
-                value="7"
-                id="conditionRating"
-              />
-              <span class="rating-value" id="conditionValue">7</span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Location Safety (1=Low, 10=High)</label>
-            <div class="rating-group">
-              <input
-                type="range"
-                class="rating-slider"
-                min="1"
-                max="10"
-                value="7"
-                id="safetyRating"
-              />
-              <span class="rating-value" id="safetyValue">7</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="checkbox-label">
-              <input type="checkbox" id="listingTerms" required />
-              I confirm that all information provided is accurate and I have the
-              right to list this property.
-            </label>
-          </div>
-
-          <button type="submit" class="btn" style="width: 100%">
-            Submit Listing for Review
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Landlord Dashboard Modal: Analytics and overview -->
-    <div class="modal" id="landlord-dashboard">
-      <div class="modal-content dashboard-content">
-        <span class="modal-close">×</span>
-        <h2>Landlord Dashboard</h2>
-
-        <div class="dashboard-overview">
-          <div class="overview-card">
-            <div class="overview-icon"><i class="fas fa-dollar-sign"></i></div>
-            <div class="overview-details">
-              <h3>Total Earnings (Month)</h3>
-              <p class="amount">P12,500</p>
-              <span class="trend positive">+P1,200 vs last month</span>
-            </div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-icon"><i class="fas fa-home"></i></div>
-            <div class="overview-details">
-              <h3>Active Listings</h3>
-              <p class="amount">4</p>
-              <span class="trend">1 Pending Review</span>
-            </div>
-          </div>
-          <div class="overview-card">
-            <div class="overview-icon"><i class="fas fa-users"></i></div>
-            <div class="overview-details">
-              <h3>Tenant Enquiries</h3>
-              <p class="amount">6 New</p>
-              <span class="trend">2 Unread Messages</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="analytics-section">
-          <div class="analytics-card">
-            <h3>Monthly Income Trend</h3>
-            <canvas id="incomeChart"></canvas>
-          </div>
-          <div class="analytics-card">
-            <h3>Property Occupancy</h3>
-            <canvas id="propertyChart"></canvas>
-          </div>
-        </div>
-
-        <div class="recent-activity">
-          <h3>Recent Activity</h3>
-          <div class="activity-list">
-            <div class="activity-item">
-              <i class="fas fa-check-circle"></i>
-              <div class="activity-details">
-                <p>Rent Payment Received - Thabo, Unit 3B</p>
-                <span>Today, 10:30 AM</span>
-              </div>
-              <span class="amount positive" style="margin-left: auto"
-                >+P3,500</span
-              >
-            </div>
-            <div class="activity-item">
-              <i class="fas fa-user-plus"></i>
-              <div class="activity-details">
-                <p>New Tenant Application - Lerato, Unit 2A</p>
-                <span>Yesterday, 2:15 PM</span>
-              </div>
-              <button
-                class="btn btn-sm btn-secondary view-activity-btn"
-                style="
-                  margin-left: auto;
-                  padding: 0.25rem 0.5rem;
-                  font-size: 0.8rem;
-                "
-                data-activity="New Tenant Application - Lerato, Unit 2A"
-              >
-                View
-              </button>
-            </div>
-            <div class="activity-item">
-              <i class="fas fa-tools"></i>
-              <div class="activity-details">
-                <p>Maintenance Request - Plumbing
-                <span>2 days ago</span>
-              </div>
-              <button
-                class="btn btn-sm btn-secondary view-activity-btn"
-                style="
-                  margin-left: auto;
-                  padding: 0.25rem 0.5rem;
-                  font-size: 0.8rem;
-                  background-color: orange;
-                  border-color: orange;
-                "
-                data-activity="Maintenance Request - Plumbing, Unit 1C"
-              >
-                View
-              </button>
-            </div>
-          </div>
-        </div>
-        <div style="text-align: center; margin-top: 2rem">
-          <button class="btn open-modal" data-modal="add-listing-modal" href="create_listing.html">
-            Add New Property
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Back to Top Button -->
-    <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
-
-    <!-- SCRIPTS: Chart.js for analytics, index.js for main JS logic -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="index.js" defer></script>
-    <script src=/app.js defer></script>
     
-  </body>
-</html>
