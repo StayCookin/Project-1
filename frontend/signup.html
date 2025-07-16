@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup - InRent</title>
     <link rel="stylesheet" href="css/main.css" />
-    <script type="module" src="js/signup.js" defer></script>
+    
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -501,7 +501,7 @@
           try {
             // Import Firebase modules dynamically if not already loaded
             if (!window.firebaseApp) {
-              const firebaseModule = await import("/js/firebase-config.js");
+              const firebaseModule = await import("./js/firebase-config.js");
               window.firebaseApp = firebaseModule.app;
               window.auth = firebaseModule.auth;
               window.firestore = firebaseModule.firestore;
