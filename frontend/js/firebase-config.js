@@ -2,8 +2,8 @@
 // Centralized Firebase configuration and initialization
 
 // Only include this file ONCE in your HTML before any Firebase usage
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.3/firebase-auth.js";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 const firebaseConfig = {
