@@ -13,15 +13,42 @@
     />
     <meta name="theme-color" content="#228B22" />
     <title>Property Marketplace - InRent</title>
-    <style>
-      :root {
-        --forest-green: #228b22; /* Define your forest green color */
-        --light-gray: #f0f0f0; /* Define any other missing variables if you use them */
-        --white: #fff;
-        --black: #000;
-        --dark-green: #176b16;
-        /* Add any other global variables here */
+    <!-- Preload critical assets -->
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
       }
+      gtag("js", new Date());
+      gtag("config", "G-1F24YHYS28");
+    </script>
+    <style>
       body {
         background: #f8fafb;
         font-family: "Poppins", "Inter", Arial, sans-serif;
@@ -157,7 +184,7 @@
         background: var(--forest-green);
         color: #fff;
         border: none;
-        border-radius: 5px;
+        border-radius
         padding: 0.6rem 1.2rem;
         font-weight: 600;
         cursor: pointer;
@@ -193,7 +220,7 @@
         background: #fff;
         border: 1px solid #228b22;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         min-width: 180px;
         padding: 0.5rem 0.7rem;
         max-height: 220px;
@@ -213,368 +240,202 @@
       .amenities-list input[type="checkbox"] {
         accent-color: #228b22;
       }
-      @media (max-width: 900px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 90vw !important;
-          max-width: 95vw !important;
-          padding: 1.5rem 0.5rem !important;
-        }
-      }
       @media (max-width: 600px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 100vw !important;
-          max-width: 100vw !important;
-          padding: 1.2rem 0.5rem !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
+        .marketplace-header {
+          font-size: 1.3rem;
+          padding: 0.8rem 0;
         }
-        label,
-        input,
-        select,
-        button,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.1rem !important;
+        .filter-bar {
+          flex-direction: column;
+          gap: 0.7rem;
+          padding: 0.7rem 0.5rem;
+        }
+        .property-list {
+          gap: 1rem;
+        }
+        .property-card {
+          font-size: 1.05rem;
         }
       }
-      @media (max-width: 400px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          padding: 0.5rem 0.2rem !important;
-        }
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.2rem !important;
+      @media (max-width: 900px) {
+        .filter-bar {
+          flex-wrap: wrap;
+          gap: 0.7rem;
+          padding: 0.7rem 0.5rem;
         }
       }
     </style>
-
-    <!-- Preload critical assets -->
-    <link
-      rel="preload"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      as="style"
-    />
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-      as="style"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "G-1F24YHYS28");
-    </script>
   </head>
   <body>
-    <!-- Add message bubble before the container div -->
-    <div class="message-bubble" id="messageBubble">
-      <i class="fas fa-comments"></i>
-      <span class="message-badge">3</span>
+    <div class="marketplace-header" style="position: relative">
+      <button
+        id="dashboardBtn"
+        aria-label="Dashboard"
+        style="
+          position: absolute;
+          left: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 1.3rem;
+          color: #228b22;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        "
+      >
+        <i class="fas fa-th-large"></i>
+        <span style="font-size: 1rem; font-weight: 500">Dashboard</span>
+      </button>
+      <button
+        id="messagesBtnHeader"
+        aria-label="Messages"
+        style="
+          position: absolute;
+          left: 8.5rem;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 1.3rem;
+          color: #228b22;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        "
+      >
+        <i class="fas fa-comments"></i>
+        <span style="font-size: 1rem; font-weight: 500">Messages</span>
+      </button>
+      <span class="in">In</span><span class="rent">Rent</span>
+      Marketplace
+      <button
+        id="logoutBtn"
+        aria-label="Logout"
+        style="
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #fff;
+          border: 1.5px solid #228b22;
+          border-radius: 5px;
+          padding: 0.4rem 1.1rem;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #228b22;
+          cursor: pointer;
+          transition: background 0.2s;
+        "
+      >
+        <i class="fas fa-sign-out-alt"></i> Log Out
+      </button>
     </div>
-
-    <div class="message-dropdown" id="messageDropdown">
-      <div class="message-header">
-        <h3>Messages</h3>
+    <div class="filter-bar">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search location or title..."
+      />
+      <select id="typeFilter">
+        <option value="">All Types</option>
+        <option value="apartment">Apartment</option>
+        <option value="house">House</option>
+        <option value="studio">Studio</option>
+        <option value="room">Room</option>
+      </select>
+      <select id="bedroomFilter">
+        <option value="">Any Bedrooms</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3+</option>
+      </select>
+      <select id="priceFilter">
+        <option value="">Any Price</option>
+        <option value="0-2000">0-2,000</option>
+        <option value="2001-4000">2,001-4,000</option>
+        <option value="4001-6000">4,001-6,000</option>
+        <option value="6000+">6,000+</option>
+      </select>
+      <div class="amenities-dropdown">
         <button
-          class="btn btn-secondary"
-          style="padding: 0.5rem 1rem; font-size: 0.9rem"
+          type="button"
+          class="amenities-dropdown-btn"
+          id="amenitiesDropdownBtn"
+          aria-haspopup="listbox"
+          aria-expanded="false"
         >
-          <i class="fas fa-plus"></i> New Message
+          <i class="fas fa-list"></i> Amenities
+          <span
+            id="amenitiesSelectedCount"
+            style="color: #228b22; font-weight: 600"
+          ></span>
+          <i class="fas fa-chevron-down" style="font-size: 0.9em"></i>
         </button>
+        <div
+          class="amenities-list"
+          id="amenitiesList"
+          role="listbox"
+          tabindex="-1"
+        >
+          <label tabindex="0"
+            ><input type="checkbox" value="wifi" /> WiFi</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="parking" /> Parking</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="furnished" /> Furnished</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="laundry" /> Laundry</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="ac" /> Air Conditioning</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="security" /> Security</label
+          >
+        </div>
       </div>
-      <div class="message-list">
-        <div class="message-item">
-          <div class="sender">John Smith (Landlord)</div>
-          <div class="preview">
-            Hi, I'm interested in your property. Is it still available?
-          </div>
-          <div class="time">2 hours ago</div>
-        </div>
-        <div class="message-item">
-          <div class="sender">Sarah Johnson (Landlord)</div>
-          <div class="preview">
-            Thank you for your inquiry. Yes, the property is still available...
-          </div>
-          <div class="time">1 day ago</div>
-        </div>
-        <div class="message-item">
-          <div class="sender">Mike Brown (Landlord)</div>
-          <div class="preview">
-            I can arrange a viewing for tomorrow at 2 PM if that works for you.
-          </div>
-          <div class="time">2 days ago</div>
-        </div>
-      </div>
+      <button
+        class="btn"
+        id="filterBtn"
+        style="background: #228b22; color: #fff"
+      >
+        Filter
+      </button>
     </div>
-
-    <header class="header">
-      <div class="header-content">
-        <a href="/" class="logo">InRent</a>
-        <button class="mobile-menu-btn" aria-label="Open menu">
-          <i class="fas fa-bars"></i>
-        </button>
-        <nav class="nav-links">
-          <a href="/marketplace.html">Properties</a>
-          <a href="/saved-properties.html">Saved</a>
-          <a href="/messages.html">Messages</a>
-          <a href="/profile.html">Profile</a>
-        </nav>
-      </div>
-    </header>
-
-    <div class="mobile-menu">
-      <div class="mobile-menu-header">
-        <a href="/" class="logo">InRent</a>
-        <button class="mobile-menu-close" aria-label="Close menu">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <nav class="mobile-menu-links">
-        <a href="/marketplace.html">Properties</a>
-        <a href="/saved-properties.html">Saved</a>
-        <a href="/messages.html">Messages</a>
-        <a href="/student-dashboard.html">Profile</a>
-      </nav>
+    <div class="property-list" id="propertyList">
+      <!-- Property cards will be rendered here dynamically -->
     </div>
-
-    <div class="container">
-      <section class="search-section">
-        <div class="search-header">
-          <h1>Find Your Perfect Home</h1>
-          <p>
-            Browse through our selection of student accommodations in Gaborone
-          </p>
-        </div>
-        <div class="search-filters">
-          <div class="filter-group">
-            <label for="location">Location</label>
-            <select id="location">
-              <option value="">All Locations</option>
-              <option value="ub">Near UB</option>
-              <option value="baisago">Near Baisago</option>
-              <option value="botho">Near Botho</option>
-              <option value="riverwalk">Riverwalk</option>
-              <option value="gamecity">Game City</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="price">Price Range</label>
-            <select id="price">
-              <option value="">Any Price</option>
-              <option value="0-2000">P0 - P2,000</option>
-              <option value="2000-4000">P2,000 - P4,000</option>
-              <option value="4000-6000">P4,000 - P6,000</option>
-              <option value="6000+">P6,000+</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="type">Property Type</label>
-            <select id="type">
-              <option value="">All Types</option>
-              <option value="private">Private Room</option>
-              <option value="shared">Shared Room</option>
-              <option value="apartment">Apartment</option>
-              <option value="house">House</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <label for="amenities">Amenities</label>
-            <select id="amenities">
-              <option value="">All Amenities</option>
-              <option value="wifi">WiFi</option>
-              <option value="parking">Parking</option>
-              <option value="furnished">Furnished</option>
-              <option value="security">Security</option>
-              <option value="laundry">Laundry</option>
-            </select>
-          </div>
-        </div>
-        <div class="search-actions">
-          <button class="btn btn-primary">
-            <i class="fas fa-search"></i> Search Properties
-          </button>
-          <button class="btn btn-secondary">
-            <i class="fas fa-filter"></i> Advanced Filters
-          </button>
-        </div>
-      </section>
-
-      <div class="property-grid" id="propertyGrid">
-        <!-- Properties will be dynamically injected here -->
-      </div>
-    </div>
-
-    <!-- Review Modal -->
-    <div class="modal" id="review-modal">
-      <div class="modal-content" style="max-width: 550px">
-        <span class="modal-close">×</span>
-        <h3 id="reviewModalTitle">Write a Review</h3>
-        <form id="reviewForm">
-          <div class="form-group">
-            <label>Your Rating:</label>
-            <div class="rating-stars" id="reviewRatingStars"></div>
-          </div>
-          <div class="form-group">
-            <label for="reviewText">Your Review:</label>
-            <textarea id="reviewText" required rows="4"></textarea>
-          </div>
-          <button type="submit" class="btn">Submit Review</button>
-          <div class="success-message" id="reviewFormSuccess"></div>
-        </form>
-      </div>
-    </div>
-
-    <script src="marketplace.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Newsletter form handler (Google Apps Script)
-        const newsletterForm = document.getElementById("newsletterForm");
-        if (newsletterForm) {
-          newsletterForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const email = document
-              .getElementById("newsletterEmail")
-              .value.trim();
-            if (!email) return;
-            try {
-              const res = await fetch(
-                "https://script.google.com/macros/s/AKfycby5aUU7sxOPAwHxniTeclh57DuLcp6oSSnXFBab0rTGCi4xkSMbSR2GNz69IcgTs4mBew/exec",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email }),
-                }
-              );
-              if (res.ok) {
-                alert("You've joined the waitlist!");
-                newsletterForm.reset();
-              } else {
-                alert("There was a problem joining the waitlist.");
-              }
-            } catch {
-              alert("Network error. Please try again.");
-            }
-          });
-        }
-        // Header login/signup buttons
-        const loginBtn = document.getElementById("loginBtn");
-        if (loginBtn) {
-          loginBtn.addEventListener("click", function () {
-            window.location.href = "login.html";
-          });
-        }
-        const signupBtn = document.getElementById("signupBtn");
-        if (signupBtn) {
-          signupBtn.addEventListener("click", function () {
-            window.location.href = "signup.html";
-          });
-        }
-        // Footer links
-        const footer = document.getElementById("footer");
-        if (footer) {
-          footer.addEventListener("click", function (e) {
-            if (e.target.tagName === "A") {
-              e.preventDefault();
-              const href = e.target.getAttribute("href");
-              if (href) window.location.href = href;
-            }
-          });
-        }
-      });
-      // Connect View Details to backend
-      window.viewDetails = async function (propertyId) {
-        try {
-          const res = await fetch(`/api/properties/${propertyId}`);
-          if (!res.ok) throw new Error("Property not found");
-          const property = await res.json();
-          // Store property in sessionStorage for details page
-          sessionStorage.setItem("selectedProperty", JSON.stringify(property));
-          window.location.href = `property-details.html?id=${propertyId}`;
-        } catch (err) {
-          alert("Could not load property details.");
-        }
-      };
-      // Connect Message Landlord to backend (start conversation)
-      window.messageLandlord = async function (landlordId) {
-        try {
-          const res = await fetch(`/api/messages/start`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ landlordId }),
-          });
-          if (!res.ok) throw new Error("Could not start conversation");
-          const data = await res.json();
-          window.location.href = `/messages.html?thread=${data.threadId}`;
-        } catch (err) {
-          alert("Could not start conversation with landlord.");
-        }
-      };
-      // Advanced Filters button (fetch with filters)
-      document.querySelectorAll(".btn-secondary").forEach((btn) => {
-        btn.addEventListener("click", function () {
-          // Collect all filter values
-          const filters = {};
-          document.querySelectorAll(".filter-group select").forEach((sel) => {
-            filters[sel.id] = sel.value;
-          });
-          fetch(`/api/properties?${new URLSearchParams(filters)}`)
-            .then((res) => res.json())
-            .then((data) => {
-              // Render properties (assume renderPropertyGrid exists)
-              if (window.renderPropertyGrid) window.renderPropertyGrid(data);
-            })
-            .catch(() => alert("Could not apply filters."));
-        });
-      });
-      // Login button (API call)
-      if (window.loginBtn) {
-        loginBtn.addEventListener("click", async function () {
-          // Example: show login modal or redirect
-          window.location.href = "login.html";
-        });
-      }
-    </script>
+ <script type="module" src="/js/marketplace.js" defer></script>
+    <footer
+      style="
+        background: #fff;
+        border-top: 1px solid #e6e6e6;
+        padding: 1.5rem 0;
+        text-align: center;
+        font-size: 1rem;
+        color: #228b22;
+        margin-top: 2rem;
+      "
+    >
+      &copy; 2025 InRent. All rights reserved. &middot;
+      <a
+        href="frontend/privacy.html"
+        style="color: #176b16; text-decoration: underline"
+        >Privacy Policy</a
+      >
+      &middot;
+      <a
+        href="/terms.html"
+        style="color: #176b16; text-decoration: underline"
+        >Terms</a
+      >
+    </footer>
   </body>
-  <script src=marketplace.js defer></script>
 </html>
