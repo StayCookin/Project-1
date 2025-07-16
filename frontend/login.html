@@ -5,8 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - InRent</title>
     <link rel="stylesheet" href="css/main.css" />
-    <script type="module" src="js/login.js" defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
+      .google_sign_in {
+        background: #fff;
+        color: var(--forest-green);
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: background 0.3s;
+      }
+      .google_sign_in:hover {
+        background: #f9f9f9;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+      }
+      .google_sign_in::before {
+        content: "";
+        background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=");
+        display: block;
+        width: 18px;
+        height: 18px;
+      }
       :root {
         --forest-green: #228b22;
         --black: #000000;
@@ -175,6 +200,13 @@
         <button class="btn btn-secondary" type="submit" aria-label="Log In">
           Log In
         </button>
+        <div
+          class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center"
+        >
+          <p class="text-gray-600 mb-8">Sign in with Google.</p>
+          <button id="googleSignInBtn" class="google_sign_in">Sign In</button>
+        </div>
+
         <div style="text-align: center; margin-top: 1rem">
           Don't have an account?
           <a href="signup.html" class="btn-link" aria-label="Sign Up"
@@ -189,5 +221,26 @@
       </form>
     </div>
   </body>
-  <script src="js/login.js" defer></script>
+</form>
+    </div>
+  </body>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    // TODO: Replace with your Firebase project config
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "project-1-1e31c.firebaseapp.com",
+      projectId: "project-1-1e31c",
+      storageBucket: "project-1-1e31c.appspot.com",
+      messagingSenderId: "658275930203",
+      appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script type="module" src="/js/login.js" defer></script>
 </html>

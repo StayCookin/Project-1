@@ -497,31 +497,82 @@
             return false;
           }
           // Prepare form data
-          const formData = new FormData(this);
+          // Firebase-based signup
           try {
-            // Set API base URL for local testing
-            const API_BASE = window.API_BASE_URL || "https://project-1-2alx.onrender.com";
-            const response = await fetch(`${API_BASE}/api/auth/register`, {
-              method: "POST",
-              body: formData,
-            });
-            const result = await response.json();
-            if (response.ok) {
-              // Show modal instead of redirect
-              document.getElementById("emailVerificationModal").style.display =
-                "flex";
-              this.reset();
-              document.getElementById("studentIdFileName").textContent = "";
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Sign Up";
-            } else {
-              errorDiv.textContent =
-                result.message || "Signup failed. Please try again.";
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Sign Up";
+            // Import Firebase modules dynamically if not already loaded
+            if (!window.firebaseApp) {
+              const firebaseModule = await import("./firebase-config.js");
+              window.firebaseApp = firebaseModule.app;
+              window.auth = firebaseModule.auth;
+              window.firestore = firebaseModule.firestore;
+              window.storage = firebaseModule.storage;
             }
+            const { auth, firestore, storage } = window;
+
+            // Create user with email and password
+            const userCredential = await auth.createUserWithEmailAndPassword(
+              email,
+              pw
+            );
+            const user = userCredential.user;
+
+            // Upload file to Firebase Storage
+            let fileUrl = null;
+            if (role === "STUDENT") {
+              const studentIdFile =
+                document.getElementById("studentId").files[0];
+              if (studentIdFile) {
+                const storageRef = storage.ref(
+                  `studentIds/${user.uid}/${studentIdFile.name}`
+                );
+                await storageRef.put(studentIdFile);
+                fileUrl = await storageRef.getDownloadURL();
+              }
+            } else if (role === "LANDLORD") {
+              const kycFile = document.getElementById("kycDoc").files[0];
+              if (kycFile) {
+                const storageRef = storage.ref(
+                  `kycDocs/${user.uid}/${kycFile.name}`
+                );
+                await storageRef.put(kycFile);
+                fileUrl = await storageRef.getDownloadURL();
+              }
+            }
+
+            // Store user profile in Firestore
+            await firestore
+              .collection("users")
+              .doc(user.uid)
+              .set({
+                role,
+                firstName: document.getElementById("firstName").value,
+                surname: document.getElementById("surname").value,
+                email,
+                fileUrl,
+                createdAt: new Date().toISOString(),
+                verified: false,
+              });
+
+            // Send email verification
+            await user.sendEmailVerification();
+
+            // Show modal instead of redirect
+            document.getElementById("emailVerificationModal").style.display =
+              "flex";
+            this.reset();
+            document.getElementById("studentIdFileName").textContent = "";
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Sign Up";
           } catch (err) {
-            errorDiv.textContent = "Network error. Please try again.";
+            let msg = "Signup failed. Please try again.";
+            if (err.code === "auth/email-already-in-use") {
+              msg = "Email already in use.";
+            } else if (err.code === "auth/weak-password") {
+              msg = "Password is too weak.";
+            } else if (err.message) {
+              msg = err.message;
+            }
+            errorDiv.textContent = msg;
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
           }
