@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup - InRent</title>
     <link rel="stylesheet" href="css/main.css" />
-    
+
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -399,6 +399,50 @@
     </div>
 
     <script type="module">
+      // Import Firebase dependencies (move to script for reliability)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        sendEmailVerification,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "your-api-key",
+        authDomain: "your-project-id.firebaseapp.com",
+        projectId: "your-project-id",
+        storageBucket: "your-project-id.appspot.com",
+        messagingSenderId: "your-messaging-sender-id",
+        appId: "your-app-id",
+      };
+
+      // Initialize Firebase
+      let app, auth, firestore, storage;
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        firestore = getFirestore(app);
+        storage = getStorage(app);
+        console.log("Firebase initialized successfully");
+      } catch (err) {
+        console.error("Firebase initialization failed:", err);
+        document.getElementById("signupError").textContent =
+          "Failed to initialize Firebase. Please try again.";
+        return;
+      }
+
       // Show/hide fields based on role
       const roleSelect = document.getElementById("role");
       const studentFields = document.getElementById("studentFields");
@@ -412,6 +456,7 @@
           landlordFields.style.display = "block";
         }
       });
+
       // Show selected file name for studentId
       document
         .getElementById("studentId")
@@ -424,14 +469,15 @@
             fileNameDiv.textContent = "";
           }
         });
+
       // Password validation function
       function isValidPassword(pw) {
-        // At least 8 chars, one uppercase, one number, one special char
         return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
           pw
         );
       }
-      // AJAX form submission with validation and double-submit prevention
+
+      // Form submission
       document
         .getElementById("signupForm")
         .addEventListener("submit", async function (e) {
@@ -444,7 +490,8 @@
           submitBtn.disabled = true;
           submitBtn.innerHTML =
             '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
-          // Validation (same as before)
+
+          // Validation
           if (role === "STUDENT") {
             const uniPattern = /@.*\.ac\.bw$/i;
             if (!uniPattern.test(email)) {
@@ -452,7 +499,7 @@
                 "Please use your university email address (ending with .ac.bw)";
               submitBtn.disabled = false;
               submitBtn.textContent = "Sign Up";
-              return false;
+              return;
             }
             const studentIdFile = document.getElementById("studentId").files[0];
             if (!studentIdFile) {
@@ -460,7 +507,7 @@
                 "Please upload your student ID or admission letter.";
               submitBtn.disabled = false;
               submitBtn.textContent = "Sign Up";
-              return false;
+              return;
             }
           }
           if (role === "LANDLORD") {
@@ -470,7 +517,7 @@
                 "Please upload your KYC/proof of ownership document.";
               submitBtn.disabled = false;
               submitBtn.textContent = "Sign Up";
-              return false;
+              return;
             }
           }
           const pw = document.getElementById("password").value;
@@ -479,14 +526,14 @@
             errorDiv.textContent = "Passwords do not match.";
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
-            return false;
+            return;
           }
           if (!isValidPassword(pw)) {
             errorDiv.textContent =
               "Password must be at least 8 characters, include one uppercase letter, one number, and one special character.";
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
-            return false;
+            return;
           }
           const termsConsent = document.getElementById("termsConsent");
           if (!termsConsent.checked) {
@@ -494,27 +541,19 @@
               "You must agree to the Terms & Conditions and Privacy Policy.";
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
-            return false;
+            return;
           }
-          // Prepare form data
-          // Firebase-based signup
-          try {
-            // Import Firebase modules dynamically if not already loaded
-            if (!window.firebaseApp) {
-              const { app, auth, firestore, storage} = await import ( "./js/firebase-config.js");
-              window.firebaseApp = firebaseModule.app;
-              window.auth = firebaseModule.auth;
-              window.firestore = firebaseModule.firestore;
-              window.storage = firebaseModule.storage;
-            }
-            const { auth, firestore, storage } = window;
 
-            // Create user with email and password
-            const userCredential = await auth.createUserWithEmailAndPassword(
+          // Firebase signup
+          try {
+            console.log("Attempting to create user with email:", email);
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
               email,
               pw
             );
             const user = userCredential.user;
+            console.log("User created:", user.uid);
 
             // Upload file to Firebase Storage
             let fileUrl = null;
@@ -522,41 +561,44 @@
               const studentIdFile =
                 document.getElementById("studentId").files[0];
               if (studentIdFile) {
-                const storageRef = storage.ref(
+                const storageRef = ref(
+                  storage,
                   `studentIds/${user.uid}/${studentIdFile.name}`
                 );
-                await storageRef.put(studentIdFile);
-                fileUrl = await storageRef.getDownloadURL();
+                await uploadBytes(storageRef, studentIdFile);
+                fileUrl = await getDownloadURL(storageRef);
+                console.log("Student ID uploaded:", fileUrl);
               }
             } else if (role === "LANDLORD") {
               const kycFile = document.getElementById("kycDoc").files[0];
               if (kycFile) {
-                const storageRef = storage.ref(
+                const storageRef = ref(
+                  storage,
                   `kycDocs/${user.uid}/${kycFile.name}`
                 );
-                await storageRef.put(kycFile);
-                fileUrl = await storageRef.getDownloadURL();
+                await uploadBytes(storageRef, kycFile);
+                fileUrl = await getDownloadURL(storageRef);
+                console.log("KYC document uploaded:", fileUrl);
               }
             }
 
             // Store user profile in Firestore
-            await firestore
-              .collection("users")
-              .doc(user.uid)
-              .set({
-                role,
-                firstName: document.getElementById("firstName").value,
-                surname: document.getElementById("surname").value,
-                email,
-                fileUrl,
-                createdAt: new Date().toISOString(),
-                verified: false,
-              });
+            await setDoc(doc(firestore, "users", user.uid), {
+              role,
+              firstName: document.getElementById("firstName").value,
+              surname: document.getElementById("surname").value,
+              email,
+              fileUrl,
+              createdAt: new Date().toISOString(),
+              verified: false,
+            });
+            console.log("User profile stored in Firestore");
 
             // Send email verification
-            await user.sendEmailVerification();
+            await sendEmailVerification(user);
+            console.log("Email verification sent");
 
-            // Show modal instead of redirect
+            // Show modal and reset form
             document.getElementById("emailVerificationModal").style.display =
               "flex";
             this.reset();
@@ -564,6 +606,7 @@
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
           } catch (err) {
+            console.error("Signup error:", err.code, err.message);
             let msg = "Signup failed. Please try again.";
             if (err.code === "auth/email-already-in-use") {
               msg = "Email already in use.";
@@ -577,27 +620,31 @@
             submitBtn.textContent = "Sign Up";
           }
         });
+
       // Spinner animation
       const style = document.createElement("style");
       style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
       document.head.appendChild(style);
+
+      // Modal close and redirect
       document.getElementById("closeModalBtn").onclick = function () {
         document.getElementById("emailVerificationModal").style.display =
           "none";
-        window.location.href = "login.html";
+        window.location.href = "./login.html"; // Redirect to login page
       };
+
       // Ensure modal is hidden on page load
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("emailVerificationModal").style.display =
           "none";
       });
-      // Update login link to point to the correct login page in the frontend folder
-      const loginLinks = document.querySelectorAll(
-        'a.btn-link[aria-label="Log In"]'
-      );
-      loginLinks.forEach((link) => {
-        link.setAttribute("href", "./login.html");
-      });
+
+      // Update login links
+      document
+        .querySelectorAll('a.btn-link[aria-label="Log In"]')
+        .forEach((link) => {
+          link.setAttribute("href", "./login.html");
+        });
     </script>
     <!--
       BACKEND EMAIL VERIFICATION FLOW:
