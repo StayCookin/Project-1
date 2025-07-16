@@ -399,252 +399,202 @@
     </div>
 
     <script type="module">
-      // Import Firebase dependencies (move to script for reliability)
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-      import {
-        getAuth,
-        createUserWithEmailAndPassword,
-        sendEmailVerification,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        setDoc,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-      import {
-        getStorage,
-        ref,
-        uploadBytes,
-        getDownloadURL,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "your-api-key",
-        authDomain: "your-project-id.firebaseapp.com",
-        projectId: "your-project-id",
-        storageBucket: "your-project-id.appspot.com",
-        messagingSenderId: "your-messaging-sender-id",
-        appId: "your-app-id",
-      };
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.appspot.com",
+  messagingSenderId: "your-messaging-sender-id",
+  appId: "your-app-id",
+};
 
-      // Initialize Firebase
-      let app, auth, firestore, storage;
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        firestore = getFirestore(app);
-        storage = getStorage(app);
-        console.log("Firebase initialized successfully");
-      } catch (err) {
-        console.error("Firebase initialization failed:", err);
-        document.getElementById("signupError").textContent =
-          "Failed to initialize Firebase. Please try again.";
-        return;
+// Initialize Firebase
+let app, auth, firestore, storage;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  firestore = getFirestore(app);
+  storage = getStorage(app);
+  console.log("Firebase initialized successfully");
+} catch (err) {
+  console.error("Firebase initialization failed:", err);
+  document.getElementById("signupError").textContent = "Failed to initialize Firebase. Please try again.";
+  return;
+}
+
+// Show/hide fields based on role
+const roleSelect = document.getElementById("role");
+const studentFields = document.getElementById("studentFields");
+const landlordFields = document.getElementById("landlordFields");
+roleSelect.addEventListener("change", function () {
+  if (this.value === "STUDENT") {
+    studentFields.style.display = "block";
+    landlordFields.style.display = "none";
+  } else {
+    studentFields.style.display = "none";
+    landlordFields.style.display = "block";
+  }
+});
+
+// Show selected file name for studentId
+document.getElementById("studentId").addEventListener("change", function () {
+  const file = this.files[0];
+  const fileNameDiv = document.getElementById("studentIdFileName");
+  if (file) {
+    fileNameDiv.textContent = `Selected: ${file.name}`;
+  } else {
+    fileNameDiv.textContent = "";
+  }
+});
+
+// Password validation function
+function isValidPassword(pw) {
+  return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(pw);
+}
+
+// Form submission
+document.getElementById("signupForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const role = roleSelect.value;
+  const email = document.getElementById("emailAddress").value;
+  const errorDiv = document.getElementById("signupError");
+  errorDiv.textContent = "";
+  const submitBtn = this.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML =
+    '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
+
+  // Validation
+  if (role === "STUDENT") {
+    const uniPattern = /@.*\.ac\.bw$/i;
+    if (!uniPattern.test(email)) {
+      errorDiv.textContent = "Please use your university email address (ending with .ac.bw)";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign Up";
+      return;
+    }
+    const studentIdFile = document.getElementById("studentId").files[0];
+    if (!studentIdFile) {
+      errorDiv.textContent = "Please upload your student ID or admission letter.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign Up";
+      return;
+    }
+  }
+  if (role === "LANDLORD") {
+    const kycFile = document.getElementById("kycDoc").files[0];
+    if (!kycFile) {
+      errorDiv.textContent = "Please upload your KYC/proof of ownership document.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign Up";
+      return;
+    }
+  }
+  const pw = document.getElementById("password").value;
+  const pwc = document.getElementById("passwordConfirm").value;
+  if (pw !== pwc) {
+    errorDiv.textContent = "Passwords do not match.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign Up";
+    return;
+  }
+  if (!isValidPassword(pw)) {
+    errorDiv.textContent =
+      "Password must be at least 8 characters, include one uppercase letter, one number, and one special character.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign Up";
+    return;
+  }
+  const termsConsent = document.getElementById("termsConsent");
+  if (!termsConsent.checked) {
+    errorDiv.textContent = "You must agree to the Terms & Conditions and Privacy Policy.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign Up";
+    return;
+  }
+
+  // Firebase signup
+  try {
+    console.log("Attempting to create user with email:", email);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+    const user = userCredential.user;
+    console.log("User created:", user.uid);
+
+    // Upload file to Firebase Storage
+    let fileUrl = null;
+    if (role === "STUDENT") {
+      const studentIdFile = document.getElementById("studentId").files[0];
+      if (studentIdFile) {
+        const storageRef = ref(storage, `studentIds/${user.uid}/${studentIdFile.name}`);
+        await uploadBytes(storageRef, studentIdFile);
+        fileUrl = await getDownloadURL(storageRef);
+        console.log("Student ID uploaded:", fileUrl);
       }
-
-      // Show/hide fields based on role
-      const roleSelect = document.getElementById("role");
-      const studentFields = document.getElementById("studentFields");
-      const landlordFields = document.getElementById("landlordFields");
-      roleSelect.addEventListener("change", function () {
-        if (this.value === "STUDENT") {
-          studentFields.style.display = "block";
-          landlordFields.style.display = "none";
-        } else {
-          studentFields.style.display = "none";
-          landlordFields.style.display = "block";
-        }
-      });
-
-      // Show selected file name for studentId
-      document
-        .getElementById("studentId")
-        .addEventListener("change", function () {
-          const file = this.files[0];
-          const fileNameDiv = document.getElementById("studentIdFileName");
-          if (file) {
-            fileNameDiv.textContent = `Selected: ${file.name}`;
-          } else {
-            fileNameDiv.textContent = "";
-          }
-        });
-
-      // Password validation function
-      function isValidPassword(pw) {
-        return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-          pw
-        );
+    } else if (role === "LANDLORD") {
+      const kycFile = document.getElementById("kycDoc").files[0];
+      if (kycFile) {
+        const storageRef = ref(storage, `kycDocs/${user.uid}/${kycFile.name}`);
+        await uploadBytes(storageRef, kycFile);
+        fileUrl = await getDownloadURL(storageRef);
+        console.log("KYC document uploaded:", fileUrl);
       }
+    }
 
-      // Form submission
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const role = roleSelect.value;
-          const email = document.getElementById("emailAddress").value;
-          const errorDiv = document.getElementById("signupError");
-          errorDiv.textContent = "";
-          const submitBtn = this.querySelector('button[type="submit"]');
-          submitBtn.disabled = true;
-          submitBtn.innerHTML =
-            '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
+    // Store user profile in Firestore
+    await setDoc(doc(firestore, "users", user.uid), {
+      role,
+      firstName: document.getElementById("firstName").value,
+      surname: document.getElementById("surname").value,
+      email,
+      fileUrl,
+      createdAt: new Date().toISOString(),
+      verified: false,
+    });
+    console.log("User profile stored in Firestore");
 
-          // Validation
-          if (role === "STUDENT") {
-            const uniPattern = /@.*\.ac\.bw$/i;
-            if (!uniPattern.test(email)) {
-              errorDiv.textContent =
-                "Please use your university email address (ending with .ac.bw)";
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Sign Up";
-              return;
-            }
-            const studentIdFile = document.getElementById("studentId").files[0];
-            if (!studentIdFile) {
-              errorDiv.textContent =
-                "Please upload your student ID or admission letter.";
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Sign Up";
-              return;
-            }
-          }
-          if (role === "LANDLORD") {
-            const kycFile = document.getElementById("kycDoc").files[0];
-            if (!kycFile) {
-              errorDiv.textContent =
-                "Please upload your KYC/proof of ownership document.";
-              submitBtn.disabled = false;
-              submitBtn.textContent = "Sign Up";
-              return;
-            }
-          }
-          const pw = document.getElementById("password").value;
-          const pwc = document.getElementById("passwordConfirm").value;
-          if (pw !== pwc) {
-            errorDiv.textContent = "Passwords do not match.";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Sign Up";
-            return;
-          }
-          if (!isValidPassword(pw)) {
-            errorDiv.textContent =
-              "Password must be at least 8 characters, include one uppercase letter, one number, and one special character.";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Sign Up";
-            return;
-          }
-          const termsConsent = document.getElementById("termsConsent");
-          if (!termsConsent.checked) {
-            errorDiv.textContent =
-              "You must agree to the Terms & Conditions and Privacy Policy.";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Sign Up";
-            return;
-          }
+    // Send email verification
+    await sendEmailVerification(user);
+    console.log("Email verification sent");
 
-          // Firebase signup
-          try {
-            console.log("Attempting to create user with email:", email);
-            const userCredential = await createUserWithEmailAndPassword(
-              auth,
-              email,
-              pw
-            );
-            const user = userCredential.user;
-            console.log("User created:", user.uid);
+    // Reset form
+    this.reset();
+    document.getElementById("studentIdFileName").textContent = "";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign Up";
 
-            // Upload file to Firebase Storage
-            let fileUrl = null;
-            if (role === "STUDENT") {
-              const studentIdFile =
-                document.getElementById("studentId").files[0];
-              if (studentIdFile) {
-                const storageRef = ref(
-                  storage,
-                  `studentIds/${user.uid}/${studentIdFile.name}`
-                );
-                await uploadBytes(storageRef, studentIdFile);
-                fileUrl = await getDownloadURL(storageRef);
-                console.log("Student ID uploaded:", fileUrl);
-              }
-            } else if (role === "LANDLORD") {
-              const kycFile = document.getElementById("kycDoc").files[0];
-              if (kycFile) {
-                const storageRef = ref(
-                  storage,
-                  `kycDocs/${user.uid}/${kycFile.name}`
-                );
-                await uploadBytes(storageRef, kycFile);
-                fileUrl = await getDownloadURL(storageRef);
-                console.log("KYC document uploaded:", fileUrl);
-              }
-            }
+    // Redirect to marketplace.html for both roles
+    window.location.href = "./marketplace.html";
+  } catch (err) {
+    console.error("Signup error:", err.code, err.message);
+    let msg = "Signup failed. Please try again.";
+    if (err.code === "auth/email-already-in-use") {
+      msg = "Email already in use.";
+    } else if (err.code === "auth/weak-password") {
+      msg = "Password is too weak.";
+    } else if (err.message) {
+      msg = err.message;
+    }
+    errorDiv.textContent = msg;
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign Up";
+  }
+});
 
-            // Store user profile in Firestore
-            await setDoc(doc(firestore, "users", user.uid), {
-              role,
-              firstName: document.getElementById("firstName").value,
-              surname: document.getElementById("surname").value,
-              email,
-              fileUrl,
-              createdAt: new Date().toISOString(),
-              verified: false,
-            });
-            console.log("User profile stored in Firestore");
+// Spinner animation
+const style = document.createElement("style");
+style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+document.head.appendChild(style);
 
-            // Send email verification
-            await sendEmailVerification(user);
-            console.log("Email verification sent");
-
-            // Show modal and reset form
-            document.getElementById("emailVerificationModal").style.display =
-              "flex";
-            this.reset();
-            document.getElementById("studentIdFileName").textContent = "";
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Sign Up";
-          } catch (err) {
-            console.error("Signup error:", err.code, err.message);
-            let msg = "Signup failed. Please try again.";
-            if (err.code === "auth/email-already-in-use") {
-              msg = "Email already in use.";
-            } else if (err.code === "auth/weak-password") {
-              msg = "Password is too weak.";
-            } else if (err.message) {
-              msg = err.message;
-            }
-            errorDiv.textContent = msg;
-            submitBtn.disabled = false;
-            submitBtn.textContent = "Sign Up";
-          }
-        });
-
-      // Spinner animation
-      const style = document.createElement("style");
-      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
-      document.head.appendChild(style);
-
-      // Modal close and redirect
-      document.getElementById("closeModalBtn").onclick = function () {
-        document.getElementById("emailVerificationModal").style.display =
-          "none";
-        window.location.href = "./login.html"; // Redirect to login page
-      };
-
-      // Ensure modal is hidden on page load
-      document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("emailVerificationModal").style.display =
-          "none";
-      });
-
-      // Update login links
-      document
-        .querySelectorAll('a.btn-link[aria-label="Log In"]')
-        .forEach((link) => {
-          link.setAttribute("href", "./login.html");
-        });
+// Update login links
+document.querySelectorAll('a.btn-link[aria-label="Log In"]').forEach((link) => {
+  link.setAttribute("href", "./login.html");
+});
     </script>
     <!--
       BACKEND EMAIL VERIFICATION FLOW:
