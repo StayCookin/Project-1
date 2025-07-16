@@ -399,6 +399,7 @@
     </div>
 
     <script>
+      import { app, auth, firestore, storage } from "./firebase-config.js";
       // Show/hide fields based on role
       const roleSelect = document.getElementById("role");
       const studentFields = document.getElementById("studentFields");
