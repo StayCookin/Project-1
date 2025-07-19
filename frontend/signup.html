@@ -397,7 +397,6 @@
         <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
       </div>
     </div>
-<script src="app.js"></script>
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
@@ -420,6 +419,8 @@ const firebaseConfig = {
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
 };
 
+
+
 // Initialize Firebase
 let app, auth, firestore, storage;
 try {
@@ -433,7 +434,7 @@ try {
   document.getElementById("signupError").textContent = "Failed to initialize Firebase. Please try again.";
   return;
 }
-
+createUserWithEmailAndPassword(auth, email, createUserWithEmailAndPassword);
 // Show/hide fields based on role
 const roleSelect = document.getElementById("role");
 const studentFields = document.getElementById("studentFields");
@@ -574,6 +575,8 @@ document.getElementById("signupForm").addEventListener("submit", async function 
     document.getElementById("studentIdFileName").textContent = "";
     submitBtn.disabled = false;
     submitBtn.textContent = "Sign Up";
+
+  
 
     // Redirect to marketplace.html (assumes marketplace.html is in frontend/ folder)
     console.log("Redirecting to marketplace.html");
