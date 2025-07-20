@@ -391,7 +391,7 @@
         <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
       </div>
     </div>
-    <script type="module">
+   <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
       import {
         getAuth,
@@ -411,12 +411,8 @@
         getDownloadURL,
       } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
 
-      // Prevent old school form post
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-        });
+      // Wait for DOM to be ready
+      document.addEventListener('DOMContentLoaded', function() {
 
       // Catch unhandled promise rejections
       window.addEventListener("unhandledrejection", (event) => {
@@ -502,29 +498,39 @@
         // Since all files are in frontend root, just redirect directly
         // Vercel routing will handle the rest
         console.log(`Redirecting to: ${url}`);
-
+        
         // Add a small delay to ensure all Firebase operations complete
         setTimeout(() => {
           window.location.href = url;
         }, 100);
       }
 
-      // Form submission
-      document
-        .getElementById("signupForm")
-        .addEventListener("submit", async function (e) {
+      // Form submission - SINGLE event listener
+      const signupForm = document.getElementById("signupForm");
+      if (signupForm) {
+        signupForm.addEventListener("submit", async function (e) {
           e.preventDefault();
+          e.stopPropagation(); // Prevent any other handlers
+          
           console.log("Form submission started");
           const role = roleSelect.value;
           const email = document.getElementById("emailAddress").value;
           const errorDiv = document.getElementById("signupError");
           errorDiv.textContent = "";
           const submitBtn = this.querySelector('button[type="submit"]');
+          
+          // Prevent multiple submissions
+          if (submitBtn.disabled) {
+            console.log("Form already being processed");
+            return;
+          }
+          
           submitBtn.disabled = true;
           submitBtn.innerHTML =
             '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
 
           // Validation
+          if (role === "STUDENT") {
           if (role === "STUDENT") {
             const uniPattern = /@.*\.ac\.bw$/i;
             if (!uniPattern.test(email)) {
@@ -639,9 +645,8 @@
 
             // Show success message and redirect
             errorDiv.style.color = "green";
-            errorDiv.textContent =
-              "Account created successfully! Please check your email for verification. Redirecting...";
-
+            errorDiv.textContent = "Account created successfully! Please check your email for verification. Redirecting...";
+            
             // Wait a moment then redirect
             setTimeout(() => {
               console.log("Redirecting to marketplace");
@@ -652,6 +657,7 @@
                 window.location.href = "/marketplace";
               }
             }, 2000);
+
           } catch (err) {
             console.error("Signup error:", err.code, err.message);
             let msg = "Signup failed. Please try again.";
@@ -673,6 +679,12 @@
             submitBtn.textContent = "Sign Up";
           }
         });
+      } else {
+        console.error("Signup form not found");
+      }
+
+      // Close the DOMContentLoaded event listener
+      });
 
       // Spinner animation
       const style = document.createElement("style");
