@@ -391,12 +391,13 @@
         <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
       </div>
     </div>
-    <script type="module">
+<script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
       import {
         getAuth,
         createUserWithEmailAndPassword,
         sendEmailVerification,
+        onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
       import {
         getFirestore,
@@ -449,11 +450,19 @@
           "Failed to initialize Firebase. Please try again.";
         return;
       }
-      createUserWithEmailAndPassword(
-        auth,
-        email,
-        createUserWithEmailAndPassword
-      );
+
+      // REMOVED THE BROKEN LINE: createUserWithEmailAndPassword(auth, email, createUserWithEmailAndPassword);
+
+      // Auth state listener - handles redirects properly
+      onAuthStateChanged(auth, (user) => {
+        if (user && user.emailVerified) {
+          // Only redirect if user is verified
+          console.log("User is authenticated and verified:", user.uid);
+        } else if (user && !user.emailVerified) {
+          console.log("User created but email not verified yet");
+        }
+      });
+
       // Show/hide fields based on role
       const roleSelect = document.getElementById("role");
       const studentFields = document.getElementById("studentFields");
@@ -486,6 +495,25 @@
         return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
           pw
         );
+      }
+
+      // Function to safely redirect
+      function safeRedirect(url) {
+        // Check if the page exists before redirecting
+        fetch(url, { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              window.location.href = url;
+            } else {
+              // Fallback to index if the page doesn't exist
+              console.error(`Page ${url} not found, redirecting to home`);
+              window.location.href = 'index.html';
+            }
+          })
+          .catch(() => {
+            // If fetch fails, try the redirect anyway
+            window.location.href = url;
+          });
       }
 
       // Form submission
@@ -616,9 +644,16 @@
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
 
-            // Redirect to marketplace.html (assumes marketplace.html is in frontend/ folder)
-            console.log("Redirecting to marketplace.html");
-            window.location.href = "marketplace.html";
+            // Show success message instead of immediate redirect
+            errorDiv.style.color = "green";
+            errorDiv.textContent = "Account created successfully! Please check your email for verification. Redirecting...";
+            
+            // Wait a moment then redirect safely
+            setTimeout(() => {
+              console.log("Redirecting to marketplace.html");
+              safeRedirect("marketplace.html");
+            }, 2000);
+
           } catch (err) {
             console.error("Signup error:", err.code, err.message);
             let msg = "Signup failed. Please try again.";
@@ -634,6 +669,7 @@
             } else if (err.message) {
               msg = err.message;
             }
+            errorDiv.style.color = "red";
             errorDiv.textContent = msg;
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
@@ -652,6 +688,7 @@
           link.setAttribute("href", "login.html");
         });
     </script>
+
     <!--
       BACKEND EMAIL VERIFICATION FLOW:
       - Use a service like Nodemailer (Node.js/Express) or SendGrid to send the verification email.
