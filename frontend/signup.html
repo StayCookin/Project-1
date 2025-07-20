@@ -391,7 +391,7 @@
         <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
       </div>
     </div>
-<script type="module">
+    <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
       import {
         getAuth,
@@ -499,21 +499,14 @@
 
       // Function to safely redirect
       function safeRedirect(url) {
-        // Check if the page exists before redirecting
-        fetch(url, { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              window.location.href = url;
-            } else {
-              // Fallback to index if the page doesn't exist
-              console.error(`Page ${url} not found, redirecting to home`);
-              window.location.href = 'index.html';
-            }
-          })
-          .catch(() => {
-            // If fetch fails, try the redirect anyway
-            window.location.href = url;
-          });
+        // Since all files are in frontend root, just redirect directly
+        // Vercel routing will handle the rest
+        console.log(`Redirecting to: ${url}`);
+
+        // Add a small delay to ensure all Firebase operations complete
+        setTimeout(() => {
+          window.location.href = url;
+        }, 100);
       }
 
       // Form submission
@@ -644,16 +637,21 @@
             submitBtn.disabled = false;
             submitBtn.textContent = "Sign Up";
 
-            // Show success message instead of immediate redirect
+            // Show success message and redirect
             errorDiv.style.color = "green";
-            errorDiv.textContent = "Account created successfully! Please check your email for verification. Redirecting...";
-            
-            // Wait a moment then redirect safely
-            setTimeout(() => {
-              console.log("Redirecting to marketplace.html");
-              safeRedirect("marketplace.html");
-            }, 2000);
+            errorDiv.textContent =
+              "Account created successfully! Please check your email for verification. Redirecting...";
 
+            // Wait a moment then redirect
+            setTimeout(() => {
+              console.log("Redirecting to marketplace");
+              // Try multiple redirect methods
+              try {
+                window.location.replace("/marketplace");
+              } catch (e) {
+                window.location.href = "/marketplace";
+              }
+            }, 2000);
           } catch (err) {
             console.error("Signup error:", err.code, err.message);
             let msg = "Signup failed. Please try again.";
@@ -688,7 +686,6 @@
           link.setAttribute("href", "login.html");
         });
     </script>
-
     <!--
       BACKEND EMAIL VERIFICATION FLOW:
       - Use a service like Nodemailer (Node.js/Express) or SendGrid to send the verification email.
