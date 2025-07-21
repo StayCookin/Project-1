@@ -1,5 +1,35 @@
 // Firebase Authentication for Login (Google & Email/Password)
-// Assumes Firebase SDK is loaded and initialized elsewhere
+// Using Firebase v9+ modular SDK
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+// Firebase configuration (same as your signup)
+const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+};
+
+// Initialize Firebase
+let app, auth;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  console.log("Firebase initialized successfully for login");
+} catch (err) {
+  console.error("Firebase initialization failed:", err);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("loginForm");
@@ -10,10 +40,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const googleBtn = document.getElementById("googleSignInBtn");
 
   // Redirect if already logged in
-  firebase.auth().onAuthStateChanged(function (user) {
+  onAuthStateChanged(auth, function (user) {
     if (user) {
-      // Optionally, check user role in Firestore and redirect accordingly
-      window.location.href = "marketplace.html";
+      console.log("User already authenticated, redirecting to marketplace");
+      window.location.href = "/marketplace";
     }
   });
 
@@ -37,17 +67,18 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       try {
-        await firebase.auth().signInWithEmailAndPassword(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         errorDiv.style.color = "green";
         errorDiv.textContent = "Login successful! Redirecting...";
         setTimeout(() => {
-          window.location.href = "marketplace.html";
+          window.location.href = "/marketplace";
         }, 1000);
       } catch (err) {
         errorDiv.style.color = "red";
         if (
           err.code === "auth/user-not-found" ||
-          err.code === "auth/wrong-password"
+          err.code === "auth/wrong-password" ||
+          err.code === "auth/invalid-credential"
         ) {
           errorDiv.textContent = "Invalid email or password.";
         } else if (err.code === "auth/too-many-requests") {
@@ -68,13 +99,19 @@ document.addEventListener("DOMContentLoaded", function () {
   // Google Sign-In
   if (googleBtn) {
     googleBtn.addEventListener("click", async function () {
-      const provider = new firebase.auth.GoogleAuthProvider();
+      const provider = new GoogleAuthProvider();
       try {
-        await firebase.auth().signInWithPopup(provider);
+        await signInWithPopup(auth, provider);
         // Redirect handled by onAuthStateChanged
       } catch (err) {
         errorDiv.style.color = "red";
-        errorDiv.textContent = err.message || "Google sign-in failed.";
+        if (err.code === "auth/popup-closed-by-user") {
+          errorDiv.textContent = "Sign-in cancelled.";
+        } else if (err.code === "auth/popup-blocked") {
+          errorDiv.textContent = "Popup blocked. Please allow popups and try again.";
+        } else {
+          errorDiv.textContent = err.message || "Google sign-in failed.";
+        }
       }
     });
   }
@@ -85,14 +122,15 @@ document.addEventListener("DOMContentLoaded", function () {
   document.head.appendChild(style);
 });
 
-// Logout function using Firebase
+// Logout function using Firebase v9+
 async function logout() {
   try {
-    await firebase.auth().signOut();
+    await signOut(auth);
+    console.log("User signed out successfully");
   } catch (error) {
     console.error("Logout failed:", error);
   }
-  window.location.href = "login.html";
+  window.location.href = "/login";
 }
 
 // Export minimal auth utils
