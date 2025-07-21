@@ -1,144 +1,183 @@
+// Import Firebase configuration
+import "../js/firebase-config.js";
+
 document.addEventListener("DOMContentLoaded", async function () {
-  // Fetch landlord profile and properties from backend
-  let landlord = null;
+  let currentUser = null;
+  let landlordData = null;
   let properties = [];
   let analytics = {};
-  try {
-    const profileRes = await fetch("/api/profile/landlord", {
-      credentials: "include",
-    });
-    if (profileRes.ok) {
-      landlord = await profileRes.json();
-      // Set welcome message
-      const welcomeHeader = document.querySelector(".welcome-section h1");
-      if (welcomeHeader && landlord.name) {
-        welcomeHeader.textContent = `Welcome, ${landlord.name}`;
-      }
-    }
-    const propsRes = await fetch("/api/properties/landlord", {
-      credentials: "include",
-    });
-    if (propsRes.ok) {
-      properties = await propsRes.json();
-    }
-    const analyticsRes = await fetch("/api/properties/landlord/analytics", {
-      credentials: "include",
-    });
-    if (analyticsRes.ok) {
-      analytics = await analyticsRes.json();
-    }
-  } catch (err) {
-    // Show error or redirect
-  }
 
-  // Populate analytics cards
-  if (analytics) {
-    document.getElementById("totalPropertiesValue").textContent =
-      analytics.totalProperties || 0;
-    document.getElementById("totalRevenueValue").textContent =
-      analytics.totalRevenue || "P0";
-    document.getElementById("occupancyRateValue").textContent =
-      analytics.occupancyRate ? analytics.occupancyRate + "%" : "0%";
-    document.getElementById("inrentFeesValue").textContent =
-      analytics.inrentFees || "P0";
-  }
-
-  // Populate property cards
-  const propertyList = document.getElementById("propertyList");
-  if (propertyList && Array.isArray(properties)) {
-    propertyList.innerHTML = properties
-      .map(
-        (prop) => `
-      <div class="property-card">
-        <div class="property-title">${prop.title}</div>
-        <div class="property-details">${prop.details}</div>
-        <div class="property-price">P${prop.price}</div>
-        <button class="btn-primary" data-id="${prop.id}">Edit</button>
-        <button class="btn-secondary" data-id="${prop.id}">Analytics</button>
-      </div>
-    `
-      )
-      .join("");
-  }
-
-  // Logout
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async function (e) {
-      e.preventDefault();
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      window.location.href = "/index.html";
-    });
-  }
-
-  // Check if user is authenticated
-  if (!window.currentUser) {
-    // Redirect to landing page if not authenticated
-    window.location.href = "index.html";
-    return;
-  }
-
-  // Check for invalid login status
-  const isInvalidLogin = window.currentUser.isInvalidLogin || false;
-  const invalidLoginDate = window.currentUser.invalidLoginDate || null;
-  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-
-  if (isInvalidLogin) {
-    // Check if 7 days have passed
-    const now = new Date().getTime();
-    const loginDate = new Date(invalidLoginDate).getTime();
-    const daysRemaining = Math.ceil(
-      (loginDate + SEVEN_DAYS_MS - now) / (24 * 60 * 60 * 1000)
-    );
-
-    if (daysRemaining <= 0) {
-      // Time limit expired, redirect to landing page
+  // Initialize Firebase Auth listener
+  firebase.auth().onAuthStateChanged(async function (user) {
+    if (!user) {
+      console.log("No authenticated user found");
       window.location.href = "index.html";
       return;
     }
 
-    // Add warning banner
-    const warningBanner = document.createElement("div");
-    warningBanner.style.cssText = `
-                    background: #fff3cd;
-                    color: #856404;
-                    padding: 1rem;
-                    margin-bottom: 1rem;
-                    border-radius: 8px;
-                    border: 1px solid #ffeeba;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                `;
-    warningBanner.innerHTML = `
-                    <div>
-                        <strong>Limited Access:</strong> Your account has limited functionality. 
-                        You have ${daysRemaining} days remaining to complete your verification.
-                    </div>
-                    <button onclick="window.location.href='verification.html'" 
-                            style="background: #856404; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-                        Complete Verification
-                    </button>
-                `;
-    document
-      .querySelector(".main-content")
-      .insertBefore(warningBanner, document.querySelector(".dashboard-header"));
+    currentUser = user;
+    await initializeDashboard(user);
+  });
 
-    // Disable restricted functionality
+  async function initializeDashboard(user) {
+    try {
+      // Show loading state
+      showLoadingState();
+
+      // Fetch landlord profile from Firestore
+      landlordData = await fetchLandlordProfile(user.uid);
+      
+      // Verify user is a landlord
+      if (!landlordData || landlordData.role !== "landlord") {
+        alert("Access denied. Only landlords can access this page.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Check verification status and handle restrictions
+      handleVerificationStatus(landlordData);
+
+      // Fetch properties and analytics
+      properties = await fetchLandlordProperties(user.uid);
+      analytics = calculateAnalytics(properties);
+
+      // Populate dashboard
+      populateWelcomeMessage(landlordData);
+      populateAnalyticsCards(analytics);
+      populatePropertyCards(properties);
+      await fetchAndDisplayInquiries(user.uid);
+
+      // Setup event listeners
+      setupEventListeners();
+
+      // Hide loading state
+      hideLoadingState();
+
+    } catch (error) {
+      console.error("Error initializing dashboard:", error);
+      showErrorState("Failed to load dashboard. Please refresh the page.");
+    }
+  }
+
+  async function fetchLandlordProfile(userId) {
+    try {
+      const userDoc = await firebase.firestore()
+        .collection("users")
+        .doc(userId)
+        .get();
+
+      if (!userDoc.exists) {
+        throw new Error("User profile not found");
+      }
+
+      return { id: userDoc.id, ...userDoc.data() };
+    } catch (error) {
+      console.error("Error fetching landlord profile:", error);
+      throw error;
+    }
+  }
+
+  async function fetchLandlordProperties(landlordId) {
+    try {
+      const propertiesSnapshot = await firebase.firestore()
+        .collection("properties")
+        .where("landlordId", "==", landlordId)
+        .orderBy("createdAt", "desc")
+        .get();
+
+      const propertiesList = [];
+      propertiesSnapshot.forEach(doc => {
+        propertiesList.push({ id: doc.id, ...doc.data() });
+      });
+
+      return propertiesList;
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+      return [];
+    }
+  }
+
+  function calculateAnalytics(properties) {
+    const totalProperties = properties.length;
+    const totalRevenue = properties.reduce((sum, prop) => sum + (prop.price || 0), 0);
+    const occupiedProperties = properties.filter(prop => prop.status === 'occupied').length;
+    const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
+    const totalSecurityFees = properties.reduce((sum, prop) => sum + (prop.securityFee || 0), 0);
+
+    return {
+      totalProperties,
+      totalRevenue: `P${totalRevenue.toLocaleString()}`,
+      occupancyRate: `${occupancyRate}%`,
+      inrentFees: `P${totalSecurityFees.toLocaleString()}`
+    };
+  }
+
+  function handleVerificationStatus(landlordData) {
+    const isVerified = landlordData.verificationStatus === 'verified';
+    const isInvalidLogin = landlordData.isInvalidLogin || false;
+    const invalidLoginDate = landlordData.invalidLoginDate;
+
+    if (isInvalidLogin && invalidLoginDate) {
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+      const now = new Date().getTime();
+      const loginDate = new Date(invalidLoginDate).getTime();
+      const daysRemaining = Math.ceil((loginDate + SEVEN_DAYS_MS - now) / (24 * 60 * 60 * 1000));
+
+      if (daysRemaining <= 0) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      showVerificationWarning(daysRemaining);
+      restrictDashboardFeatures();
+    } else if (!isVerified) {
+      showVerificationReminder();
+    }
+  }
+
+  function showVerificationWarning(daysRemaining) {
+    const warningBanner = document.createElement("div");
+    warningBanner.className = "verification-warning";
+    warningBanner.style.cssText = `
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ffeeba;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    `;
+    warningBanner.innerHTML = `
+      <div>
+        <strong>Limited Access:</strong> Your account has limited functionality. 
+        You have ${daysRemaining} days remaining to complete your verification.
+      </div>
+      <button onclick="window.location.href='verification.html'" 
+              style="background: #856404; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+        Complete Verification
+      </button>
+    `;
+
+    const mainContent = document.querySelector(".main-content");
+    if (mainContent) {
+      mainContent.insertBefore(warningBanner, mainContent.firstChild);
+    }
+  }
+
+  function restrictDashboardFeatures() {
     const restrictedFeatures = [
       "List New Property",
-      "View Applications",
+      "View Applications", 
       "Messages",
       "Reviews",
-      "Analytics",
+      "Analytics"
     ];
 
     // Disable dashboard cards
-    document.querySelectorAll(".dashboard-card").forEach((card) => {
-      const title = card.querySelector("h3").textContent.trim();
+    document.querySelectorAll(".dashboard-card").forEach(card => {
+      const title = card.querySelector("h3")?.textContent?.trim();
       if (restrictedFeatures.includes(title)) {
         card.style.opacity = "0.5";
         card.style.cursor = "not-allowed";
@@ -146,277 +185,235 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     });
 
-    // Disable sidebar menu items
-    document.querySelectorAll(".sidebar-menu a").forEach((link) => {
-      const text = link.textContent.trim();
-      if (restrictedFeatures.some((feature) => text.includes(feature))) {
-        link.style.opacity = "0.5";
-        link.style.pointerEvents = "none";
-      }
-    });
-
-    // Disable property management actions
-    document.querySelectorAll(".property-actions .btn").forEach((btn) => {
+    // Disable property actions
+    document.querySelectorAll(".property-actions .btn").forEach(btn => {
       btn.style.opacity = "0.5";
       btn.style.pointerEvents = "none";
     });
   }
 
-  // Handle property card actions
-  const propertyCards = document.querySelectorAll(".property-card");
-  propertyCards.forEach((card) => {
-    const editBtn = card.querySelector(".btn-primary");
-    const analyticsBtn = card.querySelector(".btn-secondary");
-
-    editBtn.addEventListener("click", function () {
-      const propertyTitle = card.querySelector(".property-title").textContent;
-      alert(`Editing property: ${propertyTitle}`);
-    });
-
-    analyticsBtn.addEventListener("click", function () {
-      const propertyTitle = card.querySelector(".property-title").textContent;
-      alert(`Viewing analytics for: ${propertyTitle}`);
-    });
-  });
-
-  // Message box functionality
-  const messageBox = document.querySelector(".message-box");
-  const closeMessageBtn = document.querySelector(".close-message");
-
-  function showMessageBox() {
-    messageBox.style.display = "block";
+  function populateWelcomeMessage(landlordData) {
+    const welcomeHeader = document.querySelector(".welcome-section h1");
+    if (welcomeHeader && landlordData.name) {
+      welcomeHeader.textContent = `Welcome, ${landlordData.name}`;
+    }
   }
 
-  closeMessageBtn.addEventListener("click", function () {
-    messageBox.style.display = "none";
-  });
-
-  // Property creation popup functionality
-  const popupOverlay = document.querySelector(".popup-overlay");
-  const closePopupBtn = document.querySelector(".close-popup");
-  const addPropertyBtn = document.querySelector(".quick-actions .btn-primary");
-  const propertyForm = document.getElementById("propertyForm");
-  const promoteBtn = document.querySelector(".promotion-section .btn-primary");
-
-  addPropertyBtn.addEventListener("click", function () {
-    popupOverlay.style.display = "flex";
-  });
-
-  closePopupBtn.addEventListener("click", function () {
-    popupOverlay.style.display = "none";
-  });
-
-  // Handle property type change
-  const propertyTypeRadios = document.querySelectorAll(
-    'input[name="propertyType"]'
-  );
-  const sharedOptions = document.querySelector(".shared-options");
-
-  propertyTypeRadios.forEach((radio) => {
-    radio.addEventListener("change", function () {
-      if (this.value === "shared") {
-        sharedOptions.style.display = "block";
-      } else {
-        sharedOptions.style.display = "none";
+  function populateAnalyticsCards(analytics) {
+    const updateElement = (id, value) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = value || "0";
       }
-    });
-  });
-
-  // Update property form submission
-  propertyForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const propertyType = document.querySelector(
-      'input[name="propertyType"]:checked'
-    ).value;
-    const propertyData = {
-      title: document.getElementById("propertyTitle").value,
-      details: document.getElementById("propertyDetails").value,
-      type: propertyType,
-      amenities: Array.from(
-        document.querySelectorAll(
-          '.checkbox-group input[type="checkbox"]:checked'
-        )
-      ).map((checkbox) => checkbox.id),
-      location: Array.from(
-        document.querySelectorAll(
-          '.checkbox-group input[type="checkbox"]:checked'
-        )
-      ).map((checkbox) => checkbox.id),
-      price: document.getElementById("propertyPrice").value,
     };
 
-    if (propertyType === "shared") {
-      propertyData.totalRooms = document.getElementById("totalRooms").value;
-      propertyData.availableRooms =
-        document.getElementById("availableRooms").value;
-      propertyData.sharedSpaces = Array.from(
-        document.querySelectorAll(
-          '.shared-options input[type="checkbox"]:checked'
-        )
-      ).map((checkbox) => checkbox.id);
-    }
-
-    console.log("Property Data:", propertyData);
-    alert("Property added successfully!");
-    popupOverlay.style.display = "none";
-    propertyForm.reset();
-  });
-
-  promoteBtn.addEventListener("click", function () {
-    alert("Property promotion feature coming soon!");
-  });
-
-  // Resend verification email
-  window.resendVerificationEmail = function () {
-    // In a real application, this would be an API call
-    alert("Verification email has been resent. Please check your inbox.");
-  };
-
-  // Contact support
-  window.contactSupport = function () {
-    window.location.href = "contact-support.html";
-  };
-
-  // Initialize verification status
-  checkVerificationStatus();
-
-  // Handle verification link in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const verificationToken = urlParams.get("verify");
-  if (verificationToken) {
-    // In a real application, this would be an API call to verify the token
-    console.log("Verifying token:", verificationToken);
-    // Simulate successful verification
-    window.currentUser.verificationStatus = "verification-success";
-    updateVerificationStatus("verification-success");
-
-    // Remove the token from URL
-    window.history.replaceState({}, document.title, window.location.pathname);
+    updateElement("totalPropertiesValue", analytics.totalProperties);
+    updateElement("totalRevenueValue", analytics.totalRevenue);
+    updateElement("occupancyRateValue", analytics.occupancyRate);
+    updateElement("inrentFeesValue", analytics.inrentFees);
   }
 
-  // Sidebar navigation logic
-  document.querySelectorAll(".sidebar-menu a").forEach((link) => {
-    link.addEventListener("click", function (e) {
-      if (this.getAttribute("href") === "#logout") {
+  function populatePropertyCards(properties) {
+    const propertyList = document.getElementById("propertyList");
+    if (!propertyList) return;
+
+    if (!Array.isArray(properties) || properties.length === 0) {
+      propertyList.innerHTML = `
+        <div class="no-properties">
+          <h3>No Properties Yet</h3>
+          <p>Add your first property to get started!</p>
+          <button class="btn-primary" onclick="openAddPropertyModal()">Add Property</button>
+        </div>
+      `;
+      return;
+    }
+
+    propertyList.innerHTML = properties.map(prop => `
+      <div class="property-card" data-property-id="${prop.id}">
+        <div class="property-image">
+          ${prop.imageUrl 
+            ? `<img src="${prop.imageUrl}" alt="${prop.title}" style="width: 100%; height: 150px; object-fit: cover;">`
+            : `<div style="width: 100%; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">📷 No Image</div>`
+          }
+        </div>
+        <div class="property-content">
+          <div class="property-title">${prop.title || 'Untitled Property'}</div>
+          <div class="property-details">${prop.location || 'Location not specified'}</div>
+          <div class="property-price">P${prop.price ? prop.price.toLocaleString() : 'Price not set'}</div>
+          <div class="property-status ${prop.status || 'available'}">${prop.status || 'Available'}</div>
+          <div class="property-actions">
+            <button class="btn-primary" onclick="editProperty('${prop.id}')">Edit</button>
+            <button class="btn-secondary" onclick="viewPropertyAnalytics('${prop.id}')">Analytics</button>
+            <button class="btn-danger" onclick="deleteProperty('${prop.id}', '${prop.title}')">Delete</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function fetchAndDisplayInquiries(landlordId) {
+    try {
+      const inquiriesSnapshot = await firebase.firestore()
+        .collection("inquiries")
+        .where("landlordId", "==", landlordId)
+        .orderBy("createdAt", "desc")
+        .limit(10)
+        .get();
+
+      const inquiries = [];
+      inquiriesSnapshot.forEach(doc => {
+        inquiries.push({ id: doc.id, ...doc.data() });
+      });
+
+      displayInquiries(inquiries);
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+      displayInquiries([]);
+    }
+  }
+
+  function displayInquiries(inquiries) {
+    let inquiriesSection = document.querySelector(".landlord-inquiries-section");
+    
+    if (!inquiriesSection) {
+      inquiriesSection = document.createElement("section");
+      inquiriesSection.className = "landlord-inquiries-section";
+      inquiriesSection.style.marginTop = "2rem";
+      
+      const mainContent = document.querySelector(".main-content") || document.body;
+      mainContent.appendChild(inquiriesSection);
+    }
+
+    inquiriesSection.innerHTML = `
+      <h2>Recent Property Inquiries</h2>
+      <div id="landlord-inquiries-list">
+        ${inquiries.length === 0 
+          ? '<p>No inquiries received yet.</p>'
+          : inquiries.map(inq => `
+              <div class="inquiry-item" style="border:1px solid #eee;padding:1rem;margin-bottom:1rem;border-radius:8px;">
+                <div><b>From:</b> ${inq.studentName || 'Student'}</div>
+                <div><b>Property:</b> ${inq.propertyTitle || 'Property'}</div>
+                <div><b>Message:</b> ${inq.message || 'No message'}</div>
+                <div><b>Date:</b> ${inq.createdAt ? new Date(inq.createdAt.toDate()).toLocaleString() : 'Unknown date'}</div>
+                <div><b>Contact:</b> ${inq.studentEmail || 'No email provided'}</div>
+              </div>
+            `).join('')
+        }
+      </div>
+    `;
+  }
+
+  function setupEventListeners() {
+    // Logout functionality
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async function(e) {
         e.preventDefault();
         if (confirm("Are you sure you want to logout?")) {
-          window.location.href = "index.html";
+          try {
+            await firebase.auth().signOut();
+            window.location.href = "index.html";
+          } catch (error) {
+            console.error("Logout error:", error);
+            alert("Error logging out. Please try again.");
+          }
         }
-      } else if (this.getAttribute("href") === "#add-property") {
-        e.preventDefault();
-        document.querySelector(".popup-overlay").style.display = "flex";
-      } else {
-        // Highlight active
-        document
-          .querySelectorAll(".sidebar-menu a")
-          .forEach((l) => l.classList.remove("active"));
-        this.classList.add("active");
-        // Optionally scroll to section or handle navigation
-      }
-    });
-  });
-
-  function handleLandlordImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size should be less than 5MB");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      document.getElementById("profileImage").src = e.target.result;
-      document.getElementById("removeProfileImage").style.display = "block";
-      // Save to landlordData in localStorage
-      let landlordData = JSON.parse(localStorage.getItem("landlordData")) || {};
-      landlordData.profileImage = e.target.result;
-      localStorage.setItem("landlordData", JSON.stringify(landlordData));
-    };
-    reader.readAsDataURL(file);
-  }
-
-  document
-    .getElementById("removeProfileImage")
-    .addEventListener("click", function () {
-      document.getElementById("profileImage").src =
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80";
-      this.style.display = "none";
-      let landlordData = JSON.parse(localStorage.getItem("landlordData")) || {};
-      delete landlordData.profileImage;
-      localStorage.setItem("landlordData", JSON.stringify(landlordData));
-    });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    let landlordData = JSON.parse(localStorage.getItem("landlordData")) || {};
-    if (landlordData.profileImage) {
-      document.getElementById("profileImage").src = landlordData.profileImage;
-      document.getElementById("removeProfileImage").style.display = "block";
-    }
-    // Blank analytics cards if no properties
-    if (!landlordData.properties || landlordData.properties.length === 0) {
-      document.getElementById("totalPropertiesValue").textContent = "";
-      document.getElementById("totalPropertiesTrend").textContent = "";
-      document.getElementById("totalRevenueValue").textContent = "";
-      document.getElementById("totalRevenueTrend").textContent = "";
-      document.getElementById("occupancyRateValue").textContent = "";
-      document.getElementById("occupancyRateTrend").textContent = "";
-      document.getElementById("inrentFeesValue").textContent = "";
-      document.getElementById("inrentFeesTrend").textContent = "";
-    }
-  });
-
-  // Add a section to display landlord inquiries
-  const dashboardMain =
-    document.querySelector(".main-content") || document.body;
-  const inquiriesSection = document.createElement("section");
-  inquiriesSection.className = "landlord-inquiries-section";
-  inquiriesSection.innerHTML = `
-    <h2 style="margin-top:2rem;">Property Inquiries</h2>
-    <div id="landlord-inquiries-list">Loading...</div>
-  `;
-  dashboardMain.appendChild(inquiriesSection);
-
-  async function fetchLandlordInquiries() {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      document.getElementById("landlord-inquiries-list").textContent =
-        "You must be logged in to view inquiries.";
-      return;
-    }
-    try {
-      const res = await fetch("/api/inquiries/landlord", {
-        headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error("Failed to fetch inquiries");
-      const inquiries = await res.json();
-      if (!Array.isArray(inquiries) || inquiries.length === 0) {
-        document.getElementById("landlord-inquiries-list").textContent =
-          "No inquiries received yet.";
-        return;
-      }
-      document.getElementById("landlord-inquiries-list").innerHTML = inquiries
-        .map(
-          (inq) => `
-        <div class="inquiry-item" style="border:1px solid #eee;padding:1rem;margin-bottom:1rem;border-radius:8px;">
-          <div><b>From:</b> ${inq.student?.firstName || "Student"} ${
-            inq.student?.lastName || ""
-          }</div>
-          <div><b>Property:</b> ${inq.property?.title || inq.propertyId}</div>
-          <div><b>Message:</b> ${inq.message}</div>
-          <div><b>Date:</b> ${new Date(inq.createdAt).toLocaleString()}</div>
-        </div>
-      `
-        )
-        .join("");
-    } catch (err) {
-      document.getElementById("landlord-inquiries-list").textContent =
-        "Error loading inquiries.";
+    }
+
+    // Add property button
+    const addPropertyBtn = document.querySelector(".quick-actions .btn-primary");
+    if (addPropertyBtn) {
+      addPropertyBtn.addEventListener("click", function() {
+        window.location.href = "add-property.html";
+      });
     }
   }
 
-  fetchLandlordInquiries();
+  // Global functions for property management
+  window.editProperty = function(propertyId) {
+    window.location.href = `edit-property.html?id=${propertyId}`;
+  };
+
+  window.viewPropertyAnalytics = function(propertyId) {
+    window.location.href = `property-analytics.html?id=${propertyId}`;
+  };
+
+  window.deleteProperty = async function(propertyId, propertyTitle) {
+    if (!confirm(`Are you sure you want to delete "${propertyTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await firebase.firestore()
+        .collection("properties")
+        .doc(propertyId)
+        .delete();
+      
+      alert("Property deleted successfully!");
+      
+      // Refresh the dashboard
+      if (currentUser) {
+        await initializeDashboard(currentUser);
+      }
+    } catch (error) {
+      console.error("Error deleting property:", error);
+      alert("Failed to delete property. Please try again.");
+    }
+  };
+
+  window.openAddPropertyModal = function() {
+    window.location.href = "add-property.html";
+  };
+
+  // Utility functions
+  function showLoadingState() {
+    const loadingDiv = document.createElement("div");
+    loadingDiv.id = "dashboard-loading";
+    loadingDiv.innerHTML = `
+      <div style="text-align: center; padding: 2rem;">
+        <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <p style="margin-top: 1rem;">Loading dashboard...</p>
+      </div>
+    `;
+    
+    const mainContent = document.querySelector(".main-content");
+    if (mainContent) {
+      mainContent.appendChild(loadingDiv);
+    }
+  }
+
+  function hideLoadingState() {
+    const loadingDiv = document.getElementById("dashboard-loading");
+    if (loadingDiv) {
+      loadingDiv.remove();
+    }
+  }
+
+  function showErrorState(message) {
+    const errorDiv = document.createElement("div");
+    errorDiv.innerHTML = `
+      <div style="background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+        <strong>Error:</strong> ${message}
+        <button onclick="location.reload()" style="margin-left: 1rem; padding: 0.5rem 1rem; background: #721c24; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Retry
+        </button>
+      </div>
+    `;
+    
+    const mainContent = document.querySelector(".main-content");
+    if (mainContent) {
+      mainContent.appendChild(errorDiv);
+    }
+  }
+
+  // Add CSS for loading animation
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
 });
