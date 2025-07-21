@@ -617,8 +617,8 @@
             submitBtn.textContent = "Sign Up";
 
             // Redirect to marketplace.html (assumes marketplace.html is in frontend/ folder)
-            console.log("Redirecting to marketplace.html");
-            window.location.href = "/marketplace.html";
+            console.log("Redirecting to marketplace");
+            window.location.href = "marketplace";
           } catch (err) {
             console.error("Signup error:", err.code, err.message);
             let msg = "Signup failed. Please try again.";
@@ -725,7 +725,7 @@
             if (isOnAuthPage) {
               console.log("Redirecting verified user to marketplace");
               setTimeout(() => {
-                window.location.href = "/marketplace.html";
+                window.location.href = "marketplace";
               }, 1000);
             }
           } else {
@@ -818,7 +818,7 @@
             await user.reload();
             if (user.emailVerified) {
               hideEmailVerificationPrompt();
-              window.location.href = "/marketplace.html";
+              window.location.href = "marketplace";
             } else {
               alert('Email not verified yet. Please check your inbox and click the verification link.');
             }
