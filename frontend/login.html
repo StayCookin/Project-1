@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
   onAuthStateChanged(auth, function (user) {
     if (user) {
       console.log("User already authenticated, redirecting to marketplace");
-      window.location.href = "/marketplace";
+      window.location.href = "/marketplace.html";
     }
   });
 
@@ -315,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
         errorDiv.style.color = "green";
         errorDiv.textContent = "Login successful! Redirecting...";
         setTimeout(() => {
-          window.location.href = "/marketplace";
+          window.location.href = "/marketplace.html";
         }, 1000);
       } catch (err) {
         errorDiv.style.color = "red";
