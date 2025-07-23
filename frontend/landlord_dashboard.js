@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       // Fetch landlord profile from Firestore
       landlordData = await fetchLandlordProfile(user.uid);
-      
+
       // Verify user is a landlord
       if (!landlordData || landlordData.role !== "landlord") {
         alert("Access denied. Only landlords can access this page.");
@@ -52,7 +52,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       // Hide loading state
       hideLoadingState();
-
     } catch (error) {
       console.error("Error initializing dashboard:", error);
       showErrorState("Failed to load dashboard. Please refresh the page.");
@@ -61,7 +60,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchLandlordProfile(userId) {
     try {
-      const userDoc = await firebase.firestore()
+      const userDoc = await firebase
+        .firestore()
         .collection("users")
         .doc(userId)
         .get();
@@ -79,14 +79,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchLandlordProperties(landlordId) {
     try {
-      const propertiesSnapshot = await firebase.firestore()
+      const propertiesSnapshot = await firebase
+        .firestore()
         .collection("properties")
         .where("landlordId", "==", landlordId)
         .orderBy("createdAt", "desc")
         .get();
 
       const propertiesList = [];
-      propertiesSnapshot.forEach(doc => {
+      propertiesSnapshot.forEach((doc) => {
         propertiesList.push({ id: doc.id, ...doc.data() });
       });
 
@@ -99,21 +100,32 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function calculateAnalytics(properties) {
     const totalProperties = properties.length;
-    const totalRevenue = properties.reduce((sum, prop) => sum + (prop.price || 0), 0);
-    const occupiedProperties = properties.filter(prop => prop.status === 'occupied').length;
-    const occupancyRate = totalProperties > 0 ? Math.round((occupiedProperties / totalProperties) * 100) : 0;
-    const totalSecurityFees = properties.reduce((sum, prop) => sum + (prop.securityFee || 0), 0);
+    const totalRevenue = properties.reduce(
+      (sum, prop) => sum + (prop.price || 0),
+      0
+    );
+    const occupiedProperties = properties.filter(
+      (prop) => prop.status === "occupied"
+    ).length;
+    const occupancyRate =
+      totalProperties > 0
+        ? Math.round((occupiedProperties / totalProperties) * 100)
+        : 0;
+    const totalSecurityFees = properties.reduce(
+      (sum, prop) => sum + (prop.securityFee || 0),
+      0
+    );
 
     return {
       totalProperties,
       totalRevenue: `P${totalRevenue.toLocaleString()}`,
       occupancyRate: `${occupancyRate}%`,
-      inrentFees: `P${totalSecurityFees.toLocaleString()}`
+      inrentFees: `P${totalSecurityFees.toLocaleString()}`,
     };
   }
 
   function handleVerificationStatus(landlordData) {
-    const isVerified = landlordData.verificationStatus === 'verified';
+    const isVerified = landlordData.verificationStatus === "verified";
     const isInvalidLogin = landlordData.isInvalidLogin || false;
     const invalidLoginDate = landlordData.invalidLoginDate;
 
@@ -121,7 +133,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
       const now = new Date().getTime();
       const loginDate = new Date(invalidLoginDate).getTime();
-      const daysRemaining = Math.ceil((loginDate + SEVEN_DAYS_MS - now) / (24 * 60 * 60 * 1000));
+      const daysRemaining = Math.ceil(
+        (loginDate + SEVEN_DAYS_MS - now) / (24 * 60 * 60 * 1000)
+      );
 
       if (daysRemaining <= 0) {
         window.location.href = "index.html";
@@ -169,14 +183,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   function restrictDashboardFeatures() {
     const restrictedFeatures = [
       "List New Property",
-      "View Applications", 
+      "View Applications",
       "Messages",
       "Reviews",
-      "Analytics"
+      "Analytics",
     ];
 
     // Disable dashboard cards
-    document.querySelectorAll(".dashboard-card").forEach(card => {
+    document.querySelectorAll(".dashboard-card").forEach((card) => {
       const title = card.querySelector("h3")?.textContent?.trim();
       if (restrictedFeatures.includes(title)) {
         card.style.opacity = "0.5";
@@ -186,7 +200,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
 
     // Disable property actions
-    document.querySelectorAll(".property-actions .btn").forEach(btn => {
+    document.querySelectorAll(".property-actions .btn").forEach((btn) => {
       btn.style.opacity = "0.5";
       btn.style.pointerEvents = "none";
     });
@@ -228,32 +242,50 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    propertyList.innerHTML = properties.map(prop => `
+    propertyList.innerHTML = properties
+      .map(
+        (prop) => `
       <div class="property-card" data-property-id="${prop.id}">
         <div class="property-image">
-          ${prop.imageUrl 
-            ? `<img src="${prop.imageUrl}" alt="${prop.title}" style="width: 100%; height: 150px; object-fit: cover;">`
-            : `<div style="width: 100%; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">📷 No Image</div>`
+          ${
+            prop.imageUrl
+              ? `<img src="${prop.imageUrl}" alt="${prop.title}" style="width: 100%; height: 150px; object-fit: cover;">`
+              : `<div style="width: 100%; height: 150px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">📷 No Image</div>`
           }
         </div>
         <div class="property-content">
-          <div class="property-title">${prop.title || 'Untitled Property'}</div>
-          <div class="property-details">${prop.location || 'Location not specified'}</div>
-          <div class="property-price">P${prop.price ? prop.price.toLocaleString() : 'Price not set'}</div>
-          <div class="property-status ${prop.status || 'available'}">${prop.status || 'Available'}</div>
+          <div class="property-title">${prop.title || "Untitled Property"}</div>
+          <div class="property-details">${
+            prop.location || "Location not specified"
+          }</div>
+          <div class="property-price">P${
+            prop.price ? prop.price.toLocaleString() : "Price not set"
+          }</div>
+          <div class="property-status ${prop.status || "available"}">${
+          prop.status || "Available"
+        }</div>
           <div class="property-actions">
-            <button class="btn-primary" onclick="editProperty('${prop.id}')">Edit</button>
-            <button class="btn-secondary" onclick="viewPropertyAnalytics('${prop.id}')">Analytics</button>
-            <button class="btn-danger" onclick="deleteProperty('${prop.id}', '${prop.title}')">Delete</button>
+            <button class="btn-primary" onclick="editProperty('${
+              prop.id
+            }')">Edit</button>
+            <button class="btn-secondary" onclick="viewPropertyAnalytics('${
+              prop.id
+            }')">Analytics</button>
+            <button class="btn-danger" onclick="deleteProperty('${prop.id}', '${
+          prop.title
+        }')">Delete</button>
           </div>
         </div>
       </div>
-    `).join("");
+    `
+      )
+      .join("");
   }
 
   async function fetchAndDisplayInquiries(landlordId) {
     try {
-      const inquiriesSnapshot = await firebase.firestore()
+      const inquiriesSnapshot = await firebase
+        .firestore()
         .collection("inquiries")
         .where("landlordId", "==", landlordId)
         .orderBy("createdAt", "desc")
@@ -261,7 +293,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         .get();
 
       const inquiries = [];
-      inquiriesSnapshot.forEach(doc => {
+      inquiriesSnapshot.forEach((doc) => {
         inquiries.push({ id: doc.id, ...doc.data() });
       });
 
@@ -273,31 +305,45 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   function displayInquiries(inquiries) {
-    let inquiriesSection = document.querySelector(".landlord-inquiries-section");
-    
+    let inquiriesSection = document.querySelector(
+      ".landlord-inquiries-section"
+    );
+
     if (!inquiriesSection) {
       inquiriesSection = document.createElement("section");
       inquiriesSection.className = "landlord-inquiries-section";
       inquiriesSection.style.marginTop = "2rem";
-      
-      const mainContent = document.querySelector(".main-content") || document.body;
+
+      const mainContent =
+        document.querySelector(".main-content") || document.body;
       mainContent.appendChild(inquiriesSection);
     }
 
     inquiriesSection.innerHTML = `
       <h2>Recent Property Inquiries</h2>
       <div id="landlord-inquiries-list">
-        ${inquiries.length === 0 
-          ? '<p>No inquiries received yet.</p>'
-          : inquiries.map(inq => `
+        ${
+          inquiries.length === 0
+            ? "<p>No inquiries received yet.</p>"
+            : inquiries
+                .map(
+                  (inq) => `
               <div class="inquiry-item" style="border:1px solid #eee;padding:1rem;margin-bottom:1rem;border-radius:8px;">
-                <div><b>From:</b> ${inq.studentName || 'Student'}</div>
-                <div><b>Property:</b> ${inq.propertyTitle || 'Property'}</div>
-                <div><b>Message:</b> ${inq.message || 'No message'}</div>
-                <div><b>Date:</b> ${inq.createdAt ? new Date(inq.createdAt.toDate()).toLocaleString() : 'Unknown date'}</div>
-                <div><b>Contact:</b> ${inq.studentEmail || 'No email provided'}</div>
+                <div><b>From:</b> ${inq.studentName || "Student"}</div>
+                <div><b>Property:</b> ${inq.propertyTitle || "Property"}</div>
+                <div><b>Message:</b> ${inq.message || "No message"}</div>
+                <div><b>Date:</b> ${
+                  inq.createdAt
+                    ? new Date(inq.createdAt.toDate()).toLocaleString()
+                    : "Unknown date"
+                }</div>
+                <div><b>Contact:</b> ${
+                  inq.studentEmail || "No email provided"
+                }</div>
               </div>
-            `).join('')
+            `
+                )
+                .join("")
         }
       </div>
     `;
@@ -307,7 +353,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Logout functionality
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", async function(e) {
+      logoutBtn.addEventListener("click", async function (e) {
         e.preventDefault();
         if (confirm("Are you sure you want to logout?")) {
           try {
@@ -322,36 +368,43 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // Add property button
-    const addPropertyBtn = document.querySelector(".quick-actions .btn-primary");
+    const addPropertyBtn = document.querySelector(
+      ".quick-actions .btn-primary"
+    );
     if (addPropertyBtn) {
-      addPropertyBtn.addEventListener("click", function() {
+      addPropertyBtn.addEventListener("click", function () {
         window.location.href = "add-property.html";
       });
     }
   }
 
   // Global functions for property management
-  window.editProperty = function(propertyId) {
+  window.editProperty = function (propertyId) {
     window.location.href = `edit-property.html?id=${propertyId}`;
   };
 
-  window.viewPropertyAnalytics = function(propertyId) {
+  window.viewPropertyAnalytics = function (propertyId) {
     window.location.href = `property-analytics.html?id=${propertyId}`;
   };
 
-  window.deleteProperty = async function(propertyId, propertyTitle) {
-    if (!confirm(`Are you sure you want to delete "${propertyTitle}"? This action cannot be undone.`)) {
+  window.deleteProperty = async function (propertyId, propertyTitle) {
+    if (
+      !confirm(
+        `Are you sure you want to delete "${propertyTitle}"? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
     try {
-      await firebase.firestore()
+      await firebase
+        .firestore()
         .collection("properties")
         .doc(propertyId)
         .delete();
-      
+
       alert("Property deleted successfully!");
-      
+
       // Refresh the dashboard
       if (currentUser) {
         await initializeDashboard(currentUser);
@@ -362,7 +415,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   };
 
-  window.openAddPropertyModal = function() {
+  window.openAddPropertyModal = function () {
     window.location.href = "add-property.html";
   };
 
@@ -376,7 +429,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p style="margin-top: 1rem;">Loading dashboard...</p>
       </div>
     `;
-    
+
     const mainContent = document.querySelector(".main-content");
     if (mainContent) {
       mainContent.appendChild(loadingDiv);
@@ -400,7 +453,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         </button>
       </div>
     `;
-    
+
     const mainContent = document.querySelector(".main-content");
     if (mainContent) {
       mainContent.appendChild(errorDiv);

@@ -1,13 +1,20 @@
-// Firebase v9+ imports (add these to your HTML head)
+// Firebase v9+ configuration and initialization
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, getDoc, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, doc, getDoc, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Firebase configuration
 const firebaseConfig = {
-  // Your Firebase config
+  // Your Firebase config goes here
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -29,64 +36,105 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
       
-      initializeBookingSystem(user, userDoc.data());
+      await initializeBookingSystem(user, userDoc.data());
     } catch (error) {
       console.error('Error checking user role:', error);
-      window.location.href = "index.html";
+      showError("Authentication error. Please try logging in again.");
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 2000);
     }
   });
 });
 
 async function initializeBookingSystem(user, userData) {
-  // Get property data from URL parameters - maintaining original parameter name
+  // Get property data from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const propertyTitle = urlParams.get("title"); // Keep original parameter name
-  const propertyId = urlParams.get("propertyId"); // Also support propertyId for Firebase
+  const propertyTitle = urlParams.get("title");
+  const propertyId = urlParams.get("propertyId");
 
   if (!propertyTitle && !propertyId) {
     showError("No property selected.");
     return;
   }
 
-  // Load property data - support both title-based and ID-based lookup
+  // Load property data - prioritize propertyId for Firebase integration
   try {
-    let property;
+    let property = null;
     
     if (propertyId) {
-      // Firebase lookup by ID
+      // Firebase lookup by ID (preferred method)
       const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
       if (!propertyDoc.exists()) {
         showError("Property not found.");
         return;
       }
       property = { id: propertyDoc.id, ...propertyDoc.data() };
-    } else {
-      // Fallback to title-based lookup (for backward compatibility)
-      property = getPropertyData(propertyTitle);
-      if (!property) {
+    } else if (propertyTitle) {
+      // Fallback to title-based lookup in Firebase
+      const propertiesQuery = query(
+        collection(db, 'properties'),
+        where('title', '==', propertyTitle)
+      );
+      const querySnapshot = await getDocs(propertiesQuery);
+      
+      if (querySnapshot.empty) {
         showError("Property not found.");
         return;
       }
+      
+      // Get first matching property
+      const propertyDoc = querySnapshot.docs[0];
+      property = { id: propertyDoc.id, ...propertyDoc.data() };
+    }
+
+    if (!property) {
+      showError("Property not found.");
+      return;
     }
 
     displayPropertyInfo(property);
-    initializeCalendar(property, user, userData, propertyTitle || propertyId);
+    initializeCalendar(property, user, userData);
   } catch (error) {
     console.error('Error loading property:', error);
-    showError("Failed to load property details.");
+    showError("Failed to load property details. Please try again.");
   }
 }
 
 function displayPropertyInfo(property) {
-  document.querySelector(".property-image").src = property.imageUrl || 'default-image.jpg';
-  document.querySelector(".property-details h3").textContent = property.title;
-  document.querySelector(".property-details p").textContent = property.location;
+  const propertyImage = document.querySelector(".property-image");
+  const propertyTitle = document.querySelector(".property-details h3");
+  const propertyLocation = document.querySelector(".property-details p");
+
+  if (propertyImage) {
+    propertyImage.src = property.imageUrl || property.image || 'assets/images/default-property.jpg';
+    propertyImage.alt = property.title || 'Property Image';
+  }
+  
+  if (propertyTitle) {
+    propertyTitle.textContent = property.title || 'Property Title';
+  }
+  
+  if (propertyLocation) {
+    propertyLocation.textContent = property.location || 'Location not specified';
+  }
 }
 
-function initializeCalendar(property, user, userData, propertyIdentifier) {
+function initializeCalendar(property, user, userData) {
   let currentDate = new Date();
   let selectedDate = null;
   let selectedTime = null;
+
+  // Available time slots
+  const availableTimeSlots = [
+    "09:00 AM",
+    "10:00 AM", 
+    "11:00 AM",
+    "12:00 PM",
+    "02:00 PM",
+    "03:00 PM",
+    "04:00 PM",
+  ];
 
   function renderCalendar() {
     const year = currentDate.getFullYear();
@@ -98,6 +146,11 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
 
     const calendarGrid = document.getElementById("calendarGrid");
     const monthYear = document.getElementById("monthYear");
+    
+    if (!calendarGrid || !monthYear) {
+      console.error('Calendar elements not found');
+      return;
+    }
     
     // Update month/year display
     monthYear.textContent = firstDay.toLocaleDateString('en-US', { 
@@ -111,7 +164,7 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     days.forEach((day) => {
       const dayElement = document.createElement("div");
-      dayElement.className = "calendar-day";
+      dayElement.className = "calendar-day-header";
       dayElement.textContent = day;
       calendarGrid.appendChild(dayElement);
     });
@@ -119,7 +172,7 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
     // Add empty cells for days before month starts
     for (let i = 0; i < startingDay; i++) {
       const emptyDay = document.createElement("div");
-      emptyDay.className = "calendar-date";
+      emptyDay.className = "calendar-date empty";
       calendarGrid.appendChild(emptyDay);
     }
 
@@ -136,8 +189,10 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
       // Disable past dates
       if (date < today) {
         dateElement.classList.add("disabled");
+        dateElement.title = "Past dates are not available";
       } else {
-        dateElement.addEventListener("click", () => selectDate(date, dateElement));
+        dateElement.addEventListener("click", (e) => selectDate(date, e.target));
+        dateElement.style.cursor = "pointer";
       }
 
       // Highlight selected date
@@ -151,8 +206,9 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
 
   function selectDate(date, element) {
     selectedDate = date;
+    selectedTime = null; // Reset time selection when date changes
     
-    // Remove previous selection
+    // Remove previous date selection
     document.querySelectorAll(".calendar-date").forEach((el) => {
       el.classList.remove("selected");
     });
@@ -161,92 +217,110 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
     element.classList.add("selected");
     
     // Load available time slots for selected date
-    updateTimeSlots(property.id || propertyIdentifier, date);
+    updateTimeSlots(property.id, date);
     updateSubmitButton();
   }
 
-  async function updateTimeSlots(propertyIdentifier, date) {
+  async function updateTimeSlots(propertyId, date) {
     const timeGrid = document.getElementById("timeGrid");
-    timeGrid.innerHTML = "";
+    if (!timeGrid) {
+      console.error('Time grid element not found');
+      return;
+    }
 
-    const timeSlots = [ // Maintaining original variable name
-      "09:00 AM",
-      "10:00 AM", 
-      "11:00 AM",
-      "02:00 PM",
-      "03:00 PM",
-      "04:00 PM",
-    ];
+    // Show loading state
+    timeGrid.innerHTML = '<div class="loading">Loading available times...</div>';
 
     try {
-      // Check existing bookings for this property on selected date
+      // Format date for Firebase query (YYYY-MM-DD)
       const dateStr = date.toISOString().split('T')[0];
+      
+      // Check existing bookings for this property on selected date
       const bookingsQuery = query(
         collection(db, 'viewingBookings'),
-        where('propertyId', '==', propertyIdentifier),
-        where('date', '==', dateStr)
+        where('propertyId', '==', propertyId),
+        where('dateString', '==', dateStr), // Use dateString field for easier querying
+        where('status', 'in', ['pending', 'confirmed']) // Only consider active bookings
       );
       
       const bookingsSnapshot = await getDocs(bookingsQuery);
       const bookedTimes = new Set();
       
       bookingsSnapshot.forEach((doc) => {
-        bookedTimes.add(doc.data().time);
+        const bookingData = doc.data();
+        if (bookingData.time) {
+          bookedTimes.add(bookingData.time);
+        }
       });
 
-      // Create time slot elements - maintaining original structure
-      timeSlots.forEach((time) => {
+      // Clear loading state
+      timeGrid.innerHTML = "";
+
+      // Create time slot elements
+      availableTimeSlots.forEach((time) => {
         const timeSlot = document.createElement("div");
         timeSlot.className = "time-slot";
-        timeSlot.textContent = time;
-
+        
         if (bookedTimes.has(time)) {
           timeSlot.classList.add("disabled");
-          timeSlot.textContent += " (Booked)";
+          timeSlot.textContent = `${time} (Booked)`;
+          timeSlot.title = "This time slot is already booked";
         } else {
-          timeSlot.addEventListener("click", () => selectTime(time));
+          timeSlot.textContent = time;
+          timeSlot.style.cursor = "pointer";
+          timeSlot.addEventListener("click", (e) => selectTime(time, e.target));
         }
 
+        // Highlight selected time
         if (selectedTime === time && !bookedTimes.has(time)) {
           timeSlot.classList.add("selected");
         }
 
         timeGrid.appendChild(timeSlot);
       });
+
+      // Show message if no slots available
+      if (bookedTimes.size === availableTimeSlots.length) {
+        const noSlotsMsg = document.createElement("div");
+        noSlotsMsg.className = "no-slots-message";
+        noSlotsMsg.textContent = "No available time slots for this date. Please select another date.";
+        timeGrid.appendChild(noSlotsMsg);
+      }
+
     } catch (error) {
       console.error('Error loading time slots:', error);
-      // Fallback: randomly disable some time slots for demo (maintaining original logic)
-      timeSlots.forEach((time) => {
-        const timeSlot = document.createElement("div");
-        timeSlot.className = "time-slot";
-        timeSlot.textContent = time;
+      timeGrid.innerHTML = '<div class="error">Error loading time slots. Please try again.</div>';
+      
+      // Fallback: show all slots as available
+      setTimeout(() => {
+        timeGrid.innerHTML = "";
+        availableTimeSlots.forEach((time) => {
+          const timeSlot = document.createElement("div");
+          timeSlot.className = "time-slot";
+          timeSlot.textContent = time;
+          timeSlot.style.cursor = "pointer";
+          timeSlot.addEventListener("click", (e) => selectTime(time, e.target));
 
-        // Randomly disable some time slots for demo
-        if (Math.random() > 0.7) {
-          timeSlot.classList.add("disabled");
-        } else {
-          timeSlot.addEventListener("click", () => selectTime(time));
-        }
+          if (selectedTime === time) {
+            timeSlot.classList.add("selected");
+          }
 
-        if (selectedTime === time) {
-          timeSlot.classList.add("selected");
-        }
-
-        timeGrid.appendChild(timeSlot);
-      });
+          timeGrid.appendChild(timeSlot);
+        });
+      }, 2000);
     }
   }
 
-  function selectTime(time) {
+  function selectTime(time, element) {
     selectedTime = time;
     
-    // Remove previous selection
+    // Remove previous time selection
     document.querySelectorAll(".time-slot").forEach((el) => {
       el.classList.remove("selected");
     });
     
-    // Add selection using event.target (maintaining original approach)
-    event.target.classList.add("selected");
+    // Add selection to clicked element
+    element.classList.add("selected");
     updateSubmitButton();
   }
 
@@ -254,19 +328,33 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
     const submitBtn = document.getElementById("submitBtn");
     if (submitBtn) {
       submitBtn.disabled = !(selectedDate && selectedTime);
+      submitBtn.textContent = (selectedDate && selectedTime) ? "Submit Viewing Request" : "Select Date & Time";
     }
   }
 
   // Calendar navigation
-  document.getElementById("prevMonth")?.addEventListener("click", () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    renderCalendar();
-  });
+  const prevMonthBtn = document.getElementById("prevMonth");
+  const nextMonthBtn = document.getElementById("nextMonth");
 
-  document.getElementById("nextMonth")?.addEventListener("click", () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar();
-  });
+  if (prevMonthBtn) {
+    prevMonthBtn.addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      selectedDate = null; // Reset selection when changing months
+      selectedTime = null;
+      renderCalendar();
+      updateSubmitButton();
+    });
+  }
+
+  if (nextMonthBtn) {
+    nextMonthBtn.addEventListener("click", () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      selectedDate = null; // Reset selection when changing months
+      selectedTime = null;
+      renderCalendar();
+      updateSubmitButton();
+    });
+  }
 
   // Form submission
   const bookingForm = document.getElementById("bookingForm");
@@ -275,49 +363,104 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
       e.preventDefault();
 
       if (!selectedDate || !selectedTime) {
-        showError("Please select both date and time.");
+        showError("Please select both date and time for your viewing.");
+        return;
+      }
+
+      // Get form data
+      const formData = {
+        name: document.getElementById("name")?.value?.trim() || "",
+        phone: document.getElementById("phone")?.value?.trim() || "",
+        email: document.getElementById("email")?.value?.trim() || "",
+        notes: document.getElementById("notes")?.value?.trim() || ""
+      };
+
+      // Validate required fields
+      if (!formData.name || !formData.phone || !formData.email) {
+        showError("Please fill in all required fields (Name, Phone, Email).");
+        return;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        showError("Please enter a valid email address.");
         return;
       }
 
       // Show loading state
       const submitBtn = document.getElementById("submitBtn");
       const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Booking...";
+      submitBtn.textContent = "Submitting...";
       submitBtn.disabled = true;
 
       try {
+        // Create booking object
         const booking = {
-          propertyId: property.id || propertyIdentifier,
-          propertyTitle: propertyTitle || property.title, // Maintain original field name
+          // Property information
+          propertyId: property.id,
+          propertyTitle: property.title,
+          propertyLocation: property.location,
+          
+          // User information
           userId: user.uid,
           userEmail: user.email,
-          date: selectedDate.toISOString(),
+          
+          // Booking details
+          date: Timestamp.fromDate(selectedDate), // Firebase Timestamp
+          dateString: selectedDate.toISOString().split('T')[0], // For easier querying
           time: selectedTime,
-          name: document.getElementById("name").value.trim(),
-          phone: document.getElementById("phone").value.trim(),
-          email: document.getElementById("email").value.trim(),
-          notes: document.getElementById("notes").value.trim(),
-          studentId: user.uid, // Maintain original field name for compatibility
+          
+          // Contact information
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          notes: formData.notes,
+          
+          // Metadata
           status: "pending",
-          timestamp: new Date().toISOString(), // Maintain original field name
+          createdAt: Timestamp.fromDate(new Date()),
+          updatedAt: Timestamp.fromDate(new Date())
         };
 
-        // Validate required fields
-        if (!booking.name || !booking.phone || !booking.email) {
-          throw new Error("Please fill in all required fields.");
+        // Double-check availability before saving
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const conflictQuery = query(
+          collection(db, 'viewingBookings'),
+          where('propertyId', '==', property.id),
+          where('dateString', '==', dateStr),
+          where('time', '==', selectedTime),
+          where('status', 'in', ['pending', 'confirmed'])
+        );
+        
+        const conflictSnapshot = await getDocs(conflictQuery);
+        
+        if (!conflictSnapshot.empty) {
+          throw new Error("This time slot has just been booked by someone else. Please select another time.");
         }
 
-        // Save booking to Firebase (replacing localStorage)
-        await addDoc(collection(db, 'viewingBookings'), booking);
+        // Save booking to Firebase
+        const docRef = await addDoc(collection(db, 'viewingBookings'), booking);
+        
+        showSuccess("Viewing request submitted successfully! You will be contacted soon to confirm your appointment.");
+        
+        // Clear form and selections
+        bookingForm.reset();
+        selectedDate = null;
+        selectedTime = null;
+        renderCalendar();
+        updateSubmitButton();
 
-        alert("Viewing request submitted successfully!"); // Maintaining original alert
-        window.location.href = "viewings.html"; // Immediate redirect like original
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = "viewings.html";
+        }, 2000);
 
       } catch (error) {
         console.error('Error submitting booking:', error);
-        showError("Failed to submit booking: " + error.message);
-        
-        // Restore button
+        showError("Failed to submit booking: " + (error.message || "Please try again."));
+      } finally {
+        // Restore button state
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
       }
@@ -332,52 +475,47 @@ function initializeCalendar(property, user, userData, propertyIdentifier) {
     if (nameField && userData.name) {
       nameField.value = userData.name;
     }
-    if (emailField && userData.email) {
-      emailField.value = userData.email;
+    if (emailField && (userData.email || user.email)) {
+      emailField.value = userData.email || user.email;
     }
   }
 
-  // Initialize calendar and time slots (maintaining original call structure)
+  // Initialize calendar
   renderCalendar();
-  updateTimeSlots(property.id || propertyIdentifier, new Date());
+  updateSubmitButton();
 }
 
-// Add the original getPropertyData function for backward compatibility
-function getPropertyData(title) {
-  // For demo purposes, return hardcoded data (maintaining original structure)
-  const properties = {
-    "Modern Apartment near UB": {
-      title: "Modern Apartment near UB",
-      location: "Gaborone, Near UB Campus",
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-    "Cozy Studio near Baisago": {
-      title: "Cozy Studio near Baisago", 
-      location: "Gaborone, Near Baisago Campus",
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-    "Luxury Apartment near Botho": {
-      title: "Luxury Apartment near Botho",
-      location: "Gaborone, Near Botho Campus", 
-      image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    },
-  };
-  return properties[title];
-}
+// Utility functions
 function showError(message) {
   const errorContainer = document.getElementById("errorContainer");
   if (errorContainer) {
-    errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+    errorContainer.innerHTML = `<div class="error-message" style="color: #dc3545; padding: 10px; margin: 10px 0; border: 1px solid #dc3545; border-radius: 4px; background-color: #f8d7da;">${message}</div>`;
+    errorContainer.scrollIntoView({ behavior: 'smooth' });
   } else {
     alert("Error: " + message);
   }
+  
+  // Auto-hide error after 5 seconds
+  setTimeout(() => {
+    if (errorContainer) {
+      errorContainer.innerHTML = "";
+    }
+  }, 5000);
 }
 
 function showSuccess(message) {
   const errorContainer = document.getElementById("errorContainer");
   if (errorContainer) {
-    errorContainer.innerHTML = `<div class="success-message">${message}</div>`;
+    errorContainer.innerHTML = `<div class="success-message" style="color: #155724; padding: 10px; margin: 10px 0; border: 1px solid #c3e6cb; border-radius: 4px; background-color: #d4edda;">${message}</div>`;
+    errorContainer.scrollIntoView({ behavior: 'smooth' });
   } else {
     alert(message);
   }
+  
+  // Auto-hide success message after 3 seconds
+  setTimeout(() => {
+    if (errorContainer) {
+      errorContainer.innerHTML = "";
+    }
+  }, 3000);
 }
