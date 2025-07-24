@@ -294,10 +294,21 @@ document.addEventListener("DOMContentLoaded", function () {
       errorDiv.textContent = "";
       submitBtn.disabled = true;
       submitBtn.innerHTML =
-        '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Logging In...';
-
+        '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;">Logging In...</span>';
+    
+    try{
+    
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      if (!user.emailVerified){
+        throw new Error("Please verify your email before logging in.");
+      }
+
+      window.location.href="/marketplace.html";
 
       if (!email || !password) {
         errorDiv.textContent = "Please fill in all fields.";
@@ -333,7 +344,14 @@ document.addEventListener("DOMContentLoaded", function () {
         submitBtn.disabled = false;
         submitBtn.textContent = "Log In";
       }
+    } catch (error){
+      errorDiv.textContent = error.message;
+      console.error("Login failed:", error);
+    } finally{
+      submitBtn.disabled = false;
+      submit.innerHTML = "Log In";
     });
+
   }
 
   // Google Sign-In
