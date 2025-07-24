@@ -1,36 +1,16 @@
-// Firebase configuration and initialization
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc 
-} from 'firebase/firestore';
-
-// Firebase configuration - Replace with your actual config
 const firebaseConfig = {
   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
   projectId: "project-1-1e31c",
   storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203", // Fixed: was incorrectly set to storage bucket
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Global variables
 let currentUser = null;
@@ -166,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- FIREBASE AUTH INITIALIZATION ---
   function initializeAuth() {
-    onAuthStateChanged(auth, (user) => {
+    auth.onAuthStateChanged((user) => {
       currentUser = user;
       updateUIForAuthState(user);
     });
@@ -214,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (submitBtn) submitBtn.disabled = true;
       
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
         console.log("User signed in:", userCredential.user);
         closeModal(document.getElementById("login"));
         showMessage("Successfully logged in!", "success");
@@ -244,18 +224,18 @@ document.addEventListener("DOMContentLoaded", function () {
       
       try {
         // Create user account
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
         
         // Store additional user data in Firestore
-        await setDoc(doc(db, "users", user.uid), {
+        await db.collection("users").doc(user.uid).set({
           name: name,
           email: email,
           school: school,
           studentId: studentId,
           phone: phone,
           userType: "student",
-          createdAt: new Date(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           verified: false
         });
         
@@ -274,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- LOGOUT FUNCTIONALITY ---
   async function handleLogout() {
     try {
-      await signOut(auth);
+      await auth.signOut();
       showMessage("Successfully logged out!", "success");
     } catch (error) {
       console.error("Logout error:", error);
@@ -299,7 +279,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Collect form data
       const formData = new FormData(waitlistForm);
       const data = {
-        timestamp: new Date()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       };
       formData.forEach((value, key) => {
         data[key] = value;
@@ -307,7 +287,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         // Add to Firestore waitlist collection
-        await addDoc(collection(db, "waitlist"), data);
+        await db.collection("waitlist").add(data);
         
         waitlistForm.style.display = "none";
         waitlistFormSuccessMsg.textContent = "Thank you! You've been added to our waitlist.";
@@ -339,8 +319,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadLandlordSpots() {
     try {
-      const spotsDoc = await getDoc(doc(db, "settings", "landlordSpots"));
-      if (spotsDoc.exists()) {
+      const spotsDoc = await db.collection("settings").doc("landlordSpots").get();
+      if (spotsDoc.exists) {
         currentLandlordSpots = spotsDoc.data().available || 0;
       }
       if (landlordSpotsLeftSpan) {
@@ -381,7 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
       currentLandlordSpots--;
       
       try {
-        await updateDoc(doc(db, "settings", "landlordSpots"), {
+        await db.collection("settings").doc("landlordSpots").update({
           available: currentLandlordSpots
         });
         
