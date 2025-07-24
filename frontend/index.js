@@ -1,13 +1,48 @@
-// index.js
-// JavaScript previously in index.html moved here for modularity and maintainability
+// Firebase configuration and initialization
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc 
+} from 'firebase/firestore';
+
+// Firebase configuration - Replace with your actual config
+const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "project-1-1e31c.firebasestorage.app",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Global variables
+let currentUser = null;
+let currentLandlordSpots = 10;
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Initialize auth state listener
+  initializeAuth();
+  
   // --- MODAL FUNCTIONALITY ---
-  // Cache all modal elements
   const modals = document.querySelectorAll(".modal");
-  // Cache all buttons that open modals
   const openModalButtons = document.querySelectorAll(".open-modal");
-  // Cache all buttons that close modals
   const closeModalButtons = document.querySelectorAll(".modal-close");
 
   /**
@@ -18,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.add("active");
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
+      document.body.style.overflow = "hidden";
     }
   }
 
@@ -33,20 +68,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Remove duplicate modal open logic and use robust handler for all .open-modal buttons
+  // Setup modal open buttons
   function setupOpenModalButtons() {
     document.querySelectorAll(".open-modal").forEach((btn) => {
       btn.removeEventListener("click", openModalHandler);
       btn.addEventListener("click", openModalHandler);
     });
   }
+
   function openModalHandler(e) {
     e.preventDefault();
     const modalId = this.getAttribute("data-modal");
     if (modalId) {
-      document
-        .querySelectorAll(".modal")
-        .forEach((m) => m.classList.remove("active"));
+      document.querySelectorAll(".modal").forEach((m) => m.classList.remove("active"));
       const modal = document.getElementById(modalId);
       if (modal) {
         modal.classList.add("active");
@@ -54,25 +88,24 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
-  // Run on DOMContentLoaded and after any dynamic content
-  setupOpenModalButtons();
-  // If you dynamically add .open-modal buttons elsewhere, call setupOpenModalButtons() again.
 
-  // Add event listeners to all "modal-close" buttons
+  setupOpenModalButtons();
+
+  // Close modal buttons
   closeModalButtons.forEach((btn) => {
     btn.addEventListener("click", function () {
       closeModal(this.closest(".modal"));
     });
   });
 
-  // Add event listener to close modals when clicking on the backdrop
+  // Close modals on backdrop click
   modals.forEach((modal) => {
     modal.addEventListener("click", function (e) {
       if (e.target === modal) closeModal(modal);
     });
   });
 
-  // Add event listener to close modals with the Escape key
+  // Close modals with Escape key
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
       modals.forEach((modal) => closeModal(modal));
@@ -80,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // --- HEADER AUTH BUTTONS FUNCTIONALITY ---
-  // These buttons open specific modals for login or signup choices.
   const headerLoginBtn = document.getElementById("headerLoginBtn");
   const headerSignupBtn = document.getElementById("headerSignupBtn");
 
@@ -119,12 +151,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // --- TESTIMONIAL SLIDER ---
-  const testimonialSlider = document.querySelector(".testimonial-slider");
-  if (testimonialSlider) {
-    // Add your testimonial slider logic here if needed
-  }
-
   // --- ANIMATION ON SCROLL ---
   const animatedElements = document.querySelectorAll(".animate");
   function animateOnScroll() {
@@ -138,14 +164,129 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("scroll", animateOnScroll);
   animateOnScroll();
 
-  // --- WAITLIST MODAL FUNCTIONALITY ---
-  // The API endpoint for waitlist is now handled by the backend for security. Do not expose Google Apps Script or sensitive API URLs in frontend code.
-  // Example: const WAITLIST_API = '/api/waitlist';
+  // --- FIREBASE AUTH INITIALIZATION ---
+  function initializeAuth() {
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      updateUIForAuthState(user);
+    });
+  }
 
+  function updateUIForAuthState(user) {
+    const headerLoginBtn = document.getElementById("headerLoginBtn");
+    const headerSignupBtn = document.getElementById("headerSignupBtn");
+    
+    if (user) {
+      // User is signed in
+      if (headerLoginBtn) {
+        headerLoginBtn.textContent = "Dashboard";
+        headerLoginBtn.onclick = () => {
+          // Redirect to dashboard or show user menu
+          window.location.href = "/dashboard";
+        };
+      }
+      if (headerSignupBtn) {
+        headerSignupBtn.textContent = "Logout";
+        headerSignupBtn.onclick = handleLogout;
+      }
+    } else {
+      // User is signed out
+      if (headerLoginBtn) {
+        headerLoginBtn.textContent = "Login";
+        headerLoginBtn.onclick = () => openModal("login");
+      }
+      if (headerSignupBtn) {
+        headerSignupBtn.textContent = "Sign Up";
+        headerSignupBtn.onclick = () => openModal("signup-options");
+      }
+    }
+  }
+
+  // --- LOGIN FORM SUBMISSION WITH FIREBASE ---
+  const studentLoginForm = document.getElementById("studentLoginForm");
+  if (studentLoginForm) {
+    studentLoginForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("studentLoginEmail").value;
+      const password = document.getElementById("studentLoginPassword").value;
+      const submitBtn = studentLoginForm.querySelector("button[type='submit']");
+      
+      if (submitBtn) submitBtn.disabled = true;
+      
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("User signed in:", userCredential.user);
+        closeModal(document.getElementById("login"));
+        showMessage("Successfully logged in!", "success");
+      } catch (error) {
+        console.error("Login error:", error);
+        showMessage(getFirebaseErrorMessage(error), "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- SIGNUP FORM SUBMISSION WITH FIREBASE ---
+  const studentSignupForm = document.getElementById("studentSignupForm");
+  if (studentSignupForm) {
+    studentSignupForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("studentName").value;
+      const email = document.getElementById("studentEmail").value;
+      const password = document.getElementById("studentPassword").value;
+      const school = document.getElementById("tertiarySchool")?.value || "";
+      const studentId = document.getElementById("studentId")?.value || "";
+      const phone = document.getElementById("studentPhone")?.value || "";
+      const submitBtn = studentSignupForm.querySelector("button[type='submit']");
+      
+      if (submitBtn) submitBtn.disabled = true;
+      
+      try {
+        // Create user account
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Store additional user data in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          school: school,
+          studentId: studentId,
+          phone: phone,
+          userType: "student",
+          createdAt: new Date(),
+          verified: false
+        });
+        
+        console.log("User created:", user);
+        closeModal(document.getElementById("student-signup"));
+        showMessage("Account created successfully!", "success");
+      } catch (error) {
+        console.error("Signup error:", error);
+        showMessage(getFirebaseErrorMessage(error), "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- LOGOUT FUNCTIONALITY ---
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      showMessage("Successfully logged out!", "success");
+    } catch (error) {
+      console.error("Logout error:", error);
+      showMessage("Error logging out. Please try again.", "error");
+    }
+  }
+
+  // --- WAITLIST FORM SUBMISSION WITH FIREBASE ---
+  const waitlistForm = document.getElementById("waitlistForm");
+  const waitlistFormSuccessMsg = document.getElementById("waitlistFormSuccess");
   const waitlistModalTitle = document.getElementById("waitlistModalTitle");
-  const waitlistModalSubtitle = document.getElementById(
-    "waitlistModalSubtitle"
-  );
+  const waitlistModalSubtitle = document.getElementById("waitlistModalSubtitle");
   const waitlistUserTypeSelect = document.getElementById("waitlistUserType");
 
   if (waitlistForm && waitlistFormSuccessMsg) {
@@ -157,33 +298,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Collect form data
       const formData = new FormData(waitlistForm);
-      const data = {};
+      const data = {
+        timestamp: new Date()
+      };
       formData.forEach((value, key) => {
         data[key] = value;
       });
 
       try {
-        const res = await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        const resData = await res.json();
-        if (res.ok && resData.result === "success") {
-          waitlistForm.style.display = "none";
-          waitlistFormSuccessMsg.textContent =
-            "Thank you! You've been added to our waitlist.";
-          waitlistFormSuccessMsg.style.display = "block";
-          waitlistForm.reset();
-        } else {
-          waitlistFormSuccessMsg.textContent =
-            resData.error || "There was an error. Please try again.";
-          waitlistFormSuccessMsg.style.display = "block";
-        }
-      } catch (err) {
-        waitlistFormSuccessMsg.textContent =
-          "Network error. Please try again later.";
+        // Add to Firestore waitlist collection
+        await addDoc(collection(db, "waitlist"), data);
+        
+        waitlistForm.style.display = "none";
+        waitlistFormSuccessMsg.textContent = "Thank you! You've been added to our waitlist.";
+        waitlistFormSuccessMsg.style.display = "block";
+        waitlistForm.reset();
+      } catch (error) {
+        console.error("Waitlist submission error:", error);
+        waitlistFormSuccessMsg.textContent = "There was an error. Please try again.";
         waitlistFormSuccessMsg.style.display = "block";
       } finally {
         if (submitBtn) submitBtn.disabled = false;
@@ -194,35 +326,41 @@ document.addEventListener("DOMContentLoaded", function () {
           waitlistForm.style.display = "block";
           waitlistFormSuccessMsg.style.display = "none";
           waitlistForm.reset();
-          if (waitlistModalTitle)
-            waitlistModalTitle.textContent = "Join Our Waitlist!";
-          if (waitlistModalSubtitle)
-            waitlistModalSubtitle.textContent =
-              "Be the first to know about updates, new features, and when we launch.";
+          if (waitlistModalTitle) waitlistModalTitle.textContent = "Join Our Waitlist!";
+          if (waitlistModalSubtitle) waitlistModalSubtitle.textContent = "Be the first to know when we launch!";
         }, 3000);
       }
     });
   }
 
-  // --- LANDLORD SIGNUP TO WAITLIST TRANSITION ---
+  // --- LANDLORD SPOTS MANAGEMENT ---
   const landlordSpotsLeftSpan = document.getElementById("landlordsLeft");
-  const landlordMembershipCard = document.querySelector(
-    ".membership-card.landlord-card"
-  );
+  const landlordMembershipCard = document.querySelector(".membership-card.landlord-card");
+
+  async function loadLandlordSpots() {
+    try {
+      const spotsDoc = await getDoc(doc(db, "settings", "landlordSpots"));
+      if (spotsDoc.exists()) {
+        currentLandlordSpots = spotsDoc.data().available || 0;
+      }
+      if (landlordSpotsLeftSpan) {
+        landlordSpotsLeftSpan.textContent = currentLandlordSpots;
+      }
+      updateLandlordSignupButton(currentLandlordSpots);
+    } catch (error) {
+      console.error("Error loading landlord spots:", error);
+    }
+  }
 
   function updateLandlordSignupButton(spots) {
     if (!landlordMembershipCard) return;
-    const landlordSignupBtn = landlordMembershipCard.querySelector(
-      ".btn.open-modal[data-modal='landlord-signup']"
-    );
+    const landlordSignupBtn = landlordMembershipCard.querySelector(".btn.open-modal");
 
     if (landlordSignupBtn) {
       if (spots <= 0) {
         landlordSignupBtn.textContent = "Join Landlord Waitlist";
-        landlordSignupBtn.setAttribute("data-modal", "waitlist-modal"); // Change modal target
-
-        // Add event listener to pre-fill waitlist form for landlord
-        landlordSignupBtn.removeEventListener("click", landlordWaitlistHandler); // Remove previous if any
+        landlordSignupBtn.setAttribute("data-modal", "waitlist-modal");
+        landlordSignupBtn.removeEventListener("click", landlordWaitlistHandler);
         landlordSignupBtn.addEventListener("click", landlordWaitlistHandler);
       } else {
         landlordSignupBtn.textContent = "Become a Landlord";
@@ -232,307 +370,111 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Handler function to customize and open waitlist modal for landlords
   function landlordWaitlistHandler() {
-    if (waitlistModalTitle)
-      waitlistModalTitle.textContent = "Join Landlord Waitlist";
-    if (waitlistModalSubtitle)
-      waitlistModalSubtitle.textContent =
-        "All free spots are currently taken. Join the waitlist to be notified when new spots open up!";
+    if (waitlistModalTitle) waitlistModalTitle.textContent = "Join Landlord Waitlist";  
+    if (waitlistModalSubtitle) waitlistModalSubtitle.textContent = "All spots are taken. Join the waitlist to be notified when new spots open!";
     if (waitlistUserTypeSelect) waitlistUserTypeSelect.value = "landlord";
-    // The generic openModal function will be called due to .open-modal class
   }
 
-  // Simulate updating landlord spots (you'd fetch this from a backend)
-  let currentLandlordSpots = 10; // Initial spots
-  if (landlordSpotsLeftSpan) {
-    landlordSpotsLeftSpan.textContent = currentLandlordSpots;
-  }
-  updateLandlordSignupButton(currentLandlordSpots);
-
-  // Example: Simulate spots decreasing (e.g., after a new landlord signs up successfully)
-  // You would call this function when a landlord successfully signs up elsewhere in your code
-  function decreaseLandlordSpots() {
+  async function decreaseLandlordSpots() {
     if (currentLandlordSpots > 0) {
       currentLandlordSpots--;
-      if (landlordSpotsLeftSpan) {
-        landlordSpotsLeftSpan.textContent = currentLandlordSpots;
-      }
-      updateLandlordSignupButton(currentLandlordSpots);
-
-      if (currentLandlordSpots === 0) {
-        const spotsLeftDiv = landlordMembershipCard
-          ? landlordMembershipCard.querySelector(".spots-left")
-          : null;
-        if (spotsLeftDiv) {
-          spotsLeftDiv.innerHTML =
-            "All free spots are currently taken! <br/>Join the waitlist below.";
-          spotsLeftDiv.style.color = "var(--primary)"; // Change color to less urgent
-          spotsLeftDiv.style.backgroundColor = "rgba(34, 139, 34, 0.05)";
+      
+      try {
+        await updateDoc(doc(db, "settings", "landlordSpots"), {
+          available: currentLandlordSpots
+        });
+        
+        if (landlordSpotsLeftSpan) {
+          landlordSpotsLeftSpan.textContent = currentLandlordSpots;
         }
+        updateLandlordSignupButton(currentLandlordSpots);
+
+        if (currentLandlordSpots === 0) {
+          const spotsLeftDiv = landlordMembershipCard?.querySelector(".spots-left");
+          if (spotsLeftDiv) {
+            spotsLeftDiv.innerHTML = "All spots taken! <br/>Join the waitlist below.";
+            spotsLeftDiv.style.color = "var(--primary)";
+            spotsLeftDiv.style.backgroundColor = "rgba(34, 139, 34, 0.05)";
+          }
+        }
+      } catch (error) {
+        console.error("Error updating landlord spots:", error);
       }
     }
   }
 
-  // --- REVIEW MODAL FORM SUBMISSION ---
-  // The API endpoint for reviews is now handled by the backend proxy. Do not expose direct backend URLs in frontend code.
-  // Example: const REVIEWS_API = '/api/reviews';
-
-  const reviewModalForm = document.getElementById("reviewForm");
-  if (reviewModalForm) {
-    reviewModalForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      // Example: get propertyId and userId from context or form
-      // Replace localStorage with API call to get user info
-      let userId = null;
-      try {
-        const userRes = await fetch("/api/auth/me", { credentials: "include" });
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          userId = userData.id;
-        }
-      } catch (err) {
-        document.getElementById("reviewFormSuccess").textContent =
-          "Unable to verify user. Please log in.";
-        return;
-      }
-      const reviewText = document.getElementById("reviewText")?.value || "";
-      const rating = document.getElementById("selectedRating")?.value || 0;
-      const propertyId = window.currentPropertyId || 1; // Replace with real propertyId
-      const payload = { propertyId, userId, review: reviewText, rating };
-      try {
-        const res = await fetch("/api/reviews", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          document.getElementById("reviewFormSuccess").textContent =
-            "Thank you for your review!";
-          reviewModalForm.reset();
-        } else {
-          document.getElementById("reviewFormSuccess").textContent =
-            data.error || "Failed to submit review.";
-        }
-      } catch (err) {
-        document.getElement
-      } catch (err) {
-        document.getElementById("reviewFormSuccess").textContent =
-          "Network error. Please try again.";
-      }
-    });
-  }
-
-  // --- LOGIN FORM SUBMISSION ---
-  const studentLoginForm = document.getElementById("studentLoginForm");
-  if (studentLoginForm) {
-    studentLoginForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const email = document.getElementById("studentLoginEmail").value;
-      const password = document.getElementById("studentLoginPassword").value;
-      try {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        });
-        if (res.ok) {
-          window.location.reload();
-        } else {
-          alert("Invalid email or password. Please try again.");
-        }
-      } catch (err) {
-        alert("Network error. Please try again.");
-      }
-    });
-  }
-
-  // --- SIGNUP FORM SUBMISSION ---
-  const studentSignupForm = document.getElementById("studentSignupForm");
-  if (studentSignupForm) {
-    studentSignupForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const name = document.getElementById("studentName").value;
-      const email = document.getElementById("studentEmail").value;
-      const password = document.getElementById("studentPassword").value;
-      const school = document.getElementById("tertiarySchool").value;
-      const studentId = document.getElementById("studentId").value;
-      const phone = document.getElementById("studentPhone").value;
-      try {
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            school,
-            studentId,
-            phone,
-          }),
-        });
-        if (res.ok) {
-          // Optionally, auto-login or show a success modal
-          window.location.reload();
-        } else {
-          alert("Signup failed. Please check your details and try again.");
-        }
-      } catch (err) {
-        alert("Network error. Please try again.");
-      }
-    });
-  }
-
-  // --- WAITLIST FORM SUBMISSION ---
-  const waitlistForm = document.getElementById("waitlistForm");
-  const waitlistFormSuccessMsg = document.getElementById("waitlistFormSuccess");
-  if (waitlistForm && waitlistFormSuccessMsg) {
-    waitlistForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const formData = new FormData(waitlistForm);
-      const data = {};
-      formData.forEach((value, key) => {
-        data[key] = value;
-      });
-      try {
-        const res = await fetch("/api/waitlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-        if (res.ok) {
-          waitlistFormSuccessMsg.textContent =
-            "Thank you! You've been added to our waitlist.";
-          waitlistFormSuccessMsg.style.display = "block";
-          waitlistForm.reset();
-        } else {
-          waitlistFormSuccessMsg.textContent =
-            "There was an error. Please try again.";
-          waitlistFormSuccessMsg.style.display = "block";
-        }
-      } catch (err) {
-        waitlistFormSuccessMsg.textContent =
-          "Network error. Please try again later.";
-        waitlistFormSuccessMsg.style.display = "block";
-      }
-    });
-  }
-
-  // --- Ensure openModal and closeModal functions are defined before this script runs ---
-  // (They are already in your provided script, just ensure correct order)
-
-  // Make sure to also modify the `openModalButtons.forEach` event listener
-  // to correctly handle the dynamically changing `data-modal` attribute
-  // if you change it for the landlord button. The existing one should be fine,
-  // but it's good to be aware. The crucial part is that the generic `openModal(modalId)`
-  // function is called by the `open-modal` class logic.
-
-  // Modify the existing openModalButtons loop to ensure it re-evaluates data-modal on click for the landlord button specifically,
-  // or ensure the landlordWaitlistHandler also explicitly calls openModal if the generic listener doesn't pick up dynamic changes well.
-  // However, the existing generic modal opener should work fine as it reads `data-modal` on click.
-
-  // When a landlord successfully signs up (in your #landlord-signup modal's submit handler):
-  // After `alert("Landlord account created successfully (simulation)!");`
-  // you would call `decreaseLandlordSpots();`
-  // Example:
-  /*
-    if (landlordSignupForm) {
-      landlordSignupForm.addEventListener("submit", function (e) {
-        e.preventDefault();
-        // ... your existing landlord signup logic ...
-        if (otp.length === 6) { // Assuming successful verification
-          console.log("Landlord signup submitted with OTP:", otp);
-          alert("Landlord account created successfully (simulation)!");
-          closeModal(document.getElementById("landlord-signup"));
-          openModal("landlord-dashboard");
-          initializeCharts();
-          decreaseLandlordSpots(); // Call this after successful signup
-        }
-      });
+  // --- UTILITY FUNCTIONS ---
+  function showMessage(message, type) {
+    let messageEl = document.getElementById("globalMessage");
+    if (!messageEl) {
+      messageEl = document.createElement("div");
+      messageEl.id = "globalMessage";
+      messageEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        max-width: 400px;
+      `;
+      document.body.appendChild(messageEl);
     }
-  */
-  // You'll need to integrate the `decreaseLandlordSpots()` call into the *actual* successful landlord signup logic.
-  // For simulation, you can test it by calling it from the console or a temporary button.
 
-  // Call to initialize landlord button state on page load
-  if (landlordSpotsLeftSpan) {
-    // Check if the element exists
-    let initialSpots = parseInt(landlordSpotsLeftSpan.textContent) || 0; // Get initial spots from HTML or default
-    currentLandlordSpots = initialSpots; // Sync with current spots
-    updateLandlordSignupButton(currentLandlordSpots);
+    messageEl.textContent = message;
+    messageEl.className = type;
+    
+    if (type === "success") {
+      messageEl.style.backgroundColor = "#d4edda";
+      messageEl.style.color = "#155724";
+      messageEl.style.border = "1px solid #c3e6cb";
+    } else if (type === "error") {
+      messageEl.style.backgroundColor = "#f8d7da";
+      messageEl.style.color = "#721c24";
+      messageEl.style.border = "1px solid #f5c6cb";
+    }
+
+    messageEl.style.display = "block";
+    messageEl.style.opacity = "1";
+
+    setTimeout(() => {
+      messageEl.style.opacity = "0";
+      setTimeout(() => {
+        messageEl.style.display = "none";
+      }, 300);
+    }, 3000);
   }
+
+  function getFirebaseErrorMessage(error) {
+    switch (error.code) {
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        return 'Invalid email or password.';
+      case 'auth/email-already-in-use':
+        return 'This email is already registered.';
+      case 'auth/weak-password':
+        return 'Password should be at least 6 characters.';
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address.';
+      case 'auth/too-many-requests':
+        return 'Too many failed attempts. Please try again later.';
+      default:
+        return 'An error occurred. Please try again.';
+    }
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // Initialize landlord spots on page load
+  loadLandlordSpots();
+
+  // Make functions globally available if needed
+  window.openModal = openModal;
+  window.closeModal = closeModal;
+  window.decreaseLandlordSpots = decreaseLandlordSpots;
 });
- const WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
-
-        const waitlistBtn = document.getElementById('waitlistBtn');
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const messageDiv = document.getElementById('message');
-
-        waitlistBtn.addEventListener('click', async () => {
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
-
-            // Basic validation
-            if (!name || !email) {
-                showMessage('Please fill in both your name and email.', 'error');
-                return;
-            }
-            if (!isValidEmail(email)) {
-                showMessage('Please enter a valid email address.', 'error');
-                return;
-            }
-
-            // Disable button and show loading
-            waitlistBtn.disabled = true;
-            waitlistBtn.textContent = 'Submitting...';
-            showMessage('Submitting your information...', ''); // Clear previous messages
-
-            try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'cors', // Enable CORS
-                    headers: {
-                        'Content-Type': 'application/json', // Send as JSON
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        email: email
-                    })
-                });
-
-                const result = await response.json(); // Parse the JSON response from Apps Script
-
-                if (result.result === 'success') {
-                    showMessage('Successfully joined the waitlist! Thank you.', 'success');
-                    // Optionally clear the form
-                    nameInput.value = '';
-                    emailInput.value = '';
-                } else {
-                    showMessage(`Error: ${result.error || 'Something went wrong.'}`, 'error');
-                    console.error('Apps Script Error:', result.error);
-                }
-
-            } catch (error) {
-                showMessage('Network error. Please try again.', 'error');
-                console.error('Fetch Error:', error);
-            } finally {
-                // Re-enable button
-                waitlistBtn.disabled = false;
-                waitlistBtn.textContent = 'Join Waitlist';
-            }
-        });
-
-        function showMessage(msg, type) {
-            messageDiv.textContent = msg;
-            messageDiv.className = ''; // Clear existing classes
-            messageDiv.classList.add(type); // Add new type class (success/error)
-            messageDiv.style.display = 'block'; // Make it visible
-        }
-
-        function isValidEmail(email) {
-            // Simple regex for email validation
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
