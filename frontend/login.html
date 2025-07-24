@@ -284,11 +284,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const googleBtn = document.getElementById("googleSignInBtn");
 
   // Redirect if already logged in
-  onAuthStateChanged(auth, function (user) {
-    if (user) {
-      console.log("User already authenticated, redirecting to marketplace");
-      window.location.href = "/marketplace.html";
-    }
+  
   });
 
   // Email/Password Login

@@ -186,6 +186,10 @@
                 <label for="propertyname" class="form-label">Property Name</label>
                 <input type="text" name="propertyName" class="form-control" required/>
                  
+                <div class="form-group">
+                    <label for="images" class="form-label">Property Images</label>
+                    <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple required />
+                </div>
  <div class="form-group">
                     <label for="rentPrice" class="form-label">Rent (P)</label>
                     <input type="text" class="form-control" name="rentPrice" required placeholder="Enter the rent amount"/>
@@ -217,12 +221,13 @@
                     <option value="Palapye">Palapye</option>
                 </select>
             </div>
-
+            </div>
             <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem"> Add Property</button>
             <a href="landlord-dashboard.html" class="btn btn-third" style="width: 100%; margin-top: 0.5rem; display: block; text-align: center; border-radius: 10px;background-color: forestgreen; text: white;">Return to Dashboard</a>
         </form>
     </div>
 </div>
+
 
   </main>
   <script src="js/create_listing.js" defer></script>

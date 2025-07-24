@@ -157,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         showSuccess(`Property added successfully! Property ID: ${docRef.id}`);
         
+        
         // Reset form
         newForm.reset();
         clearProgress();
