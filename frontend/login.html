@@ -204,7 +204,7 @@
           class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full text-center"
         >
           <p class="text-gray-600 mb-8">Sign in with Google.</p>
-          <button id="googleSignInBtn" class="google_sign_in">Sign In</button>
+          <button id="GoogleBtn" class="google_sign_in">Sign In</button>
         </div>
 
         <div style="text-align: center; margin-top: 1rem">
@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = loginForm
     ? loginForm.querySelector('button[type="submit"]')
     : null;
-  const googleBtn = document.getElementById("googleSignInBtn");
+  const googleBtn = document.getElementById("GoogleBtn");
 
   // Redirect if already logged in
   
