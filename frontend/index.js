@@ -21,7 +21,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1e31c",
+  projectId: "project-1-1e31c",
   storageBucket: "project-1-1e31c.firebasestorage.app",
   messagingSenderId: "project-1-1e31c.firebasestorage.app",
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
