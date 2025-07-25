@@ -34,7 +34,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/main.css" />
+    
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -426,11 +426,31 @@
 
   </body>
   <script type="module" defer>
-    import "../js/firebase-config.js";
+    //imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, getDocs, query, where, setDoc, FieldValue } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { firebaseConfig } from "../js/firebase-config.js";
+
+    //firebase config file
+    const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+};
+
+//initializing firebase
+const app= initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 
 document.addEventListener("DOMContentLoaded", function () {
   // Firebase Auth: Check if user is authenticated
-  firebase.auth().onAuthStateChanged(async function (user) {
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "index.html";
       return;
