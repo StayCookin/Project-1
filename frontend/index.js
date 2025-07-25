@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         redirectToDashboard();
       } else {
         // User is not logged in, show login modal
-        window.location.href= "login";
+        window.location.href= "login.html";
       }
     });
   }
