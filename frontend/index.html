@@ -48,6 +48,7 @@
       --light-green: #e8f5e9;
       --dark-green: #176b16;
       --accent-green: #b2ffb2;
+      --dark: whitesmoke; 
     }
     /* Reset & Base Styles */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -121,8 +122,8 @@
     }
     @media (max-width: 768px) {
       html { font-size: 15px; }
-      .mobile-menu-btn { display: block; }
-      .nav-links, .auth-buttons { display: none; }
+      .mobile-menu-btn { display: inline-block; }
+      .nav-links, .auth-buttons { display: inline-block; }
       .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
       .hero { padding: 3rem 0; }
       .hero-content h1 { font-size: 2rem; }
@@ -403,12 +404,13 @@
                 placeholder="Join our waitlist today for new updates"
                 id="newsletterEmail"
                 style="flex: 1; padding: 0.75rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1.1rem;"
+
               />
              </div>
             <div class="success-message" id="newsletterSuccess" style="display: none; color: #176b16; font-weight: 600;">Thank you for subscribing!</div>
           </div>
           <div style="margin-top: 2rem;">
-            <button class="btn btn-forest open-modal" data-modal="waitlist-modal" id="openWaitlistBtn" style="font-size: 1.1rem; padding: 0.75rem 2rem; border-radius: 6px;">
+            <button class="btn btn-forest open-modal" type= "submit" data-modal="waitlist-modal" id="openWaitlistBtn" style="font-size: 1.1rem; padding: 0.75rem 2rem; border-radius: 6px;">
               Join
             </button>
           </div>
@@ -492,7 +494,7 @@
               <li><a href="index.html">Home</a></li>
               <li><a href="#features">Features</a></li>
               <li><a href="#how-it-works">How It Works</a></li>
-              <li><a href="#pricing">Pricing </a>< 
+              <li><a href="#pricing">Pricing </a></li>
               <li><a href="#">Waitlist</a></li>
              <li> <a href="#">Contact</a></li>
               </ul>
@@ -530,9 +532,9 @@
           <p>© <span id="currentYear"></span> InRent. All rights reserved.</p>
         </div>
       </div>
-      <script src="./index.js" defer ></script>
+      
     </footer>
-
+<script src="./index.js" defer ></script>
 
     <!-- MODALS: Contact, Demo, Login, Signup, Listings, Payment, Add Listing, Dashboard, Review -->
     <!-- Contact Form Modal -->
