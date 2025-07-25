@@ -287,12 +287,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const googleBtn = document.getElementById("googleBtn");
 
   // Check if user is already logged in
-  onAuthStateChanged(auth, (user) => {
-    if (user && user.emailVerified) {
-      // User is signed in and email is verified
-      window.location.href = "/marketplace.html";
-    }
-  });
 
   // Email/Password Login
   if (loginForm) {
