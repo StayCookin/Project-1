@@ -427,9 +427,10 @@
   </body>
   <script type="module" defer>
  // Imports
+// Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, getDocs, query, where, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, getDocs, query, where, setDoc, serverTimestamp, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -446,7 +447,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Global variables
+let currentFilters = {};
+let propertiesListener = null;
+
 document.addEventListener("DOMContentLoaded", function () {
+  // Show loading state initially
+  showLoadingState();
+
   // Firebase Auth: Check if user is authenticated
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -454,7 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Fetch user role from Firestore (fixed syntax)
+    // Fetch user role from Firestore
     let role = "student";
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -467,6 +475,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Update navigation based on user type
+    updateNavigation(role);
+
+    // Setup logout functionality
+    setupLogout();
+
+    // Setup real-time properties listening
+    setupPropertiesListener();
+
+    // Setup search and filter functionality
+    setupSearchAndFilters();
+  });
+
+  function showLoadingState() {
+    const grid = document.getElementById("propertyGrid");
+    if (grid) {
+      grid.innerHTML = `
+        <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green); margin-bottom: 1rem;"></i>
+          <p>Loading properties...</p>
+        </div>
+      `;
+    }
+  }
+
+  function updateNavigation(role) {
     const navLinks = document.querySelector(".nav-links");
     if (navLinks) {
       if (role === "student") {
@@ -483,14 +516,19 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
       }
     }
+  }
 
-    // Handle logout (fixed syntax)
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async function (e) {
+  function setupLogout() {
+    // Use event delegation since the logout button is dynamically added
+    document.addEventListener("click", async function(e) {
+      if (e.target && e.target.id === "logoutBtn") {
         e.preventDefault();
         if (confirm("Are you sure you want to logout?")) {
           try {
+            // Clean up listeners before logout
+            if (propertiesListener) {
+              propertiesListener();
+            }
             await signOut(auth);
             window.location.href = "index.html";
           } catch (error) {
@@ -498,242 +536,309 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Failed to logout. Please try again.");
           }
         }
-      });
-    }
+      }
+    });
+  }
 
-    // Fetch and render properties from Firestore
-    fetchProperties();
+  function setupPropertiesListener() {
+    // Build base query
+    let q = collection(db, "properties");
+    
+    // Order by creation date (newest first)
+    q = query(q, orderBy("createdAt", "desc"));
 
-    // Handle search and filter changes
-    const searchBtn = document.querySelector(".btn-primary");
-    const filterSelects = document.querySelectorAll("select");
-
-    if (searchBtn) {
-      searchBtn.addEventListener("click", function () {
-        const filters = {};
-        filterSelects.forEach((select) => {
-          if (select.value) {
-            filters[select.id] = select.value;
-          }
-        });
-        fetchProperties(filters);
-      });
-    }
-
-    async function fetchProperties(filters = {}) {
-      try {
-        let q = collection(db, "properties");
-
-        // Apply filters (Note: Firestore v9+ doesn't support multiple range queries in the same query)
-        // You'll need to handle complex filtering client-side or restructure your data
-        if (filters.location) {
-          q = query(q, where("location", "==", filters.location));
-        }
-        if (filters.type) {
-          q = query(q, where("type", "==", filters.type));
-        }
-        // Note: Price range filtering needs to be handled differently in v9+
-        // For now, we'll fetch all and filter client-side
-
-        const snapshot = await getDocs(q);
+    // Set up real-time listener
+    propertiesListener = onSnapshot(q, 
+      (snapshot) => {
+        console.log(`Received ${snapshot.docs.length} properties from database`);
+        
         let properties = snapshot.docs.map((doc) => ({
           _id: doc.id,
           ...doc.data(),
         }));
 
-        // Client-side price filtering
-        if (filters.price) {
-          properties = properties.filter(property => {
-            const price = property.price || 0;
-            if (filters.price === "0-2000") {
-              return price >= 0 && price <= 2000;
-            } else if (filters.price === "2000-4000") {
-              return price >= 2000 && price <= 4000;
-            } else if (filters.price === "4000-6000") {
-              return price >= 4000 && price <= 6000;
-            } else if (filters.price === "6000+") {
-              return price >= 6000;
-            }
-            return true;
-          });
-        }
-
+        // Apply current filters
+        properties = applyFilters(properties, currentFilters);
+        
         renderProperties(properties);
-      } catch (err) {
-        console.error("Properties fetch error:", err);
+      },
+      (error) => {
+        console.error("Real-time properties fetch error:", error);
         const propertyGrid = document.getElementById("propertyGrid");
         if (propertyGrid) {
-          propertyGrid.innerHTML = `<div class="empty-state">Failed to load properties. Please try again later.</div>`;
+          propertyGrid.innerHTML = `
+            <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+              <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 1rem;"></i>
+              <p>Failed to load properties. Please check your connection and try again.</p>
+              <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">Retry</button>
+            </div>
+          `;
         }
       }
-    }
+    );
+  }
 
-    function renderProperties(properties) {
-      const grid = document.getElementById("propertyGrid");
-      if (!grid) {
-        console.error("Property grid element not found");
-        return;
-      }
+  function setupSearchAndFilters() {
+    const filterBtn = document.querySelector("filterBtn");
+    const filterSelects = document.querySelectorAll("select");
+    const searchInput = document.querySelector("input[type='text']");
 
-      grid.innerHTML = "";
-
-      if (!properties || !properties.length) {
-        grid.innerHTML = `<div class="empty-state">No properties found.</div>`;
-        return;
-      }
-
-      properties.forEach((property) => {
-        const card = document.createElement("div");
-        card.className = "property-card";
-
-        // Safely handle property data with defaults
-        const imageUrl = property.imageUrl || "/img/default-property.jpg";
-        const title = property.title || "Property Title";
-        const price = property.price || 0;
-        const location = property.location || "Location not specified";
-        const beds = property.beds || 0;
-        const baths = property.baths || 0;
-        const size = property.size || "N/A";
-
-        card.innerHTML = `
-          <img src="${imageUrl}" alt="${title}" class="property-image" onerror="this.src='/img/default-property.jpg'" />
-          <div class="property-details">
-            <div class="property-price">P${price}/month</div>
-            <h3 class="property-title">${title}</h3>
-            <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${location}</p>
-            <div class="property-features">
-              <span class="feature"><i class="fas fa-bed"></i> ${beds} Bed${beds !== 1 ? "s" : ""}</span>
-              <span class="feature"><i class="fas fa-bath"></i> ${baths} Bath${baths !== 1 ? "s" : ""}</span>
-              <span class="feature"><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
-              ${property.amenities && Array.isArray(property.amenities)
-                ? property.amenities
-                    .map(a => `<span class='feature'><i class='fas fa-${a.icon || "star"}'></i> ${a.name || "Amenity"}</span>`)
-                    .join("")
-                : ""
-              }
-            </div>
-            <div class="property-actions">
-              <button class="btn btn-primary" onclick="viewDetails('${property._id}')"><i class="fas fa-eye"></i> View Details</button>
-              <button class="btn btn-secondary" onclick="saveProperty('${property._id}')"><i class="fas fa-heart"></i> Save</button>
-              ${property.landlordId
-                ? `<button class="btn btn-message" onclick="messageLandlord('${property.landlordId}')"><i class="fas fa-comment"></i> Message</button>`
-                : ""
-              }
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
+    if (filterBtn) {
+      filterBtn.addEventListener("click", function () {
+        applyCurrentFilters();
       });
     }
 
-    // Global functions (fixed syntax)
-    window.viewDetails = function (propertyId) {
-      if (propertyId) {
-        window.location.href = `/property-details.html?id=${propertyId}`;
-      }
-    };
-
-    window.saveProperty = async function (propertyId) {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          alert("Please log in to save properties.");
-          return;
-        }
-
-        if (!propertyId) {
-          alert("Invalid property.");
-          return;
-        }
-
-        await setDoc(doc(db, "users", user.uid, "savedProperties", propertyId), {
-          savedAt: serverTimestamp(),
-          propertyId: propertyId,
-        });
-        alert("Property saved successfully!");
-      } catch (err) {
-        console.error("Save property error:", err);
-        alert("Failed to save property. Please try again.");
-      }
-    };
-
-    window.messageLandlord = function (landlordId) {
-      if (landlordId) {
-        window.location.href = `/messages.html?to=${landlordId}`;
-      } else {
-        alert("Landlord information not available.");
-      }
-    };
-  }); // Close Firebase auth state change listener
-}); // Close first DOMContentLoaded
-
-// Mobile menu functionality (separate DOMContentLoaded listener)
-document.addEventListener("DOMContentLoaded", function () {
-  const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
-  const mobileMenu = document.querySelector(".mobile-menu");
-  const mobileMenuClose = document.querySelector(".mobile-menu-close");
-  const body = document.body;
-
-  // Only proceed if all elements exist
-  if (!mobileMenuBtn || !mobileMenu || !mobileMenuClose) {
-    console.warn("Mobile menu elements not found");
-    return;
-  }
-
-  function openMobileMenu() {
-    mobileMenu.style.display = "block";
-    requestAnimationFrame(() => {
-      mobileMenu.classList.add("active");
+    // Add event listeners to filter selects for real-time filtering
+    filterSelects.forEach((select) => {
+      select.addEventListener("change", function() {
+        applyCurrentFilters();
+      });
     });
-    body.style.overflow = "hidden";
+
+    // Add search input listener
+    if (searchInput) {
+      searchInput.addEventListener("input", function() {
+        // Debounce search input
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+          applyCurrentFilters();
+        }, 500);
+      });
+    }
   }
 
-  function closeMobileMenu() {
-    mobileMenu.classList.remove("active");
+  function applyCurrentFilters() {
+    const filterSelects = document.querySelectorAll("select");
+    const searchInput = document.querySelector("input[type='text']");
+    
+    currentFilters = {};
+    
+    // Collect filter values
+    filterSelects.forEach((select) => {
+      if (select.value) {
+        currentFilters[select.id] = select.value;
+      }
+    });
+
+    // Add search term
+    if (searchInput && searchInput.value.trim()) {
+      currentFilters.search = searchInput.value.trim().toLowerCase();
+    }
+
+    // Re-trigger the listener will automatically apply filters
+    console.log("Applied filters:", currentFilters);
+  }
+
+  function applyFilters(properties, filters) {
+    if (!filters || Object.keys(filters).length === 0) {
+      return properties;
+    }
+
+    return properties.filter(property => {
+      // Location filter
+      if (filters.location && property.location !== filters.location) {
+        return false;
+      }
+
+      // Type filter
+      if (filters.type && property.type !== filters.type) {
+        return false;
+      }
+
+      // Price range filter
+      if (filters.price) {
+        const price = property.price || 0;
+        if (filters.price === "0-2000" && (price < 0 || price > 2000)) return false;
+        if (filters.price === "2000-4000" && (price < 2000 || price > 4000)) return false;
+        if (filters.price === "4000-6000" && (price < 4000 || price > 6000)) return false;
+        if (filters.price === "6000+" && price < 6000) return false;
+      }
+
+      // Search filter (title, location, description)
+      if (filters.search) {
+        const searchTerm = filters.search;
+        const title = (property.title || "").toLowerCase();
+        const location = (property.location || "").toLowerCase();
+        const description = (property.description || "").toLowerCase();
+        
+        if (!title.includes(searchTerm) && 
+            !location.includes(searchTerm) && 
+            !description.includes(searchTerm)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  function renderProperties(properties) {
+    const grid = document.getElementById("propertyGrid");
+    if (!grid) {
+      console.error("Property grid element not found");
+      return;
+    }
+
+    grid.innerHTML = "";
+
+    if (!properties || !properties.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+          <i class="fas fa-home" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem;"></i>
+          <h3 style="color: #7f8c8d; margin-bottom: 0.5rem;">No properties found</h3>
+          <p style="color: #95a5a6;">Try adjusting your search criteria or check back later for new listings.</p>
+        </div>
+      `;
+      return;
+    }
+
+    console.log(`Rendering ${properties.length} properties`);
+
+    properties.forEach((property) => {
+      const card = document.createElement("div");
+      card.className = "property-card";
+
+      // Safely handle property data with defaults
+      const imageUrl = property.imageUrl || property.images?.[0] || "https://placehold.co/400x300/e8f5e9/228b22?text=Property+Image";
+      const title = property.title || "Property Title";
+      const price = property.price || 0;
+      const location = property.location || "Location not specified";
+      const beds = property.beds || property.bedrooms || 0;
+      const baths = property.baths || property.bathrooms || 0;
+      const size = property.size || property.squareFootage || "N/A";
+      const description = property.description || "";
+
+      card.innerHTML = `
+        <img src="${imageUrl}" alt="${title}" class="property-image" onerror="this.src='https://placehold.co/400x300/e8f5e9/228b22?text=Property+Image'" />
+        <div class="property-details">
+          <div class="property-price">P${price}/month</div>
+          <h3 class="property-title">${title}</h3>
+          <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${location}</p>
+          ${description ? `<p class="property-description">${description.substring(0, 100)}${description.length > 100 ? '...' : ''}</p>` : ''}
+          <div class="property-features">
+            <span class="feature"><i class="fas fa-bed"></i> ${beds} Bed${beds !== 1 ? "s" : ""}</span>
+            <span class="feature"><i class="fas fa-bath"></i> ${baths} Bath${baths !== 1 ? "s" : ""}</span>
+            <span class="feature"><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
+            ${property.amenities && Array.isArray(property.amenities)
+              ? property.amenities.slice(0, 2).map(a => 
+                  `<span class='feature'><i class='fas fa-${a.icon || "star"}'></i> ${a.name || a}</span>`
+                ).join("")
+              : ""
+            }
+          </div>
+          <div class="property-actions">
+            <button class="btn btn-primary" onclick="viewDetails('${property._id}')">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button class="btn btn-secondary" onclick="saveProperty('${property._id}')">
+              <i class="fas fa-heart"></i> Save
+            </button>
+            ${property.landlordId || property.ownerId
+              ? `<button class="btn btn-message" onclick="messageLandlord('${property.landlordId || property.ownerId}')">
+                  <i class="fas fa-comment"></i> Message
+                </button>`
+              : ""
+            }
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Global functions
+  window.viewDetails = function (propertyId) {
+    if (propertyId) {
+      window.location.href = `property-details.html?id=${propertyId}`;
+    }
+  };
+
+  window.saveProperty = async function (propertyId) {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Please log in to save properties.");
+        return;
+      }
+
+      if (!propertyId) {
+        alert("Invalid property.");
+        return;
+      }
+
+      await setDoc(doc(db, "users", user.uid, "savedProperties", propertyId), {
+        savedAt: serverTimestamp(),
+        propertyId: propertyId,
+      });
+      
+      // Show success message
+      showMessage("Property saved successfully!", "success");
+    } catch (err) {
+      console.error("Save property error:", err);
+      showMessage("Failed to save property. Please try again.", "error");
+    }
+  };
+
+  window.messageLandlord = function (landlordId) {
+    if (landlordId) {
+      window.location.href = `messages.html?to=${landlordId}`;
+    } else {
+      alert("Landlord information not available.");
+    }
+  };
+
+  // Utility function for showing messages
+  function showMessage(message, type) {
+    // Create or update global message element
+    let messageEl = document.getElementById("globalMessage");
+    if (!messageEl) {
+      messageEl = document.createElement("div");
+      messageEl.id = "globalMessage";
+      messageEl.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        max-width: 400px;
+      `;
+      document.body.appendChild(messageEl);
+    }
+
+    messageEl.textContent = message;
+    messageEl.className = type;
+    
+    if (type === "success") {
+      messageEl.style.backgroundColor = "#d4edda";
+      messageEl.style.color = "#155724";
+      messageEl.style.border = "1px solid #c3e6cb";
+    } else if (type === "error") {
+      messageEl.style.backgroundColor = "#f8d7da";
+      messageEl.style.color = "#721c24";
+      messageEl.style.border = "1px solid #f5c6cb";
+    }
+
+    messageEl.style.display = "block";
+    messageEl.style.opacity = "1";
+
     setTimeout(() => {
-      mobileMenu.style.display = "none";
-      body.style.overflow = "";
-    }, 300);
+      messageEl.style.opacity = "0";
+      setTimeout(() => {
+        messageEl.style.display = "none";
+      }, 300);
+    }, 3000);
   }
 
-  mobileMenuBtn.addEventListener("click", openMobileMenu);
-  mobileMenuClose.addEventListener("click", closeMobileMenu);
-
-  // Close mobile menu when clicking outside
-  mobileMenu.addEventListener("click", (e) => {
-    if (e.target === mobileMenu) {
-      closeMobileMenu();
-    }
-  });
-
-  // Close mobile menu on escape key
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && mobileMenu.classList.contains("active")) {
-      closeMobileMenu();
+  // Cleanup on page unload
+  window.addEventListener("beforeunload", () => {
+    if (propertiesListener) {
+      propertiesListener();
     }
   });
 });
-
-// Handle iOS safe area insets and viewport height
-function updateSafeAreaInsets() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
-}
-
-// Throttle resize events for better performance
-let resizeTimeout;
-function throttledUpdate() {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(updateSafeAreaInsets, 100);
-}
-
-window.addEventListener("resize", throttledUpdate);
-window.addEventListener("orientationchange", () => {
-  // Small delay for orientation change to complete
-  setTimeout(updateSafeAreaInsets, 200);
-});
-
-// Initial call
-updateSafeAreaInsets();
 </script>
 </html>
