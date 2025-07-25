@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         redirectToDashboard();
       } else {
         // User is not logged in, show login modal
-        openModal("login");
+        window.location.href= "login";
       }
     });
   }
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
         handleLogout();
       } else {
         // User is not logged in, show signup modal
-        openModal("signup-options");
+        window.location.href="signup.html";
       }
     });
   }

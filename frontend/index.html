@@ -1,541 +1,541 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta
-      name="description"
-      content="InRent - Connect with student accommodation in Botswana"
-    />
-    <meta
-      name="keywords"
-      content="student accommodation, Botswana, rental properties, student housing"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#228B22" />
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta
+            name="description"
+            content="InRent - Connect with student accommodation in Botswana"
+          />
+          <meta
+            name="keywords"
+            content="student accommodation, Botswana, rental properties, student housing"
+          />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta name="theme-color" content="#228B22" />
 
-    <meta
-      property="og:title"
-      content="InRent - Student Accommodation in Botswana "
-    />
-    <meta
-      property="og:description"
-      content="Find and list student accommodation in Botswana"
-    />
-    <meta
-      property="og:image"
-      content="https://placehold.co/1200x600/228B22/ffffff?text=InRent+OG+Image"
-    />
-    <meta property="og:url" content="https://inrent.com" />
+          <meta
+            property="og:title"
+            content="InRent - Student Accommodation in Botswana "
+          />
+          <meta
+            property="og:description"
+            content="Find and list student accommodation in Botswana"
+          />
+          <meta
+            property="og:image"
+            content="https://placehold.co/1200x600/228B22/ffffff?text=InRent+OG+Image"
+          />
+          <meta property="og:url" content="https://inrent.com" />
 
-    <link
-      rel="icon"
-      type="image/png"
-      href="https://placehold.co/32x32/228B22/ffffff?text=IR"
-    />
-    <meta charset="UTF-8" />
-    <title>
-      InRent - Simplifying Rental Management For Students and Landlords!
-    </title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
-    />
-    
-  <style>
-    :root {
-      --forest-green: #228b22;
-      --black: #000000;
-      --white: #ffffff;
-      --light-green: #e8f5e9;
-      --dark-green: #176b16;
-      --accent-green: #b2ffb2;
-      --dark: whitesmoke; 
-    }
-    /* Reset & Base Styles */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
-    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f8f8f8; color: #222; line-height: 1.6; overflow-x: hidden; }
-    img { max-width: 100%; height: auto; }
-    a { text-decoration: none; color: inherit; }
-    ul { list-style: none; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-    header { background: #fff; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.05); position: sticky; top: 0; z-index: 100; }
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
-    .logo { font-size: 2rem; font-weight: bold; }
-    .logo .in { color: var(--dark-green); } .logo .rent { color: var(--forest-green); }
-    .nav-links { display: flex; gap: 2rem; }
-    .nav-links li a { font-weight: 500; transition: color 0.2s; }
-    .nav-links li a:hover { color: var(--forest-green); }
-    .auth-buttons { display: flex; gap: 1rem; }
-    .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-    .btn { display: inline-block; background: var(--forest-green); color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .btn:hover { background: #000; }
-    .btn-secondary { background: #fff; color: var(--forest-green); border: 1.5px solid var(--forest-green); }
-    .btn-secondary:hover { background: var(--forest-green); color: #fff; }
-    .btn-forest { background: whitesmoke; color: black; border: 1.5px solid green; }
-    .btn-forest:hover { background: var(--dark-green); color: #fff; }
-    .btn-become-a-landlord { background: var(--dark-green); color: #fff; border-radius: 8px; border: none; font-weight: 600; transition: background 0.2s; }
-    .btn-become-a-landlord:hover { background: var(--forest-green); }
-    .hero { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 4rem 0; }
-    .hero-content { text-align: center; max-width: 800px; margin: 0 auto; }
-    .hero-content h1 { font-size: 2.5rem; color: var(--dark-green); margin-bottom: 1rem; }
-    .hero-content p { font-size: 1.2rem; color: #333; margin-bottom: 2rem; }
-    .hero-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-    .features-section { padding: 4rem 0; }
-    .section-title { text-align: center; margin-bottom: 3rem; }
-    .section-title h2 { color: var(--dark-green); font-size: 2rem; margin-bottom: 0.5rem; }
-    .features { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-    .feature-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 4px 16px rgba(34, 139, 34, 0.13); }
-    .feature-icon { font-size: 2.5rem; color: var(--forest-green); margin-bottom: 1rem; }
-    .feature-card h3 { margin-bottom: 1rem; color: var(--dark-green); }
-    .how-it-works { padding: 4rem 0; background: var(--light-green); }
-    .steps { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-    .step { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 1.5rem; flex: 1 1 250px; max-width: 300px; text-align: center; }
-    .step-number { background: var(--forest-green); color: #fff; border-radius: 50%; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-weight: bold; font-size: 1.2rem; }
-    .pricing { padding: 4rem 0; }
-    .membership-options { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
-    .membership-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease; }
-    .membership-card:hover { transform: scale(1.03); }
-    .membership-card .special-offer { color: #fff; background: var(--forest-green); border-radius: 8px; padding: 0.2rem 0.7rem; font-size: 0.9rem; margin-bottom: 0.5rem; display: inline-block; }
-    .price { font-size: 1.5rem; color: var(--dark-green); font-weight: bold; margin: 1rem 0; }
-    .membership-features { margin: 1.5rem 0; text-align: left; }
-    .perk-item { margin-bottom: 0.7rem; font-size: 1.08rem; display: flex; align-items: center; gap: 0.5rem; }
-    .perk-item::before { content: "✓"; color: var(--forest-green); font-weight: bold; }
-    .footer { background: var(--dark-green); color: #fff; padding: 3rem 0 1.5rem; }
-    .footer a { color: #fff; transition: color 0.2s; }
-    .footer a:hover { color: var(--accent-green); }
-    .footer-content { display: flex; flex-wrap: wrap; gap: 3rem; justify-content: space-between; }
-    .footer-about { flex: 2; min-width: 300px; }
-    .footer-about p { margin: 1rem 0; }
-    .footer-links { display:flex; flex-direction:row;  gap: 20px; flex: 1; min-width: 180px; }
-    .footer-links h3 { margin-bottom: 1.5rem; }
-    .footer-links ul { display: flex; flex-direction: column; gap: 0.8rem; }
-    .footer-section{ flex:1; min-width: 150px;}
-    .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
-    .social-link { color: #fff; font-size: 1.5rem; }
-    .social-link:hover { color: var(--accent-green); }
-    .copyright { text-align: center; margin-top: 3rem; color: var(--accent-green); font-size: 0.95rem; }
-    @media (max-width: 992px) {
-      .hero-content h1 { font-size: 2.2rem; }
-      .hero-content p { font-size: 1.1rem; }
-      .features, .steps, .membership-options { gap: 1.5rem; }
-    }
-    @media (max-width: 768px) {
-      html { font-size: 15px; }
-      .mobile-menu-btn { display: inline-block; }
-      .nav-links, .auth-buttons { display: inline-block; }
-      .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
-      .hero { padding: 3rem 0; }
-      .hero-content h1 { font-size: 2rem; }
-      .section-title h2 { font-size: 1.8rem; }
-      .feature-card, .step, .membership-card { flex: 1 1 100%; max-width: 500px; }
-      .footer-content { gap: 2rem; }
-    }
-    @media (max-width: 576px) {
-      html { font-size: 14px; }
-      .container { padding: 0 1rem; }
-      .hero { padding: 2rem 0; }
-      .hero-content h1 { font-size: 1.8rem; }
-      .hero-buttons { flex-direction: column; align-items: center; }
-      .features-section, .how-it-works, .pricing { padding: 3rem 0; }
-      .feature-card, .step, .membership-card { padding: 1.5rem; }
-      .footer-about, .footer-links { min-width: 100%; }
-    }
-    @media (max-width: 400px) {
-      .hero-content h1 { font-size: 1.6rem; }
-      .section-title h2 { font-size: 1.5rem; }
-      .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
-    }
-    .inrent_image{
-  
-      width: 100%;
-      height: auto;
-      display :block;
-    }
-    .footer-features{
-      margin-top: 20px;
-      list-style-type: none;
-    }
-    .footer-features li{
-      padding: 10px 0;
-      display: flex;
-      align-items: center;
-    }
-  </style>
-  </head>  
-  <body>
-    <!-- HEADER: Navigation bar with logo and links -->
-    <header>
-      <div class="container">
-        <nav>
-          <div class="logo">
-            <span class="in">In</span><span class="rent">Rent</span>
-          </div>
-          <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="/marketplace.html">Browse Accommodations</li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-          <div class="auth-buttons">
-           <a class="btn btn-secondary" id="headerLoginBtn" href="login.html">Login</a>
-           <a class="btn btn-primary" id="headerSignupBtn" href="signup.html">Sign up</a>
-          </div>
-          <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
-        </nav>
-      </div>
-    </header>
-
-    <main>
-
-  
-
-      <!-- HERO SECTION: Main headline and call-to-action -->
-      <section id="home" class="hero">
-        <div class="container hero-content">
-          <h1 class="animate animated-hero-title">
-            Your Student Housing Marketplace
-          </h1>
-          <p class="animate animated-hero-text">
-            InRent is the premier marketplace connecting students with trusted
-            landlords. Find your perfect student accommodation or list your
-            properties to reach verified student tenants. Experience hassle-free
-            student housing today.
-          </p>
-          <div class="hero-buttons animate">
-             <a class="btn" href="signup.html">
-              Get Started Free
-            </a>
-            <a class="btn btn-secondary open-modal" data-modal="demo" href="#" tabindex="0">
-              Watch Demo
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <!-- FEATURES SECTION: Key features for users -->
-      <section id="features" class="section">
-        <div class="container">
-          <div class="section-title">
-            <h2 class="animate">Key Features</h2>
-            <p class="animate">
-              Discover how InRent makes property management easier
-            </p>
-            <h3 class="animate">
-              For Landlords
-            </h3>
-          </div>
-          <div class="features">
-            <!-- Feature Card: Tenant Portal -->
-            <div class="feature-card animate">
-              <div class="feature-icon">
-                <i class="fas fa-search-location"></i>
-              </div>
-              <h3>Smart Tenant Portal</h3>
-              <p>
-                Give tenants a dedicated app to pay rent, submit maintenance
-                requests, and communicate efficiently.
-              </p>
+          <link
+            rel="icon"
+            type="image/png"
+            href="https://placehold.co/32x32/228B22/ffffff?text=IR"
+          />
+          <meta charset="UTF-8" />
+          <title>
+            InRent - Simplifying Rental Management For Students and Landlords!
+          </title>
+          <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+          />
+          
+        <style>
+          :root {
+            --forest-green: #228b22;
+            --black: #000000;
+            --white: #ffffff;
+            --light-green: #e8f5e9;
+            --dark-green: #176b16;
+            --accent-green: #b2ffb2;
+            --dark: whitesmoke; 
+          }
+          /* Reset & Base Styles */
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+          html { scroll-behavior: smooth; font-size: 16px; }
+          body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f8f8f8; color: #222; line-height: 1.6; overflow-x: hidden; }
+          img { max-width: 100%; height: auto; }
+          a { text-decoration: none; color: inherit; }
+          ul { list-style: none; }
+          .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+          header { background: #fff; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.05); position: sticky; top: 0; z-index: 100; }
+          nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
+          .logo { font-size: 2rem; font-weight: bold; }
+          .logo .in { color: var(--dark-green); } .logo .rent { color: var(--forest-green); }
+          .nav-links { display: flex; gap: 2rem; }
+          .nav-links li a { font-weight: 500; transition: color 0.2s; }
+          .nav-links li a:hover { color: var(--forest-green); }
+          .auth-buttons { display: flex; gap: 1rem; }
+          .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+          .btn { display: inline-block; background: var(--forest-green); color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+          .btn:hover { background: #000; }
+          .btn-secondary { background: #fff; color: var(--forest-green); border: 1.5px solid var(--forest-green); }
+          .btn-secondary:hover { background: var(--forest-green); color: #fff; }
+          .btn-forest { background: whitesmoke; color: black; border: 1.5px solid green; }
+          .btn-forest:hover { background: var(--dark-green); color: #fff; }
+          .btn-become-a-landlord { background: var(--dark-green); color: #fff; border-radius: 8px; border: none; font-weight: 600; transition: background 0.2s; }
+          .btn-become-a-landlord:hover { background: var(--forest-green); }
+          .hero { background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 4rem 0; }
+          .hero-content { text-align: center; max-width: 800px; margin: 0 auto; }
+          .hero-content h1 { font-size: 2.5rem; color: var(--dark-green); margin-bottom: 1rem; }
+          .hero-content p { font-size: 1.2rem; color: #333; margin-bottom: 2rem; }
+          .hero-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+          .features-section { padding: 4rem 0; }
+          .section-title { text-align: center; margin-bottom: 3rem; }
+          .section-title h2 { color: var(--dark-green); font-size: 2rem; margin-bottom: 0.5rem; }
+          .features { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+          .feature-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+          .feature-card:hover { transform: translateY(-5px); box-shadow: 0 4px 16px rgba(34, 139, 34, 0.13); }
+          .feature-icon { font-size: 2.5rem; color: var(--forest-green); margin-bottom: 1rem; }
+          .feature-card h3 { margin-bottom: 1rem; color: var(--dark-green); }
+          .how-it-works { padding: 4rem 0; background: var(--light-green); }
+          .steps { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+          .step { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 1.5rem; flex: 1 1 250px; max-width: 300px; text-align: center; }
+          .step-number { background: var(--forest-green); color: #fff; border-radius: 50%; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-weight: bold; font-size: 1.2rem; }
+          .pricing { padding: 4rem 0; }
+          .membership-options { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; }
+          .membership-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.07); padding: 2rem; flex: 1 1 300px; max-width: 350px; min-width: 250px; text-align: center; transition: transform 0.3s ease; }
+          .membership-card:hover { transform: scale(1.03); }
+          .membership-card .special-offer { color: #fff; background: var(--forest-green); border-radius: 8px; padding: 0.2rem 0.7rem; font-size: 0.9rem; margin-bottom: 0.5rem; display: inline-block; }
+          .price { font-size: 1.5rem; color: var(--dark-green); font-weight: bold; margin: 1rem 0; }
+          .membership-features { margin: 1.5rem 0; text-align: left; }
+          .perk-item { margin-bottom: 0.7rem; font-size: 1.08rem; display: flex; align-items: center; gap: 0.5rem; }
+          .perk-item::before { content: "✓"; color: var(--forest-green); font-weight: bold; }
+          .footer { background: var(--dark-green); color: #fff; padding: 3rem 0 1.5rem; }
+          .footer a { color: #fff; transition: color 0.2s; }
+          .footer a:hover { color: var(--accent-green); }
+          .footer-content { display: flex; flex-wrap: wrap; gap: 3rem; justify-content: space-between; }
+          .footer-about { flex: 2; min-width: 300px; }
+          .footer-about p { margin: 1rem 0; }
+          .footer-links { display:flex; flex-direction:row;  gap: 20px; flex: 1; min-width: 180px; }
+          .footer-links h3 { margin-bottom: 1.5rem; }
+          .footer-links ul { display: flex; flex-direction: column; gap: 0.8rem; }
+          .footer-section{ flex:1; min-width: 150px;}
+          .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+          .social-link { color: #fff; font-size: 1.5rem; }
+          .social-link:hover { color: var(--accent-green); }
+          .copyright { text-align: center; margin-top: 3rem; color: var(--accent-green); font-size: 0.95rem; }
+          @media (max-width: 992px) {
+            .hero-content h1 { font-size: 2.2rem; }
+            .hero-content p { font-size: 1.1rem; }
+            .features, .steps, .membership-options { gap: 1.5rem; }
+          }
+          @media (max-width: 768px) {
+            html { font-size: 15px; }
+            .mobile-menu-btn { display: inline-block; }
+            .nav-links, .auth-buttons { display: inline-block; }
+            .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
+            .hero { padding: 3rem 0; }
+            .hero-content h1 { font-size: 2rem; }
+            .section-title h2 { font-size: 1.8rem; }
+            .feature-card, .step, .membership-card { flex: 1 1 100%; max-width: 500px; }
+            .footer-content { gap: 2rem; }
+          }
+          @media (max-width: 576px) {
+            html { font-size: 14px; }
+            .container { padding: 0 1rem; }
+            .hero { padding: 2rem 0; }
+            .hero-content h1 { font-size: 1.8rem; }
+            .hero-buttons { flex-direction: column; align-items: center; }
+            .features-section, .how-it-works, .pricing { padding: 3rem 0; }
+            .feature-card, .step, .membership-card { padding: 1.5rem; }
+            .footer-about, .footer-links { min-width: 100%; }
+          }
+          @media (max-width: 400px) {
+            .hero-content h1 { font-size: 1.6rem; }
+            .section-title h2 { font-size: 1.5rem; }
+            .btn { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+          }
+          .inrent_image{
+        
+            width: 100%;
+            height: auto;
+            display :block;
+          }
+          .footer-features{
+            margin-top: 20px;
+            list-style-type: none;
+          }
+          .footer-features li{
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+          }
+        </style>
+        </head>  
+        <body>
+          <!-- HEADER: Navigation bar with logo and links -->
+          <header>
+            <div class="container">
+              <nav>
+                <div class="logo">
+                  <span class="in">In</span><span class="rent">Rent</span>
+                </div>
+                <ul class="nav-links">
+                  <li><a href="index.html">Home</a></li>
+                  <li><a href="/marketplace.html">Browse Accommodations</li>
+                  <li><a href="#features">Features</a></li>
+                  <li><a href="#pricing">Pricing</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="auth-buttons">
+                <a class="btn btn-secondary" id="headerLoginBtn" href="login.html">Login</a>
+                <a class="btn btn-primary" id="headerSignupBtn" href="signup.html">Sign up</a>
+                </div>
+                <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+              </nav>
             </div>
-            <!-- Feature Card: Automated Rent -->
-            <div class="feature-card animate">
-              <div class="feature-icon">
-                <i class="fas fa-comments-dollar"></i>
-              </div>
-              <h3>Automated Rent Collection</h3>
-              <p>
-                Set up automatic payment processing, late fee calculation, and
-                customized payment schedules.
-              </p>
-            </div>
-            <!-- Feature Card: Analytics -->
-            <div class="feature-card animate">
-              <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-              <h3>Reporting & Analytics</h3>
-              <p>
-                Gain valuable insights with financial reports, occupancy trends,
-                and property performance metrics.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          </header>
 
-      <!-- HOW IT WORKS SECTION: Steps for students -->
-      <section id="how-it-works" class="section how-it-works">
-        <div class="container">
-          <div class="section-title">
-            <h2 class="animate">How It Works</h2>
-            <p class="animate">Simple steps to get started with InRent</p>
-          </div>
+          <main>
 
-          <div class="user-section">
-            <h3 class="user-section" >For Tertiary Students</h3>
-            <div class="steps">
-              <!-- Step 1: Register -->
-              <div class="step animate">
-                <div class="step-number">1</div>
-                <h3>Register & Verify</h3>
-                <p>
-                  Create your student account and verify with your student ID
-                  for just P50.00.
+        
+
+            <!-- HERO SECTION: Main headline and call-to-action -->
+            <section id="home" class="hero">
+              <div class="container hero-content">
+                <h1 class="animate animated-hero-title">
+                  Your Student Housing Marketplace
+                </h1>
+                <p class="animate animated-hero-text">
+                  InRent is the premier marketplace connecting students with trusted
+                  landlords. Find your perfect student accommodation or list your
+                  properties to reach verified student tenants. Experience hassle-free
+                  student housing today.
                 </p>
+                <div class="hero-buttons animate">
+                  <a class="btn" href="signup.html">
+                    Get Started Free
+                  </a>
+                  <a class="btn btn-secondary open-modal" data-modal="demo" href="#" tabindex="0">
+                    Watch Demo
+                  </a>
+                </div>
               </div>
-              <!-- Step 2: Browse -->
-              <div class="step animate">
-                <div class="step-number">2</div>
-                <h3>Browse Listings</h3>
-                <p>
-                  Search through verified properties with detailed information
-                  and safety ratings.
-                </p>
-              </div>
-              <!-- Step 3: Connect -->
-              <div class="step animate">
-                <div class="step-number">3</div>
-                <h3>Connect & View</h3>
-                <p>
-                  Message landlords directly and schedule property viewings
-                  through the platform.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </section>
 
-      <!-- PRODUCT DEMO SECTION: Demo video -->
-      <section class="section product-demo">
-        <div class="container">
-          <div class="section-title">
-            <h2 class="animate">See InRent in Action</h2>
-            <p class="animate">
-              Watch how our solution streamlines rental management in minutes
-            </p>
-          </div>
-          <div class="demo-video animate open-modal" data-modal="demo">
-            <iframe  width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Youtube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen>
+            <!-- FEATURES SECTION: Key features for users -->
+            <section id="features" class="section">
+              <div class="container">
+                <div class="section-title">
+                  <h2 class="animate">Key Features</h2>
+                  <p class="animate">
+                    Discover how InRent makes property management easier
+                  </p>
+                  <h3 class="animate">
+                    For Landlords
+                  </h3>
+                </div>
+                <div class="features">
+                  <!-- Feature Card: Tenant Portal -->
+                  <div class="feature-card animate">
+                    <div class="feature-icon">
+                      <i class="fas fa-search-location"></i>
+                    </div>
+                    <h3>Smart Tenant Portal</h3>
+                    <p>
+                      Give tenants a dedicated app to pay rent, submit maintenance
+                      requests, and communicate efficiently.
+                    </p>
+                  </div>
+                  <!-- Feature Card: Automated Rent -->
+                  <div class="feature-card animate">
+                    <div class="feature-icon">
+                      <i class="fas fa-comments-dollar"></i>
+                    </div>
+                    <h3>Automated Rent Collection</h3>
+                    <p>
+                      Set up automatic payment processing, late fee calculation, and
+                      customized payment schedules.
+                    </p>
+                  </div>
+                  <!-- Feature Card: Analytics -->
+                  <div class="feature-card animate">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>Reporting & Analytics</h3>
+                    <p>
+                      Gain valuable insights with financial reports, occupancy trends,
+                      and property performance metrics.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
 
-            </iframe>
+            <!-- HOW IT WORKS SECTION: Steps for students -->
+            <section id="how-it-works" class="section how-it-works">
+              <div class="container">
+                <div class="section-title">
+                  <h2 class="animate">How It Works</h2>
+                  <p class="animate">Simple steps to get started with InRent</p>
+                </div>
+
+                <div class="user-section">
+                  <h3 class="user-section" >For Tertiary Students</h3>
+                  <div class="steps">
+                    <!-- Step 1: Register -->
+                    <div class="step animate">
+                      <div class="step-number">1</div>
+                      <h3>Register & Verify</h3>
+                      <p>
+                        Create your student account and verify with your student ID
+                        for just P50.00.
+                      </p>
+                    </div>
+                    <!-- Step 2: Browse -->
+                    <div class="step animate">
+                      <div class="step-number">2</div>
+                      <h3>Browse Listings</h3>
+                      <p>
+                        Search through verified properties with detailed information
+                        and safety ratings.
+                      </p>
+                    </div>
+                    <!-- Step 3: Connect -->
+                    <div class="step animate">
+                      <div class="step-number">3</div>
+                      <h3>Connect & View</h3>
+                      <p>
+                        Message landlords directly and schedule property viewings
+                        through the platform.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- PRODUCT DEMO SECTION: Demo video -->
+            <section class="section product-demo">
+              <div class="container">
+                <div class="section-title">
+                  <h2 class="animate">See InRent in Action</h2>
+                  <p class="animate">
+                    Watch how our solution streamlines rental management in minutes
+                  </p>
+                </div>
+                <div class="demo-video animate open-modal" data-modal="demo">
+                  <iframe  width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Youtube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen>
+
+                  </iframe>
+                  
+                  
+                  <div class="demo-overlay">
+                    <div class="play-button"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- PRICING SECTION: Membership options for students and landlords -->
+            <section id="pricing" class="section">
+              <div class="container">
+                <div class="section-title">
+                  <h2 class="animate">Join InRent Community</h2>
+                  <p class="animate">
+                    Access quality student housing and reach verified tenants
+                  </p>
+                </div>
+                <div class="membership-options">
+                  <!-- Student Membership Card -->
+                  <div class="membership-card student-card animate">
+                    <div class="membership-icon">
+                      <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>Student Access</h3>
+                    <div class="price">P50.00 <span>/once-off</span></div>
+                    <p>Get unlimited access to verified student accommodations</p>
+                    <ul class="membership-features">
+                      <li class="perk-item">View all property listings</li>
+                      <li class="perk-item">Direct message landlords</li>
+                      <li class="perk-item">Save favorite properties</li>
+                      <li class="perk-item">Get notified of new listings</li>
+                      <li class="perk-item">Schedule property viewings</li>
+                    </ul>
+                    <a class="btn" href="signup.html">Sign Up Now</a>
+                  </div>
+                  <div id="message-container" class="max-w-md mx-auto my-4"></div>
+                  <!-- Landlord Membership Card -->
+                  <div class="membership-card landlord-card animate">
+                    <div class="special-offer">Limited Spots!</div>
+                    <div class="membership-icon">
+                      <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Landlord </h3>
+                    <div class="price">Free <span>/month</span></div>
+                    <p>List unlimited properties and access premium features.</p>
+                    <ul class="membership-features">
+                      <li class="perk-item"><i class="fas fa-home" style="color:#228b22;margin-right:8px;"></i>Unlimited Property Listings</li>
+                      <li class="perk-item"><i class="fas fa-check-circle" style="color:#228b22;margin-right:8px;"></i>Verified Tenant Matching</li>
+                      <li class="perk-item"><i class="fas fa-chart-line" style="color:#228b22;margin-right:8px;"></i>Advanced Analytics</li>
+                      <li class="perk-item"><i class="fas fa-headset" style="color:#228b22;margin-right:8px;"></i>Priority Support</li>
+                      <li class="perk-item"><i class="fas fa-file-signature" style="color:#228b22;margin-right:8px;"></i>Lease Management Tools</li>
+                    </ul>
+                    <div class="spots-left">
+                      Only <span id="landlordsLeft">10</span> spots left for free
+                    </div>
+                    <a class="btn btn-become-a-landlord" style="padding: 15px 30px; display: inline-block; font-size: 1.1rem; margin-top: 1rem;" href="signup.html">Become a Landlord</a>
             
-            
-            <div class="demo-overlay">
-              <div class="play-button"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PRICING SECTION: Membership options for students and landlords -->
-      <section id="pricing" class="section">
-        <div class="container">
-          <div class="section-title">
-            <h2 class="animate">Join InRent Community</h2>
-            <p class="animate">
-              Access quality student housing and reach verified tenants
-            </p>
-          </div>
-          <div class="membership-options">
-            <!-- Student Membership Card -->
-            <div class="membership-card student-card animate">
-              <div class="membership-icon">
-                <i class="fas fa-user-graduate"></i>
+                  </div>
+                </div>
               </div>
-              <h3>Student Access</h3>
-              <div class="price">P50.00 <span>/once-off</span></div>
-              <p>Get unlimited access to verified student accommodations</p>
-              <ul class="membership-features">
-                <li class="perk-item">View all property listings</li>
-                <li class="perk-item">Direct message landlords</li>
-                <li class="perk-item">Save favorite properties</li>
-                <li class="perk-item">Get notified of new listings</li>
-                <li class="perk-item">Schedule property viewings</li>
-              </ul>
-              <a class="btn" href="signup.html">Sign Up Now</a>
-            </div>
-            <div id="message-container" class="max-w-md mx-auto my-4"></div>
-            <!-- Landlord Membership Card -->
-            <div class="membership-card landlord-card animate">
-              <div class="special-offer">Limited Spots!</div>
-              <div class="membership-icon">
-                <i class="fas fa-building"></i>
+            </section>
+
+            <!-- TESTIMONIALS SECTION: User feedback -->
+          
+                    <!-- No testimonials yet. -->
+                  </div>
+                  <div class="testimonial-controls" style="display:none;"></div>
+                </div>
               </div>
-              <h3>Landlord </h3>
-              <div class="price">Free <span>/month</span></div>
-              <p>List unlimited properties and access premium features.</p>
-              <ul class="membership-features">
-                <li class="perk-item"><i class="fas fa-home" style="color:#228b22;margin-right:8px;"></i>Unlimited Property Listings</li>
-                <li class="perk-item"><i class="fas fa-check-circle" style="color:#228b22;margin-right:8px;"></i>Verified Tenant Matching</li>
-                <li class="perk-item"><i class="fas fa-chart-line" style="color:#228b22;margin-right:8px;"></i>Advanced Analytics</li>
-                <li class="perk-item"><i class="fas fa-headset" style="color:#228b22;margin-right:8px;"></i>Priority Support</li>
-                <li class="perk-item"><i class="fas fa-file-signature" style="color:#228b22;margin-right:8px;"></i>Lease Management Tools</li>
-              </ul>
-              <div class="spots-left">
-                Only <span id="landlordsLeft">10</span> spots left for free
+            </section>
+
+            <!-- CALL TO ACTION SECTION: Newsletter and prompt -->
+            <section class="section cta" style="background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 3rem 0;">
+              <div class="container" style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <h2 class="animate" style="font-size: 2.2rem; color: #176b16; margin-bottom: 0.5rem;">Ready to Find Your Perfect Match?</h2>
+                <p class="animate" style="color: #333; margin-bottom: 2rem;">
+                  Whether you're a student looking for a home or a landlord seeking tenants, InRent is your trusted partner.
+                </p>
+                <div class="newsletter animate" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                  <div style="display: flex; width: 100%; max-width: 400px; gap: 0.5rem;">
+                    <input
+                      type="email"
+                      placeholder="Join our waitlist today for new updates"
+                      id="newsletterEmail"
+                      style="flex: 1; padding: 0.75rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1.1rem;"
+
+                    />
+                  </div>
+                  <div class="success-message" id="newsletterSuccess" style="display: none; color: #176b16; font-weight: 600;">Thank you for subscribing!</div>
+                </div>
+                <div style="margin-top: 2rem;">
+                  <button class="btn btn-forest open-modal" type= "submit" data-modal="waitlist-modal" id="openWaitlistBtn" style="font-size: 1.1rem; padding: 0.75rem 2rem; border-radius: 6px;">
+                    Join
+                  </button>
+                </div>
               </div>
-              <a class="btn btn-become-a-landlord" style="padding: 15px 30px; display: inline-block; font-size: 1.1rem; margin-top: 1rem;" href="signup.html">Become a Landlord</a>
-      
-            </div>
-          </div>
-        </div>
-      </section>
+            </section>
 
-      <!-- TESTIMONIALS SECTION: User feedback -->
-     
-              <!-- No testimonials yet. -->
-            </div>
-            <div class="testimonial-controls" style="display:none;"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CALL TO ACTION SECTION: Newsletter and prompt -->
-      <section class="section cta" style="background: linear-gradient(90deg, #e8f5e9 0%, #f1f8e9 100%); padding: 3rem 0;">
-        <div class="container" style="max-width: 600px; margin: 0 auto; text-align: center;">
-          <h2 class="animate" style="font-size: 2.2rem; color: #176b16; margin-bottom: 0.5rem;">Ready to Find Your Perfect Match?</h2>
-          <p class="animate" style="color: #333; margin-bottom: 2rem;">
-            Whether you're a student looking for a home or a landlord seeking tenants, InRent is your trusted partner.
-          </p>
-          <div class="newsletter animate" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-            <div style="display: flex; width: 100%; max-width: 400px; gap: 0.5rem;">
-              <input
-                type="email"
-                placeholder="Join our waitlist today for new updates"
-                id="newsletterEmail"
-                style="flex: 1; padding: 0.75rem 1rem; border-radius: 6px; border: 1px solid #bdbdbd; font-size: 1.1rem;"
-
-              />
-             </div>
-            <div class="success-message" id="newsletterSuccess" style="display: none; color: #176b16; font-weight: 600;">Thank you for subscribing!</div>
-          </div>
-          <div style="margin-top: 2rem;">
-            <button class="btn btn-forest open-modal" type= "submit" data-modal="waitlist-modal" id="openWaitlistBtn" style="font-size: 1.1rem; padding: 0.75rem 2rem; border-radius: 6px;">
-              Join
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- CONTACT SECTION: Contact info and form modal trigger -->
-      <section class="section contact-section" id="contact">
-        <div class="container">
-          <div class="section-title">
-            <h2>Contact Us</h2>
-            <p>Get in touch with us for any questions or support</p>
-          </div>
-          <div
-            class="contact-info"
-            style="
-              display: flex;
-              justify-content: space-around;
-              flex-wrap: wrap;
-              gap: 1rem;
-            "
-          >
-            <!-- Contact Item: Email -->
-            <div class="contact-item" style="text-align: center">
-              <i
-                class="fas fa-envelope"
-                style="
-                  font-size: 2rem;
-                  color: var(--primary);
-                  margin-bottom: 0.5rem;
-                "
-              ></i>
-              <h3>Email</h3>
-              <p>
-                <a
-                  href="mailto:Lethaboswereki029@gmail.com"
-                  style="color: var(--dark); text-decoration: none"
-                  >Lethaboswereki029@gmail.com</a
+            <!-- CONTACT SECTION: Contact info and form modal trigger -->
+            <section class="section contact-section" id="contact">
+              <div class="container">
+                <div class="section-title">
+                  <h2>Contact Us</h2>
+                  <p>Get in touch with us for any questions or support</p>
+                </div>
+                <div
+                  class="contact-info"
+                  style="
+                    display: flex;
+                    justify-content: space-around;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                  "
                 >
-              </p>
-            </div>
-            </div>
-          <div style="text-align: center; margin-top: 2rem">
-           
-      <!-- Waitlist Modal: Join our waitlist for updates -->
-     
+                  <!-- Contact Item: Email -->
+                  <div class="contact-item" style="text-align: center">
+                    <i
+                      class="fas fa-envelope"
+                      style="
+                        font-size: 2rem;
+                        color: var(--primary);
+                        margin-bottom: 0.5rem;
+                      "
+                    ></i>
+                    <h3>Email</h3>
+                    <p>
+                      <a
+                        href="mailto:Lethaboswereki029@gmail.com"
+                        style="color: var(--dark); text-decoration: none"
+                        >Lethaboswereki029@gmail.com</a
+                      >
+                    </p>
+                  </div>
+                  </div>
+                <div style="text-align: center; margin-top: 2rem">
+                
+            <!-- Waitlist Modal: Join our waitlist for updates -->
+          
 
-    <!-- FOOTER: About, links, and social media -->
-    <footer>
-      <div class="container">
-        <div class="footer-content" style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between;">
-          <!-- About InRent -->
-          <div class="footer-about">
-            <h3><span class="in">In</span><span class="rent">Rent</span></h3>
-            <img src="inrent_image.jpg" class="inrent_image"></src>
+          <!-- FOOTER: About, links, and social media -->
+          <footer>
+            <div class="container">
+              <div class="footer-content" style="display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between;">
+                <!-- About InRent -->
+                <div class="footer-about">
+                  <h3><span class="in">In</span><span class="rent">Rent</span></h3>
+                  <img src="inrent_image.jpg" class="inrent_image"></src>
+                  
+                  
+                  
+                  <div class="social-links">
+                    <ul class="footer-features">
+                    <a href="#" class="social-link" aria-label="Facebook"
+                      ><i class="fab fa-facebook-f"></i
+                    ></a>
+                    <a href="#" class="social-link" aria-label="Twitter"
+                      ><i class="fab fa-twitter"></i
+                    ></a>
+                    <a href="#" class="social-link" aria-label="Instagram"
+                      ><i class="fab fa-instagram"></i
+                    ></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"
+                      ><i class="fab fa-linkedin-in"></i
+                    ></a>
+                    </ul>
+                  </div>
+                </div>
+                <!-- Quick Links -->
+                <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
+                  <h3>Quick Links</h3>
+                  <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
+                    <ul class="footer-features">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#pricing">Pricing </a></li>
+                    <li><a href="#">Waitlist</a></li>
+                  <li> <a href="#">Contact</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- Support Links -->
+                <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
+                  <h3>Support</h3>
+                  <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
+                    <ul class="footer-features">
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a >Help Center, send an email</a></li>
+                    <li><a href="/terms.html">Terms of Service</a></li>
+                  <li> <a href="privacy.html">Privacy Policy</a></li></ul>
+                  </div>
+                </div>
+                <!-- Student & Landlord Links -->
+                <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
+                  <h3>For Students</h3>
+                  <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
+                    <ul>
+                  <li>  <a href="marketplace.html" data-modal="property-listings">Browse Accommodations</a></li>
+                    <li><a href="login.html">Student Login</a> </li>
+                  <li> <a href="signup.html" class="open-modal" data-modal="student-signup" style="cursor: pointer">Student Signup</a></li></ul>
+                  </div>
+                  <h3>For Landlords</h3>
+                  <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
+                    <a href="#" class="open-modal" data-modal="add-listing-modal">List Your Property</a>
+                    <a href="#">Landlord Guidelines</a>
+                    <a class="open-modal" data-modal="landlord-signup" style="cursor: pointer" href="signup.html">Landlord Signup</a>
+                  </div>
+                </div>
+              </div>
+              <div class="copyright">
+                <p>© <span id="currentYear"></span> InRent. All rights reserved.</p>
+              </div>
+            </div>
             
-            
-            
-            <div class="social-links">
-              <ul class="footer-features">
-              <a href="#" class="social-link" aria-label="Facebook"
-                ><i class="fab fa-facebook-f"></i
-              ></a>
-              <a href="#" class="social-link" aria-label="Twitter"
-                ><i class="fab fa-twitter"></i
-              ></a>
-              <a href="#" class="social-link" aria-label="Instagram"
-                ><i class="fab fa-instagram"></i
-              ></a>
-              <a href="#" class="social-link" aria-label="LinkedIn"
-                ><i class="fab fa-linkedin-in"></i
-              ></a>
-              </ul>
-            </div>
-          </div>
-          <!-- Quick Links -->
-          <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
-            <h3>Quick Links</h3>
-            <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <ul class="footer-features">
-              <li><a href="index.html">Home</a></li>
-              <li><a href="#features">Features</a></li>
-              <li><a href="#how-it-works">How It Works</a></li>
-              <li><a href="#pricing">Pricing </a></li>
-              <li><a href="#">Waitlist</a></li>
-             <li> <a href="#">Contact</a></li>
-              </ul>
-            </div>
-          </div>
-          <!-- Support Links -->
-          <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
-            <h3>Support</h3>
-            <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <ul class="footer-features">
-              <li><a href="faq.html">FAQ</a></li>
-              <li><a >Help Center, send an email</a></li>
-              <li><a href="/terms.html">Terms of Service</a></li>
-             <li> <a href="privacy.html">Privacy Policy</a></li></ul>
-            </div>
-          </div>
-          <!-- Student & Landlord Links -->
-          <div class="footer-links" style="display: flex; flex-direction: column; flex: 1; min-width: 180px;">
-            <h3>For Students</h3>
-            <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <ul>
-            <li>  <a href="marketplace.html" data-modal="property-listings">Browse Accommodations</a></li>
-              <li><a href="login.html">Student Login</a> </li>
-             <li> <a href="signup.html" class="open-modal" data-modal="student-signup" style="cursor: pointer">Student Signup</a></li></ul>
-            </div>
-            <h3>For Landlords</h3>
-            <div style="display: grid; grid-template-columns: repeat(1, 1fr); grid-template-rows: repeat(3, auto); gap: 0.5rem;">
-              <a href="#" class="open-modal" data-modal="add-listing-modal">List Your Property</a>
-              <a href="#">Landlord Guidelines</a>
-              <a class="open-modal" data-modal="landlord-signup" style="cursor: pointer" href="signup.html">Landlord Signup</a>
-            </div>
-          </div>
-        </div>
-        <div class="copyright">
-          <p>© <span id="currentYear"></span> InRent. All rights reserved.</p>
-        </div>
-      </div>
-      
-    </footer>
-<script type="module" src="./index.js" defer ></script>
+          </footer>
+      <script type="module" src="./index.js" defer ></script>
 
-    <!-- MODALS: Contact, Demo, Login, Signup, Listings, Payment, Add Listing, Dashboard, Review -->
-    <!-- Contact Form Modal -->
-    
+          <!-- MODALS: Contact, Demo, Login, Signup, Listings, Payment, Add Listing, Dashboard, Review -->
+          <!-- Contact Form Modal -->
+          
