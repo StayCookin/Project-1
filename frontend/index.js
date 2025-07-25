@@ -1,20 +1,20 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
   projectId: "project-1-1e31c",
   storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203", // Fixed: was incorrectly set to storage bucket
+  messagingSenderId: "658275930203",
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
 };
 
 // Initialize Firebase
-const app= initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Global variables
 let currentUser = null;
@@ -101,13 +101,28 @@ document.addEventListener("DOMContentLoaded", function () {
   const headerSignupBtn = document.getElementById("headerSignupBtn");
 
   if (headerLoginBtn) {
-    headerLoginBtn.addEventListener("click", function () {
-      openModal("login");
+    headerLoginBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (currentUser) {
+        // User is logged in, redirect to appropriate dashboard
+        redirectToDashboard();
+      } else {
+        // User is not logged in, show login modal
+        openModal("login");
+      }
     });
   }
+  
   if (headerSignupBtn) {
-    headerSignupBtn.addEventListener("click", function () {
-      openModal("signup-options");
+    headerSignupBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (currentUser) {
+        // User is logged in, handle logout
+        handleLogout();
+      } else {
+        // User is not logged in, show signup modal
+        openModal("signup-options");
+      }
     });
   }
 
@@ -150,39 +165,65 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- FIREBASE AUTH INITIALIZATION ---
   function initializeAuth() {
-    auth.onAuthStateChanged((user) => {
+    onAuthStateChanged(auth, async (user) => {
       currentUser = user;
-      updateUIForAuthState(user);
+      await updateUIForAuthState(user);
     });
   }
 
-  function updateUIForAuthState(user) {
+  async function updateUIForAuthState(user) {
     const headerLoginBtn = document.getElementById("headerLoginBtn");
     const headerSignupBtn = document.getElementById("headerSignupBtn");
     
     if (user) {
-      // User is signed in
-      if (headerLoginBtn) {
-        headerLoginBtn.textContent = "Dashboard";
-        headerLoginBtn.onclick = () => {
-          // Redirect to dashboard or show user menu
-          window.location.href = "/dashboard";
-        };
-      }
-      if (headerSignupBtn) {
-        headerSignupBtn.textContent = "Logout";
-        headerSignupBtn.onclick = handleLogout;
+      // User is signed in - get user type from Firestore
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.exists() ? userDoc.data() : null;
+        
+        if (headerLoginBtn) {
+          headerLoginBtn.textContent = "Dashboard";
+        }
+        if (headerSignupBtn) {
+          headerSignupBtn.textContent = "Logout";
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
     } else {
       // User is signed out
       if (headerLoginBtn) {
         headerLoginBtn.textContent = "Login";
-        headerLoginBtn.onclick = () => openModal("login");
       }
       if (headerSignupBtn) {
         headerSignupBtn.textContent = "Sign Up";
-        headerSignupBtn.onclick = () => openModal("signup-options");
       }
+    }
+  }
+
+  // --- REDIRECT TO APPROPRIATE DASHBOARD ---
+  async function redirectToDashboard() {
+    if (!currentUser) return;
+    
+    try {
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userType = userData.userType || userData.role || "student";
+        
+        if (userType === "landlord") {
+          window.location.href = "landlord-dashboard.html";
+        } else {
+          window.location.href = "student-dashboard.html";
+        }
+      } else {
+        // Default to student dashboard if no user data found
+        window.location.href = "student-dashboard.html";
+      }
+    } catch (error) {
+      console.error("Error redirecting to dashboard:", error);
+      // Default fallback
+      window.location.href = "student-dashboard.html";
     }
   }
 
@@ -195,13 +236,24 @@ document.addEventListener("DOMContentLoaded", function () {
       const password = document.getElementById("studentLoginPassword").value;
       const submitBtn = studentLoginForm.querySelector("button[type='submit']");
       
+      if (!email || !password) {
+        showMessage("Please enter both email and password.", "error");
+        return;
+      }
+      
       if (submitBtn) submitBtn.disabled = true;
       
       try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         console.log("User signed in:", userCredential.user);
         closeModal(document.getElementById("login"));
         showMessage("Successfully logged in!", "success");
+        
+        // Redirect to appropriate dashboard after successful login
+        setTimeout(() => {
+          redirectToDashboard();
+        }, 1000);
+        
       } catch (error) {
         console.error("Login error:", error);
         showMessage(getFirebaseErrorMessage(error), "error");
@@ -224,30 +276,97 @@ document.addEventListener("DOMContentLoaded", function () {
       const phone = document.getElementById("studentPhone")?.value || "";
       const submitBtn = studentSignupForm.querySelector("button[type='submit']");
       
+      if (!name || !email || !password) {
+        showMessage("Please fill in all required fields.", "error");
+        return;
+      }
+      
       if (submitBtn) submitBtn.disabled = true;
       
       try {
         // Create user account
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
         // Store additional user data in Firestore
-        await db.collection("users").doc(user.uid).set({
+        await setDoc(doc(db, "users", user.uid), {
           name: name,
           email: email,
           school: school,
           studentId: studentId,
           phone: phone,
           userType: "student",
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: serverTimestamp(),
           verified: false
         });
         
         console.log("User created:", user);
         closeModal(document.getElementById("student-signup"));
         showMessage("Account created successfully!", "success");
+        
+        // Redirect to student dashboard after successful signup
+        setTimeout(() => {
+          window.location.href = "student-dashboard.html";
+        }, 1000);
+        
       } catch (error) {
         console.error("Signup error:", error);
+        showMessage(getFirebaseErrorMessage(error), "error");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  // --- LANDLORD SIGNUP FORM ---
+  const landlordSignupForm = document.getElementById("landlordSignupForm");
+  if (landlordSignupForm) {
+    landlordSignupForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("landlordName").value;
+      const email = document.getElementById("landlordEmail").value;
+      const password = document.getElementById("landlordPassword").value;
+      const phone = document.getElementById("landlordPhone")?.value || "";
+      const company = document.getElementById("landlordCompany")?.value || "";
+      const submitBtn = landlordSignupForm.querySelector("button[type='submit']");
+      
+      if (!name || !email || !password) {
+        showMessage("Please fill in all required fields.", "error");
+        return;
+      }
+      
+      if (submitBtn) submitBtn.disabled = true;
+      
+      try {
+        // Create user account
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Store additional user data in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          phone: phone,
+          company: company,
+          userType: "landlord",
+          createdAt: serverTimestamp(),
+          verified: false
+        });
+        
+        // Decrease available landlord spots
+        await decreaseLandlordSpots();
+        
+        console.log("Landlord created:", user);
+        closeModal(document.getElementById("landlord-signup"));
+        showMessage("Landlord account created successfully!", "success");
+        
+        // Redirect to landlord dashboard after successful signup
+        setTimeout(() => {
+          window.location.href = "landlord-dashboard.html";
+        }, 1000);
+        
+      } catch (error) {
+        console.error("Landlord signup error:", error);
         showMessage(getFirebaseErrorMessage(error), "error");
       } finally {
         if (submitBtn) submitBtn.disabled = false;
@@ -258,8 +377,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- LOGOUT FUNCTIONALITY ---
   async function handleLogout() {
     try {
-      await auth.signOut();
+      await signOut(auth);
       showMessage("Successfully logged out!", "success");
+      // Stay on current page after logout
     } catch (error) {
       console.error("Logout error:", error);
       showMessage("Error logging out. Please try again.", "error");
@@ -283,7 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Collect form data
       const formData = new FormData(waitlistForm);
       const data = {
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: serverTimestamp()
       };
       formData.forEach((value, key) => {
         data[key] = value;
@@ -291,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       try {
         // Add to Firestore waitlist collection
-        await db.collection("waitlist").add(data);
+        await addDoc(collection(db, "waitlist"), data);
         
         waitlistForm.style.display = "none";
         waitlistFormSuccessMsg.textContent = "Thank you! You've been added to our waitlist.";
@@ -323,8 +443,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadLandlordSpots() {
     try {
-      const spotsDoc = await db.collection("settings").doc("landlordSpots").get();
-      if (spotsDoc.exists) {
+      const spotsDoc = await getDoc(doc(db, "settings", "landlordSpots"));
+      if (spotsDoc.exists()) {
         currentLandlordSpots = spotsDoc.data().available || 0;
       }
       if (landlordSpotsLeftSpan) {
@@ -365,7 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
       currentLandlordSpots--;
       
       try {
-        await db.collection("settings").doc("landlordSpots").update({
+        await updateDoc(doc(db, "settings", "landlordSpots"), {
           available: currentLandlordSpots
         });
         
