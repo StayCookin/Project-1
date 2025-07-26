@@ -402,25 +402,7 @@
         </form>
       </div>
     </div>
-    <script src="/frontend/property-details.js" defer></script>
-    <script src="/frontend/index.js" defer></script>
-    <script>
-      // Logout button functionality (for header)
-      document.addEventListener("DOMContentLoaded", function () {
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-          logoutBtn.addEventListener("click", async function (e) {
-            e.preventDefault();
-            if (confirm("Are you sure you want to logout?")) {
-              await fetch("/api/auth/logout", {
-                method: "POST",
-                credentials: "include",
-              });
-              window.location.href = "/index.html";
-            }
-          });
-        }
-      });
+    <script type="module" src="/frontend/property-details.js" defer></script>   
     </script>
   </body>
 </html>

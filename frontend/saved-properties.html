@@ -244,23 +244,6 @@
       <div class="saved-properties-grid" id="savedPropertiesGrid"></div>
     </div>
     <script src="saved-properties.js" defer></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-          logoutBtn.addEventListener("click", async function () {
-            // Call backend logout endpoint if available
-            try {
-              await fetch("/api/auth/logout", {
-                method: "POST",
-                credentials: "include",
-              });
-            } catch (e) {}
-            // Redirect to login or home page
-            window.location.href = "/index.html";
-          });
-        }
-      });
-    </script>
+    
   </body>
 </html>
