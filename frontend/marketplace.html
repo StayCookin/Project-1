@@ -553,7 +553,11 @@
           </a>
         );
       }
+const messagesBtnHeader = document.getElementById("messageBtnHeader");
 
+messageBtnHeader.addEventListener("click", function()){
+  window.location.href="messages.html";
+};
       function setupLogout() {
         // Use event delegation since the logout button is dynamically added
         document.addEventListener("click", async function (e) {
