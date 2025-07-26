@@ -40,7 +40,20 @@ document.addEventListener("DOMContentLoaded", function () {
       document.body.style.overflow = "hidden";
     }
   }
-
+async function initializeLandlordSpots(db){
+  try{
+    await setDoc(doc(db, "settings", "landlordSpots"), {
+      available: 10,
+      total: 10,
+      lastUpdated: new Date(),
+      createdAt: new Date()
+    });
+    console.log("Landlord spots initialized successfully");
+  }
+  catch (error){
+    console.error("Error initializing landlord spots:", error);
+  }
+}
   /**
    * Closes an active modal.
    * @param {HTMLElement} modal - The modal element to close.

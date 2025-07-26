@@ -1,5 +1,38 @@
-// Import Firebase configuration
-import "../js/firebase-config.js";
+// Fixed Landlord Dashboard JavaScript - Using Firebase v9+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { 
+  getAuth, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", async function () {
   let currentUser = null;
@@ -8,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   let analytics = {};
 
   // Initialize Firebase Auth listener
-  firebase.auth().onAuthStateChanged(async function (user) {
+  onAuthStateChanged(auth, async function (user) {
     if (!user) {
       console.log("No authenticated user found");
       window.location.href = "index.html";
@@ -28,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       landlordData = await fetchLandlordProfile(user.uid);
 
       // Verify user is a landlord
-      if (!landlordData || landlordData.role !== "landlord") {
+      if (!landlordData || (landlordData.role !== "landlord" && landlordData.userType !== "landlord")) {
         alert("Access denied. Only landlords can access this page.");
         window.location.href = "index.html";
         return;
@@ -60,13 +93,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchLandlordProfile(userId) {
     try {
-      const userDoc = await firebase
-        .firestore()
-        .collection("users")
-        .doc(userId)
-        .get();
+      const userDocRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists) {
+      if (!userDoc.exists()) {
         throw new Error("User profile not found");
       }
 
@@ -79,15 +109,17 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchLandlordProperties(landlordId) {
     try {
-      const propertiesSnapshot = await firebase
-        .firestore()
-        .collection("properties")
-        .where("landlordId", "==", landlordId)
-        .orderBy("createdAt", "desc")
-        .get();
-
+      const propertiesRef = collection(db, "properties");
+      const q = query(
+        propertiesRef,
+        where("landlordId", "==", landlordId),
+        orderBy("createdAt", "desc")
+      );
+      
+      const querySnapshot = await getDocs(q);
       const propertiesList = [];
-      propertiesSnapshot.forEach((doc) => {
+      
+      querySnapshot.forEach((doc) => {
         propertiesList.push({ id: doc.id, ...doc.data() });
       });
 
@@ -177,6 +209,36 @@ document.addEventListener("DOMContentLoaded", async function () {
     const mainContent = document.querySelector(".main-content");
     if (mainContent) {
       mainContent.insertBefore(warningBanner, mainContent.firstChild);
+    }
+  }
+
+  function showVerificationReminder() {
+    const reminderBanner = document.createElement("div");
+    reminderBanner.className = "verification-reminder";
+    reminderBanner.style.cssText = `
+      background: #d1ecf1;
+      color: #0c5460;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      border: 1px solid #bee5eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    `;
+    reminderBanner.innerHTML = `
+      <div>
+        <strong>Verification Pending:</strong> Complete your verification to unlock all features.
+      </div>
+      <button onclick="window.location.href='verification.html'" 
+              style="background: #0c5460; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+        Verify Account
+      </button>
+    `;
+
+    const mainContent = document.querySelector(".main-content");
+    if (mainContent) {
+      mainContent.insertBefore(reminderBanner, mainContent.firstChild);
     }
   }
 
@@ -284,16 +346,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchAndDisplayInquiries(landlordId) {
     try {
-      const inquiriesSnapshot = await firebase
-        .firestore()
-        .collection("inquiries")
-        .where("landlordId", "==", landlordId)
-        .orderBy("createdAt", "desc")
-        .limit(10)
-        .get();
-
+      const inquiriesRef = collection(db, "inquiries");
+      const q = query(
+        inquiriesRef,
+        where("landlordId", "==", landlordId),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
+      
+      const querySnapshot = await getDocs(q);
       const inquiries = [];
-      inquiriesSnapshot.forEach((doc) => {
+      
+      querySnapshot.forEach((doc) => {
         inquiries.push({ id: doc.id, ...doc.data() });
       });
 
@@ -333,8 +397,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div><b>Property:</b> ${inq.propertyTitle || "Property"}</div>
                 <div><b>Message:</b> ${inq.message || "No message"}</div>
                 <div><b>Date:</b> ${
-                  inq.createdAt
+                  inq.createdAt && inq.createdAt.toDate
                     ? new Date(inq.createdAt.toDate()).toLocaleString()
+                    : inq.createdAt
+                    ? new Date(inq.createdAt).toLocaleString()
                     : "Unknown date"
                 }</div>
                 <div><b>Contact:</b> ${
@@ -357,7 +423,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         e.preventDefault();
         if (confirm("Are you sure you want to logout?")) {
           try {
-            await firebase.auth().signOut();
+            await signOut(auth);
             window.location.href = "index.html";
           } catch (error) {
             console.error("Logout error:", error);
@@ -374,6 +440,21 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (addPropertyBtn) {
       addPropertyBtn.addEventListener("click", function () {
         window.location.href = "add-property.html";
+      });
+    }
+
+    // Navigation buttons
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    if (dashboardBtn) {
+      dashboardBtn.addEventListener("click", function() {
+        window.location.href = "landlord-dashboard.html";
+      });
+    }
+
+    const messagesBtn = document.getElementById("messagesBtnHeader");
+    if (messagesBtn) {
+      messagesBtn.addEventListener("click", function() {
+        window.location.href = "messages.html";
       });
     }
   }
@@ -397,11 +478,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     try {
-      await firebase
-        .firestore()
-        .collection("properties")
-        .doc(propertyId)
-        .delete();
+      const propertyRef = doc(db, "properties", propertyId);
+      await deleteDoc(propertyRef);
 
       alert("Property deleted successfully!");
 
@@ -425,7 +503,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     loadingDiv.id = "dashboard-loading";
     loadingDiv.innerHTML = `
       <div style="text-align: center; padding: 2rem;">
-        <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #228B22; border-radius: 50%; animation: spin 1s linear infinite;"></div>
         <p style="margin-top: 1rem;">Loading dashboard...</p>
       </div>
     `;
