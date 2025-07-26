@@ -460,7 +460,6 @@
     let currentFilters = {};
     let propertiesListener = null;
 
-     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import {
       getAuth,
       onAuthStateChanged,
@@ -559,7 +558,7 @@
         // Setup Dashboard button
         const dashboardBtn = document.getElementById("dashboardBtn");
         if (dashboardBtn) {
-          dashboardBtn.addEventListener("click", function() {
+          dashboardBtn.addEventListener("click", function () {
             if (role === "student") {
               window.location.href = "student-dashboard.html";
             } else if (role === "landlord") {
@@ -574,7 +573,7 @@
         // Setup Messages button
         const messagesBtnHeader = document.getElementById("messagesBtnHeader");
         if (messagesBtnHeader) {
-          messagesBtnHeader.addEventListener("click", function() {
+          messagesBtnHeader.addEventListener("click", function () {
             window.location.href = "messages.html";
           });
         }
@@ -715,7 +714,11 @@
           if (filters.bedroomFilter) {
             const beds = property.beds || property.bedrooms || 0;
             if (filters.bedroomFilter === "3" && beds < 3) return false;
-            if (filters.bedroomFilter !== "3" && beds != parseInt(filters.bedroomFilter)) return false;
+            if (
+              filters.bedroomFilter !== "3" &&
+              beds != parseInt(filters.bedroomFilter)
+            )
+              return false;
           }
 
           // Price range filter
@@ -723,9 +726,15 @@
             const price = property.price || 0;
             if (filters.priceFilter === "0-2000" && (price < 0 || price > 2000))
               return false;
-            if (filters.priceFilter === "2001-4000" && (price < 2001 || price > 4000))
+            if (
+              filters.priceFilter === "2001-4000" &&
+              (price < 2001 || price > 4000)
+            )
               return false;
-            if (filters.priceFilter === "4001-6000" && (price < 4001 || price > 6000))
+            if (
+              filters.priceFilter === "4001-6000" &&
+              (price < 4001 || price > 6000)
+            )
               return false;
             if (filters.priceFilter === "6000+" && price < 6000) return false;
           }
@@ -826,9 +835,7 @@
                 }
               </div>
               <div class="property-action">
-                <button class="btn" onclick="viewDetails('${
-                  property._id
-                }')">
+                <button class="btn" onclick="viewDetails('${property._id}')">
                   <i class="fas fa-eye"></i> View Details
                 </button>
                 <button class="btn" onclick="saveProperty('${
