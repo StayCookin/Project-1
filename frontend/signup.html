@@ -131,6 +131,12 @@
         outline: 2px solid #228b22;
         outline-offset: 2px;
       }
+      .logo{
+        padding:15%;
+        width:auto;
+        height: 350px;
+        padding-right: 25px;
+      }
       /* Modal styles */
       #emailVerificationModal {
         display: none !important;
@@ -209,6 +215,7 @@
       <span class="text-3xl font-bold text-forest"
         >In<span class="text-black">Rent</span></span
       >
+      <img src="./logo.jpg" class="logo" />
     </div>
     <div class="centered-form-container z-10 relative">
       <h2
@@ -391,8 +398,7 @@
         <button id="closeModalBtn" class="btn" style="width: 100%">OK</button>
       </div>
     </div>
-   
-      
+
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
       import {
@@ -445,7 +451,8 @@
         console.error("Firebase initialization failed:", err);
         const errorDiv = document.getElementById("signupError");
         if (errorDiv) {
-          errorDiv.textContent = "Failed to initialize Firebase. Please try again.";
+          errorDiv.textContent =
+            "Failed to initialize Firebase. Please try again.";
         }
         throw new Error("Firebase initialization failed");
       }
@@ -456,14 +463,22 @@
           if (user.emailVerified) {
             // User is verified - check if we should redirect
             console.log("User is authenticated and verified:", user.uid);
-            
+
             // Only redirect if we're on signup/login pages
             const currentPage = window.location.pathname;
-            const authPages = ['/signup', '/login', '/signup.html', '/login.html', '/', '/index', '/index.html'];
-            const isOnAuthPage = authPages.some(page => 
-              currentPage === page || currentPage.endsWith(page)
+            const authPages = [
+              "/signup",
+              "/login",
+              "/signup.html",
+              "/login.html",
+              "/",
+              "/index",
+              "/index.html",
+            ];
+            const isOnAuthPage = authPages.some(
+              (page) => currentPage === page || currentPage.endsWith(page)
             );
-            
+
             if (isOnAuthPage) {
               console.log("Redirecting verified user to marketplace");
               setTimeout(() => {
@@ -486,9 +501,9 @@
       function showEmailVerificationPrompt(user) {
         // Remove any existing verification prompt
         hideEmailVerificationPrompt();
-        
-        const prompt = document.createElement('div');
-        prompt.id = 'email-verification-prompt';
+
+        const prompt = document.createElement("div");
+        prompt.id = "email-verification-prompt";
         prompt.style.cssText = `
           position: fixed;
           top: 0;
@@ -501,7 +516,7 @@
           z-index: 9999;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         `;
-        
+
         prompt.innerHTML = `
           <div style="max-width: 600px; margin: 0 auto;">
             <p style="margin: 0 0 10px 0; color: #856404; font-weight: bold;">
@@ -541,60 +556,68 @@
             </div>
           </div>
         `;
-        
+
         document.body.insertBefore(prompt, document.body.firstChild);
-        
+
         // Add event listeners
-        document.getElementById('resend-verification').addEventListener('click', async () => {
-          try {
-            await sendEmailVerification(user);
-            alert('Verification email sent! Please check your inbox.');
-          } catch (error) {
-            console.error('Error sending verification email:', error);
-            alert('Failed to send verification email. Please try again.');
-          }
-        });
-        
-        document.getElementById('refresh-verification').addEventListener('click', async () => {
-          try {
-            await user.reload();
-            if (user.emailVerified) {
-              hideEmailVerificationPrompt();
-              window.location.href = "/marketplace.html";
-            } else {
-              alert('Email not verified yet. Please check your inbox and click the verification link.');
+        document
+          .getElementById("resend-verification")
+          .addEventListener("click", async () => {
+            try {
+              await sendEmailVerification(user);
+              alert("Verification email sent! Please check your inbox.");
+            } catch (error) {
+              console.error("Error sending verification email:", error);
+              alert("Failed to send verification email. Please try again.");
             }
-          } catch (error) {
-            console.error('Error checking verification status:', error);
-            alert('Failed to check verification status. Please try again.');
-          }
-        });
-        
-        document.getElementById('sign-out-unverified').addEventListener('click', async () => {
-          try {
-            await auth.signOut();
-            hideEmailVerificationPrompt();
-          } catch (error) {
-            console.error('Error signing out:', error);
-          }
-        });
+          });
+
+        document
+          .getElementById("refresh-verification")
+          .addEventListener("click", async () => {
+            try {
+              await user.reload();
+              if (user.emailVerified) {
+                hideEmailVerificationPrompt();
+                window.location.href = "/marketplace.html";
+              } else {
+                alert(
+                  "Email not verified yet. Please check your inbox and click the verification link."
+                );
+              }
+            } catch (error) {
+              console.error("Error checking verification status:", error);
+              alert("Failed to check verification status. Please try again.");
+            }
+          });
+
+        document
+          .getElementById("sign-out-unverified")
+          .addEventListener("click", async () => {
+            try {
+              await auth.signOut();
+              hideEmailVerificationPrompt();
+            } catch (error) {
+              console.error("Error signing out:", error);
+            }
+          });
       }
 
       // Function to hide email verification prompt
       function hideEmailVerificationPrompt() {
-        const prompt = document.getElementById('email-verification-prompt');
+        const prompt = document.getElementById("email-verification-prompt");
         if (prompt) {
           prompt.remove();
         }
       }
 
       // Wait for DOM to be ready
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Show/hide fields based on role
         const roleSelect = document.getElementById("role");
         const studentFields = document.getElementById("studentFields");
         const landlordFields = document.getElementById("landlordFields");
-        
+
         if (roleSelect) {
           roleSelect.addEventListener("change", function () {
             if (this.value === "STUDENT") {
@@ -635,7 +658,7 @@
           // Since all files are in frontend root, just redirect directly
           // Vercel routing will handle the rest
           console.log(`Redirecting to: ${url}`);
-          
+
           // Add a small delay to ensure all Firebase operations complete
           setTimeout(() => {
             window.location.href = url;
@@ -648,7 +671,7 @@
           signupForm.addEventListener("submit", async function (e) {
             e.preventDefault();
             e.stopPropagation(); // Prevent any other handlers
-            
+
             console.log("Form submission started");
             const role = roleSelect ? roleSelect.value : "";
             const email = document.getElementById("emailAddress")?.value || "";
@@ -658,13 +681,13 @@
               errorDiv.style.color = "red"; // Reset to default error color
             }
             const submitBtn = this.querySelector('button[type="submit"]');
-            
+
             // Prevent multiple submissions
             if (submitBtn && submitBtn.disabled) {
               console.log("Form already being processed");
               return;
             }
-            
+
             if (submitBtn) {
               submitBtn.disabled = true;
               submitBtn.innerHTML =
@@ -676,35 +699,47 @@
               if (role === "STUDENT") {
                 const uniPattern = /@.*\.ac\.bw$/i;
                 if (!uniPattern.test(email)) {
-                  throw new Error("Please use your university email address (ending with .ac.bw)");
+                  throw new Error(
+                    "Please use your university email address (ending with .ac.bw)"
+                  );
                 }
-                const studentIdFile = document.getElementById("studentId")?.files[0];
+                const studentIdFile =
+                  document.getElementById("studentId")?.files[0];
                 if (!studentIdFile) {
-                  throw new Error("Please upload your student ID or admission letter.");
+                  throw new Error(
+                    "Please upload your student ID or admission letter."
+                  );
                 }
               }
-              
+
               if (role === "LANDLORD") {
                 const kycFile = document.getElementById("kycDoc")?.files[0];
                 if (!kycFile) {
-                  throw new Error("Please upload your KYC/proof of ownership document.");
+                  throw new Error(
+                    "Please upload your KYC/proof of ownership document."
+                  );
                 }
               }
-              
+
               const pw = document.getElementById("password")?.value || "";
-              const pwc = document.getElementById("passwordConfirm")?.value || "";
-              
+              const pwc =
+                document.getElementById("passwordConfirm")?.value || "";
+
               if (pw !== pwc) {
                 throw new Error("Passwords do not match.");
               }
-              
+
               if (!isValidPassword(pw)) {
-                throw new Error("Password must be at least 8 characters, include one uppercase letter, one number, and one special character.");
+                throw new Error(
+                  "Password must be at least 8 characters, include one uppercase letter, one number, and one special character."
+                );
               }
-              
+
               const termsConsent = document.getElementById("termsConsent");
               if (!termsConsent || !termsConsent.checked) {
-                throw new Error("You must agree to the Terms & Conditions and Privacy Policy.");
+                throw new Error(
+                  "You must agree to the Terms & Conditions and Privacy Policy."
+                );
               }
 
               // Firebase signup
@@ -720,7 +755,8 @@
               // Upload file to Firebase Storage
               let fileUrl = null;
               if (role === "STUDENT") {
-                const studentIdFile = document.getElementById("studentId")?.files[0];
+                const studentIdFile =
+                  document.getElementById("studentId")?.files[0];
                 if (studentIdFile) {
                   const storageRef = ref(
                     storage,
@@ -761,7 +797,8 @@
 
               // Reset form
               this.reset();
-              const studentIdFileName = document.getElementById("studentIdFileName");
+              const studentIdFileName =
+                document.getElementById("studentIdFileName");
               if (studentIdFileName) {
                 studentIdFileName.textContent = "";
               }
@@ -769,26 +806,30 @@
               // Show success message - don't redirect immediately
               if (errorDiv) {
                 errorDiv.style.color = "green";
-                errorDiv.textContent = "Account created successfully! Please check your email for verification instructions.";
+                errorDiv.textContent =
+                  "Account created successfully! Please check your email for verification instructions.";
               }
-              
+
               // The onAuthStateChanged listener will handle showing the verification prompt
               console.log("Signup complete, waiting for email verification");
-
             } catch (err) {
               console.error("Signup error:", err.code || err.message || err);
               let msg = "Signup failed. Please try again.";
-              
+
               if (err.code === "auth/email-already-in-use") {
                 msg = "Email already in use.";
               } else if (err.code === "auth/weak-password") {
                 msg = "Password is too weak.";
-              } else if (err.message && err.message.includes("failed to resolve specific modifier")) {
-                msg = "Unexpected error in form processing. Please check your input and try again.";
+              } else if (
+                err.message &&
+                err.message.includes("failed to resolve specific modifier")
+              ) {
+                msg =
+                  "Unexpected error in form processing. Please check your input and try again.";
               } else if (err.message) {
                 msg = err.message;
               }
-              
+
               if (errorDiv) {
                 errorDiv.style.color = "red";
                 errorDiv.textContent = msg;
