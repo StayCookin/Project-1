@@ -131,9 +131,9 @@
         outline: 2px solid #228b22;
         outline-offset: 2px;
       }
-      .logo{
-        padding:15%;
-        width:auto;
+      .logo {
+        padding: 15%;
+        width: auto;
         height: 350px;
         padding-right: 25px;
       }
@@ -496,6 +496,7 @@
           hideEmailVerificationPrompt();
         }
       });
+      //
 
       // Function to show email verification prompt
       function showEmailVerificationPrompt(user) {
@@ -853,6 +854,29 @@
             link.setAttribute("href", "login.html");
           });
       });
+
+      function registerUser(email, password, roleSelect) {
+        createUserWithEmailAndPassword(auth, email, password)
+          .then(async (userCredential) => {
+            const user = userCredential.user;
+
+            await setDoc(doc(db, "users", user.uid), {
+              email: email,
+              role: roleSelect,
+            });
+
+            if (roleSelect == "STUDENT") {
+              window.location.href = "marketplace.html";
+            } else {
+              window.location.href = "marketplace.html";
+            }
+          })
+          .catch((error) => {
+            console.error("Error during sign up:", error.message);
+          });
+      }
+
+      // Save role in Firestore
 
       // Spinner animation
       const style = document.createElement("style");

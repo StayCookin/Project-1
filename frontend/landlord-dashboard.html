@@ -15,7 +15,10 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="landlord_dashboard.css" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -24,9 +27,7 @@
       gtag("js", new Date());
       gtag("config", "G-1F24YHYS28");
     </script>
-    <style>
-      
-    </style>
+    <style></style>
   </head>
   <body>
     <div class="landlord-sidebar" id="landlordSidebar">
@@ -35,37 +36,51 @@
       </div>
       <ul class="sidebar-menu">
         <li>
-          <a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+          <a href="#dashboard" class="active"
+            ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a
+          >
         </li>
         <li>
-          <a href="#properties"><i class="fas fa-home"></i> <span>Properties</span></a>
+          <a href="#properties"
+            ><i class="fas fa-home"></i> <span>Properties</span></a
+          >
         </li>
         <li>
-          <a href="create_listing.html" id="sidebarAddProperty"><i class="fas fa-plus"></i> <span>Add Property</span></a>
+          <a href="create_listing.html" id="sidebarAddProperty"
+            ><i class="fas fa-plus"></i> <span>Add Property</span></a
+          >
         </li>
         <li>
-          <a href="#messages"><i class="fas fa-envelope"></i> <span>Messages</span></a>
+          <a href="messages.html"
+            ><i class="fas fa-envelope"></i> <span>Messages</span></a
+          >
         </li>
         <li>
-          <a href="#reviews"><i class="fas fa-star"></i> <span>Reviews</span></a>
+          <a href="#reviews"
+            ><i class="fas fa-star"></i> <span>Reviews</span></a
+          >
         </li>
         <li>
-          <a href="#settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+          <a href="settings.html"
+            ><i class="fas fa-cog"></i> <span>Settings</span></a
+          >
         </li>
         <li>
-          <a href="#logout" id="sidebarLogout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
+          <a href="index.html" id="logoutBtn"
+            ><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a
+          >
         </li>
       </ul>
     </div>
 
     <div class="main-container">
       <div class="mobile-header">
-          <div class="sidebar-logo">
-              <span class="in">In</span><span class="rent">Rent</span>
-          </div>
-          <button id="menuToggle" class="menu-toggle">
-              <i class="fas fa-bars"></i>
-          </button>
+        <div class="sidebar-logo">
+          <span class="in">In</span><span class="rent">Rent</span>
+        </div>
+        <button id="menuToggle" class="menu-toggle">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
 
       <div class="dashboard-header">
@@ -74,12 +89,12 @@
           <p>Here's what's happening with your properties today.</p>
         </div>
         <div class="profile-section">
-            <img
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
-              alt="Profile Photo"
-              class="profile-image"
-              id="profileImage"
-            />
+          <img
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+            alt="Profile Photo"
+            class="profile-image"
+            id="profileImage"
+          />
         </div>
       </div>
 
@@ -128,15 +143,16 @@
             <i class="fas fa-plus"></i> Add New Property
           </button>
         </div>
-        <div class="properties-grid" id="propertiesGrid">
-          </div>
+        <div class="properties-grid" id="propertiesGrid"></div>
       </div>
     </div>
-
+    <script type="module" src="landlord_dashboard.js" defer></script>
     <script>
-        // Simple script to toggle sidebar on mobile
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            document.getElementById('landlordSidebar').classList.toggle('active');
+      // Simple script to toggle sidebar on mobile
+      document
+        .getElementById("menuToggle")
+        .addEventListener("click", function () {
+          document.getElementById("landlordSidebar").classList.toggle("active");
         });
     </script>
   </body>
