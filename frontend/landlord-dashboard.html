@@ -15,153 +15,94 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="landlord_dashboard.css" />
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-1F24YHYS28');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-1F24YHYS28");
+    </script>
+    <style>
+      
+    </style>
   </head>
   <body>
-    <!-- Add a fixed sidebar for landlord navigation -->
-    <div class="landlord-sidebar">
+    <div class="landlord-sidebar" id="landlordSidebar">
       <div class="sidebar-logo">
         <span class="in">In</span><span class="rent">Rent</span>
       </div>
       <ul class="sidebar-menu">
         <li>
-          <a href="#dashboard" class="active"
-            ><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a
-          >
+          <a href="#dashboard" class="active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
         </li>
         <li>
-          <a href="#properties"
-            ><i class="fas fa-home"></i> <span>Properties</span></a
-          >
+          <a href="#properties"><i class="fas fa-home"></i> <span>Properties</span></a>
         </li>
         <li>
-          <a href="create_listing.html" id="sidebarAddProperty"
-            ><i class="fas fa-plus"></i> <span>Add Property</span></a
-          >
+          <a href="create_listing.html" id="sidebarAddProperty"><i class="fas fa-plus"></i> <span>Add Property</span></a>
         </li>
         <li>
-          <a href="#messages"
-            ><i class="fas fa-envelope"></i> <span>Messages</span></a
-          >
+          <a href="#messages"><i class="fas fa-envelope"></i> <span>Messages</span></a>
         </li>
         <li>
-          <a href="#reviews"
-            ><i class="fas fa-star"></i> <span>Reviews</span></a
-          >
+          <a href="#reviews"><i class="fas fa-star"></i> <span>Reviews</span></a>
         </li>
         <li>
-          <a href="#settings"
-            ><i class="fas fa-cog"></i> <span>Settings</span></a
-          >
+          <a href="#settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
         </li>
         <li>
-          <a href="#logout" id="sidebarLogout"
-            ><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a
-          >
+          <a href="#logout" id="sidebarLogout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a>
         </li>
       </ul>
     </div>
-    <div
-      class="container"
-      style="margin-left: 240px; max-width: calc(100% - 260px)"
-    >
-      <!-- Profile Section -->
-      <div class="profile-section" style="float: right">
-        <div class="profile-image-container">
-          <img
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
-            alt="Profile Photo"
-            class="profile-image"
-            id="profileImage"
-          />
-          <label for="imageUpload" class="image-upload-overlay">
-            <i class="fas fa-camera"></i>
-          </label>
-          <input
-            type="file"
-            id="imageUpload"
-            accept="image/*"
-            onchange="handleLandlordImageUpload(event)"
-          />
-          <button
-            id="removeProfileImage"
-            style="
-              display: none;
-              position: absolute;
-              top: 8px;
-              right: 8px;
-              background: #fff;
-              border: none;
-              border-radius: 50%;
-              padding: 4px 7px;
-              cursor: pointer;
-            "
-          >
-            <i class="fas fa-trash" style="color: #dc3545"></i>
-          </button>
-        </div>
-      </div>
 
-      <div class="fixed-verified-banner" id="fixedVerifiedBanner">
-        <i class="fas fa-check-circle"></i>
-        <span>Verified Landlord</span>
+    <div class="main-container">
+      <div class="mobile-header">
+          <div class="sidebar-logo">
+              <span class="in">In</span><span class="rent">Rent</span>
+          </div>
+          <button id="menuToggle" class="menu-toggle">
+              <i class="fas fa-bars"></i>
+          </button>
       </div>
 
       <div class="dashboard-header">
         <div class="welcome-section">
-          <h1>Welcome back, Mr. Smith!</h1>
-          <p>Here's what's happening with your properties today</p>
+          <h1>Welcome!</h1>
+          <p>Here's what's happening with your properties today.</p>
         </div>
-        <div class="quick-actions">
-          <button class="btn btn-primary">
-            <i class="fas fa-plus" href="create_listing.html"></i> Add Property
-          </button>
-          <button class="btn btn-secondary" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
+        <div class="profile-section">
+            <img
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80"
+              alt="Profile Photo"
+              class="profile-image"
+              id="profileImage"
+            />
         </div>
       </div>
 
       <div class="analytics-grid" id="analyticsGrid">
         <div class="analytics-card" id="totalPropertiesCard">
           <h3>Total Properties</h3>
-          <div class="value" id="totalPropertiesValue">12</div>
-          <div class="trend positive" id="totalPropertiesTrend">
-            <i class="fas fa-arrow-up"></i>
-            <span>+2 this month</span>
-          </div>
+          <div class="value" id="totalPropertiesValue"></div>
+          <div class="trend" id="totalPropertiesTrend"></div>
         </div>
         <div class="analytics-card" id="totalRevenueCard">
           <h3>Total Revenue</h3>
-          <div class="value" id="totalRevenueValue">P42,000</div>
-          <div class="trend positive" id="totalRevenueTrend">
-            <i class="fas fa-arrow-up"></i>
-            <span>+15% from last month</span>
-          </div>
+          <div class="value" id="totalRevenueValue"></div>
+          <div class="trend" id="totalRevenueTrend"></div>
         </div>
         <div class="analytics-card" id="occupancyRateCard">
           <h3>Occupancy Rate</h3>
-          <div class="value" id="occupancyRateValue">92%</div>
-          <div class="trend positive" id="occupancyRateTrend">
-            <i class="fas fa-arrow-up"></i>
-            <span>+5% from last month</span>
-          </div>
+          <div class="value" id="occupancyRateValue"></div>
+          <div class="trend" id="occupancyRateTrend"></div>
         </div>
         <div class="analytics-card" id="inrentFeesCard">
           <h3>InRent Fees</h3>
-          <div class="value" id="inrentFeesValue">P4,200</div>
-          <div class="trend negative" id="inrentFeesTrend">
-            <i class="fas fa-arrow-down"></i>
-            <span>-10% from last month</span>
-          </div>
+          <div class="value" id="inrentFeesValue"></div>
+          <div class="trend" id="inrentFeesTrend"></div>
         </div>
       </div>
 
@@ -177,256 +118,26 @@
             </select>
           </div>
         </div>
-        <div
-          style="
-            height: 300px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        >
-          [Revenue Chart Placeholder]
-        </div>
+        <div class="chart-placeholder"></div>
       </div>
 
       <div class="properties-section">
         <div class="section-header">
           <h2>Your Properties</h2>
           <button class="btn btn-primary">
-            <i class="fas fa-plus" href="create_listing.html"></i> Add New
-            Property
+            <i class="fas fa-plus"></i> Add New Property
           </button>
         </div>
-        <div class="properties-grid">
-          <!-- Property Card 1 -->
-          <div class="property-card">
-            <img
-              src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-              alt="Modern Apartment"
-              class="property-image"
-            />
-            <div class="property-details">
-              <h3 class="property-title">Modern Apartment near UB</h3>
-              <p class="property-location">Gaborone, Near UB Campus</p>
-              <div class="property-stats">
-                <div class="stat-item">
-                  <div class="stat-value">P3,500</div>
-                  <div class="stat-label">Monthly Rent</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">95%</div>
-                  <div class="stat-label">Occupancy</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">4.8</div>
-                  <div class="stat-label">Rating</div>
-                </div>
-              </div>
-              <div class="property-actions">
-                <button class="btn btn-primary">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-secondary">
-                  <i class="fas fa-chart-line"></i> Analytics
-                </button>
-              </div>
-            </div>
+        <div class="properties-grid" id="propertiesGrid">
           </div>
-
-          <!-- Property Card 2 -->
-          <div class="property-card">
-            <img
-              src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-              alt="Cozy Studio"
-              class="property-image"
-            />
-            <div class="property-details">
-              <h3 class="property-title">Cozy Studio near Baisago</h3>
-              <p class="property-location">Gaborone, Near Baisago Campus</p>
-              <div class="property-stats">
-                <div class="stat-item">
-                  <div class="stat-value">P2,800</div>
-                  <div class="stat-label">Monthly Rent</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">100%</div>
-                  <div class="stat-label">Occupancy</div>
-                </div>
-                <div class="stat-item">
-                  <div class="stat-value">4.5</div>
-                  <div class="stat-label">Rating</div>
-                </div>
-              </div>
-              <div class="property-actions">
-                <button class="btn btn-primary">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-secondary">
-                  <i class="fas fa-chart-line"></i> Analytics
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Message Box -->
-      <div class="message-box">
-        <div class="message-header">
-          <div>
-            <h4>John Doe</h4>
-            <small>Student at UB</small>
-          </div>
-          <button class="close-message"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="message-content">
-          <div class="message received">
-            <p>
-              Hello, I'm interested in your property near UB campus. Is it still
-              available?
-            </p>
-            <small>10:30 AM</small>
-          </div>
-        </div>
-        <div class="message-input">
-          <input type="text" placeholder="Type your message..." />
-          <button><i class="fas fa-paper-plane"></i></button>
-        </div>
-      </div>
-
-      <!-- Property Creation Popup -->
-      <div class="popup-overlay">
-        <div class="property-popup">
-          <h2>Add New Property</h2>
-          <form id="propertyForm">
-            <div class="form-group">
-              <label for="propertyTitle">Property Title</label>
-              <input type="text" id="propertyTitle" required />
-            </div>
-            <div class="form-group">
-              <label for="propertyDetails">Property Details</label>
-              <textarea id="propertyDetails" rows="4" required></textarea>
-            </div>
-            <div class="form-group">
-              <label>Amenities</label>
-              <div class="checkbox-group">
-                <div class="checkbox-item">
-                  <input type="checkbox" id="wifi" />
-                  <label for="wifi">WiFi</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="parking" />
-                  <label for="parking">Parking</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="security" />
-                  <label for="security">Security</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="furnished" />
-                  <label for="furnished">Furnished</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="laundry" />
-                  <label for="laundry">Laundry</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Location</label>
-              <div class="checkbox-group">
-                <div class="checkbox-item">
-                  <input type="checkbox" id="nearUB" />
-                  <label for="nearUB">Near UB</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="nearBaisago" />
-                  <label for="nearBaisago">Near Baisago</label>
-                </div>
-                <div class="checkbox-item">
-                  <input type="checkbox" id="nearBotho" />
-                  <label for="nearBotho">Near Botho</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="propertyPrice">Monthly Rent (Pula)</label>
-              <input type="number" id="propertyPrice" required />
-            </div>
-            <div class="form-group">
-              <label>Property Type</label>
-              <div class="checkbox-group">
-                <div class="checkbox-item">
-                  <input
-                    type="radio"
-                    name="propertyType"
-                    id="private"
-                    value="private"
-                    checked
-                  />
-                  <label for="private">Private Accommodation</label>
-                </div>
-                <div class="checkbox-item">
-                  <input
-                    type="radio"
-                    name="propertyType"
-                    id="shared"
-                    value="shared"
-                  />
-                  <label for="shared">Shared Accommodation</label>
-                </div>
-              </div>
-            </div>
-            <div class="form-group shared-options" style="display: none">
-              <label>Shared Accommodation Details</label>
-              <div class="form-group">
-                <label for="totalRooms">Total Rooms in Property</label>
-                <input type="number" id="totalRooms" min="1" />
-              </div>
-              <div class="form-group">
-                <label for="availableRooms">Available Rooms</label>
-                <input type="number" id="availableRooms" min="1" />
-              </div>
-              <div class="form-group">
-                <label for="sharedSpaces">Shared Spaces</label>
-                <div class="checkbox-group">
-                  <div class="checkbox-item">
-                    <input type="checkbox" id="sharedKitchen" />
-                    <label for="sharedKitchen">Kitchen</label>
-                  </div>
-                  <div class="checkbox-item">
-                    <input type="checkbox" id="sharedBathroom" />
-                    <label for="sharedBathroom">Bathroom</label>
-                  </div>
-                  <div class="checkbox-item">
-                    <input type="checkbox" id="sharedLiving" />
-                    <label for="sharedLiving">Living Room</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="promotion-section">
-              <p>Promote your property for increased visibility</p>
-              <button type="button" class="btn btn-primary">
-                <i class="fas fa-bullhorn"></i> Promote for
-                <span class="promotion-price">P199.99</span>
-              </button>
-            </div>
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary">
-                Add Property
-              </button>
-              <button type="button" class="btn btn-secondary close-popup">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
       </div>
     </div>
 
-    <script src="landlord_dashboard.js" defer></script>
+    <script>
+        // Simple script to toggle sidebar on mobile
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('landlordSidebar').classList.toggle('active');
+        });
+    </script>
   </body>
 </html>
