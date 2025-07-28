@@ -123,7 +123,7 @@
           @media (max-width: 768px) {
             html { font-size: 15px; }
             .mobile-menu-btn { display: inline-block; }
-            .nav-links, .auth-buttons { display: inline-block; }
+            .nav-links, .auth-buttons { display: flex; gap:2rem; }
             .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
             .hero { padding: 3rem 0; }
             .hero-content h1 { font-size: 2rem; }
@@ -169,10 +169,10 @@
             <div class="container">
               <nav>
                 <div class="logo">
-                  <span class="in">In</span><span class="rent">Rent</span>
+                  <span href="index.html" class="in">In</span><span class="rent">Rent</span>
                 </div>
                 <ul class="nav-links">
-                  <li><a href="index.html">Home</a></li>
+      
                   <li><a href="/marketplace.html">Browse Accommodations</li>
                   <li><a href="#features">How it works</a></li>
                 </ul>
