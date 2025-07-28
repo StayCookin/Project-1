@@ -48,6 +48,11 @@
       gtag("js", new Date());
       gtag("config", "G-1F24YHYS28");
     </script>
+   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InRent Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
       :root {
         --forest-green: #228B22;
@@ -378,24 +383,27 @@
           order: 1;
           text-align: center;
         }
-        
+
+        /* === MODIFIED STYLES START HERE === */
         .filter-bar {
-          flex-direction: column;
+          flex-wrap: wrap;
+          justify-content: space-between;
           gap: 0.8rem;
           padding: 1rem;
-          margin: 0 0.5rem 1.5rem 0.5rem;
+          margin: 0 0.8rem 1.5rem 0.8rem;
         }
-        
+
         .filter-bar select,
-        .filter-bar input[type="text"] {
-          width: 100%;
-          min-width: auto;
+        .filter-bar .amenities-dropdown {
+          flex: 1 1 calc(50% - 0.4rem);
+          min-width: 130px;
         }
-        
-        .amenities-dropdown {
-          width: 100%;
-          min-width: auto;
+
+        .filter-bar input#searchInput,
+        .filter-bar button.btn {
+          flex-basis: 100%;
         }
+        /* === MODIFIED STYLES END HERE === */
         
         .property-list {
           grid-template-columns: 1fr;
@@ -439,8 +447,8 @@
         }
       }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="marketplace-header">
       <div class="nav-buttons">
         <button id="dashboardBtn" class="nav-btn" aria-label="Dashboard">
@@ -536,10 +544,9 @@
         Filter
       </button>
     </div>
-    
     <div class="property-list" id="propertyList">
-      <!-- Property cards will be rendered here dynamically -->
-    </div>
+      </div>
+
 
     <footer
       style="
@@ -1163,3 +1170,503 @@
     });
   </script>
 </html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InRent Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+      :root {
+        --forest-green: #228B22;
+        --forest-green-dark: #176b16;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f8fafb;
+        font-family: "Poppins", "Inter", Arial, sans-serif;
+      }
+      
+      .marketplace-header {
+        width: 100%;
+        background: white;
+        color: var(--forest-green);
+        padding: 1rem;
+        text-align: center;
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        box-shadow: 0 2px 8px rgba(34, 139, 34, 0.08);
+        margin-bottom: 1.5rem;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 60px;
+      }
+      
+      .nav-buttons {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      
+      .nav-btn {
+        background: none;
+        border: 1px solid var(--forest-green);
+        border-radius: 5px;
+        padding: 0.5rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--forest-green);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      
+      .nav-btn:hover {
+        background: #f0f8f0;
+      }
+      
+      .logout-btn {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 1.5px solid var(--forest-green);
+        border-radius: 5px;
+        padding: 0.5rem 0.8rem;
+        font-weight: 600;
+        transition: background 0.2s;
+        cursor: pointer;
+        color: var(--forest-green);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      
+      .logout-btn:hover {
+        background: #f0f8f0;
+      }
+      
+      .brand-text {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+      
+      .in {
+        color: var(--forest-green);
+      }
+      
+      .rent {
+        color: var(--forest-green-dark);
+      }
+      
+      .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        padding: 1rem;
+        margin: 0 1rem 2rem 1rem;
+        max-width: 1100px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .filter-bar select,
+      .filter-bar input[type="text"] {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--forest-green);
+        border-radius: 5px;
+        font-size: 1rem;
+        min-width: 140px;
+        flex: 1 1 140px;
+      }
+      
+      .filter-bar button.btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        background: var(--forest-green);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      
+      .property-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto 2rem auto;
+        padding: 0 1rem;
+      }
+      
+      .property-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.2s;
+      }
+      
+      .property-card:hover {
+        box-shadow: 0 8px 32px rgba(34, 139, 34, 0.13);
+      }
+      
+      .property-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #e6e6e6;
+      }
+      
+      .property-info {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .property-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 0.2rem;
+      }
+      
+      .property-location {
+        color: var(--forest-green);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      
+      .property-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        font-size: 0.9rem;
+        color: #444;
+        margin: 0.5rem 0;
+      }
+      
+      .property-price {
+        color: var(--forest-green-dark);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+      }
+      
+      .property-action {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-end;
+      }
+      
+      .property-action .btn {
+        background: var(--forest-green);
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 0.9rem;
+        flex: 1;
+        min-width: 100px;
+      }
+      
+      .property-action .btn:hover {
+        background: var(--forest-green-dark);
+      }
+      
+      .amenities-dropdown {
+        position: relative;
+        display: inline-block;
+        min-width: 140px;
+        flex: 1 1 140px;
+      }
+      
+      .amenities-dropdown-btn {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--forest-green);
+        border-radius: 5px;
+        font-size: 1rem;
+        background: #fff;
+        color: #222;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+      
+      .amenities-list {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 110%;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid var(--forest-green);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 100%;
+        padding: 0.5rem 0.7rem;
+        max-height: 220px;
+        overflow-y: auto;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+      }
+      
+      .amenities-list.show {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .amenities-list label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        padding: 0.3rem 0;
+        cursor: pointer;
+      }
+      
+      .amenities-list input[type="checkbox"] {
+        accent-color: var(--forest-green);
+      }
+      
+      /* Mobile Styles */
+      @media (max-width: 768px) {
+        .marketplace-header {
+          font-size: 1.2rem;
+          padding: 0.8rem;
+          flex-direction: column;
+          align-items: stretch;
+          min-height: auto;
+        }
+        
+        .nav-buttons {
+          position: static;
+          transform: none;
+          justify-content: space-around;
+          order: 2;
+          margin-top: 0.5rem;
+        }
+        
+        .nav-btn {
+          font-size: 0.8rem;
+          padding: 0.4rem 0.6rem;
+          flex: 1;
+          justify-content: center;
+        }
+        
+        .logout-btn {
+          position: static;
+          transform: none;
+          order: 3;
+          margin-top: 0.5rem;
+          align-self: center;
+          font-size: 0.8rem;
+          padding: 0.4rem 0.8rem;
+        }
+        
+        .brand-text {
+          font-size: 1.2rem;
+          order: 1;
+          text-align: center;
+        }
+
+        /* === MODIFIED STYLES START HERE === */
+        .filter-bar {
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 0.8rem;
+          padding: 1rem;
+          margin: 0 0.8rem 1.5rem 0.8rem;
+        }
+
+        .filter-bar select,
+        .filter-bar .amenities-dropdown {
+          flex: 1 1 calc(50% - 0.4rem);
+          min-width: 130px;
+        }
+
+        .filter-bar input#searchInput,
+        .filter-bar button.btn {
+          flex-basis: 100%;
+        }
+        /* === MODIFIED STYLES END HERE === */
+        
+        .property-list {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+          padding: 0 0.5rem;
+        }
+        
+        .property-action {
+          flex-direction: column;
+        }
+        
+        .property-action .btn {
+          min-width: auto;
+          flex: none;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .nav-btn span {
+          display: none;
+        }
+        
+        .nav-btn {
+          padding: 0.4rem;
+          min-width: 40px;
+          justify-content: center;
+        }
+        
+        .logout-btn span {
+          display: none;
+        }
+        
+        .logout-btn {
+          padding: 0.4rem;
+          min-width: 40px;
+          justify-content: center;
+        }
+        
+        .brand-text {
+          font-size: 1rem;
+        }
+      }
+    </style>
+</head>
+<body>
+    <div class="marketplace-header">
+      <div class="nav-buttons">
+        <button id="dashboardBtn" class="nav-btn" aria-label="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span>Dashboard</span>
+        </button>
+        <button id="messagesBtnHeader" class="nav-btn" aria-label="Messages">
+          <i class="fas fa-comments"></i>
+          <span>Messages</span>
+        </button>
+      </div>
+      
+      <div class="brand-text">
+        <span class="in">In</span><span class="rent">Rent</span> Marketplace
+      </div>
+      
+      <button id="logoutBtn" class="logout-btn" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Log Out</span>
+      </button>
+    </div>
+    
+    <div class="filter-bar">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search location or title..."
+      />
+      <select id="typeFilter">
+        <option value="">All Types</option>
+        <option value="apartment">Apartment</option>
+        <option value="house">House</option>
+        <option value="studio">Studio</option>
+        <option value="room">Room</option>
+      </select>
+      <select id="bedroomFilter">
+        <option value="">Any Bedrooms</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3+</option>
+      </select>
+      <select id="priceFilter">
+        <option value="">Any Price</option>
+        <option value="0-2000">0-2,000</option>
+        <option value="2001-4000">2,001-4,000</option>
+        <option value="4001-6000">4,001-6,000</option>
+        <option value="6000+">6,000+</option>
+      </select>
+      <div class="amenities-dropdown">
+        <button
+          type="button"
+          class="amenities-dropdown-btn"
+          id="amenitiesDropdownBtn"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+        >
+          <span>
+            <i class="fas fa-list"></i> Amenities
+            <span
+              id="amenitiesSelectedCount"
+              style="color: var(--forest-green); font-weight: 600"
+            ></span>
+          </span>
+          <i class="fas fa-chevron-down" style="font-size: 0.9em"></i>
+        </button>
+        <div
+          class="amenities-list"
+          id="amenitiesList"
+          role="listbox"
+          tabindex="-1"
+        >
+          <label tabindex="0"
+            ><input type="checkbox" value="wifi" /> WiFi</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="parking" /> Parking</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="furnished" /> Furnished</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="laundry" /> Laundry</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="ac" /> Air Conditioning</label
+          >
+          <label tabindex="0"
+            ><input type="checkbox" value="security" /> Security</label
+          >
+        </div>
+      </div>
+      <button class="btn" id="filterBtn">
+        Filter
+      </button>
+    </div>
+    
+    <div class="property-list" id="propertyList">
+      </div>
