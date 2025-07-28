@@ -49,84 +49,151 @@
       gtag("config", "G-1F24YHYS28");
     </script>
     <style>
+      :root {
+        --forest-green: #228B22;
+        --forest-green-dark: #176b16;
+      }
+      
+      * {
+        box-sizing: border-box;
+      }
+      
       body {
+        margin: 0;
+        padding: 0;
         background: #f8fafb;
         font-family: "Poppins", "Inter", Arial, sans-serif;
       }
+      
       .marketplace-header {
         width: 100%;
-        background: var(--forest-green);
+        background: white;
         color: var(--forest-green);
-        padding: 1.2rem 0;
+        padding: 1rem;
         text-align: center;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 700;
         letter-spacing: 1px;
         box-shadow: 0 2px 8px rgba(34, 139, 34, 0.08);
         margin-bottom: 1.5rem;
         position: relative;
-      }
-      .profile-btn,
-      .logout-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 1.3rem;
-        color: #228b22;
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        justify-content: center;
+        min-height: 60px;
       }
-      .logout-btn {
-        right: 1rem;
-        background: #fff;
-        border: 1.5px solid #228b22;
+      
+      .nav-buttons {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      
+      .nav-btn {
+        background: none;
+        border: 1px solid var(--forest-green);
         border-radius: 5px;
-        padding: 0.4rem 1.1rem;
+        padding: 0.5rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--forest-green);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      
+      .nav-btn:hover {
+        background: #f0f8f0;
+      }
+      
+      .logout-btn {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: 1.5px solid var(--forest-green);
+        border-radius: 5px;
+        padding: 0.5rem 0.8rem;
         font-weight: 600;
         transition: background 0.2s;
+        cursor: pointer;
+        color: var(--forest-green);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
       }
+      
       .logout-btn:hover {
-        background: #f0f0f0;
+        background: #f0f8f0;
       }
+      
+      .brand-text {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+      
+      .in {
+        color: var(--forest-green);
+      }
+      
+      .rent {
+        color: var(--forest-green-dark);
+      }
+      
       .filter-bar {
         display: flex;
-        flex-wrap: nowrap;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.8rem;
         justify-content: center;
         align-items: center;
         background: #fff;
         border-radius: 10px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        padding: 1rem 1.5rem;
-        margin: 0 auto 2rem auto;
+        padding: 1rem;
+        margin: 0 1rem 2rem 1rem;
         max-width: 1100px;
-        overflow-x: auto;
+        margin-left: auto;
+        margin-right: auto;
       }
+      
       .filter-bar select,
       .filter-bar input[type="text"] {
         padding: 0.6rem 1rem;
-        border: 1px solid #228b22;
+        border: 1px solid var(--forest-green);
         border-radius: 5px;
         font-size: 1rem;
         min-width: 140px;
-        flex: 0 0 auto;
+        flex: 1 1 140px;
       }
+      
       .filter-bar button.btn {
         flex: 0 0 auto;
         white-space: nowrap;
+        background: var(--forest-green);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
       }
+      
       .property-list {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2rem;
-        max-width: 1100px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        max-width: 1200px;
         margin: 0 auto 2rem auto;
         padding: 0 1rem;
       }
+      
       .property-card {
         background: #fff;
         border-radius: 10px;
@@ -136,99 +203,128 @@
         flex-direction: column;
         transition: box-shadow 0.2s;
       }
+      
       .property-card:hover {
         box-shadow: 0 8px 32px rgba(34, 139, 34, 0.13);
       }
+      
       .property-image {
         width: 100%;
         height: 180px;
         object-fit: cover;
         background: #e6e6e6;
       }
+      
       .property-info {
-        padding: 1.2rem 1rem 1rem 1rem;
+        padding: 1rem;
         flex: 1;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
       }
+      
       .property-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 600;
         color: #222;
         margin-bottom: 0.2rem;
       }
+      
       .property-location {
-        color: #228b22;
-        font-size: 1rem;
+        color: var(--forest-green);
+        font-size: 0.9rem;
         font-weight: 500;
       }
+      
       .property-details {
         display: flex;
-        gap: 1.2rem;
-        font-size: 1rem;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        font-size: 0.9rem;
         color: #444;
         margin: 0.5rem 0;
       }
+      
       .property-price {
-        color: #176b16;
+        color: var(--forest-green-dark);
         font-size: 1.1rem;
         font-weight: 700;
         margin-top: 0.5rem;
       }
+      
       .property-action {
         margin-top: 1rem;
-        text-align: right;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-end;
       }
+      
       .property-action .btn {
         background: var(--forest-green);
         color: #fff;
         border: none;
-        border-radius
-        padding: 0.6rem 1.2rem;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s;
+        font-size: 0.9rem;
+        flex: 1;
+        min-width: 100px;
       }
+      
       .property-action .btn:hover {
-        background: #176b16;
+        background: var(--forest-green-dark);
       }
+      
       .amenities-dropdown {
         position: relative;
         display: inline-block;
         min-width: 140px;
+        flex: 1 1 140px;
       }
+      
       .amenities-dropdown-btn {
         padding: 0.6rem 1rem;
-        border: 1px solid #228b22;
+        border: 1px solid var(--forest-green);
         border-radius: 5px;
         font-size: 1rem;
         background: #fff;
         color: #222;
-        min-width: 140px;
+        width: 100%;
         cursor: pointer;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 0.5rem;
       }
+      
       .amenities-list {
         display: none;
         position: absolute;
         left: 0;
         top: 110%;
-        z-index: 10;
+        z-index: 1000;
         background: #fff;
-        border: 1px solid #228b22;
+        border: 1px solid var(--forest-green);
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        min-width: 180px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 100%;
         padding: 0.5rem 0.7rem;
         max-height: 220px;
         overflow-y: auto;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
       }
+      
       .amenities-list.show {
         display: block;
+        opacity: 1;
+        transform: translateY(0);
       }
+      
       .amenities-list label {
         display: flex;
         align-items: center;
@@ -237,85 +333,136 @@
         padding: 0.3rem 0;
         cursor: pointer;
       }
+      
       .amenities-list input[type="checkbox"] {
-        accent-color: #228b22;
+        accent-color: var(--forest-green);
       }
-      @media (max-width: 600px) {
+      
+      /* Mobile Styles */
+      @media (max-width: 768px) {
         .marketplace-header {
-          font-size: 1.3rem;
-          padding: 0.8rem 0;
+          font-size: 1.2rem;
+          padding: 0.8rem;
+          flex-direction: column;
+          align-items: stretch;
+          min-height: auto;
         }
+        
+        .nav-buttons {
+          position: static;
+          transform: none;
+          justify-content: space-around;
+          order: 2;
+          margin-top: 0.5rem;
+        }
+        
+        .nav-btn {
+          font-size: 0.8rem;
+          padding: 0.4rem 0.6rem;
+          flex: 1;
+          justify-content: center;
+        }
+        
+        .logout-btn {
+          position: static;
+          transform: none;
+          order: 3;
+          margin-top: 0.5rem;
+          align-self: center;
+          font-size: 0.8rem;
+          padding: 0.4rem 0.8rem;
+        }
+        
+        .brand-text {
+          font-size: 1.2rem;
+          order: 1;
+          text-align: center;
+        }
+        
         .filter-bar {
           flex-direction: column;
-          gap: 0.7rem;
-          padding: 0.7rem 0.5rem;
+          gap: 0.8rem;
+          padding: 1rem;
+          margin: 0 0.5rem 1.5rem 0.5rem;
         }
+        
+        .filter-bar select,
+        .filter-bar input[type="text"] {
+          width: 100%;
+          min-width: auto;
+        }
+        
+        .amenities-dropdown {
+          width: 100%;
+          min-width: auto;
+        }
+        
         .property-list {
+          grid-template-columns: 1fr;
           gap: 1rem;
+          padding: 0 0.5rem;
         }
-        .property-card {
-          font-size: 1.05rem;
+        
+        .property-action {
+          flex-direction: column;
+        }
+        
+        .property-action .btn {
+          min-width: auto;
+          flex: none;
         }
       }
-      @media (max-width: 900px) {
-        .filter-bar {
-          flex-wrap: wrap;
-          gap: 0.7rem;
-          padding: 0.7rem 0.5rem;
+      
+      @media (max-width: 480px) {
+        .nav-btn span {
+          display: none;
+        }
+        
+        .nav-btn {
+          padding: 0.4rem;
+          min-width: 40px;
+          justify-content: center;
+        }
+        
+        .logout-btn span {
+          display: none;
+        }
+        
+        .logout-btn {
+          padding: 0.4rem;
+          min-width: 40px;
+          justify-content: center;
+        }
+        
+        .brand-text {
+          font-size: 1rem;
         }
       }
     </style>
   </head>
   <body>
-    <div class="marketplace-header" style="position: relative">
-      <button
-        id="dashboardBtn"
-        aria-label="Dashboard"
-        style="
-          position: absolute;
-          left: 1rem;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 1.3rem;
-          color: #228b22;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        "
-      >
-        <i class="fas fa-th-large"></i>
-        <span style="font-size: 1rem; font-weight: 500">Dashboard</span>
-      </button>
-      <button
-        id="messagesBtnHeader"
-        aria-label="Messages"
-        style="
-          position: absolute;
-          left: 8.5rem;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-size: 1.3rem;
-          color: #228b22;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        "
-      >
-        <i class="fas fa-comments"></i>
-        <span style="font-size: 1rem; font-weight: 500">Messages</span>
-      </button>
-      <span class="in">In</span><span class="rent">Rent</span>
-      Marketplace
-      <button id="logoutBtn" aria-label="Logout" class="logout-btn">
-        <i class="fas fa-sign-out-alt"></i> Log Out
+    <div class="marketplace-header">
+      <div class="nav-buttons">
+        <button id="dashboardBtn" class="nav-btn" aria-label="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span>Dashboard</span>
+        </button>
+        <button id="messagesBtnHeader" class="nav-btn" aria-label="Messages">
+          <i class="fas fa-comments"></i>
+          <span>Messages</span>
+        </button>
+      </div>
+      
+      <div class="brand-text">
+        <span class="in">In</span><span class="rent">Rent</span> Marketplace
+      </div>
+      
+      <button id="logoutBtn" class="logout-btn" aria-label="Logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Log Out</span>
       </button>
     </div>
+    
     <div class="filter-bar">
       <input
         type="text"
@@ -350,11 +497,13 @@
           aria-haspopup="listbox"
           aria-expanded="false"
         >
-          <i class="fas fa-list"></i> Amenities
-          <span
-            id="amenitiesSelectedCount"
-            style="color: #228b22; font-weight: 600"
-          ></span>
+          <span>
+            <i class="fas fa-list"></i> Amenities
+            <span
+              id="amenitiesSelectedCount"
+              style="color: var(--forest-green); font-weight: 600"
+            ></span>
+          </span>
           <i class="fas fa-chevron-down" style="font-size: 0.9em"></i>
         </button>
         <div
@@ -383,14 +532,11 @@
           >
         </div>
       </div>
-      <button
-        class="btn"
-        id="filterBtn"
-        style="background: #228b22; color: #fff"
-      >
+      <button class="btn" id="filterBtn">
         Filter
       </button>
     </div>
+    
     <div class="property-list" id="propertyList">
       <!-- Property cards will be rendered here dynamically -->
     </div>
@@ -399,27 +545,26 @@
       style="
         background: #fff;
         border-top: 1px solid #e6e6e6;
-        padding: 1.5rem 0;
+        padding: 1.5rem 1rem;
         text-align: center;
         font-size: 1rem;
-        color: #228b22;
+        color: var(--forest-green);
         margin-top: 2rem;
       "
     >
       &copy; 2025 InRent. All rights reserved. &middot;
       <a
         href="frontend/privacy.html"
-        style="color: #176b16; text-decoration: underline"
+        style="color: var(--forest-green-dark); text-decoration: underline"
         >Privacy Policy</a
       >
       &middot;
-      <a href="/terms.html" style="color: #176b16; text-decoration: underline"
+      <a href="/terms.html" style="color: var(--forest-green-dark); text-decoration: underline"
         >Terms</a
       >
     </footer>
   </body>
   <script type="module" defer>
-    // Imports
     // Imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import {
@@ -460,31 +605,12 @@
     let currentFilters = {};
     let propertiesListener = null;
 
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut,
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      getDoc,
-      getDocs,
-      query,
-      where,
-      setDoc,
-      serverTimestamp,
-      onSnapshot,
-      orderBy,
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-
-
-
-  
     document.addEventListener("DOMContentLoaded", function () {
       // Show loading state initially
       showLoadingState();
+      
+      // Setup amenities dropdown functionality immediately
+      setupAmenitiesDropdown();
 
       // Firebase Auth: Check if user is authenticated
       onAuthStateChanged(auth, async (user) => {
@@ -521,6 +647,78 @@
         setupSearchAndFilters();
       });
 
+      function setupAmenitiesDropdown() {
+        const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
+        const dropdownList = document.getElementById('amenitiesList');
+        
+        console.log('Setting up amenities dropdown', dropdownBtn, dropdownList); // Debug log
+        
+        if (dropdownBtn && dropdownList) {
+          // Remove any existing listeners first
+          dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
+          const newDropdownBtn = document.getElementById('amenitiesDropdownBtn');
+          
+          newDropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Amenities dropdown clicked'); // Debug log
+            
+            const isCurrentlyShown = dropdownList.classList.contains('show');
+            
+            // Close all other dropdowns first
+            document.querySelectorAll('.amenities-list.show').forEach(list => {
+              list.classList.remove('show');
+            });
+            
+            // Toggle current dropdown
+            if (isCurrentlyShown) {
+              dropdownList.classList.remove('show');
+              newDropdownBtn.setAttribute('aria-expanded', 'false');
+            } else {
+              dropdownList.classList.add('show');
+              newDropdownBtn.setAttribute('aria-expanded', 'true');
+            }
+          });
+          
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!newDropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
+              dropdownList.classList.remove('show');
+              newDropdownBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+          
+          // Handle checkbox changes
+          const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
+          checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+              updateAmenitiesCount();
+              // Don't close dropdown when checking items
+              setTimeout(() => {
+                applyCurrentFilters();
+              }, 100);
+            });
+          });
+          
+          // Prevent dropdown from closing when clicking inside
+          dropdownList.addEventListener('click', function(e) {
+            e.stopPropagation();
+          });
+          
+          console.log('Amenities dropdown setup complete'); // Debug log
+        } else {
+          console.error('Amenities dropdown elements not found', dropdownBtn, dropdownList);
+        }
+      }
+      
+      function updateAmenitiesCount() {
+        const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
+        const countSpan = document.getElementById('amenitiesSelectedCount');
+        if (countSpan) {
+          countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
+        }
+      }
+
       function showLoadingState() {
         const propertyList = document.getElementById("propertyList");
         if (propertyList) {
@@ -534,7 +732,6 @@
       }
 
       function updateNavigation(role) {
-        // This function can be used for any additional navigation updates
         console.log(`User role: ${role}`);
       }
 
@@ -542,7 +739,10 @@
         // Setup Dashboard button
         const dashboardBtn = document.getElementById("dashboardBtn");
         if (dashboardBtn) {
-          dashboardBtn.addEventListener("click", function () {
+          dashboardBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            console.log("Dashboard button clicked, role:", role);
+            
             if (role === "student") {
               window.location.href = "student-dashboard.html";
             } else if (role === "landlord") {
@@ -557,17 +757,21 @@
         // Setup Messages button
         const messagesBtnHeader = document.getElementById("messagesBtnHeader");
         if (messagesBtnHeader) {
-          messagesBtnHeader.addEventListener("click", function () {
+          messagesBtnHeader.addEventListener("click", function (e) {
+            e.preventDefault();
+            console.log("Messages button clicked");
             window.location.href = "messages.html";
           });
         }
       }
 
       function setupLogout() {
-        // Use event delegation since the logout button is dynamically added
-        document.addEventListener("click", async function (e) {
-          if (e.target && e.target.id === "logoutBtn") {
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", async function (e) {
             e.preventDefault();
+            console.log("Logout button clicked");
+            
             if (confirm("Are you sure you want to logout?")) {
               try {
                 // Clean up listeners before logout
@@ -581,8 +785,8 @@
                 alert("Failed to logout. Please try again.");
               }
             }
-          }
-        });
+          });
+        }
       }
 
       function setupPropertiesListener() {
@@ -618,7 +822,7 @@
                 <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
                   <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 1rem;"></i>
                   <p>Failed to load properties. Please check your connection and try again.</p>
-                  <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 1rem;">Retry</button>
+                  <button class="btn" onclick="location.reload()" style="margin-top: 1rem; background: var(--forest-green); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Retry</button>
                 </div>
               `;
             }
@@ -632,7 +836,8 @@
         const searchInput = document.getElementById("searchInput");
 
         if (filterBtn) {
-          filterBtn.addEventListener("click", function () {
+          filterBtn.addEventListener("click", function (e) {
+            e.preventDefault();
             applyCurrentFilters();
           });
         }
@@ -674,7 +879,13 @@
           currentFilters.search = searchInput.value.trim().toLowerCase();
         }
 
-        // Re-trigger the listener will automatically apply filters
+        // Add amenities filter
+        const selectedAmenities = Array.from(document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked'))
+          .map(cb => cb.value);
+        if (selectedAmenities.length > 0) {
+          currentFilters.amenities = selectedAmenities;
+        }
+
         console.log("Applied filters:", currentFilters);
       }
 
@@ -721,6 +932,17 @@
             )
               return false;
             if (filters.priceFilter === "6000+" && price < 6000) return false;
+          }
+
+          // Amenities filter
+          if (filters.amenities && filters.amenities.length > 0) {
+            const propertyAmenities = property.amenities || [];
+            const hasRequiredAmenities = filters.amenities.every(amenity => 
+              propertyAmenities.some(propAmenity => 
+                (typeof propAmenity === 'string' ? propAmenity : propAmenity.name)?.toLowerCase().includes(amenity.toLowerCase())
+              )
+            );
+            if (!hasRequiredAmenities) return false;
           }
 
           // Search filter (title, location, description)
@@ -790,7 +1012,7 @@
               <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${location}</p>
               ${
                 description
-                  ? `<p class="property-description">${description.substring(
+                  ? `<p class="property-description" style="font-size: 0.9rem; color: #666;">${description.substring(
                       0,
                       100
                     )}${description.length > 100 ? "..." : ""}</p>`
@@ -824,14 +1046,14 @@
                 </button>
                 <button class="btn" onclick="saveProperty('${
                   property._id
-                }')" style="background: #e74c3c; margin-left: 0.5rem;">
+                }')" style="background: #e74c3c;">
                   <i class="fas fa-heart"></i> Save
                 </button>
                 ${
                   property.landlordId || property.ownerId
                     ? `<button class="btn" onclick="messageLandlord('${
                         property.landlordId || property.ownerId
-                      }')" style="background: #f39c12; margin-left: 0.5rem;">
+                      }')" style="background: #f39c12;">
                       <i class="fas fa-comment"></i> Message
                     </button>`
                     : ""
