@@ -572,602 +572,223 @@
     </footer>
   </body>
   <script type="module" defer>
-    // Imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut,
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      getDoc,
-      getDocs,
-      query,
-      where,
-      setDoc,
-      serverTimestamp,
-      onSnapshot,
-      orderBy,
-    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+  // Imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  setDoc,
+  serverTimestamp,
+  onSnapshot,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-      authDomain: "project-1-1e31c.firebaseapp.com",
-      projectId: "project-1-1e31c",
-      storageBucket: "project-1-1e31c.firebasestorage.app",
-      messagingSenderId: "658275930203",
-      appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-    };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+};
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    // Global variables
-    let currentFilters = {};
-    let propertiesListener = null;
+// Global variables
+let currentFilters = {};
+let propertiesListener = null;
+let currentUserRole = null;
+let currentUser = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
-      // Show loading state initially
-      showLoadingState();
+document.addEventListener("DOMContentLoaded", function () {
+  // Show loading state initially
+  showLoadingState();
+  
+  // Setup amenities dropdown functionality immediately
+  setupAmenitiesDropdown();
+
+  // Firebase Auth: Check if user is authenticated
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    currentUser = user;
+
+    // Fetch user role from Firestore - NO DEFAULT FALLBACK
+    let role = null;
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        // Check multiple possible role field names
+        role = userData.role || userData.userType || userData.accountType;
+        
+        console.log("User document data:", userData);
+        console.log("Detected role:", role);
+      } else {
+        console.error("User document does not exist in Firestore");
+        // Redirect to profile setup or show error
+        alert("User profile not found. Please contact support.");
+        return;
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      alert("Failed to load user profile. Please try again.");
+      return;
+    }
+
+    // Validate role before proceeding
+    if (!role) {
+      console.error("No role found for user");
+      alert("User role not defined. Please contact support.");
+      return;
+    }
+
+    // Normalize role to lowercase for consistency
+    role = role.toLowerCase();
+    
+    // Validate that role is one of the expected values
+    const validRoles = ['student', 'landlord'];
+    if (!validRoles.includes(role)) {
+      console.error(`Invalid role detected: ${role}`);
+      alert("Invalid user role. Please contact support.");
+      return;
+    }
+
+    currentUserRole = role;
+    console.log(`✓ Current user role confirmed: ${currentUserRole}`);
+
+    // Update UI and functionality based on user role
+    updateNavigationForRole(role);
+    setupNavigationButtons(role);
+    setupLogout();
+    setupPropertiesListener(role);
+    setupSearchAndFilters(role);
+    
+    // Role-specific UI adjustments
+    adjustUIForRole(role);
+  });
+
+  function setupAmenitiesDropdown() {
+    const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
+    const dropdownList = document.getElementById('amenitiesList');
+    
+    console.log('Setting up amenities dropdown', dropdownBtn, dropdownList);
+    
+    if (dropdownBtn && dropdownList) {
+      // Remove any existing listeners first
+      dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
+      const newDropdownBtn = document.getElementById('amenitiesDropdownBtn');
       
-      // Setup amenities dropdown functionality immediately
-      setupAmenitiesDropdown();
-
-      // Firebase Auth: Check if user is authenticated
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          window.location.href = "index.html";
-          return;
+      newDropdownBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Amenities dropdown clicked');
+        
+        const isCurrentlyShown = dropdownList.classList.contains('show');
+        
+        // Close all other dropdowns first
+        document.querySelectorAll('.amenities-list.show').forEach(list => {
+          list.classList.remove('show');
+        });
+        
+        // Toggle current dropdown
+        if (isCurrentlyShown) {
+          dropdownList.classList.remove('show');
+          newDropdownBtn.setAttribute('aria-expanded', 'false');
+        } else {
+          dropdownList.classList.add('show');
+          newDropdownBtn.setAttribute('aria-expanded', 'true');
         }
-
-        // Fetch user role from Firestore
-        let role = "student";
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            role = userData.role || userData.userType;
-          }
-        } catch (error) {
-          console.error("Error fetching user role:", error);
-        }
-
-        // Update navigation based on user type
-        updateNavigation(role);
-
-        // Setup navigation buttons
-        setupNavigationButtons(role);
-
-        // Setup logout functionality
-        setupLogout();
-
-        // Setup real-time properties listening
-        setupPropertiesListener();
-
-        // Setup search and filter functionality
-        setupSearchAndFilters();
       });
-
-      function setupAmenitiesDropdown() {
-        const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
-        const dropdownList = document.getElementById('amenitiesList');
-        
-        console.log('Setting up amenities dropdown', dropdownBtn, dropdownList); // Debug log
-        
-        if (dropdownBtn && dropdownList) {
-          // Remove any existing listeners first
-          dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
-          const newDropdownBtn = document.getElementById('amenitiesDropdownBtn');
-          
-          newDropdownBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Amenities dropdown clicked'); // Debug log
-            
-            const isCurrentlyShown = dropdownList.classList.contains('show');
-            
-            // Close all other dropdowns first
-            document.querySelectorAll('.amenities-list.show').forEach(list => {
-              list.classList.remove('show');
-            });
-            
-            // Toggle current dropdown
-            if (isCurrentlyShown) {
-              dropdownList.classList.remove('show');
-              newDropdownBtn.setAttribute('aria-expanded', 'false');
-            } else {
-              dropdownList.classList.add('show');
-              newDropdownBtn.setAttribute('aria-expanded', 'true');
-            }
-          });
-          
-          // Close dropdown when clicking outside
-          document.addEventListener('click', function(e) {
-            if (!newDropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
-              dropdownList.classList.remove('show');
-              newDropdownBtn.setAttribute('aria-expanded', 'false');
-            }
-          });
-          
-          // Handle checkbox changes
-          const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
-          checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-              updateAmenitiesCount();
-              // Don't close dropdown when checking items
-              setTimeout(() => {
-                applyCurrentFilters();
-              }, 100);
-            });
-          });
-          
-          // Prevent dropdown from closing when clicking inside
-          dropdownList.addEventListener('click', function(e) {
-            e.stopPropagation();
-          });
-          
-          console.log('Amenities dropdown setup complete'); // Debug log
-        } else {
-          console.error('Amenities dropdown elements not found', dropdownBtn, dropdownList);
-        }
-      }
       
-      function updateAmenitiesCount() {
-        const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
-        const countSpan = document.getElementById('amenitiesSelectedCount');
-        if (countSpan) {
-          countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!newDropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
+          dropdownList.classList.remove('show');
+          newDropdownBtn.setAttribute('aria-expanded', 'false');
         }
-      }
-
-      function showLoadingState() {
-        const propertyList = document.getElementById("propertyList");
-        if (propertyList) {
-          propertyList.innerHTML = `
-            <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-              <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green); margin-bottom: 1rem;"></i>
-              <p>Loading properties...</p>
-            </div>
-          `;
-        }
-      }
-
-      function updateNavigation(role) {
-        if(Roleselect == "STUDENT")
-        console.log(`User role: ${role}`);
-      }
-
-      function setupNavigationButtons(role) {
-        // Setup Dashboard button
-        const dashboardBtn = document.getElementById("dashboardBtn");
-        if (dashboardBtn) {
-          dashboardBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            console.log("Dashboard button clicked, role:", role);
-            
-            if (role === "student") {
-              window.location.href = "student-dashboard.html";
-            } else if (role === "landlord") {
-              window.location.href = "landlord-dashboard.html";
-            } else {
-              // Default fallback
-              window.location.href = "dashboard.html";
-            }
-          });
-        }
-
-        // Setup Messages button
-        const messagesBtnHeader = document.getElementById("messagesBtnHeader");
-        if (messagesBtnHeader) {
-          messagesBtnHeader.addEventListener("click", function (e) {
-            e.preventDefault();
-            console.log("Messages button clicked");
-            window.location.href = "messages.html";
-          });
-        }
-      }
-
-      function setupLogout() {
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-          logoutBtn.addEventListener("click", async function (e) {
-            e.preventDefault();
-            console.log("Logout button clicked");
-            
-            if (confirm("Are you sure you want to logout?")) {
-              try {
-                // Clean up listeners before logout
-                if (propertiesListener) {
-                  propertiesListener();
-                }
-                await signOut(auth);
-                window.location.href = "index.html";
-              } catch (error) {
-                console.error("Logout error:", error);
-                alert("Failed to logout. Please try again.");
-              }
-            }
-          });
-        }
-      }
-
-      function setupPropertiesListener() {
-        // Build base query
-        let q = collection(db, "properties");
-
-        // Order by creation date (newest first)
-        q = query(q, orderBy("createdAt", "desc"));
-
-        // Set up real-time listener
-        propertiesListener = onSnapshot(
-          q,
-          (snapshot) => {
-            console.log(
-              `Received ${snapshot.docs.length} properties from database`
-            );
-
-            let properties = snapshot.docs.map((doc) => ({
-              _id: doc.id,
-              ...doc.data(),
-            }));
-
-            // Apply current filters
-            properties = applyFilters(properties, currentFilters);
-
-            renderProperties(properties);
-          },
-          (error) => {
-            console.error("Real-time properties fetch error:", error);
-            const propertyList = document.getElementById("propertyList");
-            if (propertyList) {
-              propertyList.innerHTML = `
-                <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-                  <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 1rem;"></i>
-                  <p>Failed to load properties. Please check your connection and try again.</p>
-                  <button class="btn" onclick="location.reload()" style="margin-top: 1rem; background: var(--forest-green); color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">Retry</button>
-                </div>
-              `;
-            }
-          }
-        );
-      }
-
-      function setupSearchAndFilters() {
-        const filterBtn = document.getElementById("filterBtn");
-        const filterSelects = document.querySelectorAll("select");
-        const searchInput = document.getElementById("searchInput");
-
-        if (filterBtn) {
-          filterBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            applyCurrentFilters();
-          });
-        }
-
-        // Add event listeners to filter selects for real-time filtering
-        filterSelects.forEach((select) => {
-          select.addEventListener("change", function () {
-            applyCurrentFilters();
-          });
-        });
-
-        // Add search input listener
-        if (searchInput) {
-          searchInput.addEventListener("input", function () {
-            // Debounce search input
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-              applyCurrentFilters();
-            }, 500);
-          });
-        }
-      }
-
-      function applyCurrentFilters() {
-        const filterSelects = document.querySelectorAll("select");
-        const searchInput = document.getElementById("searchInput");
-
-        currentFilters = {};
-
-        // Collect filter values
-        filterSelects.forEach((select) => {
-          if (select.value) {
-            currentFilters[select.id] = select.value;
-          }
-        });
-
-        // Add search term
-        if (searchInput && searchInput.value.trim()) {
-          currentFilters.search = searchInput.value.trim().toLowerCase();
-        }
-
-        // Add amenities filter
-        const selectedAmenities = Array.from(document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked'))
-          .map(cb => cb.value);
-        if (selectedAmenities.length > 0) {
-          currentFilters.amenities = selectedAmenities;
-        }
-
-        console.log("Applied filters:", currentFilters);
-      }
-
-      function applyFilters(properties, filters) {
-        if (!filters || Object.keys(filters).length === 0) {
-          return properties;
-        }
-
-        return properties.filter((property) => {
-          // Location filter
-          if (filters.location && property.location !== filters.location) {
-            return false;
-          }
-
-          // Type filter
-          if (filters.typeFilter && property.type !== filters.typeFilter) {
-            return false;
-          }
-
-          // Bedroom filter
-          if (filters.bedroomFilter) {
-            const beds = property.beds || property.bedrooms || 0;
-            if (filters.bedroomFilter === "3" && beds < 3) return false;
-            if (
-              filters.bedroomFilter !== "3" &&
-              beds != parseInt(filters.bedroomFilter)
-            )
-              return false;
-          }
-
-          // Price range filter
-          if (filters.priceFilter) {
-            const price = property.price || 0;
-            if (filters.priceFilter === "0-2000" && (price < 0 || price > 2000))
-              return false;
-            if (
-              filters.priceFilter === "2001-4000" &&
-              (price < 2001 || price > 4000)
-            )
-              return false;
-            if (
-              filters.priceFilter === "4001-6000" &&
-              (price < 4001 || price > 6000)
-            )
-              return false;
-            if (filters.priceFilter === "6000+" && price < 6000) return false;
-          }
-
-          // Amenities filter
-          if (filters.amenities && filters.amenities.length > 0) {
-            const propertyAmenities = property.amenities || [];
-            const hasRequiredAmenities = filters.amenities.every(amenity => 
-              propertyAmenities.some(propAmenity => 
-                (typeof propAmenity === 'string' ? propAmenity : propAmenity.name)?.toLowerCase().includes(amenity.toLowerCase())
-              )
-            );
-            if (!hasRequiredAmenities) return false;
-          }
-
-          // Search filter (title, location, description)
-          if (filters.search) {
-            const searchTerm = filters.search;
-            const title = (property.title || "").toLowerCase();
-            const location = (property.location || "").toLowerCase();
-            const description = (property.description || "").toLowerCase();
-
-            if (
-              !title.includes(searchTerm) &&
-              !location.includes(searchTerm) &&
-              !description.includes(searchTerm)
-            ) {
-              return false;
-            }
-          }
-
-          return true;
-        });
-      }
-
-      function renderProperties(properties) {
-        const propertyList = document.getElementById("propertyList");
-        if (!propertyList) {
-          console.error("Property list element not found");
-          return;
-        }
-
-        propertyList.innerHTML = "";
-
-        if (!properties || !properties.length) {
-          propertyList.innerHTML = `
-            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-              <i class="fas fa-home" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 1rem;"></i>
-              <h3 style="color: #7f8c8d; margin-bottom: 0.5rem;">No properties found</h3>
-              <p style="color: #95a5a6;">Try adjusting your search criteria or check back later for new listings.</p>
-            </div>
-          `;
-          return;
-        }
-
-        console.log(`Rendering ${properties.length} properties`);
-
-        properties.forEach((property) => {
-          const card = document.createElement("div");
-          card.className = "property-card";
-
-          // Safely handle property data with defaults
-          const imageUrl =
-            property.imageUrl ||
-            property.images?.[0] ||
-            "https://placehold.co/400x300/e8f5e9/228b22?text=Property+Image";
-          const title = property.title || "Property Title";
-          const price = property.price || 0;
-          const location = property.location || "Location not specified";
-          const beds = property.beds || property.bedrooms || 0;
-          const baths = property.baths || property.bathrooms || 0;
-          const size = property.size || property.squareFootage || "N/A";
-          const description = property.description || "";
-
-          card.innerHTML = `
-            <img src="${imageUrl}" alt="${title}" class="property-image" onerror="this.src='https://placehold.co/400x300/e8f5e9/228b22?text=Property+Image'" />
-            <div class="property-info">
-              <div class="property-price">P${price}/month</div>
-              <h3 class="property-title">${title}</h3>
-              <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${location}</p>
-              ${
-                description
-                  ? `<p class="property-description" style="font-size: 0.9rem; color: #666;">${description.substring(
-                      0,
-                      100
-                    )}${description.length > 100 ? "..." : ""}</p>`
-                  : ""
-              }
-              <div class="property-details">
-                <span class="feature"><i class="fas fa-bed"></i> ${beds} Bed${
-            beds !== 1 ? "s" : ""
-          }</span>
-                <span class="feature"><i class="fas fa-bath"></i> ${baths} Bath${
-            baths !== 1 ? "s" : ""
-          }</span>
-                <span class="feature"><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
-                ${
-                  property.amenities && Array.isArray(property.amenities)
-                    ? property.amenities
-                        .slice(0, 2)
-                        .map(
-                          (a) =>
-                            `<span class='feature'><i class='fas fa-${
-                              a.icon || "star"
-                            }'></i> ${a.name || a}</span>`
-                        )
-                        .join("")
-                    : ""
-                }
-              </div>
-              <div class="property-action">
-                <button class="btn" onclick="viewDetails('${property._id}')">
-                  <i class="fas fa-eye"></i> View Details
-                </button>
-                <button class="btn" onclick="saveProperty('${
-                  property._id
-                }')" style="background: #e74c3c;">
-                  <i class="fas fa-heart"></i> Save
-                </button>
-                ${
-                  property.landlordId || property.ownerId
-                    ? `<button class="btn" onclick="messageLandlord('${
-                        property.landlordId || property.ownerId
-                      }')" style="background: #f39c12;">
-                      <i class="fas fa-comment"></i> Message
-                    </button>`
-                    : ""
-                }
-              </div>
-            </div>
-          `;
-          propertyList.appendChild(card);
-        });
-      }
-
-      // Global functions
-      window.viewDetails = function (propertyId) {
-        if (propertyId) {
-          window.location.href = `property-details.html?id=${propertyId}`;
-        }
-      };
-
-      window.saveProperty = async function (propertyId) {
-        try {
-          const user = auth.currentUser;
-          if (!user) {
-            alert("Please log in to save properties.");
-            return;
-          }
-
-          if (!propertyId) {
-            alert("Invalid property.");
-            return;
-          }
-
-          await setDoc(
-            doc(db, "users", user.uid, "savedProperties", propertyId),
-            {
-              savedAt: serverTimestamp(),
-              propertyId: propertyId,
-            }
-          );
-
-          // Show success message
-          showMessage("Property saved successfully!", "success");
-        } catch (err) {
-          console.error("Save property error:", err);
-          showMessage("Failed to save property. Please try again.", "error");
-        }
-      };
-
-      window.messageLandlord = function (landlordId) {
-        if (landlordId) {
-          window.location.href = `messages.html?to=${landlordId}`;
-        } else {
-          alert("Landlord information not available.");
-        }
-      };
-
-      // Utility function for showing messages
-      function showMessage(message, type) {
-        // Create or update global message element
-        let messageEl = document.getElementById("globalMessage");
-        if (!messageEl) {
-          messageEl = document.createElement("div");
-          messageEl.id = "globalMessage";
-          messageEl.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 5px;
-            z-index: 10000;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            max-width: 400px;
-          `;
-          document.body.appendChild(messageEl);
-        }
-
-        messageEl.textContent = message;
-        messageEl.className = type;
-
-        if (type === "success") {
-          messageEl.style.backgroundColor = "#d4edda";
-          messageEl.style.color = "#155724";
-          messageEl.style.border = "1px solid #c3e6cb";
-        } else if (type === "error") {
-          messageEl.style.backgroundColor = "#f8d7da";
-          messageEl.style.color = "#721c24";
-          messageEl.style.border = "1px solid #f5c6cb";
-        }
-
-        messageEl.style.display = "block";
-        messageEl.style.opacity = "1";
-
-        setTimeout(() => {
-          messageEl.style.opacity = "0";
+      });
+      
+      // Handle checkbox changes
+      const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          updateAmenitiesCount();
           setTimeout(() => {
-            messageEl.style.display = "none";
-          }, 300);
-        }, 3000);
-      }
-
-      // Cleanup on page unload
-      window.addEventListener("beforeunload", () => {
-        if (propertiesListener) {
-          propertiesListener();
-        }
+            applyCurrentFilters();
+          }, 100);
+        });
       });
-    });
-  </script>
+      
+      // Prevent dropdown from closing when clicking inside
+      dropdownList.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    } else {
+      console.error('Amenities dropdown elements not found', dropdownBtn, dropdownList);
+    }
+  }
+  
+  function updateAmenitiesCount() {
+    const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
+    const countSpan = document.getElementById('amenitiesSelectedCount');
+    if (countSpan) {
+      countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
+    }
+  }
+
+  function showLoadingState() {
+    const propertyList = document.getElementById("propertyList");
+    if (propertyList) {
+      propertyList.innerHTML = `
+        <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green); margin-bottom: 1rem;"></i>
+          <p>Loading properties...</p>
+        </div>
+      `;
+    }
+  }
+
+  function updateNavigationForRole(role) {
+    console.log(`✓ Updating navigation for role: ${role}`);
+    
+    // Show role-specific welcome message
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    if (welcomeMessage) {
+      welcomeMessage.textContent = role === 'student' 
+        ? 'Find Your Perfect Student Accommodation' 
+        : 'Manage Your Properties';
+    }
+    
+    // Update page title based on role
+    const pageTitle = document.querySelector('h1');
+    if (pageTitle) {
+      pageTitle.textContent = role === 'student' 
+        ? 'Browse Properties' 
+        : 'Property Management';
+    }
+    
+    // Add role indicator to header
+    const headerRole = document.getElementById('userRoleIndicator');
+    if (headerRole) {
+      headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
+    }
+  }</script>
 </html>
