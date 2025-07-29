@@ -614,6 +614,48 @@ let propertiesListener = null;
 let currentUserRole = null;
 let currentUser = null;
 
+// Imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  setDoc,
+  serverTimestamp,
+  onSnapshot,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Global variables
+let currentFilters = {};
+let propertiesListener = null;
+let currentUserRole = null;
+let currentUser = null;
+
 document.addEventListener("DOMContentLoaded", function () {
   // Show loading state initially
   showLoadingState();
@@ -790,5 +832,5 @@ document.addEventListener("DOMContentLoaded", function () {
     if (headerRole) {
       headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
     }
-  }</script>
-</html>
+  }  ;}</script>
+)/html>
