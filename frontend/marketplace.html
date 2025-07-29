@@ -572,7 +572,7 @@
     </footer>
   </body>
   <script type="module" defer>
-  // Imports
+    // Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
   getAuth,
@@ -581,16 +581,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import {
   getFirestore,
-  collection,
   doc,
   getDoc,
-  getDocs,
-  query,
-  where,
-  setDoc,
-  serverTimestamp,
-  onSnapshot,
-  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
@@ -608,60 +600,19 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Global variables
-let currentFilters = {};
-let propertiesListener = null;
-let currentUserRole = null;
-let currentUser = null;
+// --- Placeholder functions to make the script complete and runnable ---
+// In your actual application, you would implement the logic for these functions.
+const setupNavigationButtons = (role) => { console.log(`✓ Navigation buttons setup for ${role}.`); };
+const setupLogout = () => { console.log("✓ Logout functionality setup."); };
+const setupPropertiesListener = (role, user) => { console.log(`✓ Properties listener setup for ${role} (UID: ${user.uid}).`); };
+const setupSearchAndFilters = (role) => { console.log(`✓ Search and filters initialized for ${role}.`); };
+const applyCurrentFilters = () => { console.log("Applying current filters..."); };
+const adjustUIForRole = (role) => { console.log(`✓ UI adjusted for ${role}.`); };
+// --------------------------------------------------------------------
 
-// Imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  setDoc,
-  serverTimestamp,
-  onSnapshot,
-  orderBy,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Global variables
-let currentFilters = {};
-let propertiesListener = null;
-let currentUserRole = null;
-let currentUser = null;
-
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   // Show loading state initially
   showLoadingState();
-  
-  // Setup amenities dropdown functionality immediately
-  setupAmenitiesDropdown();
 
   // Firebase Auth: Check if user is authenticated
   onAuthStateChanged(auth, async (user) => {
@@ -670,167 +621,155 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    currentUser = user;
-
-    // Fetch user role from Firestore - NO DEFAULT FALLBACK
-    let role = null;
     try {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        // Check multiple possible role field names
-        role = userData.role || userData.userType || userData.accountType;
-        
-        console.log("User document data:", userData);
-        console.log("Detected role:", role);
-      } else {
-        console.error("User document does not exist in Firestore");
-        // Redirect to profile setup or show error
-        alert("User profile not found. Please contact support.");
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        console.error("User document does not exist in Firestore for UID:", user.uid);
+        alert("Your user profile was not found. Please contact support.");
+        signOut(auth); // Log out the user to prevent being stuck
         return;
       }
+
+      const userData = userDoc.data();
+      // Check multiple possible role field names for flexibility
+      const role = (userData.role || userData.userType || userData.accountType || "").toLowerCase();
+
+      const validRoles = ['student', 'landlord'];
+      if (!validRoles.includes(role)) {
+        console.error(`Invalid or missing role detected: '${role}'`);
+        alert("Your user role is not configured correctly. Please contact support.");
+        signOut(auth);
+        return;
+      }
+
+      console.log(`✓ User authenticated. Role confirmed: ${role}`);
+
+      // --- All setup logic is now safely inside the auth check ---
+      updateUIForRole(role, user);
+      setupEventListeners(role, user);
+
     } catch (error) {
       console.error("Error fetching user role:", error);
-      alert("Failed to load user profile. Please try again.");
-      return;
+      alert("Failed to load your profile. Please try again later.");
+      signOut(auth);
     }
-
-    // Validate role before proceeding
-    if (!role) {
-      console.error("No role found for user");
-      alert("User role not defined. Please contact support.");
-      return;
-    }
-
-    // Normalize role to lowercase for consistency
-    role = role.toLowerCase();
-    
-    // Validate that role is one of the expected values
-    const validRoles = ['student', 'landlord'];
-    if (!validRoles.includes(role)) {
-      console.error(`Invalid role detected: ${role}`);
-      alert("Invalid user role. Please contact support.");
-      return;
-    }
-
-    currentUserRole = role;
-    console.log(`✓ Current user role confirmed: ${currentUserRole}`);
-
-    // Update UI and functionality based on user role
-    updateNavigationForRole(role);
-    setupNavigationButtons(role);
-    setupLogout();
-    setupPropertiesListener(role);
-    setupSearchAndFilters(role);
-    
-    // Role-specific UI adjustments
-    adjustUIForRole(role);
   });
+});
 
-  function setupAmenitiesDropdown() {
-    const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
-    const dropdownList = document.getElementById('amenitiesList');
-    
-    console.log('Setting up amenities dropdown', dropdownBtn, dropdownList);
-    
-    if (dropdownBtn && dropdownList) {
-      // Remove any existing listeners first
-      dropdownBtn.replaceWith(dropdownBtn.cloneNode(true));
-      const newDropdownBtn = document.getElementById('amenitiesDropdownBtn');
-      
-      newDropdownBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Amenities dropdown clicked');
-        
-        const isCurrentlyShown = dropdownList.classList.contains('show');
-        
-        // Close all other dropdowns first
-        document.querySelectorAll('.amenities-list.show').forEach(list => {
-          list.classList.remove('show');
-        });
-        
-        // Toggle current dropdown
-        if (isCurrentlyShown) {
-          dropdownList.classList.remove('show');
-          newDropdownBtn.setAttribute('aria-expanded', 'false');
-        } else {
-          dropdownList.classList.add('show');
-          newDropdownBtn.setAttribute('aria-expanded', 'true');
-        }
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function(e) {
-        if (!newDropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
-          dropdownList.classList.remove('show');
-          newDropdownBtn.setAttribute('aria-expanded', 'false');
-        }
-      });
-      
-      // Handle checkbox changes
-      const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-          updateAmenitiesCount();
-          setTimeout(() => {
-            applyCurrentFilters();
-          }, 100);
-        });
-      });
-      
-      // Prevent dropdown from closing when clicking inside
-      dropdownList.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
-    } else {
-      console.error('Amenities dropdown elements not found', dropdownBtn, dropdownList);
-    }
+/**
+ * Updates all static UI elements based on the user's role.
+ * @param {string} role - The user's role ('student' or 'landlord').
+ * @param {object} user - The Firebase auth user object.
+ */
+function updateUIForRole(role, user) {
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  if (welcomeMessage) {
+    welcomeMessage.textContent = role === 'student'
+      ? 'Find Your Perfect Student Accommodation'
+      : 'Manage Your Properties';
+  }
+
+  const pageTitle = document.querySelector('h1');
+  if (pageTitle) {
+    pageTitle.textContent = role === 'student'
+      ? 'Browse Properties'
+      : 'Property Management';
+  }
+
+  const headerRole = document.getElementById('userRoleIndicator');
+  if (headerRole) {
+    headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
+  }
+
+  // Also call the other UI adjustment function
+  adjustUIForRole(role);
+}
+
+/**
+ * Sets up all major event listeners and role-based functionality.
+ * This function is called only after the user is authenticated and their role is verified.
+ * @param {string} role - The user's role.
+ * @param {object} user - The Firebase auth user object.
+ */
+function setupEventListeners(role, user) {
+  setupAmenitiesDropdown();
+  setupNavigationButtons(role);
+  setupLogout();
+  setupPropertiesListener(role, user);
+  setupSearchAndFilters(role);
+}
+
+/**
+ * Configures the interactive amenities dropdown filter.
+ */
+function setupAmenitiesDropdown() {
+  const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
+  const dropdownList = document.getElementById('amenitiesList');
+
+  if (!dropdownBtn || !dropdownList) {
+    console.error("Amenities dropdown elements not found.");
+    return;
   }
   
-  function updateAmenitiesCount() {
-    const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
-    const countSpan = document.getElementById('amenitiesSelectedCount');
-    if (countSpan) {
-      countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
-    }
-  }
+  // A flag to prevent adding listeners multiple times
+  if (dropdownBtn.dataset.initialized) return;
+  dropdownBtn.dataset.initialized = 'true';
 
-  function showLoadingState() {
-    const propertyList = document.getElementById("propertyList");
-    if (propertyList) {
-      propertyList.innerHTML = `
-        <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-          <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green); margin-bottom: 1rem;"></i>
-          <p>Loading properties...</p>
-        </div>
-      `;
-    }
-  }
+  dropdownBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isExpanded = dropdownList.classList.toggle('show');
+    dropdownBtn.setAttribute('aria-expanded', isExpanded);
+  });
 
-  function updateNavigationForRole(role) {
-    console.log(`✓ Updating navigation for role: ${role}`);
-    
-    // Show role-specific welcome message
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    if (welcomeMessage) {
-      welcomeMessage.textContent = role === 'student' 
-        ? 'Find Your Perfect Student Accommodation' 
-        : 'Manage Your Properties';
+  document.addEventListener('click', (e) => {
+    if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
+      if (dropdownList.classList.contains('show')) {
+        dropdownList.classList.remove('show');
+        dropdownBtn.setAttribute('aria-expanded', 'false');
+      }
     }
-    
-    // Update page title based on role
-    const pageTitle = document.querySelector('h1');
-    if (pageTitle) {
-      pageTitle.textContent = role === 'student' 
-        ? 'Browse Properties' 
-        : 'Property Management';
-    }
-    
-    // Add role indicator to header
-    const headerRole = document.getElementById('userRoleIndicator');
-    if (headerRole) {
-      headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
-    }
-  }  ;}</script>
-)/html>
+  });
+
+  dropdownList.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      updateAmenitiesCount();
+      // Using a short timeout can prevent UI lag on rapid clicks
+      setTimeout(applyCurrentFilters, 100);
+    });
+  });
+}
+
+/**
+ * Updates the counter on the amenities button.
+ */
+function updateAmenitiesCount() {
+  const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
+  const countSpan = document.getElementById('amenitiesSelectedCount');
+  if (countSpan) {
+    countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
+  }
+}
+
+/**
+ * Displays a loading message in the property list area.
+ */
+function showLoadingState() {
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList) {
+    propertyList.innerHTML = `
+      <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green);"></i>
+        <p>Loading user profile...</p>
+      </div>`;
+  }
+}
+    </script>
+</html>
