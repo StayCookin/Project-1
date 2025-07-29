@@ -632,7 +632,7 @@
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            role = userData.role || userData.userType || "student";
+            role = userData.role || userData.userType;
           }
         } catch (error) {
           console.error("Error fetching user role:", error);

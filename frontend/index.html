@@ -58,7 +58,7 @@
           a { text-decoration: none; color: inherit; }
           ul { list-style: none; }
           .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-          header { background: #fff; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.05); position: sticky; top: 0; z-index: 100; }
+          header { background: #fff; box-shadow: 0 2px 8px rgba(34, 139, 34, 0.05); position: sticky; top: 0; z-index: 100;}
           nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; }
           .logo { font-size: 2rem; font-weight: bold; }
           .logo .in { color: var(--dark-green); } .logo .rent { color: var(--forest-green); }
@@ -66,7 +66,6 @@
           .nav-links li a { font-weight: 500; transition: color 0.2s; }
           .nav-links li a:hover { color: var(--forest-green); }
           .auth-buttons { display: flex; gap: 1rem; }
-          .mobile-menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
           .btn { display: inline-block; background: var(--forest-green); color: #fff; border: none; border-radius: 6px; padding: 0.7rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
           .btn:hover { background: #000; }
           .btn-secondary { background: #fff; color: var(--forest-green); border: 1.5px solid var(--forest-green); }
@@ -123,7 +122,7 @@
           @media (max-width: 768px) {
             html { font-size: 15px; }
             .mobile-menu-btn { display: inline-block; }
-            .nav-links, .auth-buttons { display: inline-block; }
+            .nav-links, .auth-buttons { display: flex; gap:2rem; }
             .mobile-menu-open .nav-links, .mobile-menu-open .auth-buttons { display: flex; flex-direction: column; width: 100%; margin-top: 1.5rem; gap: 1rem; }
             .hero { padding: 3rem 0; }
             .hero-content h1 { font-size: 2rem; }
@@ -169,14 +168,12 @@
             <div class="container">
               <nav>
                 <div class="logo">
-                  <span class="in">In</span><span class="rent">Rent</span>
+                  <span href="index.html" class="in">In</span><span class="rent">Rent</span>
                 </div>
                 <ul class="nav-links">
-                  <li><a href="index.html">Home</a></li>
+      
                   <li><a href="/marketplace.html">Browse Accommodations</li>
-                  <li><a href="#features">Features</a></li>
-                  <li><a href="#pricing">Pricing</a></li>
-                  <li><a href="#contact">Contact</a></li>
+                  <li><a href="#features">How it works</a></li>
                 </ul>
                 <div class="auth-buttons">
                 <a class="btn btn-secondary" id="headerLoginBtn" href="login.html">Login</a>
