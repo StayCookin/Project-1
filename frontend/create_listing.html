@@ -37,14 +37,15 @@
             border-color: var(btn-third);
         }
         .site-header{
-            background-color: forestgreen;
+            background-color: #22c55e;
             padding: 1rem 0;
             box-shadow: var(--shadow-sm);
             border-bottom: 1px solid var(--color-border);
             height:90px;
+            
         }
         .site-header .container{
-            display: flex;
+            display: inline;
             justify-content: space-between;
             align-items: center;
             padding-top: 0.5rem;
@@ -158,6 +159,12 @@
             border-color:var(--color-primary);
             background-color:transparent;
         }
+        hea li a{
+
+justify-content: space-between;
+        
+            
+        }
         </style>
   </head>
 
@@ -167,10 +174,12 @@
         <div class="sidebar">
       <span class="in">In</span><span class="rent">Rent</span>
       </div>
+      <ul class="hea">
 
-      <li><a href="index.html" class="btn btn-third"">Home</a>
+      <li><a href="index.html" class="btn btn-third"">Home</a></li>
         <li><a href="landlord-dashboard.html" class="btn btn-third">My Dashboard</a></li>
         <li><a href="index.html" class="btn btn-third">Log Out</a> </a></li>
+      </ul>
     </div>
     </nav>
   </header>
