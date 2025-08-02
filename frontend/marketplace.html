@@ -636,7 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Check multiple possible role field names for flexibility
       const role = (userData.role || userData.userType || userData.accountType || "").toLowerCase();
 
-      const validRoles = ['student', 'landlord'];
+      const validRoles = ['STUDENTt', 'LANDLORD'];
       if (!validRoles.includes(role)) {
         console.error(`Invalid or missing role detected: '${role}'`);
         alert("Your user role is not configured correctly. Please contact support.");
@@ -666,14 +666,14 @@ document.addEventListener("DOMContentLoaded", () => {
 function updateUIForRole(role, user) {
   const welcomeMessage = document.getElementById('welcomeMessage');
   if (welcomeMessage) {
-    welcomeMessage.textContent = role === 'student'
+    welcomeMessage.textContent = role === 'STUDENT'
       ? 'Find Your Perfect Student Accommodation'
       : 'Manage Your Properties';
   }
 
   const pageTitle = document.querySelector('h1');
   if (pageTitle) {
-    pageTitle.textContent = role === 'student'
+    pageTitle.textContent = role === 'STUDENT'
       ? 'Browse Properties'
       : 'Property Management';
   }
