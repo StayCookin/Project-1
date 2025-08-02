@@ -240,7 +240,6 @@
 <script type="module">
 // Firebase Authentication for Login (Google & Email/Password)
 // Using Firebase v9+ modular SDK
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { 
   getAuth, 
@@ -250,8 +249,13 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-// Firebase configuration
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
@@ -262,10 +266,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app, auth;
+let app, auth, db;
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
+  db = getFirestore(app);
   console.log("Firebase initialized successfully for login");
 } catch (err) {
   console.error("Firebase initialization failed:", err);
@@ -286,7 +291,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
   const googleBtn = document.getElementById("googleBtn");
 
-  // Check if user is already logged in
+  // Check if user is already logged in and verified
+  onAuthStateChanged(auth, async (user) => {
+    if (user && user.emailVerified) {
+      console.log("User already logged in and verified, redirecting to marketplace");
+      window.location.href = "marketplace.html";
+    }
+  });
 
   // Email/Password Login
   if (loginForm) {
@@ -311,19 +322,33 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error("Please fill in all fields.");
         }
 
+        console.log("Attempting login for:", email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+        console.log("Login successful for user:", user.uid);
 
         if (!user.emailVerified) {
-          throw new Error("Please verify your email before logging in.");
+          console.log("Email not verified");
+          throw new Error("Please verify your email before logging in. Check your inbox for the verification link.");
         }
+
+        // Check if user profile exists in Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (!userDoc.exists()) {
+          console.error("User profile not found in Firestore");
+          throw new Error("User profile not found. Please contact support or try signing up again.");
+        }
+
+        console.log("User profile verified in Firestore");
 
         // Success
         errorDiv.style.color = "green";
         errorDiv.textContent = "Login successful! Redirecting...";
         
         setTimeout(() => {
-          window.location.href = "/marketplace.html";
+          window.location.href = "marketplace.html";
         }, 1000);
 
       } catch (error) {
@@ -339,6 +364,8 @@ document.addEventListener("DOMContentLoaded", function () {
           errorDiv.textContent = "Too many login attempts. Please try again later.";
         } else if (error.code === "auth/user-disabled") {
           errorDiv.textContent = "Account disabled. Please contact support.";
+        } else if (error.code === "auth/invalid-email") {
+          errorDiv.textContent = "Invalid email address format.";
         } else {
           errorDiv.textContent = error.message || "Login failed. Please try again.";
         }
@@ -354,8 +381,28 @@ document.addEventListener("DOMContentLoaded", function () {
     googleBtn.addEventListener("click", async function () {
       const provider = new GoogleAuthProvider();
       try {
-        await signInWithPopup(auth, provider);
+        console.log("Attempting Google sign-in");
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log("Google sign-in successful for user:", user.uid);
+        
+        // Check if user profile exists in Firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (!userDoc.exists()) {
+          console.log("Google user doesn't have profile, redirecting to signup");
+          await signOut(auth);
+          if (errorDiv) {
+            errorDiv.style.color = "orange";
+            errorDiv.textContent = "Please sign up first to create your profile.";
+          }
+          return;
+        }
+
         // Redirect will be handled by onAuthStateChanged
+        console.log("Google login successful, profile exists");
+        
       } catch (err) {
         console.error("Google sign-in failed:", err);
         if (errorDiv) {
@@ -383,7 +430,7 @@ async function logout() {
   try {
     await signOut(auth);
     console.log("User signed out successfully");
-    window.location.href = "/login";
+    window.location.href = "login.html";
   } catch (error) {
     console.error("Logout failed:", error);
   }
