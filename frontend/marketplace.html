@@ -598,10 +598,9 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app); // Keep this consistent with your original
 
 // --- Placeholder functions to make the script complete and runnable ---
-// In your actual application, you would implement the logic for these functions.
 const setupNavigationButtons = (role) => { console.log(`✓ Navigation buttons setup for ${role}.`); };
 const setupLogout = () => { console.log("✓ Logout functionality setup."); };
 const setupPropertiesListener = (role, user) => { console.log(`✓ Properties listener setup for ${role} (UID: ${user.uid}).`); };
@@ -616,35 +615,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Firebase Auth: Check if user is authenticated
   onAuthStateChanged(auth, async (user) => {
+    console.log("Auth state changed. User:", user); // Debug log
+    
     if (!user) {
+      console.log("No authenticated user found, redirecting to login");
       window.location.href = "index.html";
       return;
     }
 
+    // Check if email is verified (matching your signup flow)
+    if (!user.emailVerified) {
+      console.log("User email not verified, redirecting to signup");
+      alert("Please verify your email address before accessing the marketplace.");
+      await signOut(auth);
+      window.location.href = "signup.html";
+      return;
+    }
+
     try {
+      console.log("Authenticated user UID:", user.uid);
+      console.log("User email:", user.email);
+      
       const userDocRef = doc(db, "users", user.uid);
+      console.log("Fetching document at path:", userDocRef.path);
+      
       const userDoc = await getDoc(userDocRef);
+      console.log("Document exists:", userDoc.exists());
 
       if (!userDoc.exists()) {
         console.error("User document does not exist in Firestore for UID:", user.uid);
-        alert("Your user profile was not found. Please contact support.");
-        signOut(auth); // Log out the user to prevent being stuck
+        alert("Your user profile was not found. Please contact support or try signing up again.");
+        await signOut(auth);
+        window.location.href = "signup.html";
         return;
       }
 
       const userData = userDoc.data();
-      // Check multiple possible role field names for flexibility
-      const role = (userData.role || userData.userType || userData.accountType || "").toLowerCase();
+      console.log("User data retrieved:", userData);
+      
+      // Handle both uppercase (from signup) and lowercase role values
+      const rawRole = userData.role || userData.userType || userData.accountType || "";
+      const role = rawRole.toLowerCase(); // Convert to lowercase for consistency
+      
+      console.log("Raw role from database:", rawRole);
+      console.log("Processed role:", role);
 
-      const validRoles = ['STUDENTt', 'LANDLORD'];
+      const validRoles = ['student', 'landlord'];
       if (!validRoles.includes(role)) {
-        console.error(`Invalid or missing role detected: '${role}'`);
+        console.error(`Invalid or missing role detected: '${rawRole}' -> '${role}'`);
         alert("Your user role is not configured correctly. Please contact support.");
-        signOut(auth);
+        await signOut(auth);
+        window.location.href = "signup.html";
         return;
       }
 
       console.log(`✓ User authenticated. Role confirmed: ${role}`);
+
+      // Hide loading state
+      hideLoadingState();
 
       // --- All setup logic is now safely inside the auth check ---
       updateUIForRole(role, user);
@@ -652,8 +680,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
       console.error("Error fetching user role:", error);
-      alert("Failed to load your profile. Please try again later.");
-      signOut(auth);
+      console.error("Error code:", error.code);
+      console.error("Error message:", error.message);
+      alert(`Failed to load your profile: ${error.message}. Please try again later.`);
+      await signOut(auth);
+      window.location.href = "index.html";
     }
   });
 });
@@ -666,14 +697,14 @@ document.addEventListener("DOMContentLoaded", () => {
 function updateUIForRole(role, user) {
   const welcomeMessage = document.getElementById('welcomeMessage');
   if (welcomeMessage) {
-    welcomeMessage.textContent = role === 'STUDENT'
+    welcomeMessage.textContent = role === 'student'
       ? 'Find Your Perfect Student Accommodation'
       : 'Manage Your Properties';
   }
 
   const pageTitle = document.querySelector('h1');
   if (pageTitle) {
-    pageTitle.textContent = role === 'STUDENT'
+    pageTitle.textContent = role === 'student'
       ? 'Browse Properties'
       : 'Property Management';
   }
@@ -769,6 +800,19 @@ function showLoadingState() {
         <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green);"></i>
         <p>Loading user profile...</p>
       </div>`;
+  }
+}
+
+/**
+ * Hides the loading state.
+ */
+function hideLoadingState() {
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList) {
+    const loadingState = propertyList.querySelector('.loading-state');
+    if (loadingState) {
+      loadingState.remove();
+    }
   }
 }
     </script>
