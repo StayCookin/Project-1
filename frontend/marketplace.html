@@ -644,10 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!userDoc.exists()) {
         console.error("User document does not exist in Firestore for UID:", user.uid);
-        alert("Your user profile was not found. Please contact support or try signing up again.");
-        await signOut(auth);
-        window.location.href = "signup.html";
-        return;
+        alert("Your user profile does not have proper documents. Please contact support or try uploading details again.");
       }
 
       const userData = userDoc.data();
