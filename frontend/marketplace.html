@@ -583,6 +583,10 @@ import {
   getFirestore,
   doc,
   getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
@@ -598,88 +602,156 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // Keep this consistent with your original
+const db = getFirestore(app);
 
-// --- Placeholder functions to make the script complete and runnable ---
+// --- Placeholder functions ---
 const setupNavigationButtons = (role) => { console.log(`✓ Navigation buttons setup for ${role}.`); };
 const setupLogout = () => { console.log("✓ Logout functionality setup."); };
 const setupPropertiesListener = (role, user) => { console.log(`✓ Properties listener setup for ${role} (UID: ${user.uid}).`); };
 const setupSearchAndFilters = (role) => { console.log(`✓ Search and filters initialized for ${role}.`); };
 const applyCurrentFilters = () => { console.log("Applying current filters..."); };
 const adjustUIForRole = (role) => { console.log(`✓ UI adjusted for ${role}.`); };
-// --------------------------------------------------------------------
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Show loading state initially
   showLoadingState();
 
-  // Firebase Auth: Check if user is authenticated
   onAuthStateChanged(auth, async (user) => {
-    console.log("Auth state changed. User:", user); // Debug log
+    console.log("🔍 Auth state changed. User:", user);
     
     if (!user) {
-      console.log("No authenticated user found, redirecting to login");
+      console.log("❌ No authenticated user found, redirecting to login");
       window.location.href = "index.html";
       return;
     }
 
-    // Check if email is verified (matching your signup flow)
+    console.log("✅ User authenticated:");
+    console.log("  - UID:", user.uid);
+    console.log("  - Email:", user.email);
+    console.log("  - Email Verified:", user.emailVerified);
+    console.log("  - Creation Time:", user.metadata.creationTime);
+
+    // Check email verification
     if (!user.emailVerified) {
-      console.log("User email not verified, redirecting to signup");
-      alert("Please verify your email address before accessing the marketplace.");
+      console.log("❌ User email not verified");
+      alert("Please verify your email address before accessing the marketplace. Check your email for a verification link.");
       await signOut(auth);
       window.location.href = "signup.html";
       return;
     }
 
     try {
-      console.log("Authenticated user UID:", user.uid);
-      console.log("User email:", user.email);
+      // First, let's check if ANY users exist in the collection
+      console.log("🔍 Checking if users collection exists...");
+      const usersCollectionRef = collection(db, "users");
+      const allUsersSnapshot = await getDocs(usersCollectionRef);
+      console.log(`📊 Total users in collection: ${allUsersSnapshot.size}`);
       
-      const userDocRef = doc(db, "users", user.uid);
-      console.log("Fetching document at path:", userDocRef.path);
-      
-      const userDoc = await getDoc(userDocRef);
-      console.log("Document exists:", userDoc.exists());
-
-      if (!userDoc.exists()) {
-        console.error("User document does not exist in Firestore for UID:", user.uid);
-        alert("Your user profile does not have proper documents. Please contact support or try uploading details again.");
+      if (allUsersSnapshot.size === 0) {
+        console.error("❌ No users found in the entire 'users' collection!");
+        alert("Database error: No user profiles found. This might be a database setup issue. Please contact support.");
+        return;
       }
 
-      const userData = userDoc.data();
-      console.log("User data retrieved:", userData);
-      
-      // Handle both uppercase (from signup) and lowercase role values
-      const rawRole = userData.role || userData.userType || userData.accountType || "";
-      const role = rawRole.toLowerCase(); // Convert to lowercase for consistency
-      
-      console.log("Raw role from database:", rawRole);
-      console.log("Processed role:", role);
+      // List all user IDs for debugging
+      console.log("📋 All user IDs in collection:");
+      allUsersSnapshot.forEach(doc => {
+        console.log(`  - ${doc.id}`);
+      });
 
-      const validRoles = ['student', 'landlord'];
-      if (!validRoles.includes(role)) {
-        console.error(`Invalid or missing role detected: '${rawRole}' -> '${role}'`);
-        alert("Your user role is not configured correctly. Please contact support.");
+      // Now try to get the specific user document
+      console.log(`🔍 Looking for user document with UID: ${user.uid}`);
+      const userDocRef = doc(db, "users", user.uid);
+      console.log("📍 Document path:", userDocRef.path);
+      
+      const userDoc = await getDoc(userDocRef);
+      console.log("📄 Document exists:", userDoc.exists());
+
+      if (!userDoc.exists()) {
+        console.error("❌ User document not found!");
+        
+        // Try to find user by email as fallback
+        console.log("🔍 Searching for user by email...");
+        const emailQuery = query(usersCollectionRef, where("email", "==", user.email));
+        const emailSnapshot = await getDocs(emailQuery);
+        
+        if (emailSnapshot.size > 0) {
+          console.log("✅ Found user by email!");
+          emailSnapshot.forEach(doc => {
+            console.log(`📄 Found document ID: ${doc.id} with data:`, doc.data());
+          });
+          alert("Account mismatch detected. Your account exists but with a different ID. Please contact support.");
+        } else {
+          console.log("❌ No user found by email either");
+          alert("Your user profile was not found in the database. Please sign up again or contact support.");
+        }
+        
         await signOut(auth);
         window.location.href = "signup.html";
         return;
       }
 
-      console.log(`✓ User authenticated. Role confirmed: ${role}`);
+      const userData = userDoc.data();
+      console.log("✅ User data retrieved:", userData);
+      
+      // Validate required fields
+      const requiredFields = ['email', 'role', 'createdAt'];
+      const missingFields = requiredFields.filter(field => !userData.hasOwnProperty(field));
+      
+      if (missingFields.length > 0) {
+        console.error("❌ Missing required fields:", missingFields);
+        alert(`Your profile is incomplete. Missing: ${missingFields.join(', ')}. Please contact support.`);
+        return;
+      }
 
-      // Hide loading state
+      // Handle role validation
+      const rawRole = userData.role || userData.userType || userData.accountType || "";
+      console.log("🎭 Raw role from database:", rawRole);
+      
+      // Support both uppercase and lowercase roles
+      const role = rawRole.toString().toLowerCase();
+      console.log("🎭 Processed role:", role);
+
+      // Updated to match your signup form (student/landlord instead of tenant/landlord)
+      const validRoles = ['student', 'landlord', 'tenant']; // Added tenant for backward compatibility
+      if (!validRoles.includes(role)) {
+        console.error(`❌ Invalid or missing role: '${rawRole}' -> '${role}'`);
+        console.log("✅ Valid roles are:", validRoles);
+        alert(`Invalid user role: '${rawRole}'. Valid roles are: ${validRoles.join(', ')}. Please contact support.`);
+        await signOut(auth);
+        window.location.href = "signup.html";
+        return;
+      }
+
+      console.log(`✅ User authenticated successfully. Role: ${role}`);
+      console.log("📊 Complete user profile:", {
+        uid: user.uid,
+        email: user.email,
+        role: role,
+        emailVerified: user.emailVerified,
+        hasStudentID: !!userData.studentIDUrl,
+        hasKYC: !!userData.kycDocumentUrl
+      });
+
       hideLoadingState();
-
-      // --- All setup logic is now safely inside the auth check ---
       updateUIForRole(role, user);
       setupEventListeners(role, user);
 
     } catch (error) {
-      console.error("Error fetching user role:", error);
-      console.error("Error code:", error.code);
-      console.error("Error message:", error.message);
-      alert(`Failed to load your profile: ${error.message}. Please try again later.`);
+      console.error("💥 Error in authentication flow:");
+      console.error("  - Error:", error);
+      console.error("  - Code:", error.code);
+      console.error("  - Message:", error.message);
+      console.error("  - Stack:", error.stack);
+      
+      // More specific error handling
+      if (error.code === 'permission-denied') {
+        alert("Permission denied. Please check your account permissions or contact support.");
+      } else if (error.code === 'unavailable') {
+        alert("Database temporarily unavailable. Please try again in a few moments.");
+      } else {
+        alert(`Error loading profile: ${error.message}. Please try refreshing the page.`);
+      }
+      
       await signOut(auth);
       window.location.href = "index.html";
     }
@@ -687,21 +759,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * Updates all static UI elements based on the user's role.
- * @param {string} role - The user's role ('student' or 'landlord').
- * @param {object} user - The Firebase auth user object.
+ * Updates UI elements based on user role
  */
 function updateUIForRole(role, user) {
+  console.log(`🎨 Updating UI for role: ${role}`);
+  
   const welcomeMessage = document.getElementById('welcomeMessage');
   if (welcomeMessage) {
-    welcomeMessage.textContent = role === 'student'
+    welcomeMessage.textContent = role === 'student' || role === 'tenant'
       ? 'Find Your Perfect Student Accommodation'
       : 'Manage Your Properties';
   }
 
   const pageTitle = document.querySelector('h1');
   if (pageTitle) {
-    pageTitle.textContent = role === 'student'
+    pageTitle.textContent = role === 'student' || role === 'tenant'
       ? 'Browse Properties'
       : 'Property Management';
   }
@@ -711,17 +783,15 @@ function updateUIForRole(role, user) {
     headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
   }
 
-  // Also call the other UI adjustment function
   adjustUIForRole(role);
 }
 
 /**
- * Sets up all major event listeners and role-based functionality.
- * This function is called only after the user is authenticated and their role is verified.
- * @param {string} role - The user's role.
- * @param {object} user - The Firebase auth user object.
+ * Sets up event listeners after successful authentication
  */
 function setupEventListeners(role, user) {
+  console.log(`⚙️ Setting up event listeners for ${role}`);
+  
   setupAmenitiesDropdown();
   setupNavigationButtons(role);
   setupLogout();
@@ -730,18 +800,17 @@ function setupEventListeners(role, user) {
 }
 
 /**
- * Configures the interactive amenities dropdown filter.
+ * Amenities dropdown functionality
  */
 function setupAmenitiesDropdown() {
   const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
   const dropdownList = document.getElementById('amenitiesList');
 
   if (!dropdownBtn || !dropdownList) {
-    console.error("Amenities dropdown elements not found.");
+    console.warn("⚠️ Amenities dropdown elements not found");
     return;
   }
   
-  // A flag to prevent adding listeners multiple times
   if (dropdownBtn.dataset.initialized) return;
   dropdownBtn.dataset.initialized = 'true';
 
@@ -769,14 +838,13 @@ function setupAmenitiesDropdown() {
   checkboxes.forEach(checkbox => {
     checkbox.addEventListener('change', () => {
       updateAmenitiesCount();
-      // Using a short timeout can prevent UI lag on rapid clicks
       setTimeout(applyCurrentFilters, 100);
     });
   });
 }
 
 /**
- * Updates the counter on the amenities button.
+ * Updates amenities counter
  */
 function updateAmenitiesCount() {
   const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
@@ -787,7 +855,7 @@ function updateAmenitiesCount() {
 }
 
 /**
- * Displays a loading message in the property list area.
+ * Shows loading state
  */
 function showLoadingState() {
   const propertyList = document.getElementById("propertyList");
@@ -801,7 +869,7 @@ function showLoadingState() {
 }
 
 /**
- * Hides the loading state.
+ * Hides loading state
  */
 function hideLoadingState() {
   const propertyList = document.getElementById("propertyList");

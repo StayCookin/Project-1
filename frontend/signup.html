@@ -400,488 +400,131 @@
     </div>
 
     <script type="module" defer>
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-      import {
-        getAuth,
-        createUserWithEmailAndPassword,
-        sendEmailVerification,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        setDoc,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-      import {
-        getStorage,
-        ref,
-        uploadBytes,
-        getDownloadURL,
-      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-storage.js";
+     import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { setDoc, doc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, storage } from "./firebase";
 
-      // Catch unhandled promise rejections
-      window.addEventListener("unhandledrejection", (event) => {
-        console.warn("Unhandled promise rejection:", event.reason);
-        const errorDiv = document.getElementById("signupError");
-        if (errorDiv) {
-          errorDiv.textContent = `Error: ${event.reason}`;
-        }
-      });
+// File validation helper
+function validateFile(file, allowedTypes, maxSizeMB = 5) {
+  const allowedExtensions = allowedTypes.map(type => type.toLowerCase());
+  const fileExtension = file.name.split('.').pop().toLowerCase();
+  const fileSizeMB = file.size / (1024 * 1024);
+  
+  if (!allowedExtensions.includes(fileExtension)) {
+    throw new Error(`Invalid file type. Allowed: ${allowedTypes.join(', ')}`);
+  }
+  
+  if (fileSizeMB > maxSizeMB) {
+    throw new Error(`File too large. Maximum size: ${maxSizeMB}MB`);
+  }
+  
+  return true;
+}
 
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-        authDomain: "project-1-1e31c.firebaseapp.com",
-        projectId: "project-1-1e31c",
-        storageBucket: "project-1-1e31c.firebasestorage.app",
-        messagingSenderId: "658275930203",
-        appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-      };
+// Upload file helper with error handling
+async function uploadFile(file, path) {
+  try {
+    const fileRef = ref(storage, path);
+    const snapshot = await uploadBytes(fileRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  } catch (error) {
+    console.error(`Upload failed for ${path}:`, error);
+    throw new Error(`Failed to upload ${file.name}: ${error.message}`);
+  }
+}
 
-      // Initialize Firebase
-      let app, auth, firestore, storage;
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        firestore = getFirestore(app);
-        storage = getStorage(app);
-        console.log("Firebase initialized successfully");
-      } catch (err) {
-        console.error("Firebase initialization failed:", err);
-        const errorDiv = document.getElementById("signupError");
-        if (errorDiv) {
-          errorDiv.textContent =
-            "Failed to initialize Firebase. Please try again.";
-        }
-        throw new Error("Firebase initialization failed");
-      }
-
-      // Auth state listener - handles email verification and redirects properly
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          if (user.emailVerified) {
-            // User is verified - check if we should redirect
-            console.log("User is authenticated and verified:", user.uid);
-
-            // Only redirect if we're on signup/login pages
-            const currentPage = window.location.pathname;
-            const authPages = [
-              "/signup",
-              "/login",
-              "/signup.html",
-              "/login.html",
-              "/",
-              "/index",
-              "/index.html",
-            ];
-            const isOnAuthPage = authPages.some(
-              (page) => currentPage === page || currentPage.endsWith(page)
-            );
-
-            if (isOnAuthPage) {
-              console.log("Redirecting verified user to marketplace");
-              setTimeout(() => {
-                window.location.href = "/marketplace.html";
-              }, 1000);
-            }
-          } else {
-            // User is signed in but not verified
-            console.log("User is signed in but email not verified");
-            showEmailVerificationPrompt(user);
-          }
-        } else {
-          // User is signed out
-          console.log("No user signed in");
-          hideEmailVerificationPrompt();
-        }
-      });
-      //
-
-      // Function to show email verification prompt
-      function showEmailVerificationPrompt(user) {
-        // Remove any existing verification prompt
-        hideEmailVerificationPrompt();
-
-        const prompt = document.createElement("div");
-        prompt.id = "email-verification-prompt";
-        prompt.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          background: #fff3cd;
-          border: 1px solid #ffeaa7;
-          padding: 15px;
-          text-align: center;
-          z-index: 9999;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        `;
-
-        prompt.innerHTML = `
-          <div style="max-width: 600px; margin: 0 auto;">
-            <p style="margin: 0 0 10px 0; color: #856404; font-weight: bold;">
-              📧 Please verify your email address
-            </p>
-            <p style="margin: 0 0 15px 0; color: #856404;">
-              We sent a verification email to <strong>${user.email}</strong>. 
-              Please check your inbox and click the verification link.
-            </p>
-            <div>
-              <button id="resend-verification" style="
-                background: #007bff;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-right: 10px;
-              ">Resend Email</button>
-              <button id="refresh-verification" style="
-                background: #28a745;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-right: 10px;
-              ">I've Verified</button>
-              <button id="sign-out-unverified" style="
-                background: #dc3545;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                cursor: pointer;
-              ">Sign Out</button>
-            </div>
-          </div>
-        `;
-
-        document.body.insertBefore(prompt, document.body.firstChild);
-
-        // Add event listeners
-        document
-          .getElementById("resend-verification")
-          .addEventListener("click", async () => {
-            try {
-              await sendEmailVerification(user);
-              alert("Verification email sent! Please check your inbox.");
-            } catch (error) {
-              console.error("Error sending verification email:", error);
-              alert("Failed to send verification email. Please try again.");
-            }
-          });
-
-        document
-          .getElementById("refresh-verification")
-          .addEventListener("click", async () => {
-            try {
-              await user.reload();
-              if (user.emailVerified) {
-                hideEmailVerificationPrompt();
-                window.location.href = "/marketplace.html";
-              } else {
-                alert(
-                  "Email not verified yet. Please check your inbox and click the verification link."
-                );
-              }
-            } catch (error) {
-              console.error("Error checking verification status:", error);
-              alert("Failed to check verification status. Please try again.");
-            }
-          });
-
-        document
-          .getElementById("sign-out-unverified")
-          .addEventListener("click", async () => {
-            try {
-              await auth.signOut();
-              hideEmailVerificationPrompt();
-            } catch (error) {
-              console.error("Error signing out:", error);
-            }
-          });
-      }
-
-      // Function to hide email verification prompt
-      function hideEmailVerificationPrompt() {
-        const prompt = document.getElementById("email-verification-prompt");
-        if (prompt) {
-          prompt.remove();
-        }
-      }
-
-      // Wait for DOM to be ready
-      document.addEventListener("DOMContentLoaded", function () {
-        // Show/hide fields based on role
-        const roleSelect = document.getElementById("role");
-        const studentFields = document.getElementById("studentFields");
-        const landlordFields = document.getElementById("landlordFields");
-
-        if (roleSelect) {
-          roleSelect.addEventListener("change", function () {
-            if (this.value === "STUDENT") {
-              if (studentFields) studentFields.style.display = "block";
-              if (landlordFields) landlordFields.style.display = "none";
-            } else {
-              if (studentFields) studentFields.style.display = "none";
-              if (landlordFields) landlordFields.style.display = "block";
-            }
-          });
-        }
-
-        // Show selected file name for studentId
-        const studentIdInput = document.getElementById("studentId");
-        if (studentIdInput) {
-          studentIdInput.addEventListener("change", function () {
-            const file = this.files[0];
-            const fileNameDiv = document.getElementById("studentIdFileName");
-            if (fileNameDiv) {
-              if (file) {
-                fileNameDiv.textContent = `Selected: ${file.name}`;
-              } else {
-                fileNameDiv.textContent = "";
-              }
-            }
-          });
-        }
-
-        // Password validation function
-        function isValidPassword(pw) {
-          return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/.test(
-            pw
-          );
-        }
-
-        // Function to safely redirect
-        function safeRedirect(url) {
-          // Since all files are in frontend root, just redirect directly
-          // Vercel routing will handle the rest
-          console.log(`Redirecting to: ${url}`);
-
-          // Add a small delay to ensure all Firebase operations complete
-          setTimeout(() => {
-            window.location.href = url;
-          }, 100);
-        }
-
-        // Form submission - SINGLE event listener
-        const signupForm = document.getElementById("signupForm");
-        if (signupForm) {
-          signupForm.addEventListener("submit", async function (e) {
-            e.preventDefault();
-            e.stopPropagation(); // Prevent any other handlers
-
-            console.log("Form submission started");
-            const role = roleSelect ? roleSelect.value : "";
-            const email = document.getElementById("emailAddress")?.value || "";
-            const errorDiv = document.getElementById("signupError");
-            if (errorDiv) {
-              errorDiv.textContent = "";
-              errorDiv.style.color = "red"; // Reset to default error color
-            }
-            const submitBtn = this.querySelector('button[type="submit"]');
-
-            // Prevent multiple submissions
-            if (submitBtn && submitBtn.disabled) {
-              console.log("Form already being processed");
-              return;
-            }
-
-            if (submitBtn) {
-              submitBtn.disabled = true;
-              submitBtn.innerHTML =
-                '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Signing Up...';
-            }
-
-            try {
-              // Validation
-              if (role === "STUDENT") {
-                const uniPattern = /@.*\.ac\.bw$/i;
-                if (!uniPattern.test(email)) {
-                  throw new Error(
-                    "Please use your university email address (ending with .ac.bw)"
-                  );
-                }
-                const studentIdFile =
-                  document.getElementById("studentId")?.files[0];
-                if (!studentIdFile) {
-                  throw new Error(
-                    "Please upload your student ID or admission letter."
-                  );
-                }
-              }
-
-              if (role === "LANDLORD") {
-                const kycFile = document.getElementById("kycDoc")?.files[0];
-                if (!kycFile) {
-                  throw new Error(
-                    "Please upload your KYC/proof of ownership document."
-                  );
-                }
-              }
-
-              const pw = document.getElementById("password")?.value || "";
-              const pwc =
-                document.getElementById("passwordConfirm")?.value || "";
-
-              if (pw !== pwc) {
-                throw new Error("Passwords do not match.");
-              }
-
-              if (!isValidPassword(pw)) {
-                throw new Error(
-                  "Password must be at least 8 characters, include one uppercase letter, one number, and one special character."
-                );
-              }
-
-              const termsConsent = document.getElementById("termsConsent");
-              if (!termsConsent || !termsConsent.checked) {
-                throw new Error(
-                  "You must agree to the Terms & Conditions and Privacy Policy."
-                );
-              }
-
-              // Firebase signup
-              console.log("Attempting to create user with email:", email);
-              const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                pw
-              );
-              const user = userCredential.user;
-              console.log("User created:", user.uid);
-
-              // Upload file to Firebase Storage
-              let fileUrl = null;
-              if (role === "STUDENT") {
-                const studentIdFile =
-                  document.getElementById("studentId")?.files[0];
-                if (studentIdFile) {
-                  const storageRef = ref(
-                    storage,
-                    `studentIds/${user.uid}/${studentIdFile.name}`
-                  );
-                  await uploadBytes(storageRef, studentIdFile);
-                  fileUrl = await getDownloadURL(storageRef);
-                  console.log("Student ID uploaded:", fileUrl);
-                }
-              } else if (role === "LANDLORD") {
-                const kycFile = document.getElementById("kycDoc")?.files[0];
-                if (kycFile) {
-                  const storageRef = ref(
-                    storage,
-                    `kycDocs/${user.uid}/${kycFile.name}`
-                  );
-                  await uploadBytes(storageRef, kycFile);
-                  fileUrl = await getDownloadURL(storageRef);
-                  console.log("KYC document uploaded:", fileUrl);
-                }
-              }
-
-              // Store user profile in Firestore
-              await setDoc(doc(firestore, "users", user.uid), {
-                role,
-                firstName: document.getElementById("firstName")?.value || "",
-                surname: document.getElementById("surname")?.value || "",
-                email,
-                fileUrl,
-                createdAt: new Date().toISOString(),
-                verified: false,
-              });
-              console.log("User profile stored in Firestore");
-
-              // Send email verification
-              await sendEmailVerification(user);
-              console.log("Email verification sent");
-
-              // Reset form
-              this.reset();
-              const studentIdFileName =
-                document.getElementById("studentIdFileName");
-              if (studentIdFileName) {
-                studentIdFileName.textContent = "";
-              }
-
-              // Show success message - don't redirect immediately
-              if (errorDiv) {
-                errorDiv.style.color = "green";
-                errorDiv.textContent =
-                  "Account created successfully! Please check your email for verification instructions.";
-              }
-
-              // The onAuthStateChanged listener will handle showing the verification prompt
-              console.log("Signup complete, waiting for email verification");
-            } catch (err) {
-              console.error("Signup error:", err.code || err.message || err);
-              let msg = "Signup failed. Please try again.";
-
-              if (err.code === "auth/email-already-in-use") {
-                msg = "Email already in use.";
-              } else if (err.code === "auth/weak-password") {
-                msg = "Password is too weak.";
-              } else if (
-                err.message &&
-                err.message.includes("failed to resolve specific modifier")
-              ) {
-                msg =
-                  "Unexpected error in form processing. Please check your input and try again.";
-              } else if (err.message) {
-                msg = err.message;
-              }
-
-              if (errorDiv) {
-                errorDiv.style.color = "red";
-                errorDiv.textContent = msg;
-              }
-            } finally {
-              // Reset button state
-              if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = "Sign Up";
-              }
-            }
-          });
-        } else {
-          console.error("Signup form not found");
-        }
-
-        // Update login links
-        document
-          .querySelectorAll('a.btn-link[aria-label="Log In"]')
-          .forEach((link) => {
-            link.setAttribute("href", "login.html");
-          });
-      });
-
-      function registerUser(email, password, roleSelect) {
-        createUserWithEmailAndPassword(auth, email, password)
-          .then(async (userCredential) => {
-            const user = userCredential.user;
-
-            await setDoc(doc(db, "users", user.uid), {
-              email: email,
-              role: roleSelect,
-            });
-
-            if (roleSelect == "STUDENT") {
-              window.location.href = "marketplace.html";
-            } else {
-              window.location.href = "marketplace.html";
-            }
-          })
-          .catch((error) => {
-            console.error("Error during sign up:", error.message);
-          });
-      }
-
-      // Save role in Firestore
-
-      // Spinner animation
-      const style = document.createElement("style");
-      style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
-      document.head.appendChild(style);
+document.getElementById("signupForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const role = document.getElementById("role").value;
+  const studentIDFile = document.getElementById("studentID").files[0];
+  const kycFile = document.getElementById("kycDocument").files[0];
+  
+  // Get submit button for loading state
+  const submitButton = e.target.querySelector('button[type="submit"]');
+  const originalButtonText = submitButton.textContent;
+  
+  // Validation
+  if (!studentIDFile || !kycFile) {
+    alert("Please upload both Student ID and KYC Document.");
+    return;
+  }
+  
+  try {
+    // Validate files
+    validateFile(studentIDFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
+    validateFile(kycFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
+    
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.textContent = "Creating account...";
+    
+    // Create user account
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Send verification email
+    submitButton.textContent = "Sending verification email...";
+    await sendEmailVerification(user);
+    
+    // Upload files
+    submitButton.textContent = "Uploading documents...";
+    
+    const [studentIDUrl, kycUrl] = await Promise.all([
+      uploadFile(studentIDFile, `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`),
+      uploadFile(kycFile, `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`)
+    ]);
+    
+    // Save user data to Firestore
+    submitButton.textContent = "Saving user data...";
+    await setDoc(doc(db, "users", user.uid), {
+      email,
+      role,
+      studentIDUrl,
+      kycDocumentUrl: kycUrl,
+      emailVerified: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    alert("Signup successful! Please check your email and verify your account before logging in.");
+    window.location.href = "login.html";
+    
+  } catch (error) {
+    console.error("Signup error:", error);
+    
+    let message = "An error occurred during signup.";
+    
+    // Handle different error types
+    if (error.code === "auth/email-already-in-use") {
+      message = "This email is already registered. Please use a different email or try logging in.";
+    } else if (error.code === "auth/weak-password") {
+      message = "Password is too weak. Please use at least 6 characters.";
+    } else if (error.code === "auth/invalid-email") {
+      message = "Please enter a valid email address.";
+    } else if (error.code === "storage/unauthorized") {
+      message = "File upload failed. Please check your permissions and try again.";
+    } else if (error.message.includes("Invalid file type") || error.message.includes("File too large")) {
+      message = error.message;
+    } else if (error.message.includes("Failed to upload")) {
+      message = "File upload failed. Please check your internet connection and try again.";
+    }
+    
+    alert(message);
+    
+  } finally {
+    // Reset button state
+    submitButton.disabled = false;
+    submitButton.textContent = originalButtonText;
+  }
+});
     </script>
     <!--
       BACKEND EMAIL VERIFICATION FLOW:

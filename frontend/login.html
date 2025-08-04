@@ -247,12 +247,15 @@ import {
   signInWithPopup, 
   GoogleAuthProvider,
   onAuthStateChanged,
-  signOut
+  signOut,
+  sendPasswordResetEmail,
+  sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import {
   getFirestore,
   doc,
   getDoc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
@@ -271,176 +274,441 @@ try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);
-  console.log("Firebase initialized successfully for login");
+  console.log("✅ Firebase initialized successfully for login");
 } catch (err) {
-  console.error("Firebase initialization failed:", err);
+  console.error("❌ Firebase initialization failed:", err);
+  alert("Failed to initialize Firebase. Please refresh the page and try again.");
 }
 
-// Check authentication function
+// Utility functions
+function showMessage(element, message, type = 'error', duration = 5000) {
+  if (!element) return;
+  
+  const colors = {
+    error: '#dc3545',
+    success: '#28a745',
+    warning: '#ffc107',
+    info: '#17a2b8'
+  };
+  
+  element.style.color = colors[type] || colors.error;
+  element.textContent = message;
+  element.style.display = 'block';
+  
+  // Auto-hide success and info messages
+  if (type === 'success' || type === 'info') {
+    setTimeout(() => {
+      element.style.display = 'none';
+    }, duration);
+  }
+}
+
+function setButtonLoading(button, isLoading, loadingText = 'Loading...', originalText = 'Submit') {
+  if (!button) return;
+  
+  if (isLoading) {
+    button.disabled = true;
+    button.innerHTML = `
+      <span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid transparent;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>
+      ${loadingText}
+    `;
+  } else {
+    button.disabled = false;
+    button.innerHTML = originalText;
+  }
+}
+
+// Enhanced check authentication function
 function checkAuth() {
   return new Promise((resolve) => {
-    onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe(); // Unsubscribe after first call
       resolve(user);
     });
   });
 }
 
+// Validate user profile and role
+async function validateUserProfile(user) {
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (!userDoc.exists()) {
+      throw new Error("PROFILE_NOT_FOUND");
+    }
+
+    const userData = userDoc.data();
+    const requiredFields = ['email', 'role', 'createdAt'];
+    const missingFields = requiredFields.filter(field => !userData.hasOwnProperty(field));
+    
+    if (missingFields.length > 0) {
+      throw new Error(`INCOMPLETE_PROFILE: ${missingFields.join(', ')}`);
+    }
+
+    // Validate role
+    const role = userData.role.toLowerCase();
+    const validRoles = ['student', 'landlord', 'tenant'];
+    if (!validRoles.includes(role)) {
+      throw new Error(`INVALID_ROLE: ${userData.role}`);
+    }
+
+    return { valid: true, userData };
+  } catch (error) {
+    return { 
+      valid: false, 
+      error: error.message,
+      userData: null 
+    };
+  }
+}
+
+// Handle Google sign-in user creation
+async function handleGoogleUserCreation(user) {
+  try {
+    // Create basic profile for Google users
+    await setDoc(doc(db, "users", user.uid), {
+      email: user.email,
+      role: 'student', // Default role, user can change later
+      displayName: user.displayName || '',
+      photoURL: user.photoURL || '',
+      provider: 'google',
+      emailVerified: user.emailVerified,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      requiresProfileCompletion: true // Flag to show profile completion modal
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to create Google user profile:", error);
+    return false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("loginForm");
   const errorDiv = document.getElementById("loginError");
-  const submitBtn = loginForm ? loginForm.querySelector('button[type="submit"]') : null;
+  const submitBtn = loginForm?.querySelector('button[type="submit"]');
   const googleBtn = document.getElementById("googleBtn");
+  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
 
-  // Check if user is already logged in and verified
+  // Check if user is already logged in
   onAuthStateChanged(auth, async (user) => {
-    if (user && user.emailVerified) {
-      console.log("User already logged in and verified, redirecting to marketplace");
-      window.location.href = "marketplace.html";
+    if (user) {
+      console.log("🔍 User already authenticated, validating profile...");
+      
+      if (!user.emailVerified) {
+        console.log("⚠️ Email not verified for existing user");
+        showMessage(errorDiv, "Please verify your email address first.", 'warning');
+        return;
+      }
+
+      const validation = await validateUserProfile(user);
+      if (validation.valid) {
+        console.log("✅ User profile valid, redirecting to marketplace");
+        showMessage(errorDiv, "Welcome back! Redirecting...", 'success');
+        setTimeout(() => {
+          window.location.href = "marketplace.html";
+        }, 1000);
+      } else {
+        console.log("❌ Profile validation failed:", validation.error);
+        if (validation.error.includes('PROFILE_NOT_FOUND')) {
+          showMessage(errorDiv, "Profile not found. Please sign up first.", 'error');
+        }
+      }
     }
   });
 
   // Email/Password Login
-  if (loginForm) {
+  if (loginForm && submitBtn) {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       
-      if (!errorDiv || !submitBtn) {
-        console.error("Required elements not found");
+      const email = document.getElementById("email")?.value?.trim();
+      const password = document.getElementById("password")?.value;
+      const originalButtonText = submitBtn.textContent;
+
+      // Clear previous messages
+      if (errorDiv) errorDiv.style.display = 'none';
+
+      // Validation
+      if (!email || !password) {
+        showMessage(errorDiv, "Please fill in all fields.", 'error');
         return;
       }
 
-      errorDiv.textContent = "";
-      errorDiv.style.color = "red"; // Reset to default error color
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner" style="margin-right:8px;width:16px;height:16px;border:2px solid #fff;border-top:2px solid #228b22;border-radius:50%;display:inline-block;vertical-align:middle;animation:spin 1s linear infinite;"></span>Logging In...';
+      if (!email.includes('@')) {
+        showMessage(errorDiv, "Please enter a valid email address.", 'error');
+        return;
+      }
+
+      if (password.length < 6) {
+        showMessage(errorDiv, "Password must be at least 6 characters long.", 'error');
+        return;
+      }
+
+      setButtonLoading(submitBtn, true, 'Logging In...', originalButtonText);
 
       try {
-        const email = document.getElementById("email")?.value?.trim();
-        const password = document.getElementById("password")?.value;
-
-        if (!email || !password) {
-          throw new Error("Please fill in all fields.");
-        }
-
-        console.log("Attempting login for:", email);
+        console.log("🔐 Attempting login for:", email);
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        console.log("Login successful for user:", user.uid);
-
-        if (!user.emailVerified) {
-          console.log("Email not verified");
-          throw new Error("Please verify your email before logging in. Check your inbox for the verification link.");
-        }
-
-        // Check if user profile exists in Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
         
-        if (!userDoc.exists()) {
-          console.error("User profile not found in Firestore");
-          throw new Error("User profile not found. Please contact support or try signing up again.");
+        console.log("✅ Authentication successful for user:", user.uid);
+
+        // Check email verification
+        if (!user.emailVerified) {
+          console.log("📧 Email not verified");
+          showMessage(errorDiv, "Please verify your email before logging in.", 'warning');
+          
+          // Offer to resend verification email
+          const resendBtn = document.createElement('button');
+          resendBtn.textContent = 'Resend Verification Email';
+          resendBtn.style.marginLeft = '10px';
+          resendBtn.style.padding = '5px 10px';
+          resendBtn.style.fontSize = '12px';
+          
+          resendBtn.onclick = async () => {
+            try {
+              await sendEmailVerification(user);
+              showMessage(errorDiv, "Verification email sent! Check your inbox.", 'success');
+              resendBtn.remove();
+            } catch (error) {
+              console.error("Failed to resend verification:", error);
+              showMessage(errorDiv, "Failed to send verification email. Try again later.", 'error');
+            }
+          };
+          
+          errorDiv.appendChild(resendBtn);
+          await signOut(auth); // Sign out unverified user
+          return;
         }
 
-        console.log("User profile verified in Firestore");
+        // Validate user profile
+        const validation = await validateUserProfile(user);
+        if (!validation.valid) {
+          console.error("❌ Profile validation failed:", validation.error);
+          
+          if (validation.error.includes('PROFILE_NOT_FOUND')) {
+            showMessage(errorDiv, "User profile not found. Please contact support or sign up again.", 'error');
+          } else if (validation.error.includes('INCOMPLETE_PROFILE')) {
+            showMessage(errorDiv, "Your profile is incomplete. Please contact support.", 'error');
+          } else if (validation.error.includes('INVALID_ROLE')) {
+            showMessage(errorDiv, "Invalid user role. Please contact support.", 'error');
+          } else {
+            showMessage(errorDiv, "Profile validation failed. Please contact support.", 'error');
+          }
+          
+          await signOut(auth);
+          return;
+        }
 
         // Success
-        errorDiv.style.color = "green";
-        errorDiv.textContent = "Login successful! Redirecting...";
+        console.log("🎉 Login successful, profile validated");
+        showMessage(errorDiv, "Login successful! Redirecting...", 'success');
         
         setTimeout(() => {
           window.location.href = "marketplace.html";
         }, 1000);
 
       } catch (error) {
-        console.error("Login failed:", error);
-        errorDiv.style.color = "red";
+        console.error("❌ Login failed:", error);
         
-        // Handle specific Firebase error codes
-        if (error.code === "auth/user-not-found" || 
-            error.code === "auth/wrong-password" || 
-            error.code === "auth/invalid-credential") {
-          errorDiv.textContent = "Invalid email or password.";
-        } else if (error.code === "auth/too-many-requests") {
-          errorDiv.textContent = "Too many login attempts. Please try again later.";
-        } else if (error.code === "auth/user-disabled") {
-          errorDiv.textContent = "Account disabled. Please contact support.";
-        } else if (error.code === "auth/invalid-email") {
-          errorDiv.textContent = "Invalid email address format.";
-        } else {
-          errorDiv.textContent = error.message || "Login failed. Please try again.";
+        // Enhanced error handling
+        let errorMessage = "Login failed. Please try again.";
+        
+        switch (error.code) {
+          case "auth/user-not-found":
+            errorMessage = "No account found with this email address.";
+            break;
+          case "auth/wrong-password":
+          case "auth/invalid-credential":
+            errorMessage = "Incorrect password. Please try again.";
+            break;
+          case "auth/too-many-requests":
+            errorMessage = "Too many failed attempts. Please wait a few minutes before trying again.";
+            break;
+          case "auth/user-disabled":
+            errorMessage = "This account has been disabled. Please contact support.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Invalid email address format.";
+            break;
+          case "auth/network-request-failed":
+            errorMessage = "Network error. Please check your internet connection.";
+            break;
+          default:
+            errorMessage = error.message || errorMessage;
         }
+        
+        showMessage(errorDiv, errorMessage, 'error');
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "Log In";
+        setButtonLoading(submitBtn, false, '', originalButtonText);
       }
     });
   }
 
-  // Google Sign-In
+  // Google Sign-In with enhanced handling
   if (googleBtn) {
     googleBtn.addEventListener("click", async function () {
       const provider = new GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      // Clear previous messages
+      if (errorDiv) errorDiv.style.display = 'none';
+      
+      setButtonLoading(googleBtn, true, 'Signing in with Google...', 'Continue with Google');
+      
       try {
-        console.log("Attempting Google sign-in");
+        console.log("🔐 Attempting Google sign-in");
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        console.log("Google sign-in successful for user:", user.uid);
         
-        // Check if user profile exists in Firestore
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
+        console.log("✅ Google authentication successful for user:", user.uid);
         
-        if (!userDoc.exists()) {
-          console.log("Google user doesn't have profile, redirecting to signup");
+        // Check if user profile exists
+        const validation = await validateUserProfile(user);
+        
+        if (!validation.valid && validation.error.includes('PROFILE_NOT_FOUND')) {
+          console.log("📝 Creating profile for new Google user");
+          const profileCreated = await handleGoogleUserCreation(user);
+          
+          if (!profileCreated) {
+            showMessage(errorDiv, "Failed to create user profile. Please try again.", 'error');
+            await signOut(auth);
+            return;
+          }
+          
+          showMessage(errorDiv, "Welcome! Please complete your profile setup.", 'success');
+          // Redirect to profile completion or marketplace with a flag
+          setTimeout(() => {
+            window.location.href = "marketplace.html?complete-profile=true";
+          }, 1500);
+          
+        } else if (validation.valid) {
+          console.log("✅ Google login successful, existing profile found");
+          showMessage(errorDiv, "Welcome back! Redirecting...", 'success');
+          setTimeout(() => {
+            window.location.href = "marketplace.html";
+          }, 1000);
+          
+        } else {
+          console.error("❌ Profile validation failed for Google user:", validation.error);
+          showMessage(errorDiv, "Profile validation failed. Please contact support.", 'error');
           await signOut(auth);
-          if (errorDiv) {
-            errorDiv.style.color = "orange";
-            errorDiv.textContent = "Please sign up first to create your profile.";
-          }
-          return;
         }
-
-        // Redirect will be handled by onAuthStateChanged
-        console.log("Google login successful, profile exists");
         
-      } catch (err) {
-        console.error("Google sign-in failed:", err);
-        if (errorDiv) {
-          errorDiv.style.color = "red";
-          if (err.code === "auth/popup-closed-by-user") {
-            errorDiv.textContent = "Sign-in cancelled.";
-          } else if (err.code === "auth/popup-blocked") {
-            errorDiv.textContent = "Popup blocked. Please allow popups and try again.";
-          } else {
-            errorDiv.textContent = err.message || "Google sign-in failed.";
-          }
+      } catch (error) {
+        console.error("❌ Google sign-in failed:", error);
+        
+        let errorMessage = "Google sign-in failed. Please try again.";
+        
+        switch (error.code) {
+          case "auth/popup-closed-by-user":
+            errorMessage = "Sign-in was cancelled.";
+            break;
+          case "auth/popup-blocked":
+            errorMessage = "Popup was blocked. Please allow popups and try again.";
+            break;
+          case "auth/cancelled-popup-request":
+            errorMessage = "Another sign-in popup is already open.";
+            break;
+          case "auth/network-request-failed":
+            errorMessage = "Network error. Please check your internet connection.";
+            break;
+          default:
+            errorMessage = error.message || errorMessage;
         }
+        
+        showMessage(errorDiv, errorMessage, 'error');
+      } finally {
+        setButtonLoading(googleBtn, false, '', 'Continue with Google');
       }
     });
   }
 
-  // Add spinner animation styles
+  // Forgot Password functionality
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener("click", async function (e) {
+      e.preventDefault();
+      
+      const email = document.getElementById("email")?.value?.trim();
+      
+      if (!email) {
+        showMessage(errorDiv, "Please enter your email address first.", 'warning');
+        document.getElementById("email")?.focus();
+        return;
+      }
+
+      if (!email.includes('@')) {
+        showMessage(errorDiv, "Please enter a valid email address.", 'error');
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showMessage(errorDiv, `Password reset email sent to ${email}. Check your inbox!`, 'success');
+      } catch (error) {
+        console.error("Password reset failed:", error);
+        
+        let errorMessage = "Failed to send password reset email.";
+        
+        if (error.code === "auth/user-not-found") {
+          errorMessage = "No account found with this email address.";
+        } else if (error.code === "auth/invalid-email") {
+          errorMessage = "Invalid email address.";
+        } else if (error.code === "auth/too-many-requests") {
+          errorMessage = "Too many requests. Please wait a few minutes.";
+        }
+        
+        showMessage(errorDiv, errorMessage, 'error');
+      }
+    });
+  }
+
+  // Add CSS for spinner animation
   const style = document.createElement("style");
-  style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }`;
+  style.innerHTML = `
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+  `;
   document.head.appendChild(style);
 });
 
-// Logout function using Firebase v9+
+// Enhanced logout function
 async function logout() {
   try {
     await signOut(auth);
-    console.log("User signed out successfully");
-    window.location.href = "login.html";
+    console.log("✅ User signed out successfully");
+    
+    // Clear any stored data
+    sessionStorage.clear();
+    
+    // Redirect with a slight delay to ensure sign out completes
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 100);
+    
   } catch (error) {
-    console.error("Logout failed:", error);
+    console.error("❌ Logout failed:", error);
+    alert("Failed to sign out. Please try again.");
   }
 }
 
-// Export minimal auth utils to global scope
+// Export auth utilities
 window.authUtils = {
   logout,
   checkAuth,
-  auth
+  auth,
+  validateUserProfile,
+  showMessage
 };
 </script> 
 </html>
