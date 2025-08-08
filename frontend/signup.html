@@ -400,6 +400,10 @@
     </div>
 
     <script type="module" defer>
+  
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getFirestore} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
      import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -407,6 +411,20 @@
 import { setDoc, doc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db, storage } from "./firebase";
+
+const firebaseConfig = {
+   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  authDomain: "project-1-1e31c.firebaseapp.com",
+  databaseURL: "https://project-1-1e31c-default-rtdb.firebaseio.com",
+  projectId: "project-1-1e31c",
+  storageBucket: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
+  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+  measurementId: "G-EDGQR64RS5"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // File validation helper
 function validateFile(file, allowedTypes, maxSizeMB = 5) {
