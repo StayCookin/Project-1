@@ -424,7 +424,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const firestore = getFirestore(app);
 
 // File validation helper
 function validateFile(file, allowedTypes, maxSizeMB = 5) {
