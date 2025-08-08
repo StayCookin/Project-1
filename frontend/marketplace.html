@@ -906,5 +906,19 @@ function hideLoadingState() {
     }
   }
 }
+
+// Imports
+import { query, where, getDocs } from "firebase/firestore";
+
+try {
+  const q = query(usersCollectionRef, where("__name__", "==", user.uid));
+  const myUserSnapshot = await getDocs(q);
+  if (!myUserSnapshot.empty) {
+    const userData = myUserSnapshot.docs[0].data();
+    // Use userData here
+  }
+} catch (error) {
+  console.error("Error fetching user data:", error);
+}
     </script>
 </html>
