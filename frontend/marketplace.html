@@ -640,10 +640,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database operation timed out')), 15000);
+      });
+
       // First, let's check if ANY users exist in the collection
       console.log("🔍 Checking if users collection exists...");
       const usersCollectionRef = collection(db, "users");
-      const allUsersSnapshot = await getDocs(usersCollectionRef);
+      
+      const allUsersSnapshot = await Promise.race([
+        getDocs(usersCollectionRef),
+        timeoutPromise
+      ]);
+      
       console.log(`📊 Total users in collection: ${allUsersSnapshot.size}`);
       
       if (allUsersSnapshot.size === 0) {
@@ -654,8 +664,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // List all user IDs for debugging
       console.log("📋 All user IDs in collection:");
-      allUsersSnapshot.forEach(doc => {
-        console.log(`  - ${doc.id}`);
+      allUsersSnapshot.forEach(docSnapshot => {
+        console.log(`  - ${docSnapshot.id}`);
       });
 
       // Now try to get the specific user document
@@ -663,7 +673,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const userDocRef = doc(db, "users", user.uid);
       console.log("📍 Document path:", userDocRef.path);
       
-      const userDoc = await getDoc(userDocRef);
+      const userDoc = await Promise.race([
+        getDoc(userDocRef),
+        timeoutPromise
+      ]);
+      
       console.log("📄 Document exists:", userDoc.exists());
 
       if (!userDoc.exists()) {
@@ -672,12 +686,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Try to find user by email as fallback
         console.log("🔍 Searching for user by email...");
         const emailQuery = query(usersCollectionRef, where("email", "==", user.email));
-        const emailSnapshot = await getDocs(emailQuery);
+        const emailSnapshot = await Promise.race([
+          getDocs(emailQuery),
+          timeoutPromise
+        ]);
         
         if (emailSnapshot.size > 0) {
           console.log("✅ Found user by email!");
-          emailSnapshot.forEach(doc => {
-            console.log(`📄 Found document ID: ${doc.id} with data:`, doc.data());
+          emailSnapshot.forEach(docSnapshot => {
+            console.log(`📄 Found document ID: ${docSnapshot.id} with data:`, docSnapshot.data());
           });
           alert("Account mismatch detected. Your account exists but with a different ID. Please contact support.");
         } else {
@@ -703,16 +720,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Handle role validation
+      // FIXED: Handle role validation - Keep original case from database
       const rawRole = userData.role || userData.userType || userData.accountType || "";
       console.log("🎭 Raw role from database:", rawRole);
       
-      // Support both uppercase and lowercase roles
-      const role = rawRole.toString().toLowerCase();
+      // Keep uppercase roles as they are stored in database
+      const role = rawRole.toString().trim();
       console.log("🎭 Processed role:", role);
 
-      // Updated to match your signup form (student/landlord instead of tenant/landlord)
-      const validRoles = ['student', 'landlord', 'tenant']; // Added tenant for backward compatibility
+      // FIXED: Match database values (uppercase)
+      const validRoles = ['STUDENT', 'LANDLORD'];
       if (!validRoles.includes(role)) {
         console.error(`❌ Invalid or missing role: '${rawRole}' -> '${role}'`);
         console.log("✅ Valid roles are:", validRoles);
@@ -745,13 +762,16 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // More specific error handling
       if (error.code === 'permission-denied') {
-        alert("Permission denied. Please check your account permissions or contact support.");
+        alert("Permission denied. Your account may not have the required permissions. Please contact support.");
       } else if (error.code === 'unavailable') {
         alert("Database temporarily unavailable. Please try again in a few moments.");
+      } else if (error.message === 'Database operation timed out') {
+        alert("Database connection timed out. Please check your internet connection and try again.");
       } else {
         alert(`Error loading profile: ${error.message}. Please try refreshing the page.`);
       }
       
+      hideLoadingState();
       await signOut(auth);
       window.location.href = "index.html";
     }
@@ -766,21 +786,27 @@ function updateUIForRole(role, user) {
   
   const welcomeMessage = document.getElementById('welcomeMessage');
   if (welcomeMessage) {
-    welcomeMessage.textContent = role === 'student' || role === 'tenant'
+    welcomeMessage.textContent = role === 'STUDENT'
       ? 'Find Your Perfect Student Accommodation'
-      : 'Manage Your Properties';
+      : role === 'LANDLORD'
+      ? 'Manage Your Properties'
+      : 'Dashboard';
   }
 
   const pageTitle = document.querySelector('h1');
   if (pageTitle) {
-    pageTitle.textContent = role === 'student' || role === 'tenant'
+    pageTitle.textContent = role === 'STUDENT'
       ? 'Browse Properties'
-      : 'Property Management';
+      : role === 'LANDLORD'
+      ? 'Property Management'
+      : 'Dashboard';
   }
 
   const headerRole = document.getElementById('userRoleIndicator');
   if (headerRole) {
-    headerRole.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`;
+    // Display role in proper case for UI
+    const displayRole = role === 'STUDENT' ? 'Student' : role === 'LANDLORD' ? 'Landlord' : role;
+    headerRole.textContent = `${displayRole} Dashboard`;
   }
 
   adjustUIForRole(role);
