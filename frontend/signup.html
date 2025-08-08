@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup - InRent</title>
-    <link rel="stylesheet" href="css/main.css" />
+    
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -401,19 +401,22 @@
 
     <script type="module" defer>
   
-  import {initializeApp} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getFirestore} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-
-     import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "./firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, db, storage } from "./firebase";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  sendEmailVerification 
+} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { 
+  getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
 
 const firebaseConfig = {
-   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
   databaseURL: "https://project-1-1e31c-default-rtdb.firebaseio.com",
   projectId: "project-1-1e31c",
@@ -423,8 +426,11 @@ const firebaseConfig = {
   measurementId: "G-EDGQR64RS5"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const firestore = getFirestore(app);
+const storage = getStorage(app);
 
 // File validation helper
 function validateFile(file, allowedTypes, maxSizeMB = 5) {
@@ -502,7 +508,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     
     // Save user data to Firestore
     submitButton.textContent = "Saving user data...";
-    await setDoc(doc(db, "users", user.uid), {
+    await setDoc(doc(firestore, "users", user.uid), {
       email,
       role,
       studentIDUrl,
