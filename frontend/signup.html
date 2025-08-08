@@ -478,24 +478,21 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
   let requiredFile = null;
   let requiredFieldName = "";
   
-  if (role === "student") {
+  if (role === "STUDENT") {
     if (!studentIDFile) {
       alert("Please upload your Student ID document.");
       return;
     }
     requiredFile = studentIDFile;
     requiredFieldName = "Student ID";
-  } else if (role === "teacher" || role === "admin") {
+  } else if (role === "LANDLORD") {
     if (!kycFile) {
       alert("Please upload your KYC document.");
       return;
     }
     requiredFile = kycFile;
     requiredFieldName = "KYC Document";
-  } else {
-    alert("Invalid role selected.");
-    return;
-  }
+  } 
   
   try {
     // Validate the required file
