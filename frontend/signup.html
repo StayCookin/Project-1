@@ -516,7 +516,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     let documentUrl = "";
     let userDocData = {};
     
-    if (role === "student") {
+    if (role === "STUDENT") {
       documentUrl = await uploadFile(studentIDFile, `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`);
       userDocData.studentIDUrl = documentUrl;
     } else {
