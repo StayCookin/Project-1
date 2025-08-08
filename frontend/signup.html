@@ -400,7 +400,6 @@
     </div>
 
     <script type="module" defer>
-  
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 import { 
@@ -465,26 +464,42 @@ async function uploadFile(file, path) {
 document.getElementById("signupForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   
-  const email = document.getElementById("emailAddress").value;
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const role = document.getElementById("role").value;
-  const studentIDFile = document.getElementById("studentId").files[0];
-  const kycFile = document.getElementById("kycDoc").files[0];
+  const studentIDFile = document.getElementById("studentID").files[0];
+  const kycFile = document.getElementById("kycDocument").files[0];
   
   // Get submit button for loading state
   const submitButton = e.target.querySelector('button[type="submit"]');
   const originalButtonText = submitButton.textContent;
   
-  // Validation
-  if (!studentIDFile || !kycFile) {
-    alert("Please upload both Student ID and KYC Document.");
+  // Role-based validation
+  let requiredFile = null;
+  let requiredFieldName = "";
+  
+  if (role === "student") {
+    if (!studentIDFile) {
+      alert("Please upload your Student ID document.");
+      return;
+    }
+    requiredFile = studentIDFile;
+    requiredFieldName = "Student ID";
+  } else if (role === "teacher" || role === "admin") {
+    if (!kycFile) {
+      alert("Please upload your KYC document.");
+      return;
+    }
+    requiredFile = kycFile;
+    requiredFieldName = "KYC Document";
+  } else {
+    alert("Invalid role selected.");
     return;
   }
   
   try {
-    // Validate files
-    validateFile(studentIDFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
-    validateFile(kycFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
+    // Validate the required file
+    validateFile(requiredFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
     
     // Show loading state
     submitButton.disabled = true;
@@ -498,21 +513,26 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
     submitButton.textContent = "Sending verification email...";
     await sendEmailVerification(user);
     
-    // Upload files
-    submitButton.textContent = "Uploading documents...";
+    // Upload file
+    submitButton.textContent = `Uploading ${requiredFieldName}...`;
     
-    const [studentIDUrl, kycUrl] = await Promise.all([
-      uploadFile(studentIDFile, `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`),
-      uploadFile(kycFile, `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`)
-    ]);
+    let documentUrl = "";
+    let userDocData = {};
+    
+    if (role === "student") {
+      documentUrl = await uploadFile(studentIDFile, `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`);
+      userDocData.studentIDUrl = documentUrl;
+    } else {
+      documentUrl = await uploadFile(kycFile, `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`);
+      userDocData.kycDocumentUrl = documentUrl;
+    }
     
     // Save user data to Firestore
     submitButton.textContent = "Saving user data...";
     await setDoc(doc(firestore, "users", user.uid), {
       email,
       role,
-      studentIDUrl,
-      kycDocumentUrl: kycUrl,
+      ...userDocData,
       emailVerified: false,
       createdAt: new Date(),
       updatedAt: new Date()
