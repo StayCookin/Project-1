@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Signup - InRent</title>
-    
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -400,179 +399,201 @@
     </div>
 
     <script type="module" defer>
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-import { 
-  getAuth, 
-  createUserWithEmailAndPassword, 
-  sendEmailVerification 
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { 
-  getStorage, 
-  ref, 
-  uploadBytes, 
-  getDownloadURL 
-} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+      import {
+        getFirestore,
+        setDoc,
+        doc,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        sendEmailVerification,
+      } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  databaseURL: "https://project-1-1e31c-default-rtdb.firebaseio.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-  measurementId: "G-EDGQR64RS5"
-};
+      const firebaseConfig = {
+        apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+        authDomain: "project-1-1e31c.firebaseapp.com",
+        databaseURL: "https://project-1-1e31c-default-rtdb.firebaseio.com",
+        projectId: "project-1-1e31c",
+        storageBucket: "project-1-1e31c.firebasestorage.app",
+        messagingSenderId: "658275930203",
+        appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+        measurementId: "G-EDGQR64RS5",
+      };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const firestore = getFirestore(app);
-const storage = getStorage(app);
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const firestore = getFirestore(app);
+      const storage = getStorage(app);
 
-// File validation helper
-function validateFile(file, allowedTypes, maxSizeMB = 5) {
-  const allowedExtensions = allowedTypes.map(type => type.toLowerCase());
-  const fileExtension = file.name.split('.').pop().toLowerCase();
-  const fileSizeMB = file.size / (1024 * 1024);
-  
-  if (!allowedExtensions.includes(fileExtension)) {
-    throw new Error(`Invalid file type. Allowed: ${allowedTypes.join(', ')}`);
-  }
-  
-  if (fileSizeMB > maxSizeMB) {
-    throw new Error(`File too large. Maximum size: ${maxSizeMB}MB`);
-  }
-  
-  return true;
-}
+      // File validation helper
+      function validateFile(file, allowedTypes, maxSizeMB = 5) {
+        const allowedExtensions = allowedTypes.map((type) =>
+          type.toLowerCase()
+        );
+        const fileExtension = file.name.split(".").pop().toLowerCase();
+        const fileSizeMB = file.size / (1024 * 1024);
 
-// Upload file helper with error handling
-async function uploadFile(file, path) {
-  try {
-    const fileRef = ref(storage, path);
-    const snapshot = await uploadBytes(fileRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-  } catch (error) {
-    console.error(`Upload failed for ${path}:`, error);
-    throw new Error(`Failed to upload ${file.name}: ${error.message}`);
-  }
-}
+        if (!allowedExtensions.includes(fileExtension)) {
+          throw new Error(
+            `Invalid file type. Allowed: ${allowedTypes.join(", ")}`
+          );
+        }
 
-document.getElementById("signupForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  
-  const email = document.getElementById("emailAddress").value;
-  const password = document.getElementById("password").value;
-  const role = document.getElementById("role").value;
-  const studentIDFile = document.getElementById("studentId").files[0];
-  const kycFile = document.getElementById("kycDoc").files[0];
-  
-  // Get submit button for loading state
-  const submitButton = e.target.querySelector('button[type="submit"]');
-  const originalButtonText = submitButton.textContent;
-  
-  // Role-based validation
-  let requiredFile = null;
-  let requiredFieldName = "";
-  
-  if (role === "STUDENT") {
-    if (!studentIDFile) {
-      alert("Please upload your Student ID document.");
-      return;
-    }
-    requiredFile = studentIDFile;
-    requiredFieldName = "Student ID";
-  } else if (role === "LANDLORD") {
-    if (!kycFile) {
-      alert("Please upload your KYC document.");
-      return;
-    }
-    requiredFile = kycFile;
-    requiredFieldName = "KYC Document";
-  } 
-  
-  try {
-    // Validate the required file
-    validateFile(requiredFile, ['jpg', 'jpeg', 'png', 'pdf'], 5);
-    
-    // Show loading state
-    submitButton.disabled = true;
-    submitButton.textContent = "Creating account...";
-    
-    // Create user account
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Send verification email
-    submitButton.textContent = "Sending verification email...";
-    await sendEmailVerification(user);
-    
-    // Upload file
-    submitButton.textContent = `Uploading ${requiredFieldName}...`;
-    
-    let documentUrl = "";
-    let userDocData = {};
-    
-    if (role === "STUDENT") {
-      documentUrl = await uploadFile(studentIDFile, `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`);
-      userDocData.studentIDUrl = documentUrl;
-    } else {
-      documentUrl = await uploadFile(kycFile, `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`);
-      userDocData.kycDocumentUrl = documentUrl;
-    }
-    
-    // Save user data to Firestore
-    submitButton.textContent = "Saving user data...";
-    await setDoc(doc(firestore, "users", user.uid), {
-      email,
-      role,
-      ...userDocData,
-      emailVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-    
-    alert("Signup successful! Please check your email and verify your account before logging in.");
-    window.location.href = "login.html";
-    
-  } catch (error) {
-    console.error("Signup error:", error);
-    
-    let message = "An error occurred during signup.";
-    
-    // Handle different error types
-    if (error.code === "auth/email-already-in-use") {
-      message = "This email is already registered. Please use a different email or try logging in.";
-    } else if (error.code === "auth/weak-password") {
-      message = "Password is too weak. Please use at least 6 characters.";
-    } else if (error.code === "auth/invalid-email") {
-      message = "Please enter a valid email address.";
-    } else if (error.code === "storage/unauthorized") {
-      message = "File upload failed. Please check your permissions and try again.";
-    } else if (error.message.includes("Invalid file type") || error.message.includes("File too large")) {
-      message = error.message;
-    } else if (error.message.includes("Failed to upload")) {
-      message = "File upload failed. Please check your internet connection and try again.";
-    }
-    
-    alert(message);
-    
-  } finally {
-    // Reset button state
-    submitButton.disabled = false;
-    submitButton.textContent = originalButtonText;
-  }
-});
+        if (fileSizeMB > maxSizeMB) {
+          throw new Error(`File too large. Maximum size: ${maxSizeMB}MB`);
+        }
+
+        return true;
+      }
+
+      // Upload file helper with error handling
+      async function uploadFile(file, path) {
+        try {
+          const fileRef = ref(storage, path);
+          const snapshot = await uploadBytes(fileRef, file);
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          return downloadURL;
+        } catch (error) {
+          console.error(`Upload failed for ${path}:`, error);
+          throw new Error(`Failed to upload ${file.name}: ${error.message}`);
+        }
+      }
+
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById("emailAddress").value;
+          const password = document.getElementById("password").value;
+          const role = document.getElementById("role").value;
+          const studentIDFile = document.getElementById("studentId").files[0];
+          const kycFile = document.getElementById("kycDoc").files[0];
+
+          // Get submit button for loading state
+          const submitButton = e.target.querySelector('button[type="submit"]');
+          const originalButtonText = submitButton.textContent;
+
+          // Role-based validation
+          let requiredFile = null;
+          let requiredFieldName = "";
+
+          if (role === "STUDENT") {
+            if (!studentIDFile) {
+              alert("Please upload your Student ID document.");
+              return;
+            }
+            requiredFile = studentIDFile;
+            requiredFieldName = "Student ID";
+          } else if (role === "LANDLORD") {
+            if (!kycFile) {
+              alert("Please upload your KYC document.");
+              return;
+            }
+            requiredFile = kycFile;
+            requiredFieldName = "KYC Document";
+          }
+
+          try {
+            // Validate the required file
+            validateFile(requiredFile, ["jpg", "jpeg", "png", "pdf"], 5);
+
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = "Creating account...";
+
+            // Create user account
+            const userCredential = await createUserWithEmailAndPassword(
+              auth,
+              email,
+              password
+            );
+            const user = userCredential.user;
+
+            // Send verification email
+            submitButton.textContent = "Sending verification email...";
+            await sendEmailVerification(user);
+
+            // Upload file
+            submitButton.textContent = `Uploading ${requiredFieldName}...`;
+
+            let documentUrl = "";
+            let userDocData = {};
+
+            if (role === "STUDENT") {
+              documentUrl = await uploadFile(
+                studentIDFile,
+                `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
+              );
+              userDocData.studentIDUrl = documentUrl;
+            } else {
+              documentUrl = await uploadFile(
+                kycFile,
+                `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`
+              );
+              userDocData.kycDocumentUrl = documentUrl;
+            }
+
+            // Save user data to Firestore
+            submitButton.textContent = "Saving user data...";
+            await setDoc(doc(firestore, "users", user.uid), {
+              email,
+              role,
+              ...userDocData,
+              emailVerified: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+
+            alert(
+              "Signup successful! Please check your email and verify your account before logging in."
+            );
+            window.location.href = "login.html";
+          } catch (error) {
+            console.error("Signup error:", error);
+
+            let message = "An error occurred during signup.";
+
+            // Handle different error types
+            if (error.code === "auth/email-already-in-use") {
+              message =
+                "This email is already registered. Please use a different email or try logging in.";
+            } else if (error.code === "auth/weak-password") {
+              message =
+                "Password is too weak. Please use at least 6 characters.";
+            } else if (error.code === "auth/invalid-email") {
+              message = "Please enter a valid email address.";
+            } else if (error.code === "storage/unauthorized") {
+              message =
+                "File upload failed. Please check your permissions and try again.";
+            } else if (
+              error.message.includes("Invalid file type") ||
+              error.message.includes("File too large")
+            ) {
+              message = error.message;
+            } else if (error.message.includes("Failed to upload")) {
+              message =
+                "File upload failed. Please check your internet connection and try again.";
+            }
+
+            alert(message);
+          } finally {
+            // Reset button state
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+          }
+        });
     </script>
-    <!--
-      BACKEND EMAIL VERIFICATION FLOW:
-      - Use a service like Nodemailer (Node.js/Express) or SendGrid to send the verification email.
-      - The email contains a unique link (e.g., /verify?token=XYZ) tied to the user.
-      - When the user clicks the link, the backend verifies the token, marks the user as verified/active, and allows login.
-      - The verification link acts as a switch: only after clicking it can the user access the website.
-    -->
+  
   </body>
 </html>
