@@ -497,50 +497,16 @@
         <option value="4001-6000">4,001-6,000</option>
         <option value="6000+">6,000+</option>
       </select>
-      <div class="amenities-dropdown">
-        <button
-          type="button"
-          class="amenities-dropdown-btn"
-          id="amenitiesDropdownBtn"
-          aria-haspopup="listbox"
-          aria-expanded="false"
-        >
-          <span>
-            <i class="fas fa-list"></i> Amenities
-            <span
-              id="amenitiesSelectedCount"
-              style="color: var(--forest-green); font-weight: 600"
-            ></span>
-          </span>
-          <i class="fas fa-chevron-down" style="font-size: 0.9em"></i>
-        </button>
-        <div
-          class="amenities-list"
-          id="amenitiesList"
-          role="listbox"
-          tabindex="-1"
-        >
-          <label tabindex="0"
-            ><input type="checkbox" value="wifi" /> WiFi</label
-          >
-          <label tabindex="0"
-            ><input type="checkbox" value="parking" /> Parking</label
-          >
-          <label tabindex="0"
-            ><input type="checkbox" value="furnished" /> Furnished</label
-          >
-          <label tabindex="0"
-            ><input type="checkbox" value="laundry" /> Laundry</label
-          >
-          <label tabindex="0"
-            ><input type="checkbox" value="ac" /> Air Conditioning</label
-          >
-          <label tabindex="0"
-            ><input type="checkbox" value="security" /> Security</label
-          >
-        </div>
-      </div>
-      <button class="btn" id="filterBtn">
+        <select id="amenityFilter">
+          <option value="">Amenities</option>
+          <option value="wifi">Wifi</option>
+          <option value="parking">Parking</option>
+          <option value="furnished">Furnished</option>
+          <option value="ac">Air Conditioning</option>
+          <option value="security">Security</option>
+        </select>
+    </div>
+      <button class="nav-btn" id="filterBtn" style="padding-right: 15px;">
         Filter
       </button>
     </div>
@@ -611,6 +577,16 @@ const setupPropertiesListener = (role, user) => { console.log(`✓ Properties li
 const setupSearchAndFilters = (role) => { console.log(`✓ Search and filters initialized for ${role}.`); };
 const applyCurrentFilters = () => { console.log("Applying current filters..."); };
 const adjustUIForRole = (role) => { console.log(`✓ UI adjusted for ${role}.`); };
+
+//functionality to buttons
+const dashboard =document.getElementById("dashboardBtn");
+const messages = document.getElementById("messagesBtnHeader");
+
+//redirect to message page
+messages.addEventListener( "click", () => {
+
+  window.location.href = "messages.html";
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   showLoadingState();
