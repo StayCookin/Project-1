@@ -571,6 +571,15 @@ import {
   query,
   where,
   getDocs,
+  addDoc,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+  FieldValue
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -581,6 +590,10 @@ const firebaseConfig = {
   messagingSenderId: "658275930203",
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
 };
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 class StudentDashboard {
   constructor() {
