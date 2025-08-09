@@ -746,6 +746,7 @@ if (messages) {
 // Dashboard redirect based on role from Firebase
 if (dashboard) {
   dashboard.addEventListener("click", () => {
+    console.log("currentUser data at click", currentUserData);
     if (!currentUserData || !currentUserData.role) {
       console.log("❌ No user data available, requesting login");
       alert("Please login to access your dashboard.");
