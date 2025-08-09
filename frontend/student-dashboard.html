@@ -100,320 +100,7 @@
     </style>
   </head>
   <body class="min-h-screen flex flex-col">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script>
-      // For security, do NOT expose your entire Firebase config if this is public facing.
-      // Use Firebase Hosting or Cloud Functions for more secure setup if needed.
-      const firebaseConfig = {
-        apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-        authDomain: "project-1-1e31c.firebaseapp.com",
-        projectId: "project-1-1e31c",
-        storageBucket: "project-1-1e31c.firebasestorage.app",
-        messagingSenderId: "658275930203",
-        appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore(); // If you're using Firestore
-    </script>
-
-    <script>
-      // Existing API_BASE for non-Firebase specific calls (like properties, if they are separate)
-      const API_BASE = "https://project-1-2alx.onrender.com"; // Keep if you still have a separate REST API
-
-      // --- Firebase-based Authentication & Role Check ---
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          // User is signed in. Get their custom claims.
-          try {
-            const idTokenResult = await user.getIdTokenResult(true); // true to force refresh
-            const userRole = idTokenResult.claims.role; // Assuming 'role' is a custom claim
-
-            if (userRole === "student") {
-              // User is a student, proceed with loading student dashboard data
-              await fetchUserProfile(user); // Pass Firebase user object
-              await fetchDashboardStats(user); // Pass Firebase user object
-              await fetchProperties(); // This might still use your REST API or Firebase DB
-              await fetchReviews(); // This might still use your REST API or Firebase DB
-            } else if (userRole === "landlord") {
-              // User is a landlord, redirect to landlord dashboard
-              window.location.href = "landlord-dashboard.html";
-            } else {
-              // User is authenticated but has an unknown or no role
-              console.warn("Authenticated user with unknown role:", userRole);
-              auth.signOut(); // Log them out
-              window.location.href = "login.html";
-            }
-          } catch (error) {
-            console.error("Error getting user claims:", error);
-            auth.signOut(); // Log out on error
-            window.location.href = "login.html";
-          }
-        } else {
-          // User is not signed in, redirect to login page
-          window.location.href = "login.html";
-        }
-      });
-
-      // --- Modified fetchUserProfile to use Firebase user object ---
-      async function fetchUserProfile(firebaseUser) {
-        if (!firebaseUser) return; // Ensure user object is passed
-
-        try {
-          // You might fetch additional profile details from Firestore/Realtime DB
-          // For now, let's use what's available from Firebase Auth or a user profile collection
-          const userDoc = await db.collection("users").doc(firebaseUser.uid).get();
-          const userData = userDoc.exists ? userDoc.data() : {};
-
-          document.getElementById("sidebarWelcome").textContent = `Welcome, ${
-            userData.firstName || firebaseUser.displayName || "Student"
-          }`;
-          const profileImageUrl =
-            userData.profilePictureUrl ||
-            firebaseUser.photoURL ||
-            "https://placehold.co/80x80/16A34A/FFFFFF?text=S";
-          document.querySelector(".sidebar-header .profile-image").src =
-            profileImageUrl;
-          document.querySelector(".profile-menu .profile-image-small").src =
-            profileImageUrl;
-        } catch (error) {
-          console.error("Failed to fetch user profile from Firestore:", error);
-          // Fallback to basic Firebase Auth info
-          document.getElementById("sidebarWelcome").textContent = `Welcome, ${
-            firebaseUser.displayName || "Student"
-          }`;
-          const profileImageUrl =
-            firebaseUser.photoURL ||
-            "https://placehold.co/80x80/16A34A/FFFFFF?text=S";
-          document.querySelector(".sidebar-header .profile-image").src =
-            profileImageUrl;
-          document.querySelector(".profile-menu .profile-image-small").src =
-            profileImageUrl;
-        }
-      }
-
-      // --- fetchDashboardStats, fetchProperties, fetchReviews ---
-      // These functions would now typically fetch data from Firestore/Realtime DB
-      // instead of a separate REST API, if your data is entirely in Firebase.
-      // If your "recommended properties" are complex and involve server-side logic,
-      // you might still use Firebase Cloud Functions for that.
-      // For demonstration, I'll show how you *could* fetch from Firestore.
-
-      async function fetchDashboardStats(firebaseUser) {
-        if (!firebaseUser) return;
-        try {
-          // Example: Fetch stats from a 'userStats' collection or aggregated data
-          const statsDoc = await db.collection("userStats").doc(firebaseUser.uid).get();
-          const stats = statsDoc.exists ? statsDoc.data() : {
-            savedProperties: 0,
-            scheduledViewings: 0,
-            unreadMessages: 0,
-            reviewsCount: 0
-          };
-
-          const dashboardCardsContainer =
-            document.getElementById("dashboardCards");
-          dashboardCardsContainer.innerHTML = `
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties</h3>
-              <p class="text-4xl font-bold text-gray-900">${
-                stats.savedProperties || 0
-              }</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-calendar text-blue-500 mr-2"></i> Scheduled Viewings</h3>
-              <p class="text-4xl font-bold text-gray-900">${
-                stats.scheduledViewings || 0
-              }</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                <i class="fas fa-envelope text-green-500 mr-2"></i> Messages
-                <span class="notification-asterisk text-red-500 text-xl font-bold">${
-                  stats.unreadMessages > 0 ? "*" : ""
-                }</span>
-              </h3>
-              <p class="text-4xl font-bold text-gray-900">${
-                stats.unreadMessages || 0
-              }</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-star text-yellow-500 mr-2"></i> Reviews</h3>
-              <p class="text-4xl font-bold text-gray-900">${
-                stats.reviewsCount || 0
-              }</p>
-            </div>
-          `;
-          document.getElementById("notificationBadge").textContent =
-            stats.unreadMessages || 0;
-        } catch (error) {
-          console.error("Failed to fetch dashboard stats from Firebase:", error);
-          // Render default cards if fetching fails
-          document.getElementById("dashboardCards").innerHTML = `
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties</h3>
-              <p class="text-4xl font-bold text-gray-900">N/A</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-calendar text-blue-500 mr-2"></i> Scheduled Viewings</h3>
-              <p class="text-4xl font-bold text-gray-900">N/A</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                <i class="fas fa-envelope text-green-500 mr-2"></i> Messages
-                <span class="notification-asterisk text-red-500 text-xl font-bold"></span>
-              </h3>
-              <p class="text-4xl font-bold text-gray-900">N/A</p>
-            </div>
-            <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
-              <h3 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-star text-yellow-500 mr-2"></i> Reviews</h3>
-              <p class="text-4xl font-bold text-gray-900">N/A</p>
-            </div>
-          `;
-        }
-      }
-
-      async function fetchProperties() {
-        try {
-          // Example: Fetch properties from a 'properties' collection in Firestore
-          const propertiesSnapshot = await db.collection("properties").where("recommended", "==", true).limit(9).get();
-          const properties = propertiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-          const propertyGridContainer =
-            document.getElementById("propertyGrid");
-          propertyGridContainer.innerHTML = ""; // Clear loading message
-
-          if (properties.length === 0) {
-            propertyGridContainer.innerHTML =
-              '<p class="text-center text-gray-600 col-span-full py-8">No recommended properties found at the moment.</p>';
-            return;
-          }
-
-          properties.forEach((property) => {
-            const propertyCard = `
-              <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transform hover:scale-105 transition-transform duration-200">
-                <img
-                  src="${
-                    property.imageUrl ||
-                    "https://placehold.co/400x250/22C55E/FFFFFF?text=Property"
-                  }"
-                  alt="${property.title || "Property Image"}"
-                  class="property-image w-full h-48 object-cover"
-                />
-                <div class="property-details p-4 flex flex-col justify-between h-[calc(100%-12rem)]">
-                  <div>
-                    <div class="property-price text-xl font-bold text-green-600 mb-1">P${
-                      property.price
-                    }/month</div>
-                    <h3 class="property-title text-lg font-semibold text-gray-800 mb-1">${
-                      property.title || "Unknown Property"
-                    }</h3>
-                    <p class="property-location text-gray-600 text-sm mb-3">${
-                      property.location || "Unknown Location"
-                    }</p>
-                    <div class="property-features flex flex-wrap gap-x-4 gap-y-2 text-gray-700 text-sm">
-                      <span class="flex items-center"><i class="fas fa-bed text-gray-500 mr-1"></i> ${
-                        property.beds || "N/A"
-                      } Beds</span>
-                      <span class="flex items-center"><i class="fas fa-bath text-gray-500 mr-1"></i> ${
-                        property.baths || "N/A"
-                      } Bath</span>
-                      <span class="flex items-center"><i class="fas fa-ruler-combined text-gray-500 mr-1"></i> ${
-                        property.sqft || "N/A"
-                      } sqft</span>
-                    </div>
-                  </div>
-                  <div class="property-actions flex space-x-2 mt-4">
-                    <button class="btn btn-primary flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200">
-                      <i class="fas fa-eye mr-2"></i> View Details
-                    </button>
-                    <button class="btn btn-secondary bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200">
-                      <i class="fas fa-heart"></i> Save
-                    </button>
-                  </div>
-                </div>
-              </div>
-            `;
-            propertyGridContainer.insertAdjacentHTML("beforeend", propertyCard);
-          });
-        } catch (error) {
-          console.error("Failed to fetch properties from Firebase:", error);
-          document.getElementById("propertyGrid").innerHTML =
-            '<p class="text-center text-gray-600 col-span-full py-8">Error loading properties. Please try again later.</p>';
-        }
-      }
-
-      async function fetchReviews() {
-        // Example: Fetch reviews from a 'reviews' collection in Firestore
-        try {
-          const reviewsSnapshot = await db.collection("reviews").get();
-          const reviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          console.log("Fetched reviews from Firebase:", reviews);
-          // You might display these in a separate section or modal
-        } catch (error) {
-          console.error("Failed to fetch reviews from Firebase:", error);
-        }
-      }
-
-      // --- Logout Function (Firebase specific) ---
-      document.getElementById('logoutBtn').addEventListener('click', async (event) => {
-        event.preventDefault();
-        try {
-          await auth.signOut();
-          window.location.href = "index.html"; // Redirect to home/login page after logout
-        } catch (error) {
-          console.error("Error signing out:", error);
-          alert("Failed to log out. Please try again.");
-        }
-      });
-
-      document.getElementById('headerLogoutBtn').addEventListener('click', async (event) => {
-        event.preventDefault();
-        try {
-          await auth.signOut();
-          window.location.href = "index.html"; // Redirect to home/login page after logout
-        } catch (error) {
-          console.error("Error signing out:", error);
-          alert("Failed to log out. Please try again.");
-        }
-      });
-
-      // --- Review Form Submission (Firebase specific) ---
-      if (reviewForm) {
-          reviewForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            const reviewText = document.getElementById("reviewText").value;
-
-            // Ensure user is logged in before submitting review
-            const user = auth.currentUser;
-            if (!user) {
-                alert("You must be logged in to submit a review.");
-                return;
-            }
-
-            try {
-                // Add review to Firestore 'reviews' collection
-                await db.collection("reviews").add({
-                    userId: user.uid,
-                    rating: currentRating,
-                    reviewText: reviewText,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp() // Use server timestamp
-                });
-
-                reviewFormSuccess.classList.remove("hidden");
-                // Optionally close modal after a short delay
-                // setTimeout(closeReviewModal, 2000);
-            } catch (err) {
-                console.error("Error submitting review to Firebase:", err);
-                alert("Error submitting review. Please try again.");
-            }
-          });
-        }
-    </script>
+    
     <div class="flex flex-grow bg-gray-100">
       <aside
         class="w-64 bg-white shadow-lg p-6 flex flex-col rounded-r-xl md:rounded-r-none"
@@ -866,143 +553,1023 @@
         </form>
       </div>
     </div>
-    <script>
-      // Basic JS for dropdowns and modal (for demonstration)
-      document.addEventListener("DOMContentLoaded", () => {
-        // Notification Dropdown
-        const notificationToggle =
-          document.getElementById("notificationToggle");
-        const notificationDropdown = document.getElementById(
-          "notificationDropdown"
-        );
+    <script type="module" defer>
+      // Enhanced Student Dashboard - Firebase Integrated
+// Make sure Firebase is initialized before this script runs
 
-        if (notificationToggle && notificationDropdown) {
-          notificationToggle.addEventListener("click", () => {
-            notificationDropdown.classList.toggle("hidden");
-          });
+class StudentDashboard {
+  constructor() {
+    this.currentUser = null;
+    this.userProfile = null;
+    this.currentRating = 0;
+    this.init();
+  }
 
-          document.addEventListener("click", (event) => {
-            if (
-              !notificationToggle.contains(event.target) &&
-              !notificationDropdown.contains(event.target)
-            ) {
-              notificationDropdown.classList.add("hidden");
-            }
-          });
-        }
+  async init() {
+    try {
+      // Wait for Firebase Auth to initialize
+      await this.waitForFirebaseAuth();
+      this.setupEventListeners();
+    } catch (error) {
+      console.error('Dashboard initialization failed:', error);
+      this.handleError('Failed to initialize dashboard');
+    }
+  }
 
-        // Profile Menu Dropdown
-        const profileMenuToggle = document.getElementById("profileMenuToggle");
-        const profileDropdown = document.querySelector(
-          ".profile-menu .profile-dropdown"
-        );
+  // Wait for Firebase Auth to be ready
+  waitForFirebaseAuth() {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Firebase Auth timeout'));
+      }, 10000);
 
-        if (profileMenuToggle && profileDropdown) {
-          profileMenuToggle.addEventListener("click", (event) => {
-            event.stopPropagation(); // Prevent immediate closing from document click
-            profileDropdown.classList.toggle("hidden");
-          });
-
-          document.addEventListener("click", (event) => {
-            if (
-              !profileMenuToggle.contains(event.target) &&
-              !profileDropdown.contains(event.target)
-            ) {
-              profileDropdown.classList.add("hidden");
-            }
-          });
-        }
-
-        // Review Modal
-        const reviewModal = document.getElementById("review-modal");
-        const modalCloseBtn = reviewModal
-          ? reviewModal.querySelector(".modal-close")
-          : null;
-        const reviewForm = document.getElementById("reviewForm");
-        const reviewFormSuccess = document.getElementById("reviewFormSuccess");
-        const reviewRatingStars = document.getElementById("reviewRatingStars");
-        let currentRating = 0;
-
-        // Function to open the modal (you'd call this from a button click)
-        function openReviewModal() {
-          if (reviewModal) {
-            reviewModal.classList.remove("hidden");
-            setTimeout(() => {
-              reviewModal
-                .querySelector(".modal-content")
-                .classList.remove("opacity-0", "scale-95");
-              reviewModal
-                .querySelector(".modal-content")
-                .classList.add("opacity-100", "scale-100");
-            }, 10); // Small delay for transition
-          }
-        }
-
-        // Function to close the modal
-        function closeReviewModal() {
-          if (reviewModal) {
-            reviewModal
-              .querySelector(".modal-content")
-              .classList.remove("opacity-100", "scale-100");
-            reviewModal
-              .querySelector(".modal-content")
-              .classList.add("opacity-0", "scale-95");
-            setTimeout(() => {
-              reviewModal.classList.add("hidden");
-              reviewFormSuccess.classList.add("hidden"); // Hide success message on close
-              reviewForm.reset(); // Reset form
-              currentRating = 0; // Reset rating
-              updateStarRating();
-            }, 300); // Match transition duration
-          }
-        }
-
-        if (modalCloseBtn) {
-          modalCloseBtn.addEventListener("click", closeReviewModal);
-        }
-
-        if (reviewModal) {
-          reviewModal.addEventListener("click", (event) => {
-            if (event.target === reviewModal) {
-              // Close if clicked outside modal content
-              closeReviewModal();
-            }
-          });
-        }
-
-        // Example: Open modal from a dashboard card (for testing)
-        // You'd typically trigger this from a 'Write Review' button or similar
-        const messagesCard = document.querySelector(
-          ".dashboard-card:nth-child(3)"
-        ); // Assuming messages card triggers review modal for demo
-        if (messagesCard) {
-          messagesCard.addEventListener("click", openReviewModal);
-        }
-
-        // Star rating functionality
-        function updateStarRating() {
-          if (reviewRatingStars) {
-            Array.from(reviewRatingStars.children).forEach((star, index) => {
-              if (index < currentRating) {
-                star.classList.remove("far");
-                star.classList.add("fas");
-              } else {
-                star.classList.remove("fas");
-                star.classList.add("far");
-              }
-            });
-          }
-        }
-
-        if (reviewRatingStars) {
-          Array.from(reviewRatingStars.children).forEach((star, index) => {
-            star.addEventListener("click", () => {
-              currentRating = index + 1;
-              updateStarRating();
-            });
-          });
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        clearTimeout(timeout);
+        unsubscribe();
+        
+        if (user) {
+          await this.handleAuthenticatedUser(user);
+          resolve();
+        } else {
+          this.redirectToLogin();
+          reject(new Error('User not authenticated'));
         }
       });
+    });
+  }
+
+  async handleAuthenticatedUser(user) {
+    try {
+      this.currentUser = user;
+      
+      // Get user role and verify access
+      const userRole = await this.getUserRole(user);
+      
+      if (userRole !== 'student') {
+        this.redirectBasedOnRole(userRole);
+        return;
+      }
+
+      // Load dashboard data
+      await Promise.all([
+        this.fetchUserProfile(user),
+        this.fetchDashboardStats(user),
+        this.fetchProperties(),
+        this.fetchReviews()
+      ]);
+
+    } catch (error) {
+      console.error('Error handling authenticated user:', error);
+      this.handleError('Failed to load user data');
+    }
+  }
+
+  async getUserRole(user) {
+    try {
+      const idTokenResult = await user.getIdTokenResult(true);
+      return idTokenResult.claims.role || null;
+    } catch (error) {
+      console.error('Error getting user role:', error);
+      // Fallback: check Firestore user document
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        return userDoc.exists ? userDoc.data().role : null;
+      } catch (firestoreError) {
+        console.error('Error fetching role from Firestore:', firestoreError);
+        return null;
+      }
+    }
+  }
+
+  redirectBasedOnRole(role) {
+    switch (role) {
+      case 'landlord':
+        window.location.href = 'landlord-dashboard.html';
+        break;
+      case 'admin':
+        window.location.href = 'admin-dashboard.html';
+        break;
+      default:
+        console.warn('Unknown user role:', role);
+        this.signOut();
+    }
+  }
+
+  redirectToLogin() {
+    window.location.href = 'login.html';
+  }
+
+  async fetchUserProfile(user) {
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      this.userProfile = userDoc.exists ? userDoc.data() : {};
+      
+      const displayName = this.userProfile.firstName || user.displayName || 'Student';
+      const profileImageUrl = this.userProfile.profilePictureUrl || 
+                             user.photoURL || 
+                             `https://placehold.co/80x80/16A34A/FFFFFF?text=${displayName.charAt(0)}`;
+
+      // Update UI elements safely
+      this.updateElementText('sidebarWelcome', `Welcome, ${displayName}`);
+      this.updateElementSrc('.sidebar-header .profile-image', profileImageUrl);
+      this.updateElementSrc('.profile-menu .profile-image-small', profileImageUrl);
+      
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      // Fallback to Firebase Auth data
+      const displayName = user.displayName || 'Student';
+      this.updateElementText('sidebarWelcome', `Welcome, ${displayName}`);
+    }
+  }
+
+  async fetchDashboardStats(user) {
+    try {
+      // Fetch various stats in parallel
+      const [savedProperties, scheduledViewings, unreadMessages, reviewsCount] = await Promise.all([
+        this.getSavedPropertiesCount(user.uid),
+        this.getScheduledViewingsCount(user.uid),
+        this.getUnreadMessagesCount(user.uid),
+        this.getUserReviewsCount(user.uid)
+      ]);
+
+      const stats = {
+        savedProperties,
+        scheduledViewings,
+        unreadMessages,
+        reviewsCount
+      };
+
+      this.renderDashboardCards(stats);
+      this.updateNotificationBadge(stats.unreadMessages);
+
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+      this.renderDefaultDashboardCards();
+    }
+  }
+
+  async getSavedPropertiesCount(userId) {
+    try {
+      const snapshot = await db.collection('savedProperties')
+        .where('userId', '==', userId)
+        .get();
+      return snapshot.size;
+    } catch (error) {
+      console.error('Error fetching saved properties count:', error);
+      return 0;
+    }
+  }
+
+  async getScheduledViewingsCount(userId) {
+    try {
+      const snapshot = await db.collection('viewings')
+        .where('studentId', '==', userId)
+        .where('status', '==', 'scheduled')
+        .get();
+      return snapshot.size;
+    } catch (error) {
+      console.error('Error fetching scheduled viewings count:', error);
+      return 0;
+    }
+  }
+
+  async getUnreadMessagesCount(userId) {
+    try {
+      const snapshot = await db.collection('messages')
+        .where('recipientId', '==', userId)
+        .where('read', '==', false)
+        .get();
+      return snapshot.size;
+    } catch (error) {
+      console.error('Error fetching unread messages count:', error);
+      return 0;
+    }
+  }
+
+  async getUserReviewsCount(userId) {
+    try {
+      const snapshot = await db.collection('reviews')
+        .where('userId', '==', userId)
+        .get();
+      return snapshot.size;
+    } catch (error) {
+      console.error('Error fetching user reviews count:', error);
+      return 0;
+    }
+  }
+
+  renderDashboardCards(stats) {
+    const dashboardCardsContainer = document.getElementById('dashboardCards');
+    if (!dashboardCardsContainer) return;
+
+    dashboardCardsContainer.innerHTML = `
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer" data-action="saved-properties">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties
+        </h3>
+        <p class="text-4xl font-bold text-gray-900">${stats.savedProperties}</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer" data-action="scheduled-viewings">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-calendar text-blue-500 mr-2"></i> Scheduled Viewings
+        </h3>
+        <p class="text-4xl font-bold text-gray-900">${stats.scheduledViewings}</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer" data-action="messages">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-envelope text-green-500 mr-2"></i> Messages
+          ${stats.unreadMessages > 0 ? '<span class="notification-asterisk text-red-500 text-xl font-bold">*</span>' : ''}
+        </h3>
+        <p class="text-4xl font-bold text-gray-900">${stats.unreadMessages}</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center transform hover:scale-105 transition-transform duration-200 cursor-pointer" data-action="reviews">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-star text-yellow-500 mr-2"></i> Reviews
+        </h3>
+        <p class="text-4xl font-bold text-gray-900">${stats.reviewsCount}</p>
+      </div>
+    `;
+
+    // Add click handlers for dashboard cards
+    this.setupDashboardCardActions();
+  }
+
+  renderDefaultDashboardCards() {
+    const dashboardCardsContainer = document.getElementById('dashboardCards');
+    if (!dashboardCardsContainer) return;
+
+    dashboardCardsContainer.innerHTML = `
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-heart text-red-500 mr-2"></i> Saved Properties
+        </h3>
+        <p class="text-4xl font-bold text-gray-400">--</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-calendar text-blue-500 mr-2"></i> Scheduled Viewings
+        </h3>
+        <p class="text-4xl font-bold text-gray-400">--</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-envelope text-green-500 mr-2"></i> Messages
+        </h3>
+        <p class="text-4xl font-bold text-gray-400">--</p>
+      </div>
+      <div class="dashboard-card bg-white p-6 rounded-xl shadow-md text-center">
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">
+          <i class="fas fa-star text-yellow-500 mr-2"></i> Reviews
+        </h3>
+        <p class="text-4xl font-bold text-gray-400">--</p>
+      </div>
+    `;
+  }
+
+  setupDashboardCardActions() {
+    const dashboardCards = document.querySelectorAll('.dashboard-card[data-action]');
+    dashboardCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        const action = card.getAttribute('data-action');
+        this.handleDashboardCardClick(action);
+      });
+    });
+  }
+
+  handleDashboardCardClick(action) {
+    switch (action) {
+      case 'saved-properties':
+        this.navigateToSavedProperties();
+        break;
+      case 'scheduled-viewings':
+        this.navigateToScheduledViewings();
+        break;
+      case 'messages':
+        this.navigateToMessages();
+        break;
+      case 'reviews':
+        this.openReviewModal();
+        break;
+      default:
+        console.warn('Unknown dashboard action:', action);
+    }
+  }
+
+  async fetchProperties() {
+    try {
+      this.showLoadingState('propertyGrid');
+      
+      // Fetch recommended properties from Firestore
+      const propertiesSnapshot = await db.collection('properties')
+        .where('status', '==', 'available')
+        .where('featured', '==', true)
+        .limit(9)
+        .get();
+
+      const properties = [];
+      propertiesSnapshot.forEach(doc => {
+        properties.push({ id: doc.id, ...doc.data() });
+      });
+
+      this.renderProperties(properties);
+
+    } catch (error) {
+      console.error('Failed to fetch properties:', error);
+      this.showErrorState('propertyGrid', 'Failed to load properties');
+    }
+  }
+
+  renderProperties(properties) {
+    const propertyGridContainer = document.getElementById('propertyGrid');
+    if (!propertyGridContainer) return;
+
+    propertyGridContainer.innerHTML = '';
+
+    if (properties.length === 0) {
+      propertyGridContainer.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-home text-gray-300 text-6xl mb-4"></i>
+          <p class="text-gray-600 text-lg">No recommended properties available at the moment.</p>
+          <button onclick="window.location.href='properties.html'" class="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors">
+            Browse All Properties
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    properties.forEach(property => {
+      const propertyCard = this.createPropertyCard(property);
+      propertyGridContainer.insertAdjacentHTML('beforeend', propertyCard);
+    });
+
+    // Setup property card interactions
+    this.setupPropertyCardActions();
+  }
+
+  createPropertyCard(property) {
+    return `
+      <div class="property-card bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden transform hover:scale-105 transition-transform duration-200" data-property-id="${property.id}">
+        <div class="relative">
+          <img
+            src="${property.imageUrl || 'https://placehold.co/400x250/22C55E/FFFFFF?text=Property'}"
+            alt="${property.title || 'Property Image'}"
+            class="property-image w-full h-48 object-cover"
+            onerror="this.src='https://placehold.co/400x250/22C55E/FFFFFF?text=Property'"
+          />
+          <div class="absolute top-2 right-2">
+            <button class="save-property-btn ${this.isPropertySaved(property.id) ? 'saved' : ''} bg-white bg-opacity-80 hover:bg-opacity-100 p-2 rounded-full transition-all duration-200" data-property-id="${property.id}">
+              <i class="fas fa-heart ${this.isPropertySaved(property.id) ? 'text-red-500' : 'text-gray-400'}"></i>
+            </button>
+          </div>
+        </div>
+        <div class="property-details p-4">
+          <div class="property-price text-xl font-bold text-green-600 mb-1">
+            P${property.price ? property.price.toLocaleString() : 'N/A'}/month
+          </div>
+          <h3 class="property-title text-lg font-semibold text-gray-800 mb-1">
+            ${property.title || 'Untitled Property'}
+          </h3>
+          <p class="property-location text-gray-600 text-sm mb-3 flex items-center">
+            <i class="fas fa-map-marker-alt mr-1"></i>
+            ${property.location || 'Location not specified'}
+          </p>
+          <div class="property-features flex flex-wrap gap-x-4 gap-y-2 text-gray-700 text-sm mb-4">
+            <span class="flex items-center">
+              <i class="fas fa-bed text-gray-500 mr-1"></i> ${property.beds || 'N/A'} Beds
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-bath text-gray-500 mr-1"></i> ${property.baths || 'N/A'} Bath
+            </span>
+            <span class="flex items-center">
+              <i class="fas fa-ruler-combined text-gray-500 mr-1"></i> ${property.sqft || 'N/A'} sqft
+            </span>
+          </div>
+          <div class="property-actions flex space-x-2">
+            <button class="view-property-btn flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200" data-property-id="${property.id}">
+              <i class="fas fa-eye mr-2"></i> View Details
+            </button>
+            <button class="schedule-viewing-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-200" data-property-id="${property.id}">
+              <i class="fas fa-calendar-plus mr-1"></i> Schedule
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  setupPropertyCardActions() {
+    // View property details
+    document.querySelectorAll('.view-property-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const propertyId = btn.getAttribute('data-property-id');
+        this.viewPropertyDetails(propertyId);
+      });
+    });
+
+    // Save/unsave property
+    document.querySelectorAll('.save-property-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const propertyId = btn.getAttribute('data-property-id');
+        this.toggleSaveProperty(propertyId);
+      });
+    });
+
+    // Schedule viewing
+    document.querySelectorAll('.schedule-viewing-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const propertyId = btn.getAttribute('data-property-id');
+        this.scheduleViewing(propertyId);
+      });
+    });
+  }
+
+  async toggleSaveProperty(propertyId) {
+    if (!this.currentUser) {
+      this.showNotification('Please log in to save properties', 'error');
+      return;
+    }
+
+    try {
+      const savedPropertyRef = db.collection('savedProperties').doc(`${this.currentUser.uid}_${propertyId}`);
+      const savedPropertyDoc = await savedPropertyRef.get();
+
+      if (savedPropertyDoc.exists) {
+        // Unsave property
+        await savedPropertyRef.delete();
+        this.updateSaveButton(propertyId, false);
+        this.showNotification('Property removed from saved list', 'success');
+      } else {
+        // Save property
+        await savedPropertyRef.set({
+          userId: this.currentUser.uid,
+          propertyId: propertyId,
+          savedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        this.updateSaveButton(propertyId, true);
+        this.showNotification('Property saved successfully', 'success');
+      }
+
+      // Refresh dashboard stats
+      await this.fetchDashboardStats(this.currentUser);
+
+    } catch (error) {
+      console.error('Error toggling save property:', error);
+      this.showNotification('Failed to update saved properties', 'error');
+    }
+  }
+
+  isPropertySaved(propertyId) {
+    // This would be checked during initial load
+    // For now, return false - implement proper check during property rendering
+    return false;
+  }
+
+  updateSaveButton(propertyId, isSaved) {
+    const saveBtn = document.querySelector(`.save-property-btn[data-property-id="${propertyId}"]`);
+    if (saveBtn) {
+      const icon = saveBtn.querySelector('i');
+      if (isSaved) {
+        saveBtn.classList.add('saved');
+        icon.classList.remove('text-gray-400');
+        icon.classList.add('text-red-500');
+      } else {
+        saveBtn.classList.remove('saved');
+        icon.classList.remove('text-red-500');
+        icon.classList.add('text-gray-400');
+      }
+    }
+  }
+
+  viewPropertyDetails(propertyId) {
+    window.location.href = `property-details.html?id=${propertyId}`;
+  }
+
+  async scheduleViewing(propertyId) {
+    // Open scheduling modal or navigate to scheduling page
+    // For now, simple alert - replace with proper modal
+    const result = confirm('Would you like to schedule a viewing for this property?');
+    if (result) {
+      try {
+        // Create viewing request
+        await db.collection('viewingRequests').add({
+          studentId: this.currentUser.uid,
+          propertyId: propertyId,
+          status: 'pending',
+          requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        this.showNotification('Viewing request submitted successfully', 'success');
+        await this.fetchDashboardStats(this.currentUser);
+        
+      } catch (error) {
+        console.error('Error scheduling viewing:', error);
+        this.showNotification('Failed to schedule viewing', 'error');
+      }
+    }
+  }
+
+  navigateToSavedProperties() {
+    window.location.href = 'saved-properties.html';
+  }
+
+  navigateToScheduledViewings() {
+    window.location.href = 'scheduled-viewings.html';
+  }
+
+  navigateToMessages() {
+    window.location.href = 'messages.html';
+  }
+
+  setupEventListeners() {
+    // Notification dropdown
+    this.setupDropdown('notificationToggle', 'notificationDropdown');
+    
+    // Profile menu dropdown
+    this.setupDropdown('profileMenuToggle', '.profile-menu .profile-dropdown');
+
+    // Logout buttons
+    this.setupLogoutButtons();
+
+    // Review modal
+    this.setupReviewModal();
+
+    // Search functionality
+    this.setupSearch();
+  }
+
+  setupDropdown(toggleId, dropdownSelector) {
+    const toggle = document.getElementById(toggleId);
+    const dropdown = document.querySelector(dropdownSelector) || document.getElementById(dropdownSelector);
+
+    if (toggle && dropdown) {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+    }
+  }
+
+  setupLogoutButtons() {
+    const logoutButtons = ['logoutBtn', 'headerLogoutBtn'];
+    
+    logoutButtons.forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.signOut();
+        });
+      }
+    });
+  }
+
+  async signOut() {
+    try {
+      await auth.signOut();
+      window.location.href = 'index.html';
+    } catch (error) {
+      console.error('Error signing out:', error);
+      this.showNotification('Failed to sign out. Please try again.', 'error');
+    }
+  }
+
+  setupReviewModal() {
+    const reviewModal = document.getElementById('review-modal');
+    const modalCloseBtn = reviewModal?.querySelector('.modal-close');
+    const reviewForm = document.getElementById('reviewForm');
+
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener('click', () => this.closeReviewModal());
+    }
+
+    if (reviewModal) {
+      reviewModal.addEventListener('click', (e) => {
+        if (e.target === reviewModal) {
+          this.closeReviewModal();
+        }
+      });
+    }
+
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', (e) => this.handleReviewSubmission(e));
+    }
+
+    this.setupStarRating();
+  }
+
+  setupStarRating() {
+    const reviewRatingStars = document.getElementById('reviewRatingStars');
+    if (reviewRatingStars) {
+      Array.from(reviewRatingStars.children).forEach((star, index) => {
+        star.addEventListener('click', () => {
+          this.currentRating = index + 1;
+          this.updateStarRating();
+        });
+      });
+    }
+  }
+
+  updateStarRating() {
+    const reviewRatingStars = document.getElementById('reviewRatingStars');
+    if (reviewRatingStars) {
+      Array.from(reviewRatingStars.children).forEach((star, index) => {
+        if (index < this.currentRating) {
+          star.classList.remove('far');
+          star.classList.add('fas');
+        } else {
+          star.classList.remove('fas');
+          star.classList.add('far');
+        }
+      });
+    }
+  }
+
+  openReviewModal() {
+    const reviewModal = document.getElementById('review-modal');
+    if (reviewModal) {
+      reviewModal.classList.remove('hidden');
+      setTimeout(() => {
+        const modalContent = reviewModal.querySelector('.modal-content');
+        modalContent.classList.remove('opacity-0', 'scale-95');
+        modalContent.classList.add('opacity-100', 'scale-100');
+      }, 10);
+    }
+  }
+
+  closeReviewModal() {
+    const reviewModal = document.getElementById('review-modal');
+    if (reviewModal) {
+      const modalContent = reviewModal.querySelector('.modal-content');
+      modalContent.classList.remove('opacity-100', 'scale-100');
+      modalContent.classList.add('opacity-0', 'scale-95');
+      
+      setTimeout(() => {
+        reviewModal.classList.add('hidden');
+        document.getElementById('reviewFormSuccess')?.classList.add('hidden');
+        document.getElementById('reviewForm')?.reset();
+        this.currentRating = 0;
+        this.updateStarRating();
+      }, 300);
+    }
+  }
+
+  async handleReviewSubmission(event) {
+    event.preventDefault();
+    
+    if (!this.currentUser) {
+      this.showNotification('You must be logged in to submit a review', 'error');
+      return;
+    }
+
+    if (this.currentRating === 0) {
+      this.showNotification('Please select a rating', 'error');
+      return;
+    }
+
+    const reviewText = document.getElementById('reviewText').value.trim();
+    if (!reviewText) {
+      this.showNotification('Please write a review', 'error');
+      return;
+    }
+
+    try {
+      // Add review to Firestore
+      await db.collection('reviews').add({
+        userId: this.currentUser.uid,
+        userEmail: this.currentUser.email,
+        userName: this.userProfile?.firstName || this.currentUser.displayName || 'Anonymous',
+        rating: this.currentRating,
+        reviewText: reviewText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'pending' // For moderation if needed
+      });
+
+      document.getElementById('reviewFormSuccess').classList.remove('hidden');
+      this.showNotification('Review submitted successfully', 'success');
+      
+      // Refresh dashboard stats
+      await this.fetchDashboardStats(this.currentUser);
+      
+      // Close modal after delay
+      setTimeout(() => this.closeReviewModal(), 2000);
+
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      this.showNotification('Failed to submit review. Please try again.', 'error');
+    }
+  }
+
+  setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    if (searchInput && searchBtn) {
+      const handleSearch = () => {
+        const query = searchInput.value.trim();
+        if (query) {
+          window.location.href = `properties.html?search=${encodeURIComponent(query)}`;
+        }
+      };
+
+      searchBtn.addEventListener('click', handleSearch);
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleSearch();
+        }
+      });
+    }
+  }
+
+  showLoadingState(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p class="text-gray-600 mt-4">Loading...</p>
+        </div>
+      `;
+    }
+  }
+
+  showErrorState(containerId, message) {
+    const container = document.getElementById(containerId);
+    if (container) {
+      container.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+          <p class="text-red-600 text-lg">${message}</p>
+          <button onclick="location.reload()" class="mt-4 bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors">
+            Try Again
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  updateElementText(selector, text) {
+    const element = document.getElementById(selector) || document.querySelector(selector);
+    if (element) {
+      element.textContent = text;
+    }
+  }
+
+  updateElementSrc(selector, src) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.src = src;
+    }
+  }
+
+  updateNotificationBadge(count) {
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'block' : 'none';
+    }
+  }
+
+  showNotification(message, type = 'info') {
+    // Create and show a notification toast
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+      type === 'success' ? 'bg-green-500 text-white' :
+      type === 'error' ? 'bg-red-500 text-white' :
+      'bg-blue-500 text-white'
+    }`;
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>
+        ${message}
+        <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.add('translate-x-full');
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
+  }
+
+  handleError(message) {
+    console.error(message);
+    this.showNotification(message, 'error');
+    
+    // Show error state in main content area
+    const mainContent = document.querySelector('.main-content') || document.body;
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'fixed inset-0 bg-red-50 flex items-center justify-center z-40';
+    errorDiv.innerHTML = `
+      <div class="text-center p-8">
+        <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+        <h2 class="text-2xl font-bold text-red-700 mb-2">Dashboard Error</h2>
+        <p class="text-red-600 mb-4">${message}</p>
+        <button onclick="location.reload()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg transition-colors">
+          Reload Page
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(errorDiv);
+  }
+
+  async viewPropertyDetails(propertyId) {
+    window.location.href = `property-details.html?id=${propertyId}`;
+  }
+
+  async scheduleViewing(propertyId) {
+    if (!this.currentUser) {
+      this.showNotification('Please log in to schedule viewings', 'error');
+      return;
+    }
+
+    // Check if user already has a viewing for this property
+    try {
+      const existingViewing = await db.collection('viewingRequests')
+        .where('studentId', '==', this.currentUser.uid)
+        .where('propertyId', '==', propertyId)
+        .where('status', 'in', ['pending', 'scheduled'])
+        .get();
+
+      if (!existingViewing.empty) {
+        this.showNotification('You already have a viewing request for this property', 'info');
+        return;
+      }
+
+      // Create viewing request
+      await db.collection('viewingRequests').add({
+        studentId: this.currentUser.uid,
+        propertyId: propertyId,
+        status: 'pending',
+        requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        studentName: this.userProfile?.firstName || this.currentUser.displayName || 'Student',
+        studentEmail: this.currentUser.email
+      });
+
+      this.showNotification('Viewing request submitted successfully! The landlord will contact you soon.', 'success');
+      
+      // Refresh dashboard stats
+      await this.fetchDashboardStats(this.currentUser);
+
+    } catch (error) {
+      console.error('Error scheduling viewing:', error);
+      this.showNotification('Failed to schedule viewing. Please try again.', 'error');
+    }
+  }
+
+  async fetchReviews() {
+    try {
+      // Fetch recent reviews for display (optional)
+      const reviewsSnapshot = await db.collection('reviews')
+        .where('status', '==', 'approved')
+        .orderBy('timestamp', 'desc')
+        .limit(5)
+        .get();
+
+      const reviews = [];
+      reviewsSnapshot.forEach(doc => {
+        reviews.push({ id: doc.id, ...doc.data() });
+      });
+
+      console.log('Recent reviews:', reviews);
+      // You could display these in a reviews section if needed
+
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+    }
+  }
+
+  // Navigation methods for different sections
+  async navigateToSection(section) {
+    const sections = {
+      'dashboard': 'student-dashboard.html',
+      'properties': 'properties.html',
+      'saved': 'saved-properties.html',
+      'viewings': 'scheduled-viewings.html',
+      'messages': 'messages.html',
+      'profile': 'profile.html'
+    };
+
+    if (sections[section]) {
+      window.location.href = sections[section];
+    }
+  }
+
+  // Real-time listeners for dynamic updates
+  setupRealTimeListeners() {
+    if (!this.currentUser) return;
+
+    // Listen for new messages
+    this.messageListener = db.collection('messages')
+      .where('recipientId', '==', this.currentUser.uid)
+      .where('read', '==', false)
+      .onSnapshot((snapshot) => {
+        const unreadCount = snapshot.size;
+        this.updateNotificationBadge(unreadCount);
+        
+        // Update messages card if visible
+        const messagesCard = document.querySelector('[data-action="messages"] p');
+        if (messagesCard) {
+          messagesCard.textContent = unreadCount;
+        }
+      });
+
+    // Listen for viewing updates
+    this.viewingListener = db.collection('viewingRequests')
+      .where('studentId', '==', this.currentUser.uid)
+      .onSnapshot((snapshot) => {
+        const scheduledViewings = snapshot.docs.filter(doc => 
+          doc.data().status === 'scheduled'
+        ).length;
+        
+        // Update viewings card if visible
+        const viewingsCard = document.querySelector('[data-action="scheduled-viewings"] p');
+        if (viewingsCard) {
+          viewingsCard.textContent = scheduledViewings;
+        }
+      });
+  }
+
+  // Cleanup listeners when leaving page
+  cleanup() {
+    if (this.messageListener) this.messageListener();
+    if (this.viewingListener) this.viewingListener();
+  }
+}
+
+// Error handling wrapper
+function initializeDashboard() {
+  try {
+    // Ensure Firebase is loaded
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.firestore) {
+      throw new Error('Firebase not properly loaded');
+    }
+
+    // Initialize dashboard
+    window.studentDashboard = new StudentDashboard();
+    
+    // Setup cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (window.studentDashboard) {
+        window.studentDashboard.cleanup();
+      }
+    });
+
+  } catch (error) {
+    console.error('Critical error initializing dashboard:', error);
+    
+    // Show fallback error page
+    document.body.innerHTML = `
+      <div class="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div class="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+          <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+          <h1 class="text-2xl font-bold text-gray-800 mb-4">Dashboard Error</h1>
+          <p class="text-gray-600 mb-4">Unable to load the dashboard. This might be due to:</p>
+          <ul class="text-left text-sm text-gray-600 mb-6">
+            <li>• Firebase configuration issues</li>
+            <li>• Network connectivity problems</li>
+            <li>• Browser compatibility issues</li>
+          </ul>
+          <div class="space-y-2">
+            <button onclick="location.reload()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors">
+              Reload Page
+            </button>
+            <button onclick="window.location.href='index.html'" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors">
+              Return to Home
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeDashboard);
+} else {
+  initializeDashboard();
+}
     </script>
   </body>
 </html>
