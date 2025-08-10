@@ -11,7 +11,7 @@ const firebaseConfig = {
   authDomain: "project-1-1e31c.firebaseapp.com",
   projectId: "project-1-1e31c",
   storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "project-1-1e31c.firebasestorage.app",
+  messagingSenderId: "658275930203",
   appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
 };
 
