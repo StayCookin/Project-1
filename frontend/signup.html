@@ -525,6 +525,16 @@
             submitButton.textContent = "Sending verification email...";
             await sendEmailVerification(user);
 
+submitButton.textContent = "Saving user data...";
+            await setDoc(doc(firestore, "users", user.uid), {
+              email,
+              role,
+              ...userDocData,
+              emailVerified: false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            });
+            
             // Upload file
             submitButton.textContent = `Uploading ${requiredFieldName}...`;
 
@@ -546,15 +556,7 @@
             }
 
             // Save user data to Firestore
-            submitButton.textContent = "Saving user data...";
-            await setDoc(doc(firestore, "users", user.uid), {
-              email,
-              role,
-              ...userDocData,
-              emailVerified: false,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
+            
 
             alert(
               "Signup successful! Please check your email and verify your account before logging in."
