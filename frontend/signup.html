@@ -470,132 +470,136 @@
       }
 
       document
-        .getElementById("signupForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
+  .getElementById("signupForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-          const email = document.getElementById("emailAddress").value;
-          const password = document.getElementById("password").value;
-          const role = document.getElementById("role").value;
-          const studentIDFile = document.getElementById("studentId").files[0];
-          const kycFile = document.getElementById("kycDoc").files[0];
+    const email = document.getElementById("emailAddress").value;
+    const password = document.getElementById("password").value;
+    const role = document.getElementById("role").value;
+    const studentIDFile = document.getElementById("studentId").files[0];
+    const kycFile = document.getElementById("kycDoc").files[0];
 
-          // Get submit button for loading state
-          const submitButton = e.target.querySelector('button[type="submit"]');
-          const originalButtonText = submitButton.textContent;
+    // Get submit button for loading state
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
 
-        
-          // Role-based validation
-          let requiredFile = null;
-          let requiredFieldName = "";
+    // Role-based validation
+    let requiredFile = null;
+    let requiredFieldName = "";
 
-          if (role === "STUDENT") {
-            if (!studentIDFile) {
-              alert("Please upload your Student ID document.");
-              return;
-            }
-            requiredFile = studentIDFile;
-            requiredFieldName = "Student ID";
-          } else if (role === "LANDLORD") {
-            if (!kycFile) {
-              alert("Please upload your ID/OMANG.");
-              return;
-            }
-            requiredFile = kycFile;
-            requiredFieldName = "KYC Document";
-          }
+    if (role === "STUDENT") {
+      if (!studentIDFile) {
+        alert("Please upload your Student ID document.");
+        return;
+      }
+      requiredFile = studentIDFile;
+      requiredFieldName = "Student ID";
+    } else if (role === "LANDLORD") {
+      if (!kycFile) {
+        alert("Please upload your ID/OMANG.");
+        return;
+      }
+      requiredFile = kycFile;
+      requiredFieldName = "KYC Document";
+    }
 
-          try {
-            // Validate the required file
-            validateFile(requiredFile, ["jpg", "jpeg", "png", "pdf"], 5);
+    try {
+      // Validate the required file
+      validateFile(requiredFile, ["jpg", "jpeg", "png", "pdf"], 5);
 
-            // Show loading state
-            submitButton.disabled = true;
-            submitButton.textContent = "Creating account...";
+      // Show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = "Creating account...";
 
-            // Create user account
-            const userCredential = await createUserWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-            const user = userCredential.user;
+      // Create user account
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
-            // Send verification email
-            submitButton.textContent = "Sending verification email...";
-            await sendEmailVerification(user);
+      // Send verification email
+      submitButton.textContent = "Sending verification email...";
+      await sendEmailVerification(user);
 
-submitButton.textContent = "Saving user data...";
-            await setDoc(doc(firestore, "users", user.uid), {
-              email,
-              role,
-              ...userDocData,
-              emailVerified: false,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
-            
-            // Upload file
-            submitButton.textContent = `Uploading ${requiredFieldName}...`;
+      // ⭐ CREATE USER DOCUMENT FIRST (before file upload)
+      submitButton.textContent = "Setting up user profile...";
+      await setDoc(doc(firestore, "users", user.uid), {
+        email,
+        role,
+        emailVerified: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        // We'll add document URLs after upload
+      });
 
-            let documentUrl = "";
-            let userDocData = {};
+      // NOW upload file (storage rules can access user role)
+      submitButton.textContent = `Uploading ${requiredFieldName}...`;
 
-            if (role === "STUDENT") {
-              documentUrl = await uploadFile(
-                studentIDFile,
-                `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
-              );
-              userDocData.studentIDUrl = documentUrl;
-            } else {
-              documentUrl = await uploadFile(
-                kycFile,
-                `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`
-              );
-              userDocData.kycDocumentUrl = documentUrl;
-            }
+      let documentUrl = "";
+      let updateData = {};
 
-            // Save user data to Firestore
-            
+      if (role === "STUDENT") {
+        documentUrl = await uploadFile(
+          studentIDFile,
+          `student-ids/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
+        );
+        updateData.studentIDUrl = documentUrl;
+      } else {
+        documentUrl = await uploadFile(
+          kycFile,
+          `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`
+        );
+        updateData.kycDocumentUrl = documentUrl;
+      }
 
-            alert(
-              "Signup successful! Please check your email and verify your account before logging in."
-            );
-            window.location.href = "login.html";
-          } catch (error) {
-            console.error("Signup error:", error);
+      // Update user document with file URL
+      submitButton.textContent = "Finalizing setup...";
+      await updateDoc(doc(firestore, "users", user.uid), {
+        ...updateData,
+        updatedAt: new Date(),
+      });
 
-            let message = "An error occurred during signup.";
+      alert(
+        "Signup successful! Please check your email and verify your account before logging in."
+      );
+      window.location.href = "login.html";
+    } catch (error) {
+      console.error("Signup error:", error);
 
-            // Handle different error types
-            if (error.code === "auth/email-already-in-use") {
-              message =
-                "This email is already registered. Please use a different email or try logging in.";
-            } else if (error.code === "auth/weak-password") {
-              message =
-                "Password is too weak. Please use at least 6 characters.";
-            } else if (error.code === "auth/invalid-email") {
-              message = "Please enter a valid email address.";
-            } else if (error.code === "storage/unauthorized") {
-              message =
-                "File upload failed. Please check your permissions and try again.";
-            } else if (
-              error.message.includes("Invalid file type") ||
-              error.message.includes("File too large")
-            ) {
-              message = error.message;
-            } else if (error.message.includes("Failed to upload")) {
-              message =
-                "File upload failed. Please check your internet connection and try again.";
-            }
+      let message = "An error occurred during signup.";
 
-            alert(message);
-          } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.textContent = originalButtonText;
-          }
-        });
+      // Handle different error types
+      if (error.code === "auth/email-already-in-use") {
+        message =
+          "This email is already registered. Please use a different email or try logging in.";
+      } else if (error.code === "auth/weak-password") {
+        message =
+          "Password is too weak. Please use at least 6 characters.";
+      } else if (error.code === "auth/invalid-email") {
+        message = "Please enter a valid email address.";
+      } else if (error.code === "storage/unauthorized") {
+        message =
+          "File upload failed. Please check your permissions and try again.";
+      } else if (
+        error.message.includes("Invalid file type") ||
+        error.message.includes("File too large")
+      ) {
+        message = error.message;
+      } else if (error.message.includes("Failed to upload")) {
+        message =
+          "File upload failed. Please check your internet connection and try again.";
+      }
+
+      alert(message);
+    } finally {
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+    }
+  });
     </script>
   
   </body>
