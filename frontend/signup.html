@@ -484,6 +484,20 @@
           const submitButton = e.target.querySelector('button[type="submit"]');
           const originalButtonText = submitButton.textContent;
 
+          document.getElementbyId("role").addEventListener("change", function(){
+            const studentFields = document.getElementById("studentFields");
+            const landlordFields = document.getElementById("landlordFields");
+
+            if (this.value === "STUDENT"){
+              studentFields.style.display = none;
+              landlordFields.style.display = block;
+            }
+            else {
+              studentFields.style.display = block;
+              landlordFields.style.display = none;
+            }
+          });
+
           // Role-based validation
           let requiredFile = null;
           let requiredFieldName = "";
@@ -497,7 +511,7 @@
             requiredFieldName = "Student ID";
           } else if (role === "LANDLORD") {
             if (!kycFile) {
-              alert("Please upload your KYC document.");
+              alert("Please upload your ID/OMANG.");
               return;
             }
             requiredFile = kycFile;
