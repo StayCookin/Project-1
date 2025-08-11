@@ -469,7 +469,7 @@
         }
       }
 
-      document
+  document
   .getElementById("signupForm")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -524,41 +524,34 @@
       submitButton.textContent = "Sending verification email...";
       await sendEmailVerification(user);
 
-      // ⭐ CREATE USER DOCUMENT FIRST (before file upload)
-      submitButton.textContent = "Setting up user profile...";
-      await setDoc(doc(firestore, "users", user.uid), {
-        email,
-        role,
-        emailVerified: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        // We'll add document URLs after upload
-      });
-
-      // NOW upload file (storage rules can access user role)
+      // Upload file
       submitButton.textContent = `Uploading ${requiredFieldName}...`;
 
       let documentUrl = "";
-      let updateData = {};
+      let userDocData = {};
 
       if (role === "STUDENT") {
         documentUrl = await uploadFile(
           studentIDFile,
-          `student-ids/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
+          `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
         );
-        updateData.studentIDUrl = documentUrl;
+        userDocData.studentIDUrl = documentUrl;
       } else {
         documentUrl = await uploadFile(
           kycFile,
           `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`
         );
-        updateData.kycDocumentUrl = documentUrl;
+        userDocData.kycDocumentUrl = documentUrl;
       }
 
-      // Update user document with file URL
-      submitButton.textContent = "Finalizing setup...";
-      await updateDoc(doc(firestore, "users", user.uid), {
-        ...updateData,
+      // Save user data to Firestore
+      submitButton.textContent = "Saving user data...";
+      await setDoc(doc(firestore, "users", user.uid), {
+        email,
+        role,
+        ...userDocData,
+        emailVerified: false,
+        createdAt: new Date(),
         updatedAt: new Date(),
       });
 
