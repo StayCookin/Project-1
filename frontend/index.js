@@ -89,6 +89,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const headerLoginBtn = document.getElementById("headerLoginBtn");
   const headerSignupBtn = document.getElementById("headerSignupBtn");
 
+  headerLoginBtn.textContent = "Login";
+  headerSignupBtn.textContent = "Sign Up";
+  
+
   if (headerLoginBtn) {
     headerLoginBtn.addEventListener("click", function (e) {
       e.preventDefault();
@@ -184,13 +188,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // --- REDIRECT TO APPROPRIATE DASHBOARD ---
-  // This function is called when a user clicks the 'Dashboard' button.
+  
   async function redirectToDashboard() {
     if (!currentUser) {
-      // Should ideally not be called if currentUser is null due to button state,
-      // but good for defensive coding.
-      window.location.href = "login.html"; // Send to login if somehow not logged in
+      
+      window.location.href = "login.html"; 
       return;
     }
 
