@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // --- HEADER AUTH BUTTONS FUNCTIONALITY ---
+  
   const headerLoginBtn = document.getElementById("headerLoginBtn");
   const headerSignupBtn = document.getElementById("headerSignupBtn");
 
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
     headerLoginBtn.addEventListener("click", function (e) {
       e.preventDefault();
       if (currentUser) {
-        // User is logged in, redirect to appropriate dashboard
+        
         redirectToDashboard();
       } else {
         // User is not logged in, redirect to login page
@@ -110,16 +110,16 @@ document.addEventListener("DOMContentLoaded", function () {
     headerSignupBtn.addEventListener("click", function (e) {
       e.preventDefault();
       if (currentUser) {
-        // User is logged in, handle logout
+      
         handleLogout();
       } else {
-        // User is not logged in, redirect to signup page
-        window.location.href = "signup.html"; // Redirect to dedicated signup page
+      
+        window.location.href = "signup.html";
       }
     });
   }
 
-  // --- MOBILE MENU ---
+  
   const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
   const navLinks = document.querySelector("header .nav-links");
   if (mobileMenuBtn && navLinks) {
@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // --- SMOOTH SCROLL FOR NAV LINKS ---
+
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener("click", function (e) {
       const targetId = this.getAttribute("href").substring(1);
@@ -154,13 +154,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   window.addEventListener("scroll", animateOnScroll);
-  animateOnScroll(); // Call once on load to animate elements already in view
+  animateOnScroll(); 
 
-  // --- FIREBASE AUTH INITIALIZATION & UI UPDATE ---
+  let currentUser = null;
+  
   function initializeAuth() {
     onAuthStateChanged(auth, async (user) => {
-      currentUser = user; // Update the global currentUser variable
-      await updateUIForAuthState(user); // Update UI based on auth state
+      currentUser = user; 
+      await updateUIForAuthState(user); 
     });
   }
 
