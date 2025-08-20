@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- USERS COLLECTION ---
+    match /users/{userId} {
+      // Allow the user to create and read their own profile
+      allow read, create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow update if they are not trying to change their role or verification status
+      allow update: if request.auth != null 
+                    && request.auth.uid == userId
+                    && request.resource.data.role == resource.data.role
+                    && request.resource.data.get('emailVerified', false) == resource.data.get('emailVerified', false);
+                    
+      allow delete: if false; // No one can delete profiles
+    }
+    
+    // --- PROPERTIES COLLECTION ---
+    match /properties/{propertyId} {
+      // Anyone logged in can read properties
+      allow read: if request.auth != null;
+      
+      // Only verified landlords can create listings
+      allow create: if request.auth != null 
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "LANDLORD"
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.emailVerified == true
+                    && request.resource.data.landlordId == request.auth.uid;
+                    
+      // Only the landlord who owns the property can edit or delete it
+      allow update, delete: if request.auth != null 
+                            && resource.data.landlordId == request.auth.uid;
+    }
+    
+    // --- APPLICATIONS COLLECTION ---
+    match /applications/{applicationId} {
+      // Users can read applications they created or for properties they own
+      allow read: if request.auth != null && (
+        resource.data.studentId == request.auth.uid ||
+        get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid
+      );
+      
+      // Only verified students can create applications  
+      allow create: if request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'STUDENT' &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.emailVerified == true &&
+        request.resource.data.studentId == request.auth.uid;
+        
+      // Landlords can update application status
+      allow update: if request.auth != null && 
+        get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid;
+    }
+    
+    // Default deny for other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

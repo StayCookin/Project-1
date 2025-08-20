@@ -400,12 +400,14 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
       import {
         getFirestore,
+        connectFirestoreEmulator,
         setDoc,
         doc,
         updateDoc,
       } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
       import {
         getAuth,
+        getAuthEmulator,
         createUserWithEmailAndPassword,
         sendEmailVerification,
       } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
@@ -432,6 +434,11 @@
       const auth = getAuth(app);
       const firestore = getFirestore(app);
       const storage = getStorage(app);
+
+      if (location.hostname === "localhost"){
+  connectAuthEmulator(auth, "http://localhost:5500");
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 
       // File validation helper
       function validateFile(file, allowedTypes, maxSizeMB = 5) {

@@ -1,12 +1,12 @@
 // Firebase v9+ imports
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { getAuth,getAuthEmulator, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore,getFirestoreEmulator, collection, addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-// Firebase configuration
+
 const firebaseConfig = {
-  // Your Firebase config goes here
+  
   apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
   authDomain: "project-1-1e31c.firebaseapp.com",
   projectId: "project-1-1e31c",
@@ -20,6 +20,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+if (location.hostname === "localhost"){
+  connectAuthEmulator(auth, "http://localhost:5500");
+  connectFirestoreEmulator(db, "localhost", 8080);
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   // Get form and submit button references

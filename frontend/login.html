@@ -242,7 +242,8 @@
 // Using Firebase v9+ modular SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { 
-  getAuth, 
+  getAuth,
+  getAuthEmulator, 
   signInWithEmailAndPassword, 
   signInWithPopup, 
   GoogleAuthProvider,
@@ -253,6 +254,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import {
   getFirestore,
+  connectFirestoreEmulator,
   doc,
   getDoc,
   setDoc
@@ -278,6 +280,11 @@ try {
 } catch (err) {
   console.error("❌ Firebase initialization failed:", err);
   alert("Failed to initialize Firebase. Please refresh the page and try again.");
+}
+
+if (location.hostname === "localhost"){
+  connectAuthEmulator(auth, "http://localhost:5500");
+  connectFirestoreEmulator(db, "localhost", 8080);
 }
 
 // Utility functions
@@ -702,7 +709,7 @@ async function logout() {
   }
 }
 
-// Export auth utilities
+
 window.authUtils = {
   logout,
   checkAuth,
