@@ -43,6 +43,13 @@
         --black: #000000;
         --white: #ffffff;
       }
+      body {
+        background-image: url("log.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
       .bg-forest {
         background-color: var(--forest-green);
       }
@@ -63,7 +70,7 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
-        background: #fff;
+        background: rgba(250,250,250, 0.9);
         padding: 2.5rem 2rem;
         border-radius: 10px;
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
@@ -133,42 +140,10 @@
     </style>
   </head>
   <body
-    class="bg-white min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden"
+    class="min-h-screen flex flex-col items-center justify-center relative overflow-x-hidden"
   >
     <!-- Floating 'In' pattern background -->
-    <div
-      aria-hidden="true"
-      class="fixed inset-0 z-0"
-      style="pointer-events: none; user-select: none"
-    >
-      <svg
-        width="100vw"
-        height="100vh"
-        class="w-full h-full"
-        style="position: absolute; top: 0; left: 0"
-      >
-        <defs>
-          <pattern
-            id="inPattern"
-            width="120"
-            height="120"
-            patternUnits="userSpaceOnUse"
-          >
-            <text
-              x="10"
-              y="60"
-              font-size="64"
-              font-family="Poppins, sans-serif"
-              fill="#228B22"
-              opacity="0.07"
-            >
-              In
-            </text>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#inPattern)" />
-      </svg>
-    </div>
+    
     <div class="w-full flex justify-center py-4 z-10 relative">
       <span class="text-3xl font-bold text-forest"
         >In<span class="text-black">Rent</span></span
@@ -348,8 +323,8 @@ async function validateUserProfile(user) {
     }
 
     // Validate role
-    const role = userData.role.toLowerCase();
-    const validRoles = ['student', 'landlord', 'tenant'];
+    const role = userData.role.toCase();
+    const validRoles = ['student', 'landlord'];
     if (!validRoles.includes(role)) {
       throw new Error(`INVALID_ROLE: ${userData.role}`);
     }
@@ -364,7 +339,7 @@ async function validateUserProfile(user) {
   }
 }
 
-// Handle Google sign-in user creation
+
 async function handleGoogleUserCreation(user) {
   try {
     // Create basic profile for Google users
