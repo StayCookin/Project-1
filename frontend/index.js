@@ -1,21 +1,24 @@
 // Firebase imports - Only what's needed for auth state, getting user data, and logout
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getAuth,connectAuthEmulator, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore,connectFirestoreEmulator, connectStorageEmulator,connectDatabaseEmulator,doc, getDoc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
+  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+  authDomain: "inrent-6ab14.firebaseapp.com",
+  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+  projectId: "inrent-6ab14",
+  storageBucket: "inrent-6ab14.firebasestorage.app",
+  messagingSenderId: "327416190792",
+  appId: "1:327416190792:web:970377ec8dcef557e5457d",
+  measurementId: "G-JY9E760ZQ0"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 
 // Global variables
 let currentUser = null;
