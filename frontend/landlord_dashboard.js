@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       landlordData = await fetchLandlordProfile(user.uid);
 
       // Verify user is a landlord
-      if (!landlordData || (landlordData.role !== "landlord" && landlordData.userType !== "landlord")) {
+      if (!landlordData || (landlordData.role !== "landlord" && landlordData.userType !== "LANDLORD")) {
         alert("Access denied. Only landlords can access this page.");
         window.location.href = "index.html";
         return;
