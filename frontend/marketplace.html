@@ -67,7 +67,7 @@
         margin: 0;
         padding: 0;
         font-family: "Poppins", "Inter", Arial, sans-serif;
-        background: url('marketplace-bg.jpg') no-repeat center center fixed;
+        background: url('marketplace.jpg') no-repeat center center fixed;
         background-size: cover; 
       }
       
@@ -192,12 +192,14 @@
       }
       
       .property-list {
+        flex: 1;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 1.5rem;
         max-width: 1200px;
         margin: 0 auto 2rem auto;
         padding: 0 1rem;
+        min-height: 200px;
       }
       
       .property-card {
@@ -507,9 +509,7 @@
           <option value="security">Security</option>
         </select>
     </div>
-      <button class="nav-btn" id="filterBtn" style="padding-right: 15px;">
-        Filter
-      </button>
+      
     </div>
     <div class="property-list" id="propertyList">
       </div>
@@ -523,7 +523,8 @@
         text-align: center;
         font-size: 1rem;
         color: var(--forest-green);
-        margin-top: 2rem;
+        margin-top: auto;
+        flex-shrink: 0;
       "
     >
       &copy; 2025 InRent. All rights reserved. &middot;
