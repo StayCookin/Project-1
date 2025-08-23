@@ -446,11 +446,11 @@ const firebaseConfig = {
 
           function updateDocumentSections() {
             if (roleSelect.value === "STUDENT") {
-              studentSection.style.display("block");
-              landlordSection.style.display("none");
+              studentSection.style.display="block";
+              landlordSection.style.display ="none";
             } else if (roleSelect.value === "LANDLORD") {
-              studentSection.style.display("none");
-              landlordSection.style.display("block");
+              studentSection.style.display= "none";
+              landlordSection.style.display ="block";
             }
           }
         }
