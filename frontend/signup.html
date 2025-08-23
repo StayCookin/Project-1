@@ -367,7 +367,6 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
       import {
         getFirestore,
-       
         setDoc,
         doc,
         updateDoc,
@@ -379,7 +378,6 @@
       } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
       import {
         getStorage,
-        connectStorageEmulator,
         ref,
         uploadBytes,
         getDownloadURL,
@@ -536,7 +534,7 @@ const firebaseConfig = {
 
             // Save user data to Firestore
             submitButton.textContent = "Saving user data...";
-            await setDoc(doc(firestore, "users", user.uid), {
+            await setDoc(doc(db, "users", user.uid), {
               email,
               role,
               ...userDocData,
