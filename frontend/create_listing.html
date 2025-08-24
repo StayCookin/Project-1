@@ -23,11 +23,11 @@
     <style>
         /* --- Forest Green Theme & Base Styles --- */
         :root {
-            --forest-green: #228B22; /* User-specified green */
-            --dark-green-hover: #1A691A; /* Darker shade for hover effects */
-            --light-sage: #90EE90; /* A lighter accent green */
-            --background-cream: #F8F9FA; /* Off-white for page background */
-            --card-white: #FFFFFF; /* White for form container */
+            --forest-green: #228B22;
+            --dark-green-hover: #1A691A;
+            --light-sage: #90EE90;
+            --background-cream: #F8F9FA;
+            --card-white: #FFFFFF;
             --text-dark: #333333;
             --text-light: #FFFFFF;
             --border-color: #CED4DA;
@@ -92,7 +92,7 @@
             align-items: center;
             margin: 0;
             padding: 0;
-            gap: 1rem; /* Spacing between nav items */
+            gap: 1rem;
         }
         
         /* --- General Button Styles --- */
@@ -110,7 +110,6 @@
             display: inline-block;
         }
 
-        /* --- Specific Button Styles --- */
         .btn-nav {
             background-color: transparent;
             color: var(--text-light);
@@ -128,9 +127,14 @@
             border-color: var(--forest-green);
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background-color: var(--dark-green-hover);
             border-color: var(--dark-green-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         
         .btn-secondary {
@@ -169,6 +173,12 @@
             margin-bottom: 1.5rem;
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
         .form-label {
             display: block;
             font-weight: 500;
@@ -179,18 +189,89 @@
             width: 100%;
             padding: 0.75rem;
             font-size: 1rem;
-            font-family: var(--font-secondary); /* Ensures textarea inherits font */
+            font-family: var(--font-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius);
-            box-sizing: border-box; /* Important for padding and width */
+            box-sizing: border-box;
             transition: border-color 0.3s, box-shadow 0.3s;
-            resize: vertical; /* Allows user to resize textarea height */
+            resize: vertical;
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--forest-green);
             box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.2);
+        }
+
+        /* Checkbox styles for amenities */
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--forest-green);
+            background-color: #f8f9fa;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+            transform: scale(1.1);
+        }
+
+        .checkbox-item input[type="checkbox"]:checked + label {
+            color: var(--forest-green);
+            font-weight: 500;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Loading spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .amenities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -215,48 +296,172 @@
             <div class="form-container">
                 <h1>Add a Property</h1>
 
-                <form action="#" method="POST" enctype="multipart/form-data">
-
+                <form id="propertyForm" action="#" method="POST" enctype="multipart/form-data">
+                    
                     <div class="form-group">
-                        <label for="propertyName" class="form-label">Property Name & Description</label>
-                        <textarea id="propertyName" name="propertyName" class="form-control" rows="4" required placeholder="e.g., The Gables - A beautiful 3-bedroom house with a spacious garden..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="images" class="form-label">Property Images</label>
-                        <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple required />
+                        <label for="propertyName" class="form-label">Property Name/Title *</label>
+                        <input type="text" id="propertyName" name="propertyName" class="form-control" required 
+                               placeholder="e.g., Beautiful 3-Bedroom House in Phakalane" />
                     </div>
 
                     <div class="form-group">
-                        <label for="rentPrice" class="form-label">Rent (P)</label>
-                        <input type="text" id="rentPrice" class="form-control" name="rentPrice" required placeholder="Enter the rent amount" />
+                        <label for="description" class="form-label">Property Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="4" 
+                                  placeholder="Describe your property in detail - features, condition, nearby amenities, etc."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="propertyType" class="form-label">Property Type</label>
+                            <select id="propertyType" name="propertyType" class="form-control">
+                                <option value="apartment">Apartment</option>
+                                <option value="house">House</option>
+                                <option value="townhouse">Townhouse</option>
+                                <option value="studio">Studio</option>
+                                <option value="room">Single Room</option>
+                                <option value="commercial">Commercial</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="propertyLocation" class="form-label">Property Location *</label>
+                            <input type="text" id="propertyLocation" name="propertyLocation" class="form-control" required 
+                                   placeholder="e.g., Block 10, Gaborone or Plot 1234, Phakalane" />
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="securityFee" class="form-label">Security Fee (P)</label>
-                        <input type="text" id="securityFee" class="form-control" name="securityFee" required />
+                        <label for="address" class="form-label">Full Address</label>
+                        <input type="text" id="address" name="address" class="form-control" 
+                               placeholder="Complete address with street name, area, city" />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bedrooms" class="form-label">Bedrooms</label>
+                            <select id="bedrooms" name="bedrooms" class="form-control">
+                                <option value="">Select bedrooms</option>
+                                <option value="0">Studio (0 bedrooms)</option>
+                                <option value="1">1 Bedroom</option>
+                                <option value="2">2 Bedrooms</option>
+                                <option value="3">3 Bedrooms</option>
+                                <option value="4">4 Bedrooms</option>
+                                <option value="5">5+ Bedrooms</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bathrooms" class="form-label">Bathrooms</label>
+                            <select id="bathrooms" name="bathrooms" class="form-control">
+                                <option value="">Select bathrooms</option>
+                                <option value="1">1 Bathroom</option>
+                                <option value="1.5">1.5 Bathrooms</option>
+                                <option value="2">2 Bathrooms</option>
+                                <option value="2.5">2.5 Bathrooms</option>
+                                <option value="3">3 Bathrooms</option>
+                                <option value="3.5">3+ Bathrooms</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rentPrice" class="form-label">Monthly Rent (P) *</label>
+                            <input type="number" id="rentPrice" name="rentPrice" class="form-control" required 
+                                   min="100" step="50" placeholder="Enter monthly rent amount" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="securityFee" class="form-label">Security Deposit (P) *</label>
+                            <input type="number" id="securityFee" name="securityFee" class="form-control" required 
+                                   min="0" step="50" placeholder="Enter security deposit amount" />
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="amenities" class="form-label">Amenities</label>
-                        <select id="amenities" name="amenities" class="form-control" required>
-                            <option value="">Choose available amenities</option>
-                            <option value="Wifi">Wifi</option>
-                            <option value="Balcony">Balcony</option>
-                            <option value="Pool">Pool</option>
-                        </select>
+                        <label for="dateAvailable" class="form-label">Available From</label>
+                        <input type="date" id="dateAvailable" name="dateAvailable" class="form-control" />
                     </div>
 
                     <div class="form-group">
-                        <label for="propertyLocation" class="form-label">Property Location</label>
-                        <input type="text" id="propertyLocation" name="propertyLocation" class="form-control" required placeholder="e.g., Block 10, Gaborone or Plot 1234, Phakalane" />
+                        <label class="form-label">Available Amenities *</label>
+                        <div class="amenities-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="wifi" name="amenities" value="wifi">
+                                <label for="wifi">Wi-Fi Internet</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="parking" name="amenities" value="parking">
+                                <label for="parking">Parking Space</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="security" name="amenities" value="security">
+                                <label for="security">24/7 Security</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="pool" name="amenities" value="pool">
+                                <label for="pool">Swimming Pool</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="gym" name="amenities" value="gym">
+                                <label for="gym">Fitness Center</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="laundry" name="amenities" value="laundry">
+                                <label for="laundry">Laundry Facility</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="balcony" name="amenities" value="balcony">
+                                <label for="balcony">Balcony/Terrace</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="garden" name="amenities" value="garden">
+                                <label for="garden">Garden Access</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="air-conditioning" name="amenities" value="air-conditioning">
+                                <label for="air-conditioning">Air Conditioning</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="furnished" name="amenities" value="furnished">
+                                <label for="furnished">Furnished</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="pet-friendly" name="amenities" value="pet-friendly">
+                                <label for="pet-friendly">Pet Friendly</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="elevator" name="amenities" value="elevator">
+                                <label for="elevator">Elevator Access</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="propertyImage" class="form-label">Property Images</label>
+                        <input type="file" id="propertyImage" name="propertyImage" class="form-control" 
+                               accept="image/jpeg,image/jpg,image/png,image/webp" />
+                        <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                            Upload a main image for your property (JPEG, PNG, or WebP, max 5MB)
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="landlordName" class="form-label">Contact Name</label>
+                        <input type="text" id="landlordName" name="landlordName" class="form-control" 
+                               placeholder="Your name for contact purposes" />
                     </div>
                     
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Add Property</button>
-                    <a href="landlord-dashboard.html" class="btn btn-secondary" style="width: 100%; margin-top: 0.75rem;">Return to Dashboard</a>
+                    <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Add Property
+                    </button>
+                    <a href="landlord-dashboard.html" class="btn btn-secondary" style="width: 100%; margin-top: 0.75rem;">
+                        Return to Dashboard
+                    </a>
                 </form>
             </div>
         </div>
     </main>
-</body>
+
   <script type="module" src="js/create_listing.js" defer></script>
 </html>
