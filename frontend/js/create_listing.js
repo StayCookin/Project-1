@@ -1,30 +1,26 @@
 // Firebase v9+ imports
 import { initializeApp } from 'firebase/app';
-import { getAuth,getAuthEmulator, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore,getFirestoreEmulator, collection, addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, addDoc, doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 const firebaseConfig = {
-  
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
+  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+  authDomain: "inrent-6ab14.firebaseapp.com",
+  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+  projectId: "inrent-6ab14",
+  storageBucket: "inrent-6ab14.firebasestorage.app",
+  messagingSenderId: "327416190792",
+  appId: "1:327416190792:web:970377ec8dcef557e5457d",
+  measurementId: "G-JY9E760ZQ0"
 };
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app); 
 const storage = getStorage(app);
 
-if (location.hostname === "localhost"){
-  connectAuthEmulator(auth, "http://localhost:5500");
-  connectFirestoreEmulator(db, "localhost", 8080);
-}
 
 document.addEventListener("DOMContentLoaded", function () {
   // Get form and submit button references
