@@ -56,7 +56,7 @@
                     }
                     
                     const userData = userDoc.data();
-                    if (!userData || userData.role !== "landlord") {
+                    if (!userData || userData.role !== "LANDLORD") {
                         showError("Only landlords can add properties. Please contact support if you believe this is an error.");
                         setTimeout(() => {
                             window.location.href = "index.html";
