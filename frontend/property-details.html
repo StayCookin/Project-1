@@ -4,181 +4,117 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Property Details - InRent</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons for modern, clean icons -->
-    <script src="https://unpkg.com/lucide-react@0.294.0/dist/umd/lucide-react.js"></script>
-    <script src="https://unpkg.com/lucide-icons@0.378.0"></script>
-    
-    <link rel="stylesheet" href="property-details.css" />
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+    <script src="https://cdn.tailwindcss.com"></script>
 
-      gtag("config", "G-1F24YHYS28");
-    </script>
-  
+    <!-- Google Fonts: Inter -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
-    <header
-      class="main-header"
-      style="
-        background: #176b16;
-        color: #fff;
-        padding: 1rem 0;
-        box-shadow: 0 2px 8px rgba(34, 139, 34, 0.08);
-      "
-    >
+  <body class="font-inter bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-green-800 text-white shadow-md">
       <div
-        class="container"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
+        class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4"
       >
-        <a
-          href="index.html"
-          class="logo"
-          style="
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: 1px;
-          "
-          >InRent</a
-        >
-        <nav>
-          <div
-            class="nav-links"
-            style="display: flex; gap: 1.5rem; align-items: center"
-          >
-            <a
-              href="marketplace.html"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Browse Properties</a
-            >
-            <a
-              href="/frontend/landlord-dashboard.html"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Landlord Dashboard</a
-            >
-            <a
-              href="#"
-              id="logoutBtn"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Logout</a
-            >
-          </div>
+        <a href="index.html" class="text-2xl font-bold tracking-wide">InRent</a>
+        <nav class="flex gap-6">
+          <a href="marketplace.html" class="hover:underline">Browse Properties</a>
+          <a id="dashboardBtnn"class="hover:underline">Dashboard</a>
+          <a href="#" id="logoutBtn" class="hover:underline">Logout</a>
         </nav>
       </div>
     </header>
-    <a
-      href="landlord-dashboard.html"
-      class="btn btn-secondary"
-      style="margin: 1rem 0; display: inline-block"
-    >
-      <i class="fas fa-arrow-left"></i> Back to Dashboard
-    </a>
-    <div
-      class="container property-details-container"
-      style="
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(34, 139, 34, 0.08);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      "
-    >
-      <div
-        class="property-header"
-        style="border-bottom: 1px solid #e0e0e0; margin-bottom: 1.5rem"
+
+    <!-- Back Button -->
+    <div class="max-w-7xl mx-auto px-6 mt-4">
+      <a
+        href="marketplace.html"
+        class="inline-flex items-center gap-2 text-green-700 hover:text-green-900 font-medium"
       >
+        ← Back
+      </a>
+    </div>
+
+    <!-- Property Details -->
+    <main
+      class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-6 mt-6 mb-12"
+    >
+      <!-- Header -->
+      <div class="border-b pb-4 mb-6">
         <h1
-          class="property-title"
           id="propertyTitle"
-          style="font-size: 2.2rem; color: #176b16"
+          class="text-3xl font-semibold text-green-800 mb-2"
         ></h1>
-        <p
-          class="property-location"
-          id="propertyLocation"
-          style="color: #666; font-size: 1.1rem"
-        ></p>
-        <p
-          class="property-price"
-          id="propertyPrice"
-          style="color: #176b16; font-size: 1.3rem; font-weight: 600"
-        ></p>
+        <p id="propertyLocation" class="text-gray-500 text-lg"></p>
+        <p id="propertyPrice" class="text-xl font-semibold text-green-700 mt-2"></p>
       </div>
+
+      <!-- Gallery -->
       <div
-        class="property-gallery"
         id="propertyGallery"
-        style="display: flex; gap: 1rem; margin-bottom: 1.5rem"
+        class="flex flex-wrap gap-3 mb-6"
       ></div>
-      <div
-        class="property-details"
-        id="propertyDetails"
-        style="margin-bottom: 2rem"
-      ></div>
-      <div
-        class="contact-section"
-        id="contactSection"
-        style="margin-bottom: 2rem"
-      ></div>
-      <div class="similar-properties">
-        <h2
-          class="section-title"
-          style="color: #176b16; font-size: 1.4rem; margin-bottom: 1rem"
-        >
+
+      <!-- Details -->
+      <div id="propertyDetails" class="mb-8"></div>
+
+      <!-- Contact Section -->
+      <div id="contactSection" class="mb-10"></div>
+
+      <!-- Similar Properties -->
+      <section>
+        <h2 class="text-xl font-semibold text-green-800 mb-4">
           Similar Properties
         </h2>
         <div
-          class="similar-properties-grid"
           id="similarPropertiesGrid"
-          style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-          "
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         ></div>
-      </div>
-    </div>
+      </section>
+    </main>
+
     <!-- Review Modal -->
-    <div class="modal" id="review-modal">
-      <div class="modal-content" style="max-width: 550px">
-        <span class="modal-close">×</span>
-        <h3 id="reviewModalTitle">Write a Review</h3>
-        <form id="reviewForm">
-          <div class="form-group">
-            <label>Your Rating:</label>
-            <div class="rating-stars" id="reviewRatingStars"></div>
+    <div
+      id="review-modal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative">
+        <button
+          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          onclick="document.getElementById('review-modal').classList.add('hidden')"
+        >
+          ✕
+        </button>
+        <h3 class="text-xl font-semibold mb-4">Write a Review</h3>
+        <form id="reviewForm" class="space-y-4">
+          <div>
+            <label class="block font-medium mb-1">Your Rating:</label>
+            <div id="reviewRatingStars" class="flex gap-2"></div>
           </div>
-          <div class="form-group">
-            <label for="reviewText">Your Review:</label>
-            <textarea id="reviewText" required rows="4"></textarea>
+          <div>
+            <label for="reviewText" class="block font-medium mb-1"
+              >Your Review:</label
+            >
+            <textarea
+              id="reviewText"
+              rows="4"
+              required
+              class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-600"
+            ></textarea>
           </div>
-          <button type="submit" class="btn">Submit Review</button>
-          <div class="success-message" id="reviewFormSuccess"></div>
+          <button
+            type="submit"
+            class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition"
+          >
+            Submit Review
+          </button>
+          <p id="reviewFormSuccess" class="text-green-600 font-medium mt-2"></p>
         </form>
       </div>
     </div>
+
     <script type="module" src="property-details.js" defer></script>
   </body>
 </html>

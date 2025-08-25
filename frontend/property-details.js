@@ -56,14 +56,25 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       
       const userData = userDoc.data();
-      if (!userData || userData.role !== "student") {
+      if (!userData || userData.role !== "STUDENT") {
         showError("Only students can view property details");
         setTimeout(() => {
           window.location.href = "index.html";
         }, 2000);
         return;
       }
+      
+      const dashboardBtn = document.getElementByInnerHtml("dashboardBtnn");
 
+      dashboardBtn.addEventListener("onclick",()=>{
+        if( userData.role === "STUDENT"){
+          window.location.href= "student-dashboard.html";
+        } else if( userData.role === "LANDLORD"){
+          window.location.href = "landlord-dashboard.html";
+        }
+        else(
+          window.location.href = "index.html")
+      });
       currentUser = user;
       
       // Fetch and render property details
