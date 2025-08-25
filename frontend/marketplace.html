@@ -1835,7 +1835,7 @@ function getActionButtonsForProperty(property, isOwner) {
   
   // Everyone can view details
   buttons.push(`<button class="view-details-btn btn-primary" onclick="viewPropertyDetails('${property.id}')">
-    <i class="fas fa-eye"></i> View Details
+    <i class="fas fa-eye" href="property-details.html"></i> View Details
   </button>`);
   
   if (userRole === 'LANDLORD' && isOwner) {
