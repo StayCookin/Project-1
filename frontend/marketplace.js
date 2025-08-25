@@ -1,308 +1,1220 @@
-import "../js/firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Firebase Auth: Check if user is authenticated
-  firebase.auth().onAuthStateChanged(async function (user) {
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+  authDomain: "inrent-6ab14.firebaseapp.com",
+  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+  projectId: "inrent-6ab14",
+  storageBucket: "inrent-6ab14.firebasestorage.app",
+  messagingSenderId: "327416190792",
+  appId: "1:327416190792:web:970377ec8dcef557e5457d",
+  measurementId: "G-JY9E760ZQ0"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+
+
+let currentUser = null;
+let currentUserData = null;
+let currentProperties = [];
+let filteredProperties = [];
+
+// Real-time listener for property updates
+async function setupPropertiesListener(role, user) {
+  console.log(`Setting up real-time properties listener for ${role}`);
+  
+  try {
+    const { onSnapshot, orderBy } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+    const propertiesRef = collection(db, "properties");
+    
+    // All users see all properties, ordered by creation date
+    const propertiesQuery = query(propertiesRef, orderBy("createdAt", "desc"));
+    
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(propertiesQuery, (snapshot) => {
+      console.log("Properties updated in real-time");
+      currentProperties = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      // Reapply current filters to updated data
+      applyCurrentFilters();
+    }, (error) => {
+      console.error("Properties listener error:", error);
+    });
+    
+    // Store unsubscribe function for cleanup
+    window.propertiesUnsubscribe = unsubscribe;
+    
+  } catch (error) {
+    console.error("Failed to setup properties listener:", error);
+    // Fallback to one-time load
+    await loadProperties(role, user);
+  }
+}
+
+// Navigation setup
+function setupNavigationButtons(role) {
+  console.log(`🧭 Setting up navigation for ${role}`);
+  
+  // Add Property button (landlords only)
+  const addPropertyBtn = document.getElementById('addPropertyBtn');
+  if (addPropertyBtn) {
+    addPropertyBtn.addEventListener('click', () => {
+      window.location.href = 'add-property.html';
+    });
+  }
+  
+  // Profile button
+  const profileBtn = document.getElementById('profileBtn');
+  if (profileBtn) {
+    profileBtn.addEventListener('click', () => {
+      window.location.href = 'profile.html';
+    });
+  }
+  
+  // Settings button
+  const settingsBtn = document.getElementById('settingsBtn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      window.location.href = 'settings.html';
+    });
+  }
+  
+  // Help/Support button
+  const helpBtn = document.getElementById('helpBtn');
+  if (helpBtn) {
+    helpBtn.addEventListener('click', () => {
+      window.location.href = 'help.html';
+    });
+  }
+}
+
+// Logout functionality
+function setupLogout() {
+  console.log("🚪 Setting up logout functionality");
+  
+  // Additional logout buttons if any
+  const logoutBtns = document.querySelectorAll('[data-action="logout"]');
+  logoutBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        // Clean up listeners
+        if (window.propertiesUnsubscribe) {
+          window.propertiesUnsubscribe();
+        }
+        
+        await signOut(auth);
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("❌ Logout error:", error);
+        alert("Error logging out. Please try again.");
+      }
+    });
+  });
+}
+
+// UI adjustments based on role
+function adjustUIForRole(role) {
+  console.log(`🎨 Adjusting UI elements for ${role}`);
+  
+  // Role-specific styling
+  const body = document.body;
+  body.className = body.className.replace(/role-\w+/g, '');
+  body.classList.add(`role-${role.toLowerCase()}`);
+  
+  // Adjust search placeholder text
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.placeholder = role === 'STUDENT' 
+      ? "Search properties, locations, amenities..." 
+      : "Search your properties...";
+  }
+  
+  // Show/hide filters based on role
+  const studentFilters = document.querySelectorAll('.filter-student-only');
+  const landlordFilters = document.querySelectorAll('.filter-landlord-only');
+  
+  studentFilters.forEach(filter => {
+    filter.style.display = role === 'STUDENT' ? 'block' : 'none';
+  });
+  
+  landlordFilters.forEach(filter => {
+    filter.style.display = role === 'LANDLORD' ? 'block' : 'none';
+  });
+  
+  // Update page header with user info
+  const userInfo = document.getElementById('userInfo');
+  if (userInfo && currentUserData) {
+    userInfo.innerHTML = `
+      <span class="user-email">${currentUserData.email}</span>
+      <span class="user-role">${role === 'STUDENT' ? 'Student' : 'Landlord'}</span>
+    `;
+  }
+}
+
+// DOM element references
+const dashboard = document.getElementById("dashboardBtn");
+const messages = document.getElementById("messagesBtnHeader");
+const logOut = document.getElementById("logoutBtn");
+
+// Logout function
+if (logOut) {
+  logOut.addEventListener("click", async () => {
+    try {
+      console.log("🚪 Logging out user...");
+      await signOut(auth);
+      console.log("✅ Logout successful, redirecting to login");
+      window.location.href = "index.html";
+    } catch (error) {
+      console.error("❌ Logout error:", error);
+      alert("Error logging out. Please try again.");
+    }
+  });
+}
+
+// Redirect to messages page
+if (messages) {
+  messages.addEventListener("click", () => {
+    console.log("📨 Redirecting to messages page");
+    window.location.href = "messages.html";
+  });
+}
+
+// Dashboard redirect based on role from Firebase
+if (dashboard) {
+  dashboard.addEventListener("click", () => {
+    console.log("currentUser data at click", currentUserData);
+    if (!currentUserData || !currentUserData.role) {
+      console.log("❌ No user data available, requesting login");
+      alert("Please login to access your dashboard.");
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+      return;
+    }
+    
+    const role = currentUserData.role;
+    console.log("🏠 Dashboard clicked. Current role:", role);
+    
+    if (role === "LANDLORD") {
+      console.log("🏠 Redirecting to landlord dashboard");
+      window.location.href = "landlord-dashboard.html";
+    } else if (role === "STUDENT") {
+      console.log("🎓 Redirecting to student dashboard");
+      window.location.href = "student-dashboard.html";
+    } else {
+      console.log("❌ Invalid role found:", role);
+      alert("Invalid user role. Please contact support.");
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    }
+  });
+}
+
+// Search and Filter Functionality
+function setupSearchAndFilters(role) {
+  console.log(`🔍 Setting up search and filters for ${role}`);
+  
+  // Search functionality
+  const searchInput = document.getElementById("searchInput");
+  const searchBtn = document.getElementById("searchBtn");
+  const sortBy = document.getElementById("sortBy");
+  
+  if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      performAdvancedSearch();
+    });
+  }
+  
+  if (searchInput) {
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        performAdvancedSearch();
+      }
+    });
+    
+    // Real-time search as user types (with debouncing)
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchInput.searchTimeout);
+      searchInput.searchTimeout = setTimeout(performAdvancedSearch, 300);
+    });
+  }
+  
+  // Sort functionality
+  if (sortBy) {
+    sortBy.addEventListener("change", () => {
+      performAdvancedSearch();
+    });
+  }
+  
+  // Filter functionality
+  const filterBtn = document.getElementById("filterBtn");
+  const applyFiltersBtn = document.getElementById("applyFiltersBtn");
+  const clearFiltersBtn = document.getElementById("clearFiltersBtn");
+  
+  if (filterBtn) {
+    filterBtn.addEventListener("click", () => {
+      toggleFilterPanel();
+    });
+  }
+  
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener("click", () => {
+      applyCurrentFilters();
+    });
+  }
+  
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener("click", () => {
+      clearAllFilters();
+    });
+  }
+  
+  // Price range filters with validation
+  const minPriceInput = document.getElementById("minPrice");
+  const maxPriceInput = document.getElementById("maxPrice");
+  
+  if (minPriceInput) {
+    minPriceInput.addEventListener("change", () => {
+      validatePriceRange();
+      applyCurrentFilters();
+    });
+  }
+  
+  if (maxPriceInput) {
+    maxPriceInput.addEventListener("change", () => {
+      validatePriceRange();
+      applyCurrentFilters();
+    });
+  }
+  
+  // Location filter
+  const locationSelect = document.getElementById("locationFilter");
+  if (locationSelect) {
+    locationSelect.addEventListener("change", applyCurrentFilters);
+  }
+  
+  // Property type filter
+  const propertyTypeSelect = document.getElementById("propertyTypeFilter");
+  if (propertyTypeSelect) {
+    propertyTypeSelect.addEventListener("change", applyCurrentFilters);
+  }
+  
+  // Availability filter (for landlords)
+  const availabilityFilter = document.getElementById("availabilityFilter");
+  if (availabilityFilter && role === "LANDLORD") {
+    availabilityFilter.addEventListener("change", applyCurrentFilters);
+  }
+  
+  // Setup quick filters
+  setupQuickFilters();
+}
+
+/**
+ * Validates price range inputs
+ */
+function validatePriceRange() {
+  const minPrice = document.getElementById("minPrice");
+  const maxPrice = document.getElementById("maxPrice");
+  
+  if (minPrice && maxPrice) {
+    const min = parseFloat(minPrice.value) || 0;
+    const max = parseFloat(maxPrice.value) || Infinity;
+    
+    if (min > max && max !== Infinity) {
+      maxPrice.setCustomValidity("Maximum price must be greater than minimum price");
+      maxPrice.reportValidity();
+    } else {
+      maxPrice.setCustomValidity("");
+    }
+  }
+}
+
+/**
+ * Performs search with current sort order (replaces simple performSearch)
+ */
+function performSearch() {
+  performAdvancedSearch();
+}
+
+/**
+ * Advanced search with sorting options
+ */
+function performAdvancedSearch() {
+  const searchInput = document.getElementById("searchInput");
+  const sortBy = document.getElementById("sortBy")?.value || "newest";
+  const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  
+  console.log("🔍 Performing advanced search:", { searchTerm, sortBy });
+  
+  let filtered = [...currentProperties];
+  
+  // Apply search filter
+  if (searchTerm) {
+    filtered = filtered.filter(property => {
+      const searchableFields = [
+        property.title,
+        property.description,
+        property.location,
+        property.address,
+        property.neighborhood,
+        property.propertyType,
+        property.landlordName
+      ].filter(Boolean).map(field => field.toLowerCase());
+      
+      const amenitiesText = (property.amenities || []).join(' ').toLowerCase();
+      searchableFields.push(amenitiesText);
+      
+      return searchableFields.some(field => field.includes(searchTerm));
+    });
+  }
+  
+  // Apply sorting
+  filtered.sort((a, b) => {
+    switch (sortBy) {
+      case 'price-low':
+        return (parseFloat(a.rent) || 0) - (parseFloat(b.rent) || 0);
+      case 'price-high':
+        return (parseFloat(b.rent) || 0) - (parseFloat(a.rent) || 0);
+      case 'location':
+        return (a.location || '').localeCompare(b.location || '');
+      case 'newest':
+      default:
+        const dateA = a.createdAt?.seconds || 0;
+        const dateB = b.createdAt?.seconds || 0;
+        return dateB - dateA;
+    }
+  });
+  
+  filteredProperties = filtered;
+  displayProperties(filteredProperties);
+  updateResultsCount();
+}
+
+/**
+ * Quick filters for common searches
+ */
+function applyQuickFilter(filterType) {
+  console.log("⚡ Applying quick filter:", filterType);
+  
+  let filtered = [...currentProperties];
+  
+  switch (filterType) {
+    case 'under-500':
+      filtered = filtered.filter(p => parseFloat(p.rent) <= 500);
+      break;
+    case 'under-1000':
+      filtered = filtered.filter(p => parseFloat(p.rent) <= 1000);
+      break;
+    case 'furnished':
+      filtered = filtered.filter(p => 
+        p.amenities?.some(amenity => 
+          amenity.toLowerCase().includes('furnished')
+        )
+      );
+      break;
+    case 'pet-friendly':
+      filtered = filtered.filter(p => 
+        p.amenities?.some(amenity => 
+          amenity.toLowerCase().includes('pet') || 
+          amenity.toLowerCase().includes('animal')
+        )
+      );
+      break;
+    case 'wifi':
+      filtered = filtered.filter(p => 
+        p.amenities?.some(amenity => 
+          amenity.toLowerCase().includes('wifi') || 
+          amenity.toLowerCase().includes('internet')
+        )
+      );
+      break;
+    case 'parking':
+      filtered = filtered.filter(p => 
+        p.amenities?.some(amenity => 
+          amenity.toLowerCase().includes('parking') || 
+          amenity.toLowerCase().includes('garage')
+        )
+      );
+      break;
+    default:
+      console.warn("Unknown quick filter:", filterType);
+      return;
+  }
+  
+  filteredProperties = filtered;
+  displayProperties(filteredProperties);
+  updateResultsCount();
+  
+  // Update UI to show active filter
+  document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`[data-filter="${filterType}"]`)?.classList.add('active');
+}
+
+/**
+ * Setup quick filter buttons
+ */
+function setupQuickFilters() {
+  const quickFilterBtns = document.querySelectorAll('.quick-filter-btn');
+  quickFilterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const filterType = btn.dataset.filter;
+      if (filterType) {
+        applyQuickFilter(filterType);
+      }
+    });
+  });
+  
+  // Clear quick filters button
+  const clearQuickFiltersBtn = document.getElementById('clearQuickFilters');
+  if (clearQuickFiltersBtn) {
+    clearQuickFiltersBtn.addEventListener('click', () => {
+      document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      filteredProperties = [...currentProperties];
+      displayProperties(filteredProperties);
+      updateResultsCount();
+    });
+  }
+}
+
+/**
+ * Toggles filter panel visibility
+ */
+function toggleFilterPanel() {
+  const filterPanel = document.getElementById("filterPanel");
+  const filterBtn = document.getElementById("filterBtn");
+  
+  if (filterPanel) {
+    const isVisible = filterPanel.classList.toggle("show");
+    console.log("🎛️ Filter panel toggled:", isVisible ? "visible" : "hidden");
+    
+    if (filterBtn) {
+      filterBtn.textContent = isVisible ? "Hide Filters" : "Show Filters";
+    }
+  }
+}
+
+/**
+ * Applies current filters to properties
+ */
+function applyCurrentFilters() {
+  console.log("🎛️ Applying current filters...");
+  
+  let filtered = [...currentProperties];
+  
+  // Apply search term first
+  const searchInput = document.getElementById("searchInput");
+  const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  
+  if (searchTerm) {
+    filtered = filtered.filter(property => {
+      const searchableFields = [
+        property.title,
+        property.description,
+        property.location,
+        property.address,
+        property.neighborhood,
+        property.propertyType
+      ].filter(Boolean).map(field => field.toLowerCase());
+      
+      const amenitiesText = (property.amenities || []).join(' ').toLowerCase();
+      searchableFields.push(amenitiesText);
+      
+      return searchableFields.some(field => field.includes(searchTerm));
+    });
+  }
+  
+  // Price range filter
+  const minPrice = parseFloat(document.getElementById("minPrice")?.value) || 0;
+  const maxPrice = parseFloat(document.getElementById("maxPrice")?.value) || Infinity;
+  
+  if (minPrice > 0 || maxPrice < Infinity) {
+    filtered = filtered.filter(property => {
+      const price = parseFloat(property.rent) || 0;
+      return price >= minPrice && price <= maxPrice;
+    });
+  }
+  
+  // Location filter
+  const locationFilter = document.getElementById("locationFilter")?.value;
+  if (locationFilter && locationFilter !== "all") {
+    filtered = filtered.filter(property => 
+      property.location?.toLowerCase().includes(locationFilter.toLowerCase()) ||
+      property.neighborhood?.toLowerCase().includes(locationFilter.toLowerCase())
+    );
+  }
+  
+  // Property type filter
+  const propertyTypeFilter = document.getElementById("propertyTypeFilter")?.value;
+  if (propertyTypeFilter && propertyTypeFilter !== "all") {
+    filtered = filtered.filter(property => 
+      property.propertyType?.toLowerCase() === propertyTypeFilter.toLowerCase()
+    );
+  }
+  
+  // Availability filter (mainly for landlords)
+  const availabilityFilter = document.getElementById("availabilityFilter")?.value;
+  if (availabilityFilter && availabilityFilter !== "all") {
+    filtered = filtered.filter(property => 
+      property.status?.toLowerCase() === availabilityFilter.toLowerCase()
+    );
+  }
+  
+  // Amenities filter
+  const selectedAmenities = Array.from(
+    document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked')
+  ).map(checkbox => checkbox.value);
+  
+  if (selectedAmenities.length > 0) {
+    filtered = filtered.filter(property => {
+      const propertyAmenities = (property.amenities || []).map(a => a.toLowerCase());
+      return selectedAmenities.every(amenity => 
+        propertyAmenities.some(propAmenity => 
+          propAmenity.includes(amenity.toLowerCase())
+        )
+      );
+    });
+  }
+  
+  filteredProperties = filtered;
+  console.log(`🎛️ Filters applied: ${filteredProperties.length} properties match criteria`);
+  displayProperties(filteredProperties);
+  updateResultsCount();
+}
+
+/**
+ * Clears all filters and search
+ */
+function clearAllFilters() {
+  console.log("🧹 Clearing all filters");
+  
+  // Clear search input
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.value = "";
+  
+  // Clear price filters
+  const minPrice = document.getElementById("minPrice");
+  const maxPrice = document.getElementById("maxPrice");
+  if (minPrice) minPrice.value = "";
+  if (maxPrice) maxPrice.value = "";
+  
+  // Reset select filters
+  const locationFilter = document.getElementById("locationFilter");
+  const propertyTypeFilter = document.getElementById("propertyTypeFilter");
+  const availabilityFilter = document.getElementById("availabilityFilter");
+  
+  if (locationFilter) locationFilter.value = "all";
+  if (propertyTypeFilter) propertyTypeFilter.value = "all";
+  if (availabilityFilter) availabilityFilter.value = "all";
+  
+  // Clear amenities checkboxes
+  const amenityCheckboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]');
+  amenityCheckboxes.forEach(checkbox => checkbox.checked = false);
+  updateAmenitiesCount();
+  
+  // Show all properties
+  filteredProperties = [...currentProperties];
+  displayProperties(filteredProperties);
+  updateResultsCount();
+}
+
+/**
+ * Updates results count display
+ */
+function updateResultsCount() {
+  const resultsCount = document.getElementById("resultsCount");
+  if (resultsCount) {
+    resultsCount.textContent = `${filteredProperties.length} properties found`;
+  }
+}
+
+/**
+ * Load properties based on user role from Firebase (initial load)
+ */
+async function loadProperties(role, user) {
+  try {
+    console.log(`Loading all properties for ${role}`);
+    const propertiesRef = collection(db, "properties");
+    
+    // All users see all properties
+    const propertiesQuery = query(propertiesRef, orderBy("createdAt", "desc"));
+    
+    const snapshot = await getDocs(propertiesQuery);
+    currentProperties = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    filteredProperties = [...currentProperties];
+    console.log(`Loaded ${currentProperties.length} properties`);
+    
+    displayProperties(filteredProperties);
+    updateResultsCount();
+    populateFilterOptions();
+    
+  } catch (error) {
+    console.error("Error loading properties:", error);
+    showErrorState(error);
+  }
+}
+
+/**
+ * Populates filter dropdown options based on available properties
+ */
+function populateFilterOptions() {
+  try {
+    // Populate location filter
+    const locationFilter = document.getElementById("locationFilter");
+    if (locationFilter && currentProperties.length > 0) {
+      const locations = [...new Set(currentProperties
+        .map(p => p.location)
+        .filter(Boolean)
+      )].sort();
+      
+      // Keep existing options and add new ones
+      const existingOptions = Array.from(locationFilter.options).map(opt => opt.value);
+      locations.forEach(location => {
+        if (!existingOptions.includes(location)) {
+          const option = document.createElement('option');
+          option.value = location;
+          option.textContent = location;
+          locationFilter.appendChild(option);
+        }
+      });
+    }
+    
+    // Populate property type filter
+    const propertyTypeFilter = document.getElementById("propertyTypeFilter");
+    if (propertyTypeFilter && currentProperties.length > 0) {
+      const propertyTypes = [...new Set(currentProperties
+        .map(p => p.propertyType)
+        .filter(Boolean)
+      )].sort();
+      
+      const existingOptions = Array.from(propertyTypeFilter.options).map(opt => opt.value);
+      propertyTypes.forEach(type => {
+        if (!existingOptions.includes(type)) {
+          const option = document.createElement('option');
+          option.value = type;
+          option.textContent = type;
+          propertyTypeFilter.appendChild(option);
+        }
+      });
+    }
+    
+    console.log("✅ Filter options populated");
+  } catch (error) {
+    console.error("❌ Error populating filter options:", error);
+  }
+}
+
+/**
+ * Shows error state in property list
+ */
+function showErrorState(error) {
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList) {
+    let errorMessage = "Unable to load properties. Please try again.";
+    
+    if (error.code === 'permission-denied') {
+      errorMessage = "Permission denied. Please check your account permissions.";
+    } else if (error.code === 'unavailable') {
+      errorMessage = "Database temporarily unavailable. Please try again in a few moments.";
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = "Connection timed out. Please check your internet connection.";
+    }
+    
+    propertyList.innerHTML = `
+      <div class="error-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #d32f2f;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+        <h3>Error Loading Properties</h3>
+        <p>${errorMessage}</p>
+        <div style="margin-top: 1rem;">
+          <button onclick="location.reload()" style="margin-right: 0.5rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Retry
+          </button>
+          <button onclick="signOut(auth).then(() => window.location.href='index.html')" style="padding: 0.5rem 1rem; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Logout
+          </button>
+        </div>
+      </div>`;
+  }
+}
+
+/**
+ * Displays properties in the UI
+ */
+function displayProperties(properties) {
+  const propertyList = document.getElementById("propertyList");
+  if (!propertyList) {
+    console.warn("Property list container not found");
+    return;
+  }
+  
+  if (properties.length === 0) {
+    propertyList.innerHTML = `
+      <div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <i class="fas fa-search" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+        <h3>No properties found</h3>
+        <p>Try adjusting your search criteria or filters.</p>
+        <button onclick="clearAllFilters()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Clear Filters
+        </button>
+      </div>`;
+    return;
+  }
+  
+  propertyList.innerHTML = properties.map(property => {
+    // Check if current user owns this property
+    const isOwner = currentUserData?.role === 'LANDLORD' && property.landlordId === currentUser?.uid;
+    
+    return `
+      <div class="property-card" data-property-id="${property.id}">
+        <div class="property-image">
+          <img src="${property.imageUrl || property.images?.[0] || '/placeholder-property.jpg'}" 
+               alt="${property.title}" 
+               onerror="this.src='/placeholder-property.jpg'">
+          ${property.status === 'rented' ? '<div class="status-badge rented">Rented</div>' : ''}
+          ${property.featured ? '<div class="status-badge featured">Featured</div>' : ''}
+          ${isOwner ? '<div class="status-badge owner">Your Property</div>' : ''}
+        </div>
+        <div class="property-details">
+          <h3>${property.title}</h3>
+          <p class="location">📍 ${property.location}${property.neighborhood ? `, ${property.neighborhood}` : ''}</p>
+          <p class="price">💰 P${property.price || property.rent}/month</p>
+          ${property.propertyType ? `<p class="property-type">🏠 ${property.propertyType}</p>` : ''}
+          ${property.bedrooms ? `<p class="bedrooms">🛏️ ${property.bedrooms} bedroom${property.bedrooms !== 1 ? 's' : ''}</p>` : ''}
+          ${property.bathrooms ? `<p class="bathrooms">🚿 ${property.bathrooms} bathroom${property.bathrooms !== 1 ? 's' : ''}</p>` : ''}
+          <div class="amenities">
+            ${(property.amenities || []).slice(0, 3).map(amenity => {
+              const amenityName = typeof amenity === 'object' ? amenity.name : amenity;
+              return `<span class="amenity-tag">${amenityName}</span>`;
+            }).join('')}
+            ${property.amenities?.length > 3 ? `<span class="amenity-more">+${property.amenities.length - 3} more</span>` : ''}
+          </div>
+          <div class="landlord-info">
+            <p class="landlord">👤 ${property.landlordName || 'Landlord'}</p>
+            <p class="views">👁️ ${property.viewCount || 0} views</p>
+          </div>
+          <div class="property-actions">
+            ${getActionButtonsForProperty(property, isOwner)}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// New function to get appropriate action buttons based on user role and ownership
+function getActionButtonsForProperty(property, isOwner) {
+  const userRole = currentUserData?.role;
+  let buttons = [];
+  
+  // Everyone can view details
+  buttons.push(`<button class="view-details-btn btn-primary" onclick="viewPropertyDetails('${property.id}')">
+    <i class="fas fa-eye" href="property-details.html"></i> View Details
+  </button>`);
+  
+  if (userRole === 'LANDLORD' && isOwner) {
+    // Property owner can edit and delete
+    buttons.push(`<button class="edit-property-btn btn-warning" onclick="editProperty('${property.id}')">
+      <i class="fas fa-edit"></i> Edit
+    </button>`);
+    buttons.push(`<button class="delete-property-btn btn-danger" onclick="deleteProperty('${property.id}')">
+      <i class="fas fa-trash"></i> Delete
+    </button>`);
+  } else if (userRole === 'STUDENT' && property.status === 'available') {
+    // Students can contact landlord for available properties
+    buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
+      <i class="fas fa-envelope"></i> Contact
+    </button>`);
+  } else if (userRole === 'LANDLORD' && !isOwner) {
+    // Other landlords can view but not edit
+    buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
+      <i class="fas fa-envelope"></i> Contact
+    </button>`);
+  }
+  
+  return buttons.join('');
+}
+
+// Add delete property function
+async function deleteProperty(propertyId) {
+  if (!confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+    return;
+  }
+  
+  try {
+    const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+    await deleteDoc(doc(db, 'properties', propertyId));
+    
+    console.log('Property deleted successfully');
+    showNotification('Property deleted successfully', 'success');
+    
+    // Properties will be automatically updated via the real-time listener
+    
+  } catch (error) {
+    console.error('Error deleting property:', error);
+    showNotification('Error deleting property. Please try again.', 'error');
+  }
+}
+
+// Add notification system
+function showNotification(message, type = 'info') {
+  // Remove any existing notifications
+  const existingNotification = document.querySelector('.notification');
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+  
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.innerHTML = `
+    <div class="notification-content">
+      <span class="notification-message">${message}</span>
+      <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+    </div>
+  `;
+  
+  // Add to page
+  document.body.appendChild(notification);
+  
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 5000);
+}
+
+// Make the new functions globally available
+window.getActionButtonsForProperty = getActionButtonsForProperty;
+window.deleteProperty = deleteProperty;
+window.showNotification = showNotification;
+
+/**
+ * View property details
+ */
+function viewPropertyDetails(propertyId) {
+  console.log("👁️ Viewing details for property:", propertyId);
+  window.location.href = `property-details.html?id=${propertyId}`;
+}
+
+/**
+ * Edit property (for landlords)
+ */
+function editProperty(propertyId) {
+  console.log("✏️ Editing property:", propertyId);
+  window.location.href = `edit-property.html?id=${propertyId}`;
+}
+
+/**
+ * Contact landlord (for students)
+ */
+function contactLandlord(propertyId) {
+  console.log("📞 Contacting landlord for property:", propertyId);
+  window.location.href = `messages.html?property=${propertyId}`;
+}
+
+// Main authentication and initialization
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 DOM loaded, initializing marketplace...");
+  showLoadingState();
+
+  onAuthStateChanged(auth, async (user) => {
+    console.log("🔍 Auth state changed. User:", user);
+    
     if (!user) {
+      console.log("❌ No authenticated user found, redirecting to login");
       window.location.href = "index.html";
       return;
     }
 
-    // Fetch user role from Firestore (assumes users collection with role field)
-    let role = "student";
+    currentUser = user;
+    console.log("✅ User authenticated:");
+    console.log("  - UID:", user.uid);
+    console.log("  - Email:", user.email);
+    console.log("  - Email Verified:", user.emailVerified);
+
+    // Check email verification
+    if (!user.emailVerified) {
+      console.log("❌ User email not verified");
+      alert("Please verify your email address before accessing the marketplace. Check your email for a verification link.");
+      await signOut(auth);
+      window.location.href = "signup.html";
+      return;
+    }
+
     try {
-      const userDoc = await firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .get();
-      if (userDoc.exists && userDoc.data().role) {
-        role = userDoc.data().role;
+      // Get user data from Firestore
+      console.log(`🔍 Fetching user data from Firestore for UID: ${user.uid}`);
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        console.error("❌ User document not found in Firestore!");
+        alert("Your user profile was not found. Please sign up again or contact support.");
+        await signOut(auth);
+        window.location.href = "signup.html";
+        return;
       }
+
+      const userData = userDoc.data();
+      console.log("✅ User data retrieved from Firestore:", userData);
+      
+      // Validate required fields
+      const requiredFields = ['email', 'role'];
+      const missingFields = requiredFields.filter(field => !userData.hasOwnProperty(field));
+      
+      if (missingFields.length > 0) {
+        console.error("❌ Missing required fields:", missingFields);
+        alert(`Your profile is incomplete. Missing: ${missingFields.join(', ')}. Please contact support.`);
+        return;
+      }
+
+      // Validate role
+      const role = userData.role?.toString().trim();
+      const validRoles = ['STUDENT', 'LANDLORD'];
+      
+      if (!validRoles.includes(role)) {
+        console.error(`❌ Invalid role: '${role}'`);
+        alert(`Invalid user role: '${role}'. Please contact support.`);
+        await signOut(auth);
+        window.location.href = "signup.html";
+        return;
+      }
+
+      // Store user data globally (from Firebase, not localStorage)
+      currentUserData = userData;
+      
+      console.log(`✅ User authenticated successfully. Role: ${role}`);
+      
+      hideLoadingState();
+      updateUIForRole(role, user);
+      setupEventListeners(role, user);
+      
+      // Load properties based on role
+      await loadProperties(role, user);
+
     } catch (error) {
-      console.error("Error fetching user role:", error);
-    }
-
-    // Update navigation based on user type
-    const navLinks = document.querySelector(".nav-links");
-    if (navLinks) {
-      if (role === "student") {
-        navLinks.innerHTML = `
-          <a href="marketplace.html">Browse Properties</a>
-          <a href="student-dashboard.html">Student Dashboard</a>
-          <a href="#" id="logoutBtn">Logout</a>
-        `;
-      } else if (role === "landlord") {
-        navLinks.innerHTML = `
-          <a href="marketplace.html">Browse Properties</a>
-          <a href="landlord-dashboard.html">Landlord Dashboard</a>
-          <a href="#" id="logoutBtn">Logout</a>
-        `;
-      }
-    }
-
-    // Handle logout
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async function (e) {
-        e.preventDefault();
-        if (confirm("Are you sure you want to logout?")) {
-          try {
-            await firebase.auth().signOut();
-            window.location.href = "index.html";
-          } catch (error) {
-            console.error("Logout error:", error);
-            alert("Failed to logout. Please try again.");
-          }
-        }
-      });
-    }
-
-    // Fetch and render properties from Firestore
-    fetchProperties();
-
-    // Handle search and filter changes
-    const searchBtn = document.querySelector(".btn-primary");
-    const filterSelects = document.querySelectorAll("select");
-
-    if (searchBtn) {
-      searchBtn.addEventListener("click", function () {
-        const filters = {};
-        filterSelects.forEach((select) => {
-          if (select.value) {
-            // Only include non-empty values
-            filters[select.id] = select.value;
-          }
-        });
-        fetchProperties(filters);
-      });
-    }
-
-    async function fetchProperties(filters = {}) {
-      try {
-        let query = firebase.firestore().collection("properties");
-
-        // Apply filters (simple example, expand as needed)
-        if (filters.location) {
-          query = query.where("location", "==", filters.location);
-        }
-        if (filters.type) {
-          query = query.where("type", "==", filters.type);
-        }
-        if (filters.price) {
-          // Example: price range filter
-          if (filters.price === "0-2000") {
-            query = query.where("price", ">=", 0).where("price", "<=", 2000);
-          } else if (filters.price === "2000-4000") {
-            query = query.where("price", ">=", 2000).where("price", "<=", 4000);
-          } else if (filters.price === "4000-6000") {
-            query = query.where("price", ">=", 4000).where("price", "<=", 6000);
-          } else if (filters.price === "6000+") {
-            query = query.where("price", ">=", 6000);
-          }
-        }
-
-        const snapshot = await query.get();
-        const properties = snapshot.docs.map((doc) => ({
-          _id: doc.id,
-          ...doc.data(),
-        }));
-        renderProperties(properties);
-      } catch (err) {
-        console.error("Properties fetch error:", err);
-        const propertyGrid = document.getElementById("propertyGrid");
-        if (propertyGrid) {
-          propertyGrid.innerHTML = `<div class="empty-state">Failed to load properties. Please try again later.</div>`;
-        }
-      }
-    }
-
-    function renderProperties(properties) {
-      const grid = document.getElementById("propertyGrid");
-      if (!grid) {
-        console.error("Property grid element not found");
-        return;
-      }
-
-      grid.innerHTML = "";
-
-      if (!properties || !properties.length) {
-        grid.innerHTML = `<div class="empty-state">No properties found.</div>`;
-        return;
-      }
-
-      properties.forEach((property) => {
-        const card = document.createElement("div");
-        card.className = "property-card";
-
-        // Safely handle property data with defaults
-        const imageUrl = property.imageUrl || "/img/default-property.jpg";
-        const title = property.title || "Property Title";
-        const price = property.price || 0;
-        const location = property.location || "Location not specified";
-        const beds = property.beds || 0;
-        const baths = property.baths || 0;
-        const size = property.size || "N/A";
-
-        card.innerHTML = `
-          <img src="${imageUrl}" alt="${title}" class="property-image" onerror="this.src='/img/default-property.jpg'" />
-          <div class="property-details">
-            <div class="property-price">P${price}/month</div>
-            <h3 class="property-title">${title}</h3>
-            <p class="property-location"><i class='fas fa-map-marker-alt'></i> ${location}</p>
-            <div class="property-features">
-              <span class="feature"><i class="fas fa-bed"></i> ${beds} Bed${
-          beds !== 1 ? "s" : ""
-        }</span>
-              <span class="feature"><i class="fas fa-bath"></i> ${baths} Bath${
-          baths !== 1 ? "s" : ""
-        }</span>
-              <span class="feature"><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
-              ${
-                property.amenities && Array.isArray(property.amenities)
-                  ? property.amenities
-                      .map(
-                        (a) =>
-                          `<span class='feature'><i class='fas fa-${
-                            a.icon || "star"
-                          }'></i> ${a.name || "Amenity"}</span>`
-                      )
-                      .join("")
-                  : ""
-              }
-            </div>
-            <div class="property-actions">
-              <button class="btn btn-primary" onclick="viewDetails('${
-                property._id
-              }')"><i class="fas fa-eye"></i> View Details</button>
-              <button class="btn btn-secondary" onclick="saveProperty('${
-                property._id
-              }')"><i class="fas fa-heart"></i> Save</button>
-              ${
-                property.landlordId
-                  ? `<button class="btn btn-message" onclick="messageLandlord('${property.landlordId}')"><i class="fas fa-comment"></i> Message</button>`
-                  : ""
-              }
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    // Global functions
-    window.viewDetails = function (propertyId) {
-      if (propertyId) {
-        window.location.href = `/property-details.html?id=${propertyId}`;
-      }
-    };
-
-    window.saveProperty = async function (propertyId) {
-      try {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-          alert("Please log in to save properties.");
-          return;
-        }
-
-        if (!propertyId) {
-          alert("Invalid property.");
-          return;
-        }
-
-        await firebase
-          .firestore()
-          .collection("users")
-          .doc(user.uid)
-          .collection("savedProperties")
-          .doc(propertyId)
-          .set({
-            savedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            propertyId: propertyId,
-          });
-        alert("Property saved successfully!");
-      } catch (err) {
-        console.error("Save property error:", err);
-        alert("Failed to save property. Please try again.");
-      }
-    };
-
-    window.messageLandlord = function (landlordId) {
-      if (landlordId) {
-        window.location.href = `/messages.html?to=${landlordId}`;
+      console.error("💥 Error in authentication flow:", error);
+      
+      // Specific error handling
+      if (error.code === 'permission-denied') {
+        alert("Permission denied. Your account may not have the required permissions. Please contact support.");
+      } else if (error.code === 'unavailable') {
+        alert("Database temporarily unavailable. Please try again in a few moments.");
+      } else if (error.message?.includes('timeout')) {
+        alert("Database connection timed out. Please check your internet connection and try again.");
       } else {
-        alert("Landlord information not available.");
+        alert(`Error loading profile: ${error.message}. Please try refreshing the page.`);
       }
-    };
-  }); // Close Firebase auth state change listener
-}); // Close first DOMContentLoaded
+      
+      hideLoadingState();
+      await signOut(auth);
+      window.location.href = "index.html";
+    }
+  });
+});
 
-// Mobile menu functionality (separate DOMContentLoaded listener)
-document.addEventListener("DOMContentLoaded", function () {
-  const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
-  const mobileMenu = document.querySelector(".mobile-menu");
-  const mobileMenuClose = document.querySelector(".mobile-menu-close");
-  const body = document.body;
+/**
+ * Updates UI elements based on user role
+ */
+function updateUIForRole(role, user) {
+  console.log(`🎨 Updating UI for role: ${role}`);
+  
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  if (welcomeMessage) {
+    welcomeMessage.textContent = role === 'STUDENT'
+      ? 'Find Your Perfect Student Accommodation'
+      : role === 'LANDLORD'
+      ? 'Manage Your Properties'
+      : 'Dashboard';
+  }
 
-  // Only proceed if all elements exist
-  if (!mobileMenuBtn || !mobileMenu || !mobileMenuClose) {
-    console.warn("Mobile menu elements not found");
+  const pageTitle = document.querySelector('h1');
+  if (pageTitle) {
+    pageTitle.textContent = role === 'STUDENT'
+      ? 'Browse Properties'
+      : role === 'LANDLORD'
+      ? 'Property Management'
+      : 'Dashboard';
+  }
+
+  const headerRole = document.getElementById('userRoleIndicator');
+  if (headerRole) {
+    const displayRole = role === 'STUDENT' ? 'Student' : role === 'LANDLORD' ? 'Landlord' : role;
+    headerRole.textContent = `${displayRole} Dashboard`;
+  }
+
+  // Show/hide role-specific elements
+  const addPropertyBtn = document.getElementById('addPropertyBtn');
+  if (addPropertyBtn) {
+    addPropertyBtn.style.display = role === 'LANDLORD' ? 'inline-block' : 'none';
+  }
+  
+  const studentOnlyElements = document.querySelectorAll('.student-only');
+  const landlordOnlyElements = document.querySelectorAll('.landlord-only');
+  
+  studentOnlyElements.forEach(el => {
+    el.style.display = role === 'STUDENT' ? 'block' : 'none';
+  });
+  
+  landlordOnlyElements.forEach(el => {
+    el.style.display = role === 'LANDLORD' ? 'block' : 'none';
+  });
+
+  adjustUIForRole(role);
+}
+
+/**
+ * Sets up event listeners after successful authentication
+ */
+function setupEventListeners(role, user) {
+  console.log(`⚙️ Setting up event listeners for ${role}`);
+  
+  setupAmenitiesDropdown();
+  setupNavigationButtons(role);
+  setupLogout();
+  setupPropertiesListener(role, user);
+  setupSearchAndFilters(role);
+}
+
+/**
+ * Amenities dropdown functionality
+ */
+function setupAmenitiesDropdown() {
+  const dropdownBtn = document.getElementById('amenitiesDropdownBtn');
+  const dropdownList = document.getElementById('amenitiesList');
+
+  if (!dropdownBtn || !dropdownList) {
+    console.warn("⚠️ Amenities dropdown elements not found");
     return;
   }
+  
+  if (dropdownBtn.dataset.initialized) return;
+  dropdownBtn.dataset.initialized = 'true';
 
-  function openMobileMenu() {
-    mobileMenu.style.display = "block";
-    // Use requestAnimationFrame for better animation performance
-    requestAnimationFrame(() => {
-      mobileMenu.classList.add("active");
+  dropdownBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const isExpanded = dropdownList.classList.toggle('show');
+    dropdownBtn.setAttribute('aria-expanded', isExpanded);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdownBtn.contains(e.target) && !dropdownList.contains(e.target)) {
+      if (dropdownList.classList.contains('show')) {
+        dropdownList.classList.remove('show');
+        dropdownBtn.setAttribute('aria-expanded', 'false');
+      }
+    }
+  });
+
+  dropdownList.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  const checkboxes = dropdownList.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      updateAmenitiesCount();
+      setTimeout(applyCurrentFilters, 100);
     });
-    body.style.overflow = "hidden";
-  }
-
-  function closeMobileMenu() {
-    mobileMenu.classList.remove("active");
-    setTimeout(() => {
-      mobileMenu.style.display = "none";
-      body.style.overflow = "";
-    }, 300);
-  }
-
-  mobileMenuBtn.addEventListener("click", openMobileMenu);
-  mobileMenuClose.addEventListener("click", closeMobileMenu);
-
-  // Close mobile menu when clicking outside
-  mobileMenu.addEventListener("click", (e) => {
-    if (e.target === mobileMenu) {
-      closeMobileMenu();
-    }
   });
-
-  // Close mobile menu on escape key
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && mobileMenu.classList.contains("active")) {
-      closeMobileMenu();
-    }
-  });
-});
-
-// Handle iOS safe area insets and viewport height
-function updateSafeAreaInsets() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty("--vh", `${vh}px`);
 }
 
-// Throttle resize events for better performance
-let resizeTimeout;
-function throttledUpdate() {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(updateSafeAreaInsets, 100);
+/**
+ * Updates amenities counter
+ */
+function updateAmenitiesCount() {
+  const checkboxes = document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked');
+  const countSpan = document.getElementById('amenitiesSelectedCount');
+  if (countSpan) {
+    countSpan.textContent = checkboxes.length > 0 ? `(${checkboxes.length})` : '';
+  }
 }
 
-window.addEventListener("resize", throttledUpdate);
-window.addEventListener("orientationchange", () => {
-  // Small delay for orientation change to complete
-  setTimeout(updateSafeAreaInsets, 200);
+/**
+ * Shows loading state
+ */
+function showLoadingState() {
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList) {
+    propertyList.innerHTML = `
+      <div class="loading-state" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+        <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--forest-green);"></i>
+        <p>Loading marketplace...</p>
+      </div>`;
+  }
+}
+
+/**
+ * Hides loading state
+ */
+function hideLoadingState() {
+  const propertyList = document.getElementById("propertyList");
+  if (propertyList) {
+    const loadingState = propertyList.querySelector('.loading-state');
+    if (loadingState) {
+      loadingState.remove();
+    }
+  }
+}
+
+// Make functions globally available for HTML onclick handlers
+window.viewPropertyDetails = viewPropertyDetails;
+window.editProperty = editProperty;
+window.contactLandlord = contactLandlord;
+window.applyCurrentFilters = applyCurrentFilters;
+window.clearAllFilters = clearAllFilters;
+window.performSearch = performSearch;
+window.performAdvancedSearch = performAdvancedSearch;
+window.applyQuickFilter = applyQuickFilter;
+window.signOut = signOut;
+window.auth = auth;
+
+// Cleanup function for page unload
+window.addEventListener('beforeunload', () => {
+  if (window.propertiesUnsubscribe) {
+    window.propertiesUnsubscribe();
+  }
 });
 
-// Initial call
-updateSafeAreaInsets();
+// Export key functions for other modules if needed
+export {
+  auth,
+  db,
+  currentUser,
+  currentUserData,
+  currentProperties,
+  filteredProperties,
+  loadProperties,
+  applyCurrentFilters,
+  performAdvancedSearch
+};
