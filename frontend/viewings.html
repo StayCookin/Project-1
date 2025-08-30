@@ -73,15 +73,34 @@
         margin-bottom: 2rem;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .page-header-left {
+        display: flex;
+        align-items: center;
         gap: 1rem;
       }
       .page-header h1 {
         color: var(--dark);
         font-size: 2rem;
+        margin: 0;
       }
       .page-header i {
         font-size: 2rem;
         color: var(--primary);
+      }
+      .filter-section {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+      .filter-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: var(--white);
+        color: var(--dark);
       }
       .viewings-container {
         display: grid;
@@ -96,25 +115,41 @@
         grid-template-columns: 1fr auto;
         gap: 1rem;
         align-items: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+      .viewing-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
       }
       .viewing-info h3 {
         color: var(--dark);
         margin-bottom: 0.5rem;
+        font-size: 1.3rem;
       }
       .viewing-details {
         display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
         color: var(--gray);
         font-size: 0.9rem;
+        margin-bottom: 0.5rem;
       }
       .viewing-details span {
         display: flex;
         align-items: center;
         gap: 0.5rem;
       }
+      .viewing-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
       .viewing-actions {
         display: flex;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
       }
       .btn {
         padding: 0.8rem 1.5rem;
@@ -126,6 +161,9 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        font-size: 0.9rem;
+        min-width: 100px;
+        justify-content: center;
       }
       .btn-primary {
         background: var(--gradient-primary);
@@ -144,11 +182,17 @@
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
       }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
       .status-badge {
         padding: 0.3rem 0.8rem;
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 500;
+        text-transform: uppercase;
       }
       .status-confirmed {
         background: #28a745;
@@ -160,6 +204,10 @@
       }
       .status-cancelled {
         background: #dc3545;
+        color: var(--white);
+      }
+      .status-completed {
+        background: #17a2b8;
         color: var(--white);
       }
       .empty-state {
@@ -182,17 +230,67 @@
         color: var(--gray);
         margin-bottom: 1.5rem;
       }
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--gray);
+      }
+      .loading i {
+        font-size: 2rem;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .property-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        margin-right: 1rem;
+      }
+      .viewing-card-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .past-viewing {
+        opacity: 0.7;
+        border-left: 4px solid var(--gray);
+      }
+      .upcoming-viewing {
+        border-left: 4px solid var(--primary);
+      }
       @media (max-width: 768px) {
         .container {
           padding: 1rem;
         }
         .page-header {
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 1rem;
           padding: 1rem;
+        }
+        .page-header-left {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .filter-section {
+          width: 100%;
+          justify-content: center;
         }
         .viewing-card {
           grid-template-columns: 1fr;
+        }
+        .viewing-actions {
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: center;
+        }
+        .viewing-details {
+          flex-direction: column;
+          gap: 0.5rem;
+          align-items: flex-start;
         }
       }
     </style>
@@ -201,61 +299,371 @@
     <a href="student-dashboard.html" class="back-button">
       <i class="fas fa-arrow-left"></i>
     </a>
+    
     <div class="container">
       <div class="page-header">
-        <i class="fas fa-calendar"></i>
-        <h1>Scheduled Viewings</h1>
+        <div class="page-header-left">
+          <i class="fas fa-calendar"></i>
+          <h1>Scheduled Viewings</h1>
+        </div>
+        <div class="filter-section">
+          <select class="filter-select" id="statusFilter">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
       </div>
-      <div class="viewings-container">
+      
+      <div id="loadingState" class="loading">
+        <i class="fas fa-spinner"></i>
+        <p>Loading your scheduled viewings...</p>
+      </div>
+      
+      <div class="viewings-container" id="viewingsContainer">
         <!-- Viewing cards will be dynamically inserted here -->
       </div>
     </div>
-    <script type=module defer>
+
+    <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  setDoc,
-  deleteDoc,
-  updateDoc,
-  orderBy,
-  limit,
-  onSnapshot,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+        addDoc,
+        setDoc,
+        deleteDoc,
+        updateDoc,
+        orderBy,
+        limit,
+        onSnapshot,
+        serverTimestamp
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
-};
+      const firebaseConfig = {
+        apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
+        authDomain: "project-1-1e31c.firebaseapp.com",
+        projectId: "project-1-1e31c",
+        storageBucket: "project-1-1e31c.firebasestorage.app",
+        messagingSenderId: "658275930203",
+        appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+      };
 
-let app;
-let db;
-let auth;
+      let app;
+      let db;
+      let auth;
 
-try {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-} catch (error) {
-  console.error('Firebase initialization failed:', error);
-  showCriticalError('Failed to initialize Firebase services');
-}
+      try {
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+      } catch (error) {
+        console.error('Firebase initialization failed:', error);
+        showCriticalError('Failed to initialize Firebase services');
+      }
+
+      let currentUser = null;
+      let allViewings = [];
+      let filteredViewings = [];
+
+      // Initialize the page
+      document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            currentUser = user;
+            loadViewings();
+          } else {
+            window.location.href = 'login.html';
+          }
+        });
+      });
+
+      function setupEventListeners() {
+        const statusFilter = document.getElementById('statusFilter');
+        statusFilter.addEventListener('change', filterViewings);
+      }
+
+      async function loadViewings() {
+        try {
+          showLoading(true);
+          
+          const viewingsQuery = query(
+            collection(db, 'viewings'),
+            where('studentId', '==', currentUser.uid),
+            orderBy('scheduledDate', 'desc')
+          );
+
+          const querySnapshot = await getDocs(viewingsQuery);
+          allViewings = [];
+
+          for (const docSnap of querySnapshot.docs) {
+            const viewingData = docSnap.data();
+            const propertyData = await getPropertyDetails(viewingData.propertyId);
+            
+            allViewings.push({
+              id: docSnap.id,
+              ...viewingData,
+              property: propertyData
+            });
+          }
+
+          filteredViewings = [...allViewings];
+          displayViewings();
+          
+        } catch (error) {
+          console.error('Error loading viewings:', error);
+          showError('Failed to load your scheduled viewings. Please try again.');
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      async function getPropertyDetails(propertyId) {
+        try {
+          const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
+          if (propertyDoc.exists()) {
+            return { id: propertyDoc.id, ...propertyDoc.data() };
+          }
+          return null;
+        } catch (error) {
+          console.error('Error fetching property details:', error);
+          return null;
+        }
+      }
+
+      function displayViewings() {
+        const container = document.getElementById('viewingsContainer');
+        
+        if (filteredViewings.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-calendar-times"></i>
+              <h2>No Viewings Scheduled</h2>
+              <p>You haven't scheduled any property viewings yet.</p>
+              <button class="btn btn-primary" onclick="window.location.href='browse-properties.html'">
+                <i class="fas fa-search"></i>
+                Browse Properties
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = filteredViewings.map(viewing => createViewingCard(viewing)).join('');
+      }
+
+      function createViewingCard(viewing) {
+        const property = viewing.property;
+        if (!property) return '';
+
+        const scheduledDate = viewing.scheduledDate?.toDate ? viewing.scheduledDate.toDate() : new Date(viewing.scheduledDate);
+        const now = new Date();
+        const isPast = scheduledDate < now;
+        const cardClass = isPast ? 'past-viewing' : 'upcoming-viewing';
+
+        const statusClass = `status-${viewing.status || 'pending'}`;
+        const statusText = (viewing.status || 'pending').toUpperCase();
+
+        const formatDate = (date) => {
+          return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+        };
+
+        const formatTime = (date) => {
+          return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        };
+
+        const propertyImage = property.images && property.images.length > 0 
+          ? property.images[0] 
+          : 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80';
+
+        return `
+          <div class="viewing-card ${cardClass}">
+            <div class="viewing-card-content">
+              <img src="${propertyImage}" alt="${property.title}" class="property-image" />
+              <div class="viewing-info">
+                <h3>${property.title || 'Property Title'}</h3>
+                <div class="viewing-details">
+                  <span>
+                    <i class="fas fa-calendar"></i>
+                    ${formatDate(scheduledDate)}
+                  </span>
+                  <span>
+                    <i class="fas fa-clock"></i>
+                    ${formatTime(scheduledDate)}
+                  </span>
+                  <span>
+                    <i class="fas fa-map-marker-alt"></i>
+                    ${property.location || 'Location not specified'}
+                  </span>
+                  <span>
+                    <i class="fas fa-dollar-sign"></i>
+                    P${property.price || '0'}/month
+                  </span>
+                </div>
+                <div class="viewing-meta">
+                  <span class="status-badge ${statusClass}">${statusText}</span>
+                  ${viewing.notes ? `<span style="color: var(--gray); font-size: 0.8rem;"><i class="fas fa-sticky-note"></i> ${viewing.notes}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="viewing-actions">
+              ${createActionButtons(viewing, isPast)}
+            </div>
+          </div>
+        `;
+      }
+
+      function createActionButtons(viewing, isPast) {
+        const status = viewing.status || 'pending';
+        let buttons = '';
+
+        if (isPast) {
+          if (status !== 'completed') {
+            buttons += `<button class="btn btn-primary" onclick="markAsCompleted('${viewing.id}')">
+              <i class="fas fa-check"></i> Mark Complete
+            </button>`;
+          }
+        } else {
+          // Future viewings
+          if (status === 'pending') {
+            buttons += `<button class="btn btn-danger" onclick="cancelViewing('${viewing.id}')">
+              <i class="fas fa-times"></i> Cancel
+            </button>`;
+          } else if (status === 'confirmed') {
+            buttons += `<button class="btn btn-secondary" onclick="rescheduleViewing('${viewing.id}')">
+              <i class="fas fa-edit"></i> Reschedule
+            </button>`;
+          }
+        }
+
+        buttons += `<button class="btn btn-secondary" onclick="viewPropertyDetails('${viewing.property?.id}')">
+          <i class="fas fa-eye"></i> View Property
+        </button>`;
+
+        return buttons;
+      }
+
+      function filterViewings() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        if (statusFilter === 'all') {
+          filteredViewings = [...allViewings];
+        } else {
+          filteredViewings = allViewings.filter(viewing => 
+            (viewing.status || 'pending') === statusFilter
+          );
+        }
+        
+        displayViewings();
+      }
+
+      // Action functions
+      window.cancelViewing = async function(viewingId) {
+        if (!confirm('Are you sure you want to cancel this viewing?')) return;
+        
+        try {
+          await updateDoc(doc(db, 'viewings', viewingId), {
+            status: 'cancelled',
+            updatedAt: serverTimestamp()
+          });
+          
+          showSuccess('Viewing cancelled successfully');
+          loadViewings();
+        } catch (error) {
+          console.error('Error cancelling viewing:', error);
+          showError('Failed to cancel viewing. Please try again.');
+        }
+      };
+
+      window.markAsCompleted = async function(viewingId) {
+        try {
+          await updateDoc(doc(db, 'viewings', viewingId), {
+            status: 'completed',
+            completedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+          
+          showSuccess('Viewing marked as completed');
+          loadViewings();
+        } catch (error) {
+          console.error('Error marking viewing as completed:', error);
+          showError('Failed to update viewing status. Please try again.');
+        }
+      };
+
+      window.rescheduleViewing = function(viewingId) {
+        // You can implement a modal or redirect to a reschedule page
+        showInfo('Reschedule functionality coming soon. Please contact the property owner directly.');
+      };
+
+      window.viewPropertyDetails = function(propertyId) {
+        if (propertyId) {
+          window.location.href = `property-details.html?id=${propertyId}`;
+        }
+      };
+
+      // Utility functions
+      function showLoading(show) {
+        const loadingState = document.getElementById('loadingState');
+        const viewingsContainer = document.getElementById('viewingsContainer');
+        
+        if (show) {
+          loadingState.style.display = 'block';
+          viewingsContainer.style.display = 'none';
+        } else {
+          loadingState.style.display = 'none';
+          viewingsContainer.style.display = 'grid';
+        }
+      }
+
+      function showError(message) {
+        alert('Error: ' + message);
+      }
+
+      function showSuccess(message) {
+        alert('Success: ' + message);
+      }
+
+      function showInfo(message) {
+        alert('Info: ' + message);
+      }
+
+      function showCriticalError(message) {
+        document.body.innerHTML = `
+          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f5f5;">
+            <div style="text-align: center; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem;"></i>
+              <h2 style="color: #dc3545; margin-bottom: 1rem;">Critical Error</h2>
+              <p style="color: #666; margin-bottom: 1.5rem;">${message}</p>
+              <button onclick="location.reload()" style="background: #007bff; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 4px; cursor: pointer;">
+                Retry
+              </button>
+            </div>
+          </div>
+        `;
+      }
     </script>
   </body>
 </html>
