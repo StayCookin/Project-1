@@ -433,7 +433,13 @@ function renderPropertyDetails(property) {
             <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
                 <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
             </button>
-            <button class='btn btn-primary' onclick='scrollToContact()'>
+            <button class='btn btn-primary message-btn' onclick='openMessagingWithLandlord()'>
+                <i class='fas fa-comments'></i> Send Message
+            </button>
+            <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
+                <i class='fas fa-calendar-alt'></i> Schedule Viewing
+            </button>
+            <button class='btn btn-secondary' onclick='scrollToContact()'>
                 <i class='fas fa-paper-plane'></i> Contact Landlord
             </button>
         </div>
@@ -525,6 +531,7 @@ function updateSaveButton() {
     }
 }
 
+// Global functions for button clicks
 window.toggleSaveProperty = async function() {
     if (!currentProperty || !currentUser) return;
     
@@ -561,6 +568,75 @@ window.toggleSaveProperty = async function() {
         console.error('Error toggling save status:', error);
         showError('Failed to update saved status. Please try again.');
     }
+};
+
+window.openMessagingWithLandlord = async function() {
+    if (!currentProperty || !currentUser) {
+        showError('Property or user information not available');
+        return;
+    }
+
+    const landlordId = currentProperty.landlordId || currentProperty.ownerId;
+    
+    if (!landlordId) {
+        showError('Landlord information not found for this property');
+        return;
+    }
+
+    try {
+        // Get landlord information
+        const landlordDoc = await getDoc(doc(db, 'users', landlordId));
+        let landlordName = 'Landlord';
+        
+        if (landlordDoc.exists()) {
+            const landlordData = landlordDoc.data();
+            landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
+        }
+
+        // Set context for messaging page
+        sessionStorage.setItem('messageLandlordId', landlordId);
+        sessionStorage.setItem('messagePropertyId', currentProperty.id);
+        sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name || 'Property');
+        
+        // Set navigation context
+        sessionStorage.setItem('messageContext', JSON.stringify({
+            source: 'property-details',
+            returnUrl: window.location.href
+        }));
+
+        // Navigate to messages with context
+        window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+
+    } catch (error) {
+        console.error('Error opening messaging:', error);
+        showError('Failed to open messaging. Please try again.');
+    }
+};
+
+window.scheduleViewing = function() {
+    if (!currentProperty || !currentUser) {
+        showError('Property or user information not available');
+        return;
+    }
+
+    const landlordId = currentProperty.landlordId || currentProperty.ownerId;
+    
+    if (!landlordId) {
+        showError('Landlord information not found for this property');
+        return;
+    }
+
+    // Set context for schedule viewing page
+    sessionStorage.setItem('viewingPropertyId', currentProperty.id);
+    sessionStorage.setItem('viewingLandlordId', landlordId);
+    sessionStorage.setItem('viewingPropertyName', currentProperty.title || currentProperty.name || 'Property');
+    sessionStorage.setItem('viewingContext', JSON.stringify({
+        source: 'property-details',
+        returnUrl: window.location.href
+    }));
+
+    // Navigate to schedule viewing page
+    window.location.href = `schedule-viewing.html?propertyId=${currentProperty.id}&landlordId=${landlordId}`;
 };
 
 window.scrollToContact = function() {
