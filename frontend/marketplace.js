@@ -927,7 +927,7 @@ function getActionButtonsForProperty(property, isOwner) {
   }
 
   if (userRole === 'LANDLORD' && isOwner) {
-    buttons.push(`<button class="edit-property-btn btn-warning" onclick="editProperty('${property.id}')">
+    buttons.push(`<button class="edit-property-btn btn-warning" href="create_listing.html" onclick="editProperty('${property.id}')">
       <i class="fas fa-edit"></i> Edit
     </button>`);
     buttons.push(`<button class="delete-property-btn btn-danger" onclick="deleteProperty('${property.id}')">
