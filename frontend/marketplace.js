@@ -973,7 +973,7 @@ function viewPropertyDetails(propertyId) {
  */
 function editProperty(propertyId) {
   console.log("✏️ Editing property:", propertyId);
-  window.location.href = `edit-property.html?id=${propertyId}`;
+  window.location.href = `create-listing.html?id=${propertyId}`;
 }
 
 /**
