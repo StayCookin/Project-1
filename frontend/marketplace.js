@@ -107,6 +107,98 @@ function setupNavigationButtons(role) {
     });
   }
 }
+async function deleteProperty(propertyId) {
+  console.log("🗑️ Attempting to delete property:", propertyId);
+  
+  // Find the property to get its details for confirmation
+  const property = currentProperties.find(p => p.id === propertyId);
+  if (!property) {
+    console.error("Property not found:", propertyId);
+    alert("Property not found. Please refresh the page and try again.");
+    return;
+  }
+  
+  // Verify ownership
+  if (property.landlordId !== currentUser?.uid) {
+    console.error("❌ User does not own this property");
+    alert("You can only delete your own properties.");
+    return;
+  }
+  
+  // Confirm deletion
+  const confirmed = confirm(
+    `Are you sure you want to delete "${property.title}"?\n\n` +
+    `Location: ${property.location}\n` +
+    `Price: P${property.price || property.rent}/month\n\n` +
+    `This action cannot be undone.`
+  );
+  
+  if (!confirmed) {
+    console.log("Property deletion cancelled by user");
+    return;
+  }
+  
+  try {
+    // Show loading state on the delete button
+    const deleteBtn = document.querySelector(`[onclick="deleteProperty('${propertyId}')"]`);
+    const originalText = deleteBtn?.innerHTML;
+    if (deleteBtn) {
+      deleteBtn.disabled = true;
+      deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+    }
+    
+    // Import deleteDoc function
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+    
+    // Delete from Firebase
+    console.log("🔥 Deleting property from Firebase...");
+    const propertyRef = doc(db, "properties", propertyId);
+    await deleteDoc(propertyRef);
+    
+    console.log("✅ Property successfully deleted from Firebase");
+    
+    // Update local arrays immediately for better UX
+    currentProperties = currentProperties.filter(p => p.id !== propertyId);
+    filteredProperties = filteredProperties.filter(p => p.id !== propertyId);
+    
+    // Update the display
+    displayProperties(filteredProperties);
+    updateResultsCount();
+    
+    // Show success message
+    alert(`Property "${property.title}" has been successfully deleted.`);
+    
+    console.log("✅ Property deletion completed successfully");
+    
+  } catch (error) {
+    console.error("❌ Error deleting property:", error);
+    
+    // Restore button state
+    const deleteBtn = document.querySelector(`[onclick="deleteProperty('${propertyId}')"]`);
+    if (deleteBtn && originalText) {
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = originalText;
+    }
+    
+    // Show specific error messages
+    let errorMessage = "Failed to delete property. Please try again.";
+    
+    if (error.code === 'permission-denied') {
+      errorMessage = "Permission denied. You may not have the required permissions to delete this property.";
+    } else if (error.code === 'not-found') {
+      errorMessage = "Property not found. It may have already been deleted.";
+    } else if (error.code === 'unavailable') {
+      errorMessage = "Database temporarily unavailable. Please try again in a few moments.";
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = "Connection timed out. Please check your internet connection and try again.";
+    }
+    
+    alert(errorMessage);
+  }
+}
+
+// Make the function globally available
+window.deleteProperty = deleteProperty;
 
 // Logout functionality
 function setupLogout() {
@@ -826,7 +918,7 @@ function getActionButtonsForProperty(property, isOwner) {
   buttons.push(`<button 
     class="view-details-btn btn-primary" 
     onclick="viewPropertyDetails('${property.id}')"
-    style="border-radius:6px;border:1px solid #228B22;"
+    style="border-radius:6px;border:1px solid #228B22; "
   >
     <i class="fas fa-eye"></i> View Details
   </button>`);
