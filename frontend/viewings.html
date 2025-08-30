@@ -364,8 +364,7 @@
       let app;
       let db;
       let auth;
-
-      try {
+  try {
         app = initializeApp(firebaseConfig);
         db = getFirestore(app);
         auth = getAuth(app);
@@ -381,16 +380,47 @@
       // Initialize the page
       document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners();
-        
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            currentUser = user;
-            loadViewings();
-          } else {
-            window.location.href = 'login.html';
-          }
-        });
+        initializeAuth();
       });
+
+      async function initializeAuth() {
+        try {
+          onAuthStateChanged(auth, async (user) => {
+            if (user) {
+              try {
+                // Get user data from Firestore to check role
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                
+                if (userDoc.exists()) {
+                  const userData = userDoc.data();
+                  
+                  if (userData.role === 'STUDENT') {
+                    currentUser = user;
+                    loadViewings();
+                  } else {
+                    console.log('Access denied: User is not a student');
+                    window.location.href = '../login.html';
+                  }
+                } else {
+                  console.log('User document not found');
+                  window.location.href = '../login.html';
+                }
+              } catch (error) {
+                console.error('Error checking user role:', error);
+                showError('Failed to verify user permissions');
+                window.location.href = '../login.html';
+              }
+            } else {
+              console.log('No authenticated user');
+              window.location.href = '../login.html';
+            }
+          });
+        } catch (error) {
+          console.error('Auth initialization error:', error);
+          showError('Authentication failed');
+          window.location.href = '../login.html';
+        }
+      }
 
       function setupEventListeners() {
         const statusFilter = document.getElementById('statusFilter');

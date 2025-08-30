@@ -807,19 +807,7 @@ function displayProperties(properties) {
           <p class="location">📍 ${property.location}${property.neighborhood ? `, ${property.neighborhood}` : ''}</p>
           <p class="price">💰 P${property.price || property.rent}/month</p>
           ${property.propertyType ? `<p class="property-type">🏠 ${property.propertyType}</p>` : ''}
-          ${property.bedrooms ? `<p class="bedrooms">🛏️ ${property.bedrooms} bedroom${property.bedrooms !== 1 ? 's' : ''}</p>` : ''}
-          ${property.bathrooms ? `<p class="bathrooms">🚿 ${property.bathrooms} bathroom${property.bathrooms !== 1 ? 's' : ''}</p>` : ''}
-          <div class="amenities">
-            ${(property.amenities || []).slice(0, 3).map(amenity => {
-              const amenityName = typeof amenity === 'object' ? amenity.name : amenity;
-              return `<span class="amenity-tag">${amenityName}</span>`;
-            }).join('')}
-            ${property.amenities?.length > 3 ? `<span class="amenity-more">+${property.amenities.length - 3} more</span>` : ''}
-          </div>
-          <div class="landlord-info">
-            <p class="landlord">👤 ${property.landlordName || 'Landlord'}</p>
-            <p class="views">👁️ ${property.viewCount || 0} views</p>
-          </div>
+          
           <div class="property-actions">
             ${getActionButtonsForProperty(property, isOwner)}
           </div>
