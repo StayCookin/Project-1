@@ -290,13 +290,13 @@ if (messages) {
     window.location.href = "messages.html";
   });
 }
-const role = currentUserData.role;
 // Dashboard redirect based on role from Firebase
 if (dashboard) {
   dashboard.addEventListener("click", () => {
     console.log("currentUser data at click", currentUserData);
   
-    
+    const role = currentUserData.role;
+
     console.log("🏠 Dashboard clicked. Current role:", role);
     
     if (role === "LANDLORD") {
