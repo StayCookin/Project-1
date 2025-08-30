@@ -176,18 +176,33 @@ document.addEventListener("DOMContentLoaded", function () {
       // User is signed in - Update header buttons to Dashboard/Logout
       if (headerLoginBtn) {
         headerLoginBtn.textContent = "Dashboard";
+        headerLoginBtn.onclick = (e) => {
+          e.preventDefault();
+          redirectToDashboard();
+        };
       }
       if (headerSignupBtn) {
         headerSignupBtn.textContent = "Logout";
+        headerSignupBtn.onclick = (e) => {
+          e.preventDefault();
+          handleLogout();
+        };
       }
-      // No page redirection here. The landing page is always accessible.
     } else {
       // User is signed out - Update header buttons to Login/Sign Up
       if (headerLoginBtn) {
         headerLoginBtn.textContent = "Login";
+        headerLoginBtn.onclick = (e) => {
+          e.preventDefault();
+          window.location.href = "login.html";
+        };
       }
       if (headerSignupBtn) {
         headerSignupBtn.textContent = "Sign Up";
+        headerSignupBtn.onclick = (e) => {
+          e.preventDefault();
+          window.location.href = "signup.html";
+        };
       }
     }
   }
