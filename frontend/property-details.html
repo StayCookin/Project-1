@@ -4,1134 +4,183 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Property Details - InRent</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./css/main.css" />
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-1F24YHYS28"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+    <script src="https://cdn.tailwindcss.com"></script>
 
-      gtag("config", "G-1F24YHYS28");
-    </script>
-    <style>
-      /* Button styling for this page */
-      .btn,
-      .btn-primary,
-      .btn-secondary {
-        border: 2px solid #222 !important;
-        border-radius: 6px !important;
-        box-shadow: none !important;
-        transition: background 0.2s, color 0.2s, border 0.2s;
-      }
-      .btn-primary {
-        background: #176b16 !important;
-        color: #fff !important;
-      }
-      .btn-secondary {
-        background: #fff !important;
-        color: #176b16 !important;
-      }
-      .btn:hover,
-      .btn-primary:hover,
-      .btn-secondary:hover {
-        background: #222 !important;
-        color: #fff !important;
-        border-color: #222 !important;
-      }
-      .property-details-container {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(34, 139, 34, 0.08);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .property-header {
-        border-bottom: 1px solid #e0e0e0;
-        margin-bottom: 1.5rem;
-      }
-      .property-title {
-        font-size: 2.2rem;
-        color: #176b16;
-        font-weight: 700;
-        margin-bottom: 0.2rem;
-      }
-      .property-location {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 0.2rem;
-      }
-      .property-price {
-        color: #176b16;
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-      }
-      .property-gallery {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-      }
-      .main-image {
-        max-width: 350px;
-        border-radius: 8px;
-        border: 1.5px solid #e0e0e0;
-        object-fit: cover;
-      }
-      .thumbnail-grid {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
-      .thumbnail {
-        width: 70px;
-        height: 70px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        cursor: pointer;
-        transition: border 0.2s;
-      }
-      .thumbnail:hover {
-        border: 2px solid #176b16;
-      }
-      .features-grid {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
-      }
-      .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 1.1rem;
-        color: #333;
-      }
-      .feature-icon {
-        color: #176b16;
-        font-size: 1.3rem;
-      }
-      .amenities-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.7rem;
-        margin-bottom: 1rem;
-      }
-      .amenity-item {
-        background: #f7f7f7;
-        border-radius: 4px;
-        padding: 0.3rem 0.7rem;
-        font-size: 0.98rem;
-        color: #176b16;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-      }
-      .amenity-icon {
-        color: #176b16;
-      }
-      .contact-section {
-        margin-bottom: 2rem;
-      }
-      .landlord-contact {
-        margin-bottom: 1rem;
-        font-size: 1.05rem;
-        color: #333;
-      }
-      .contact-form {
-        margin-bottom: 1.5rem;
-      }
-      .form-group {
-        margin-bottom: 1rem;
-      }
-      .form-label {
-        font-weight: 500;
-        color: #176b16;
-      }
-      .form-input,
-      .form-textarea,
-      select {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1.5px solid #ccc;
-        border-radius: 5px;
-        font-size: 1rem;
-        margin-top: 0.2rem;
-      }
-      .form-input:focus,
-      .form-textarea:focus,
-      select:focus {
-        border-color: #176b16;
-        outline: none;
-      }
-      .similar-properties {
-        margin-top: 2rem;
-      }
-      .similar-properties-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-      }
-      .property-card {
-        background: #fafafa;
-        border-radius: 8px;
-        box-shadow: 0 1px 6px rgba(34, 139, 34, 0.06);
-        padding: 1rem;
-        cursor: pointer;
-        border: 1.5px solid #e0e0e0;
-        transition: box-shadow 0.2s, border 0.2s;
-      }
-      .property-card:hover {
-        box-shadow: 0 4px 16px rgba(34, 139, 34, 0.13);
-        border: 2px solid #176b16;
-      }
-      .property-card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #176b16;
-        margin-bottom: 0.2rem;
-      }
-      .property-card-price {
-        color: #176b16;
-        font-weight: 600;
-        margin-bottom: 0.2rem;
-      }
-      .property-card-location {
-        color: #666;
-        font-size: 0.98rem;
-        margin-bottom: 0.2rem;
-      }
-      .property-card-features {
-        font-size: 0.95rem;
-        color: #333;
-        margin-bottom: 0.2rem;
-      }
-      .modal-content {
-        background: #fff;
-        border-radius: 10px;
-        padding: 2rem 1.5rem;
-        box-shadow: 0 2px 16px rgba(34, 139, 34, 0.13);
-      }
-      .modal-close {
-        font-size: 1.5rem;
-        color: #176b16;
-        cursor: pointer;
-        float: right;
-        margin-top: -1rem;
-        margin-right: -1rem;
-      }
-      @media (max-width: 700px) {
-        .property-details-container {
-          padding: 1rem;
-        }
-        .features-grid {
-          gap: 1rem;
-        }
-        .main-image {
-          max-width: 100%;
-        }
-      }
-    </style>
+    <!-- Google Fonts: Inter -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body>
-    <!-- Header (copied from marketplace.html for consistent branding) -->
-    <header
-      class="main-header"
-      style="
-        background: #176b16;
-        color: #fff;
-        padding: 1rem 0;
-        box-shadow: 0 2px 8px rgba(34, 139, 34, 0.08);
-      "
-    >
+  <body class="font-inter bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-green-800 text-white shadow-md">
       <div
-        class="container"
-        style="
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        "
+        class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4"
       >
-        <a
-          href="/index.html"
-          class="logo"
-          style="
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-            text-decoration: none;
-            letter-spacing: 1px;
-          "
-          >InRent</a
-        >
-        <nav>
-          <div
-            class="nav-links"
-            style="display: flex; gap: 1.5rem; align-items: center"
+        <a href="index.html" class="text-2xl font-bold tracking-wide">InRent</a>
+        <nav class="flex gap-6">
+          <a href="marketplace.html" class="hover:underline"
+            >Browse Properties</a
           >
-            <a
-              href="marketplace.html"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Browse Properties</a
-            >
-            <a
-              href="/landlord-dashboard.html"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Landlord Dashboard</a
-            >
-            <a
-              href="#"
-              id="logoutBtn"
-              style="color: #fff; text-decoration: none; font-weight: 500"
-              >Logout</a
-            >
-          </div>
+          <button
+            id="dashboardBtn"
+            class="hover:underline"
+            aria-label="Dashboard"
+          >
+            Dashboard
+          </button>
+          <a href="#" id="logoutBtn" class="hover:underline">Logout</a>
         </nav>
       </div>
     </header>
-    <a
-      href="landlord-dashboard.html"
-      class="btn btn-secondary"
-      style="margin: 1rem 0; display: inline-block"
-    >
-      <i class="fas fa-arrow-left"></i> Back to Dashboard
-    </a>
-    <div
-      class="container property-details-container"
-      style="
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(34, 139, 34, 0.08);
-        padding: 2rem;
-        margin-bottom: 2rem;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      "
-    >
-      <div
-        class="property-header"
-        style="border-bottom: 1px solid #e0e0e0; margin-bottom: 1.5rem"
+
+    <!-- Back Button -->
+    <div class="max-w-7xl mx-auto px-6 mt-4">
+      <a
+        href="marketplace.html"
+        class="inline-flex items-center gap-2 text-green-700 hover:text-green-900 font-medium"
       >
+        ← Back
+      </a>
+    </div>
+
+    <!-- Property Details -->
+    <main
+      class="max-w-4xl mx-auto bg-white rounded-2xl shadow-md p-6 mt-6 mb-12"
+    >
+      <!-- Header -->
+      <div class="border-b pb-4 mb-6">
         <h1
-          class="property-title"
           id="propertyTitle"
-          style="font-size: 2.2rem; color: #176b16"
+          class="text-3xl font-semibold text-green-800 mb-2"
         ></h1>
+        <p id="propertyLocation" class="text-gray-500 text-lg"></p>
         <p
-          class="property-location"
-          id="propertyLocation"
-          style="color: #666; font-size: 1.1rem"
-        ></p>
-        <p
-          class="property-price"
           id="propertyPrice"
-          style="color: #176b16; font-size: 1.3rem; font-weight: 600"
+          class="text-xl font-semibold text-green-700 mt-2"
         ></p>
       </div>
-      <div
-        class="property-gallery"
-        id="propertyGallery"
-        style="display: flex; gap: 1rem; margin-bottom: 1.5rem"
-      ></div>
-      <div
-        class="property-details"
-        id="propertyDetails"
-        style="margin-bottom: 2rem"
-      ></div>
-      <div
-        class="contact-section"
-        id="contactSection"
-        style="margin-bottom: 2rem"
-      ></div>
-      <div class="similar-properties">
-        <h2
-          class="section-title"
-          style="color: #176b16; font-size: 1.4rem; margin-bottom: 1rem"
-        >
+
+      <!-- Gallery -->
+      <div id="propertyGallery" class="flex flex-wrap gap-3 mb-6"></div>
+
+      <!-- Details -->
+      <div id="propertyDetails" class="mb-8"></div>
+
+      <!-- Contact Section -->
+      <div id="contactSection" class="mb-10"></div>
+
+      <!-- Similar Properties -->
+      <section>
+        <h2 class="text-xl font-semibold text-green-800 mb-4">
           Similar Properties
         </h2>
         <div
-          class="similar-properties-grid"
           id="similarPropertiesGrid"
-          style="
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-          "
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         ></div>
-      </div>
-    </div>
+      </section>
+    </main>
+
     <!-- Review Modal -->
-    <div class="modal" id="review-modal">
-      <div class="modal-content" style="max-width: 550px">
-        <span class="modal-close">×</span>
-        <h3 id="reviewModalTitle">Write a Review</h3>
-        <form id="reviewForm">
-          <div class="form-group">
-            <label>Your Rating:</label>
-            <div class="rating-stars" id="reviewRatingStars"></div>
+    <div
+      id="review-modal"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative">
+        <button
+          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          onclick="document.getElementById('review-modal').classList.add('hidden')"
+        >
+          ✕
+        </button>
+        <h3 class="text-xl font-semibold mb-4">Write a Review</h3>
+        <form id="reviewForm" class="space-y-4">
+          <div>
+            <label class="block font-medium mb-1">Your Rating:</label>
+            <div id="reviewRatingStars" class="flex gap-2"></div>
           </div>
-          <div class="form-group">
-            <label for="reviewText">Your Review:</label>
-            <textarea id="reviewText" required rows="4"></textarea>
+          <div>
+            <label for="reviewText" class="block font-medium mb-1"
+              >Your Review:</label
+            >
+            <textarea
+              id="reviewText"
+              rows="4"
+              required
+              class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-600"
+            ></textarea>
           </div>
-          <button type="submit" class="btn">Submit Review</button>
-          <div class="success-message" id="reviewFormSuccess"></div>
+          <button
+            type="submit"
+            class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition"
+          >
+            Submit Review
+          </button>
+          <p id="reviewFormSuccess" class="text-green-600 font-medium mt-2"></p>
         </form>
       </div>
     </div>
-    <script type="module" defer>// Firebase v9+ imports
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { 
-  getFirestore, 
-  doc, 
-  getDoc, 
-  collection, 
-  query, 
-  where, 
-  limit, 
-  getDocs,
-  addDoc,
-  deleteDoc,
-  serverTimestamp 
-} from 'firebase/firestore';
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "project-1-1e31c.firebasestorage.app",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
-};
+    <script type="module">
+      // Role-aware dashboard redirect for this page
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+      const auth = getAuth();
+      const db = getFirestore();
 
-document.addEventListener("DOMContentLoaded", function () {
-  let currentUser = null;
-  let currentProperty = null;
+      const dashboardBtn = document.getElementById("dashboardBtn");
+      if (dashboardBtn) {
+        dashboardBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          // Use auth state to determine current user and redirect based on role
+          onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+              // Not logged in — send to login
+              window.location.href = "index.html";
+              return;
+            }
 
-  // Check authentication state
-  const unsubscribe = onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Redirect to login if not authenticated
-      showError("You must be logged in to view property details.");
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 2000);
-      return;
-    }
+            try {
+              const userDocRef = doc(db, "users", user.uid);
+              const userDoc = await getDoc(userDocRef);
+              if (!userDoc.exists()) {
+                alert("User profile not found. Please login again.");
+                await signOut(auth);
+                window.location.href = "index.html";
+                return;
+              }
 
-    try {
-      // Verify user role
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        throw new Error("User profile not found");
-      }
-      
-      const userData = userDoc.data();
-      if (!userData || userData.role !== "student") {
-        showError("Only students can view property details");
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 2000);
-        return;
-      }
+              const userData = userDoc.data();
+              const role = (userData.role || "").toString().toUpperCase();
 
-      currentUser = user;
-      
-      // Fetch and render property details
-      await fetchPropertyDetails();
-      
-    } catch (error) {
-      console.error("Error checking user authentication:", error);
-      showError("Failed to verify user permissions. Please try logging in again.");
-      setTimeout(() => {
-        window.location.href = "login.html";
-      }, 2000);
-    }
-  });
-
-  async function fetchPropertyDetails() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const propertyId = urlParams.get("id");
-    
-    if (!propertyId) {
-      showError("Property ID not found in URL");
-      document.getElementById("propertyTitle").textContent = "Property not found.";
-      return;
-    }
-
-    try {
-      showLoading("Loading property details...");
-      
-      // Fetch property from Firestore
-      const propertyDocRef = doc(db, "properties", propertyId);
-      const propertyDoc = await getDoc(propertyDocRef);
-      
-      if (!propertyDoc.exists()) {
-        throw new Error("Property not found");
-      }
-      
-      const property = {
-        id: propertyDoc.id,
-        ...propertyDoc.data()
-      };
-      
-      currentProperty = property;
-      
-      // Render property details
-      renderProperty(property);
-      
-      // Fetch similar properties
-      await fetchSimilarProperties(property);
-      
-      // Check if property is saved by current user
-      await checkIfPropertySaved(propertyId);
-      
-      hideLoading();
-      
-    } catch (error) {
-      console.error("Error fetching property details:", error);
-      hideLoading();
-      showError(`Failed to load property: ${error.message}`);
-      document.getElementById("propertyTitle").textContent = "Failed to load property.";
-    }
-  }
-
-  function renderProperty(property) {
-    // Update page title
-    document.title = `${property.title} - Property Details`;
-    
-    // Render basic information
-    document.getElementById("propertyTitle").textContent = property.title || "Untitled Property";
-    document.getElementById("propertyLocation").innerHTML = 
-      `<i class='fas fa-map-marker-alt'></i> ${property.location || property.address || 'Location not specified'}`;
-    document.getElementById("propertyPrice").textContent = 
-      `P${formatPrice(property.price)}/month`;
-
-    // Render gallery
-    renderGallery(property);
-    
-    // Render property details
-    renderPropertyDetails(property);
-    
-    // Setup contact forms
-    setupContactForms(property);
-  }
-
-  function renderGallery(property) {
-    const gallery = document.getElementById("propertyGallery");
-    if (!gallery) return;
-    
-    const mainImage = property.imageUrl || property.images?.[0] || "/img/default-property.jpg";
-    
-    gallery.innerHTML = `<img src="${mainImage}" alt="${property.title}" class="main-image" onerror="this.src='/img/default-property.jpg'" />`;
-    
-    // Add thumbnails if there are multiple images
-    if (property.images && property.images.length > 1) {
-      const thumbnailGrid = document.createElement('div');
-      thumbnailGrid.className = 'thumbnail-grid';
-      
-      property.images.slice(1).forEach((img, index) => {
-        const thumbnail = document.createElement('img');
-        thumbnail.src = img;
-        thumbnail.className = 'thumbnail';
-        thumbnail.alt = `${property.title} - Image ${index + 2}`;
-        thumbnail.onerror = () => thumbnail.style.display = 'none';
-        thumbnail.addEventListener('click', () => {
-          const mainImg = gallery.querySelector('.main-image');
-          mainImg.src = img;
-        });
-        thumbnailGrid.appendChild(thumbnail);
-      });
-      
-      gallery.appendChild(thumbnailGrid);
-    }
-  }
-
-  function renderPropertyDetails(property) {
-    const details = document.getElementById("propertyDetails");
-    if (!details) return;
-    
-    // Convert amenities array to proper format if needed
-    const amenities = formatAmenities(property.amenities || []);
-    
-    details.innerHTML = `
-      <div class='features-grid'>
-        <div class='feature-item'>
-          <i class='fas fa-bed feature-icon'></i>
-          <div><h3>${property.bedrooms || property.beds || 1} Bedroom${(property.bedrooms || property.beds || 1) > 1 ? 's' : ''}</h3></div>
-        </div>
-        <div class='feature-item'>
-          <i class='fas fa-bath feature-icon'></i>
-          <div><h3>${property.bathrooms || property.baths || 1} Bathroom${(property.bathrooms || property.baths || 1) > 1 ? 's' : ''}</h3></div>
-        </div>
-        <div class='feature-item'>
-          <i class='fas fa-ruler-combined feature-icon'></i>
-          <div><h3>${property.size || 'N/A'} sqft</h3></div>
-        </div>
-        <div class='feature-item'>
-          <i class='fas fa-building feature-icon'></i>
-          <div><h3>${property.propertyType || property.type || 'Apartment'}</h3></div>
-        </div>
-      </div>
-      
-      ${property.securityFee ? `<div class='security-fee'><strong>Security Fee:</strong> P${formatPrice(property.securityFee)}</div>` : ''}
-      
-      <h2 class='section-title'>Description</h2>
-      <p>${property.description || 'No description available.'}</p>
-      
-      <h2 class='section-title'>Amenities</h2>
-      <div class='amenities-list'>
-        ${amenities.length > 0 ? 
-          amenities.map(amenity => 
-            `<div class='amenity-item'>
-              <i class='fas fa-${amenity.icon || 'home'} amenity-icon'></i>
-              <span>${amenity.name || amenity}</span>
-            </div>`
-          ).join('') : 
-          '<p>No amenities listed.</p>'
-        }
-      </div>
-      
-      <div class='property-actions' style='margin-top: 2rem; padding: 1rem; border-top: 1px solid #eee;'>
-        <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
-          <i class='fas fa-heart'></i> <span id='saveButtonText'>Save Property</span>
-        </button>
-        <button class='btn btn-primary' onclick='scrollToContact()' style='margin-left: 1rem;'>
-          <i class='fas fa-paper-plane'></i> Contact Landlord
-        </button>
-      </div>
-    `;
-  }
-
-  function setupContactForms(property) {
-    const contactSection = document.getElementById("contactSection");
-    if (!contactSection) return;
-    
-    contactSection.innerHTML = `
-      <h2 class='section-title'>Send Inquiry to Landlord</h2>
-      <div class='landlord-info' style='margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
-        <strong>Landlord:</strong> ${property.landlordName || 'Not specified'}<br>
-        <strong>Contact:</strong> ${property.landlordEmail || 'Not provided'}
-      </div>
-      
-      <form class='contact-form' id='inquiryForm'>
-        <div class='form-group'>
-          <label class='form-label'>Your Message</label>
-          <textarea class='form-textarea' name='message' placeholder='Hi, I am interested in this property. Could you please provide more information?' required rows='4'></textarea>
-        </div>
-        <button type='submit' class='btn btn-primary'>
-          <i class='fas fa-paper-plane'></i> Send Inquiry
-        </button>
-        <div class='form-note' style='margin-top: 0.5rem; color: #666; font-size: 0.9em;'>
-          Your inquiry will be sent directly to the landlord.
-        </div>
-      </form>
-      
-      <div style='margin-top: 2rem;'>
-        <h2 class='section-title'>Request Property Viewing</h2>
-        <form class='contact-form' id='viewingForm'>
-          <div class='form-row' style='display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;'>
-            <div class='form-group'>
-              <label class='form-label'>Preferred Date</label>
-              <input type='date' class='form-input' name='date' required min='${getTomorrowDate()}' />
-            </div>
-            <div class='form-group'>
-              <label class='form-label'>Preferred Time</label>
-              <select class='form-input' name='time' required>
-                <option value=''>Select time</option>
-                <option value='morning'>Morning (9AM - 12PM)</option>
-                <option value='afternoon'>Afternoon (1PM - 4PM)</option>
-                <option value='evening'>Evening (5PM - 7PM)</option>
-              </select>
-            </div>
-          </div>
-          <div class='form-group'>
-            <label class='form-label'>Additional Notes (Optional)</label>
-            <textarea class='form-textarea' name='notes' placeholder='Any specific requirements or questions?' rows='3'></textarea>
-          </div>
-          <button type='submit' class='btn btn-secondary'>
-            <i class='fas fa-calendar-check'></i> Schedule Viewing
-          </button>
-        </form>
-      </div>
-    `;
-
-    // Setup form event listeners
-    setupInquiryForm(property);
-    setupViewingForm(property);
-  }
-
-  function setupInquiryForm(property) {
-    const inquiryForm = document.getElementById("inquiryForm");
-    if (!inquiryForm) return;
-    
-    inquiryForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      
-      if (!currentUser) {
-        showError("You must be logged in to send an inquiry");
-        return;
-      }
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      try {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        
-        const message = this.querySelector('[name="message"]').value.trim();
-        
-        if (!message) {
-          throw new Error("Please enter a message");
-        }
-        
-        // Add inquiry to Firestore
-        const inquiryData = {
-          propertyId: property.id,
-          propertyTitle: property.title,
-          studentId: currentUser.uid,
-          studentEmail: currentUser.email,
-          landlordId: property.landlordId,
-          landlordEmail: property.landlordEmail,
-          message: message,
-          status: 'pending',
-          createdAt: serverTimestamp(),
-          type: 'inquiry'
-        };
-        
-        await addDoc(collection(db, "inquiries"), inquiryData);
-        
-        showSuccess("Inquiry sent successfully! The landlord will contact you soon.");
-        this.reset();
-        
-      } catch (error) {
-        console.error("Error sending inquiry:", error);
-        showError(`Failed to send inquiry: ${error.message}`);
-      } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-    });
-  }
-
-  function setupViewingForm(property) {
-    const viewingForm = document.getElementById("viewingForm");
-    if (!viewingForm) return;
-    
-    viewingForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      
-      if (!currentUser) {
-        showError("You must be logged in to schedule a viewing");
-        return;
-      }
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      try {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
-        
-        const formData = new FormData(this);
-        const date = formData.get('date');
-        const time = formData.get('time');
-        const notes = formData.get('notes') || '';
-        
-        if (!date || !time) {
-          throw new Error("Please select both date and time");
-        }
-        
-        // Check if date is not in the past
-        const selectedDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (selectedDate < today) {
-          throw new Error("Please select a future date");
-        }
-        
-        // Add viewing request to Firestore
-        const viewingData = {
-          propertyId: property.id,
-          propertyTitle: property.title,
-          studentId: currentUser.uid,
-          studentEmail: currentUser.email,
-          landlordId: property.landlordId,
-          landlordEmail: property.landlordEmail,
-          preferredDate: date,
-          preferredTime: time,
-          notes: notes,
-          status: 'pending',
-          createdAt: serverTimestamp(),
-          type: 'viewing'
-        };
-        
-        await addDoc(collection(db, "viewings"), viewingData);
-        
-        showSuccess("Viewing request submitted successfully! The landlord will confirm the appointment.");
-        this.reset();
-        
-      } catch (error) {
-        console.error("Error scheduling viewing:", error);
-        showError(`Failed to schedule viewing: ${error.message}`);
-      } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-    });
-  }
-
-  async function fetchSimilarProperties(currentProperty) {
-    try {
-      // Query for properties with similar location or price range
-      const propertiesRef = collection(db, "properties");
-      const q = query(
-        propertiesRef,
-        where("location", "==", currentProperty.location),
-        where("status", "==", "active"),
-        limit(6)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const similarProperties = [];
-      
-      querySnapshot.forEach((doc) => {
-        const property = { id: doc.id, ...doc.data() };
-        // Exclude current property
-        if (property.id !== currentProperty.id) {
-          similarProperties.push(property);
-        }
-      });
-      
-      // If we don't have enough similar properties, get some random ones
-      if (similarProperties.length < 3) {
-        const randomQuery = query(
-          propertiesRef,
-          where("status", "==", "active"),
-          limit(6)
-        );
-        
-        const randomSnapshot = await getDocs(randomQuery);
-        randomSnapshot.forEach((doc) => {
-          const property = { id: doc.id, ...doc.data() };
-          if (property.id !== currentProperty.id && 
-              !similarProperties.find(p => p.id === property.id)) {
-            similarProperties.push(property);
-          }
+              if (role === "LANDLORD") {
+                window.location.href = "landlord-dashboard.html";
+              } else if (role === "STUDENT") {
+                window.location.href = "student-dashboard.html";
+              } else {
+                alert("Invalid user role. Please contact support.");
+                await signOut(auth);
+                window.location.href = "index.html";
+              }
+            } catch (err) {
+              console.error("Error resolving dashboard redirect:", err);
+              alert("Unable to redirect to dashboard. Please try again.");
+            }
+          });
         });
       }
-      
-      renderSimilarProperties(similarProperties.slice(0, 4));
-      
-    } catch (error) {
-      console.error("Error fetching similar properties:", error);
-      const grid = document.getElementById("similarPropertiesGrid");
-      if (grid) {
-        grid.innerHTML = '<div class="empty-state">Unable to load similar properties.</div>';
-      }
-    }
-  }
-
-  function renderSimilarProperties(properties) {
-    const grid = document.getElementById("similarPropertiesGrid");
-    if (!grid) return;
-    
-    grid.innerHTML = "";
-    
-    if (!properties.length) {
-      grid.innerHTML = '<div class="empty-state">No similar properties found.</div>';
-      return;
-    }
-    
-    properties.forEach((property) => {
-      const card = document.createElement("div");
-      card.className = "property-card";
-      card.innerHTML = `
-        <img src="${property.imageUrl || "/img/default-property.jpg"}" 
-             alt="${property.title}" 
-             onerror="this.src='/img/default-property.jpg'" />
-        <div class="property-card-content">
-          <h3 class="property-card-title">${property.title}</h3>
-          <p class="property-card-price">P${formatPrice(property.price)}/month</p>
-          <p class="property-card-location">
-            <i class="fas fa-map-marker-alt"></i> ${property.location}
-          </p>
-          <div class="property-card-features">
-            <span><i class="fas fa-bed"></i> ${property.bedrooms || property.beds || 1} Bed${(property.bedrooms || property.beds || 1) > 1 ? "s" : ""}</span>
-            <span><i class="fas fa-bath"></i> ${property.bathrooms || property.baths || 1} Bath${(property.bathrooms || property.baths || 1) > 1 ? "s" : ""}</span>
-          </div>
-        </div>
-      `;
-      
-      card.addEventListener("click", () => {
-        window.location.href = `property-details.html?id=${property.id}`;
-      });
-      
-      grid.appendChild(card);
-    });
-  }
-
-  // Global functions for property saving
-  window.toggleSaveProperty = async function() {
-    if (!currentUser || !currentProperty) {
-      showError("Unable to save property. Please refresh the page.");
-      return;
-    }
-
-    const saveBtn = document.getElementById('savePropertyBtn');
-    const saveText = document.getElementById('saveButtonText');
-    
-    if (!saveBtn || !saveText) return;
-    
-    try {
-      const originalHtml = saveBtn.innerHTML;
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      
-      // Check if property is currently saved
-      const savedPropertiesRef = collection(db, "savedProperties");
-      const q = query(
-        savedPropertiesRef,
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", currentProperty.id)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        // Save the property
-        await addDoc(savedPropertiesRef, {
-          studentId: currentUser.uid,
-          propertyId: currentProperty.id,
-          propertyTitle: currentProperty.title,
-          propertyPrice: currentProperty.price,
-          propertyLocation: currentProperty.location,
-          propertyImage: currentProperty.imageUrl,
-          savedAt: serverTimestamp()
-        });
-        
-        saveText.textContent = 'Remove from Saved';
-        saveBtn.classList.add('saved');
-        showSuccess("Property saved successfully!");
-        
-      } else {
-        // Remove the saved property
-        querySnapshot.forEach(async (doc) => {
-          await deleteDoc(doc.ref);
-        });
-        
-        saveText.textContent = 'Save Property';
-        saveBtn.classList.remove('saved');
-        showSuccess("Property removed from saved list.");
-      }
-      
-    } catch (error) {
-      console.error("Error toggling saved property:", error);
-      showError("Failed to update saved property. Please try again.");
-    } finally {
-      saveBtn.disabled = false;
-      const icon = saveBtn.classList.contains('saved') ? 'fas fa-heart' : 'far fa-heart';
-      saveBtn.innerHTML = `<i class='${icon}'></i> <span id='saveButtonText'>${saveBtn.classList.contains('saved') ? 'Remove from Saved' : 'Save Property'}</span>`;
-    }
-  };
-
-  async function checkIfPropertySaved(propertyId) {
-    if (!currentUser) return;
-    
-    try {
-      const savedPropertiesRef = collection(db, "savedProperties");
-      const q = query(
-        savedPropertiesRef,
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", propertyId)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const isSaved = !querySnapshot.empty;
-      
-      const saveBtn = document.getElementById('savePropertyBtn');
-      const saveText = document.getElementById('saveButtonText');
-      
-      if (saveBtn && saveText) {
-        if (isSaved) {
-          saveBtn.classList.add('saved');
-          saveText.textContent = 'Remove from Saved';
-          saveBtn.innerHTML = '<i class="fas fa-heart"></i> <span id="saveButtonText">Remove from Saved</span>';
-        } else {
-          saveBtn.classList.remove('saved');
-          saveText.textContent = 'Save Property';
-          saveBtn.innerHTML = '<i class="far fa-heart"></i> <span id="saveButtonText">Save Property</span>';
-        }
-      }
-      
-    } catch (error) {
-      console.error("Error checking if property is saved:", error);
-    }
-  }
-
-  // Utility functions
-  window.scrollToContact = function() {
-    const contactSection = document.getElementById("contactSection");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  function formatPrice(price) {
-    if (!price) return '0';
-    return parseFloat(price).toLocaleString();
-  }
-
-  function formatAmenities(amenities) {
-    if (!Array.isArray(amenities)) return [];
-    
-    return amenities.map(amenity => {
-      if (typeof amenity === 'string') {
-        return { name: amenity, icon: 'home' };
-      }
-      return amenity;
-    });
-  }
-
-  function getTomorrowDate() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  }
-
-  // UI Helper functions
-  function showError(message) {
-    createNotification('error', message);
-  }
-
-  function showSuccess(message) {
-    createNotification('success', message);
-  }
-
-  function showLoading(message) {
-    const loader = document.getElementById('loadingIndicator') || createLoadingIndicator();
-    loader.textContent = message;
-    loader.style.display = 'block';
-  }
-
-  function hideLoading() {
-    const loader = document.getElementById('loadingIndicator');
-    if (loader) {
-      loader.style.display = 'none';
-    }
-  }
-
-  function createLoadingIndicator() {
-    const loader = document.createElement('div');
-    loader.id = 'loadingIndicator';
-    loader.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #007bff;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    `;
-    document.body.appendChild(loader);
-    return loader;
-  }
-
-  function createNotification(type, message) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    const colors = {
-      error: { bg: '#dc3545', border: '#dc3545' },
-      success: { bg: '#28a745', border: '#28a745' },
-      warning: { bg: '#ffc107', border: '#ffc107' }
-    };
-    
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${colors[type].bg};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      border-left: 4px solid ${colors[type].border};
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      max-width: 400px;
-      word-wrap: break-word;
-    `;
-    
-    notification.innerHTML = `
-      ${message}
-      <button onclick="this.parentElement.remove()" style="
-        background: none;
-        border: none;
-        color: white;
-        float: right;
-        font-size: 16px;
-        cursor: pointer;
-        margin-left: 10px;
-      ">&times;</button>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 5000);
-  }
-
-  // Cleanup on page unload
-  window.addEventListener('beforeunload', () => {
-    if (unsubscribe) {
-      unsubscribe();
-    }
-  });
-});</script>   
     </script>
+    <script type="module" src="property-details.js" defer></script>
   </body>
 </html>

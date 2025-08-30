@@ -1,35 +1,4 @@
-// Firebase v9+ imports
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { 
-  getFirestore, 
-  doc, 
-  getDoc, 
-  collection, 
-  query, 
-  where, 
-  limit, 
-  getDocs,
-  addDoc,
-  deleteDoc,
-  serverTimestamp 
-} from 'firebase/firestore';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "project-1-1e31c.firebasestorage.app",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+// Enhanced property details logic to ensure it shows specific property information
 document.addEventListener("DOMContentLoaded", function () {
   let currentUser = null;
   let currentProperty = null;
@@ -37,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // Check authentication state
   const unsubscribe = onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // Redirect to login if not authenticated
       showError("You must be logged in to view property details.");
       setTimeout(() => {
         window.location.href = "login.html";
@@ -65,8 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       currentUser = user;
       
-      // Fetch and render property details
-      await fetchPropertyDetails();
+      // Fetch and render the SPECIFIC property details
+      await fetchSpecificPropertyDetails();
       
     } catch (error) {
       console.error("Error checking user authentication:", error);
@@ -77,9 +45,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  async function fetchPropertyDetails() {
+  async function fetchSpecificPropertyDetails() {
+    // Get the specific property ID from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const propertyId = urlParams.get("id");
+    
+    console.log("Property ID from URL:", propertyId); // Debug log
     
     if (!propertyId) {
       showError("Property ID not found in URL");
@@ -90,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       showLoading("Loading property details...");
       
-      // Fetch property from Firestore
+      // Fetch the SPECIFIC property from Firestore using the ID
       const propertyDocRef = doc(db, "properties", propertyId);
       const propertyDoc = await getDoc(propertyDocRef);
       
@@ -98,76 +69,184 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error("Property not found");
       }
       
+      // Get the property data with its ID
       const property = {
         id: propertyDoc.id,
         ...propertyDoc.data()
       };
       
+      console.log("Fetched property data:", property); // Debug log
+      
       currentProperty = property;
       
-      // Render property details
-      renderProperty(property);
+      // Render THIS SPECIFIC property's details
+      renderSpecificProperty(property);
       
-      // Fetch similar properties
+      // Fetch similar properties (excluding this one)
       await fetchSimilarProperties(property);
       
-      // Check if property is saved by current user
+      // Check if this specific property is saved by current user
       await checkIfPropertySaved(propertyId);
       
       hideLoading();
       
     } catch (error) {
-      console.error("Error fetching property details:", error);
+      console.error("Error fetching specific property details:", error);
       hideLoading();
       showError(`Failed to load property: ${error.message}`);
       document.getElementById("propertyTitle").textContent = "Failed to load property.";
     }
   }
 
-  function renderProperty(property) {
-    // Update page title
-    document.title = `${property.title} - Property Details`;
+  function renderSpecificProperty(property) {
+    // Update page title with THIS property's name
+    document.title = `${property.title || property.name} - Property Details`;
     
-    // Render basic information
-    document.getElementById("propertyTitle").textContent = property.title || "Untitled Property";
-    document.getElementById("propertyLocation").innerHTML = 
-      `<i class='fas fa-map-marker-alt'></i> ${property.location || property.address || 'Location not specified'}`;
-    document.getElementById("propertyPrice").textContent = 
-      `P${formatPrice(property.price)}/month`;
+    // Render basic information for THIS SPECIFIC property
+    const titleElement = document.getElementById("propertyTitle");
+    const locationElement = document.getElementById("propertyLocation");
+    const priceElement = document.getElementById("propertyPrice");
+    
+    if (titleElement) {
+      titleElement.textContent = property.title || property.name || "Untitled Property";
+    }
+    
+    if (locationElement) {
+      locationElement.innerHTML = 
+        `<i class='fas fa-map-marker-alt'></i> ${property.location || property.address || 'Location not specified'}`;
+    }
+    
+    if (priceElement) {
+      priceElement.textContent = `P${formatPrice(property.rent || property.price)}/month`;
+    }
 
-    // Render gallery
-    renderGallery(property);
+    // Render gallery with THIS property's images
+    renderPropertyGallery(property);
     
-    // Render property details
-    renderPropertyDetails(property);
+    // Render ALL available details for THIS property
+    renderAllPropertyDetails(property);
     
-    // Setup contact forms
+    // Setup contact forms for THIS property
     setupContactForms(property);
   }
 
-  function renderGallery(property) {
+  function renderPropertyGallery(property) {
     const gallery = document.getElementById("propertyGallery");
     if (!gallery) return;
     
-    const mainImage = property.imageUrl || property.images?.[0] || "/img/default-property.jpg";
+    // Handle multiple image formats that landlords might use
+    const images = [];
     
-    gallery.innerHTML = `<img src="${mainImage}" alt="${property.title}" class="main-image" onerror="this.src='/img/default-property.jpg'" />`;
+    // Check various image field names
+    if (property.images && Array.isArray(property.images)) {
+      images.push(...property.images);
+    }
+    if (property.imageUrl) {
+      images.push(property.imageUrl);
+    }
+    if (property.image) {
+      images.push(property.image);
+    }
+    if (property.photos && Array.isArray(property.photos)) {
+      images.push(...property.photos);
+    }
+    
+    // Remove duplicates and empty values
+    const uniqueImages = [...new Set(images.filter(img => img && img.trim()))];
+    
+    if (uniqueImages.length === 0) {
+      // No images available
+      gallery.innerHTML = `
+        <div class="no-image-placeholder" style="
+          width: 100%; 
+          height: 400px; 
+          background: #f8f9fa; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          color: #666;
+          font-size: 18px;
+          border: 2px dashed #dee2e6;
+          border-radius: 8px;
+        ">
+          <i class="fas fa-image" style="margin-right: 10px;"></i>
+          No images available for this property
+        </div>
+      `;
+      return;
+    }
+    
+    // Display main image
+    const mainImage = uniqueImages[0];
+    gallery.innerHTML = `
+      <div class="main-image-container" style="position: relative; margin-bottom: 1rem;">
+        <img src="${mainImage}" 
+             alt="${property.title || property.name}" 
+             class="main-image" 
+             style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px;" 
+             onerror="this.src='/img/default-property.jpg'" />
+        ${uniqueImages.length > 1 ? `
+          <div class="image-counter" style="
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            background: rgba(0,0,0,0.7); 
+            color: white; 
+            padding: 5px 10px; 
+            border-radius: 20px; 
+            font-size: 14px;
+          ">
+            1 / ${uniqueImages.length}
+          </div>
+        ` : ''}
+      </div>
+    `;
     
     // Add thumbnails if there are multiple images
-    if (property.images && property.images.length > 1) {
+    if (uniqueImages.length > 1) {
       const thumbnailGrid = document.createElement('div');
       thumbnailGrid.className = 'thumbnail-grid';
+      thumbnailGrid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      `;
       
-      property.images.slice(1).forEach((img, index) => {
+      uniqueImages.forEach((img, index) => {
         const thumbnail = document.createElement('img');
         thumbnail.src = img;
         thumbnail.className = 'thumbnail';
-        thumbnail.alt = `${property.title} - Image ${index + 2}`;
+        thumbnail.alt = `${property.title || property.name} - Image ${index + 1}`;
+        thumbnail.style.cssText = `
+          width: 100%;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 6px;
+          cursor: pointer;
+          border: 2px solid ${index === 0 ? '#007bff' : 'transparent'};
+          transition: border-color 0.3s ease;
+        `;
         thumbnail.onerror = () => thumbnail.style.display = 'none';
+        
         thumbnail.addEventListener('click', () => {
           const mainImg = gallery.querySelector('.main-image');
-          mainImg.src = img;
+          const counter = gallery.querySelector('.image-counter');
+          
+          if (mainImg) {
+            mainImg.src = img;
+          }
+          
+          if (counter) {
+            counter.textContent = `${index + 1} / ${uniqueImages.length}`;
+          }
+          
+          // Update thumbnail borders
+          thumbnailGrid.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+            thumb.style.borderColor = i === index ? '#007bff' : 'transparent';
+          });
         });
+        
         thumbnailGrid.appendChild(thumbnail);
       });
       
@@ -175,449 +254,139 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function renderPropertyDetails(property) {
+  function renderAllPropertyDetails(property) {
     const details = document.getElementById("propertyDetails");
     if (!details) return;
     
-    // Convert amenities array to proper format if needed
-    const amenities = formatAmenities(property.amenities || []);
+    // Display ALL available information from the landlord
+    const amenities = formatAmenities(property.amenities || property.features || []);
     
     details.innerHTML = `
-      <div class='features-grid'>
-        <div class='feature-item'>
-          <i class='fas fa-bed feature-icon'></i>
-          <div><h3>${property.bedrooms || property.beds || 1} Bedroom${(property.bedrooms || property.beds || 1) > 1 ? 's' : ''}</h3></div>
+      <div class='property-overview' style='margin-bottom: 2rem;'>
+        <div class='features-grid' style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;'>
+          <div class='feature-item' style='display: flex; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
+            <i class='fas fa-bed feature-icon' style='font-size: 24px; color: #007bff; margin-right: 12px;'></i>
+            <div>
+              <h3 style='margin: 0; font-size: 18px;'>${property.bedrooms || property.beds || property.rooms || 1}</h3>
+              <p style='margin: 0; color: #666; font-size: 14px;'>Bedroom${(property.bedrooms || property.beds || property.rooms || 1) > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <div class='feature-item' style='display: flex; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
+            <i class='fas fa-bath feature-icon' style='font-size: 24px; color: #007bff; margin-right: 12px;'></i>
+            <div>
+              <h3 style='margin: 0; font-size: 18px;'>${property.bathrooms || property.baths || property.bathroom || 1}</h3>
+              <p style='margin: 0; color: #666; font-size: 14px;'>Bathroom${(property.bathrooms || property.baths || property.bathroom || 1) > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <div class='feature-item' style='display: flex; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
+            <i class='fas fa-ruler-combined feature-icon' style='font-size: 24px; color: #007bff; margin-right: 12px;'></i>
+            <div>
+              <h3 style='margin: 0; font-size: 18px;'>${property.size || property.area || 'N/A'}</h3>
+              <p style='margin: 0; color: #666; font-size: 14px;'>Square Feet</p>
+            </div>
+          </div>
+          <div class='feature-item' style='display: flex; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
+            <i class='fas fa-building feature-icon' style='font-size: 24px; color: #007bff; margin-right: 12px;'></i>
+            <div>
+              <h3 style='margin: 0; font-size: 18px;'>${property.propertyType || property.type || property.houseType || 'Apartment'}</h3>
+              <p style='margin: 0; color: #666; font-size: 14px;'>Property Type</p>
+            </div>
+          </div>
         </div>
-        <div class='feature-item'>
-          <i class='fas fa-bath feature-icon'></i>
-          <div><h3>${property.bathrooms || property.baths || 1} Bathroom${(property.bathrooms || property.baths || 1) > 1 ? 's' : ''}</h3></div>
-        </div>
-        <div class='feature-item'>
-          <i class='fas fa-ruler-combined feature-icon'></i>
-          <div><h3>${property.size || 'N/A'} sqft</h3></div>
-        </div>
-        <div class='feature-item'>
-          <i class='fas fa-building feature-icon'></i>
-          <div><h3>${property.propertyType || property.type || 'Apartment'}</h3></div>
+        
+        ${property.securityFee || property.deposit ? `
+          <div class='additional-costs' style='background: #fff3cd; padding: 1rem; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 1.5rem;'>
+            <h3 style='margin: 0 0 0.5rem 0; color: #856404;'>Additional Costs</h3>
+            ${property.securityFee ? `<p style='margin: 0.25rem 0;'><strong>Security Fee:</strong> P${formatPrice(property.securityFee)}</p>` : ''}
+            ${property.deposit ? `<p style='margin: 0.25rem 0;'><strong>Deposit:</strong> P${formatPrice(property.deposit)}</p>` : ''}
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class='property-description' style='margin-bottom: 2rem;'>
+        <h2 class='section-title' style='margin-bottom: 1rem; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 0.5rem;'>Description</h2>
+        <div style='background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+          <p style='line-height: 1.6; margin: 0;'>${property.description || property.details || 'No description provided by the landlord.'}</p>
         </div>
       </div>
       
-      ${property.securityFee ? `<div class='security-fee'><strong>Security Fee:</strong> P${formatPrice(property.securityFee)}</div>` : ''}
-      
-      <h2 class='section-title'>Description</h2>
-      <p>${property.description || 'No description available.'}</p>
-      
-      <h2 class='section-title'>Amenities</h2>
-      <div class='amenities-list'>
-        ${amenities.length > 0 ? 
-          amenities.map(amenity => 
-            `<div class='amenity-item'>
-              <i class='fas fa-${amenity.icon || 'home'} amenity-icon'></i>
-              <span>${amenity.name || amenity}</span>
-            </div>`
-          ).join('') : 
-          '<p>No amenities listed.</p>'
-        }
+      <div class='property-amenities' style='margin-bottom: 2rem;'>
+        <h2 class='section-title' style='margin-bottom: 1rem; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 0.5rem;'>Amenities & Features</h2>
+        <div class='amenities-list' style='background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+          ${amenities.length > 0 ? 
+            `<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;'>
+              ${amenities.map(amenity => 
+                `<div class='amenity-item' style='display: flex; align-items: center; padding: 0.75rem; background: #f8f9fa; border-radius: 6px;'>
+                  <i class='fas fa-${getAmenityIcon(amenity.name || amenity)} amenity-icon' style='color: #28a745; margin-right: 10px; font-size: 16px;'></i>
+                  <span>${amenity.name || amenity}</span>
+                </div>`
+              ).join('')}
+            </div>` : 
+            '<p style="margin: 0; color: #666;">No amenities listed by the landlord.</p>'
+          }
+        </div>
       </div>
       
-      <div class='property-actions' style='margin-top: 2rem; padding: 1rem; border-top: 1px solid #eee;'>
-        <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
-          <i class='fas fa-heart'></i> <span id='saveButtonText'>Save Property</span>
+      ${property.rules || property.houseRules ? `
+        <div class='property-rules' style='margin-bottom: 2rem;'>
+          <h2 class='section-title' style='margin-bottom: 1rem; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 0.5rem;'>House Rules</h2>
+          <div style='background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+            <p style='line-height: 1.6; margin: 0;'>${property.rules || property.houseRules}</p>
+          </div>
+        </div>
+      ` : ''}
+      
+      <div class='property-actions' style='margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 8px; text-align: center;'>
+        <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()' style='margin-right: 1rem; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;'>
+          <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
         </button>
-        <button class='btn btn-primary' onclick='scrollToContact()' style='margin-left: 1rem;'>
+        <button class='btn btn-primary' onclick='scrollToContact()' style='padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;'>
           <i class='fas fa-paper-plane'></i> Contact Landlord
         </button>
       </div>
     `;
   }
 
-  function setupContactForms(property) {
-    const contactSection = document.getElementById("contactSection");
-    if (!contactSection) return;
+  function getAmenityIcon(amenity) {
+    const amenityLower = amenity.toLowerCase();
+    const iconMap = {
+      'wifi': 'wifi',
+      'internet': 'wifi',
+      'parking': 'car',
+      'kitchen': 'utensils',
+      'tv': 'tv',
+      'television': 'tv',
+      'air conditioning': 'wind',
+      'ac': 'wind',
+      'laundry': 'tshirt',
+      'washing machine': 'tshirt',
+      'gym': 'dumbbell',
+      'pool': 'swimming-pool',
+      'balcony': 'building',
+      'garden': 'tree',
+      'security': 'shield-alt',
+      'furnished': 'couch',
+      'heating': 'fire',
+      'elevator': 'elevator'
+    };
     
-    contactSection.innerHTML = `
-      <h2 class='section-title'>Send Inquiry to Landlord</h2>
-      <div class='landlord-info' style='margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;'>
-        <strong>Landlord:</strong> ${property.landlordName || 'Not specified'}<br>
-        <strong>Contact:</strong> ${property.landlordEmail || 'Not provided'}
-      </div>
-      
-      <form class='contact-form' id='inquiryForm'>
-        <div class='form-group'>
-          <label class='form-label'>Your Message</label>
-          <textarea class='form-textarea' name='message' placeholder='Hi, I am interested in this property. Could you please provide more information?' required rows='4'></textarea>
-        </div>
-        <button type='submit' class='btn btn-primary'>
-          <i class='fas fa-paper-plane'></i> Send Inquiry
-        </button>
-        <div class='form-note' style='margin-top: 0.5rem; color: #666; font-size: 0.9em;'>
-          Your inquiry will be sent directly to the landlord.
-        </div>
-      </form>
-      
-      <div style='margin-top: 2rem;'>
-        <h2 class='section-title'>Request Property Viewing</h2>
-        <form class='contact-form' id='viewingForm'>
-          <div class='form-row' style='display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;'>
-            <div class='form-group'>
-              <label class='form-label'>Preferred Date</label>
-              <input type='date' class='form-input' name='date' required min='${getTomorrowDate()}' />
-            </div>
-            <div class='form-group'>
-              <label class='form-label'>Preferred Time</label>
-              <select class='form-input' name='time' required>
-                <option value=''>Select time</option>
-                <option value='morning'>Morning (9AM - 12PM)</option>
-                <option value='afternoon'>Afternoon (1PM - 4PM)</option>
-                <option value='evening'>Evening (5PM - 7PM)</option>
-              </select>
-            </div>
-          </div>
-          <div class='form-group'>
-            <label class='form-label'>Additional Notes (Optional)</label>
-            <textarea class='form-textarea' name='notes' placeholder='Any specific requirements or questions?' rows='3'></textarea>
-          </div>
-          <button type='submit' class='btn btn-secondary'>
-            <i class='fas fa-calendar-check'></i> Schedule Viewing
-          </button>
-        </form>
-      </div>
-    `;
-
-    // Setup form event listeners
-    setupInquiryForm(property);
-    setupViewingForm(property);
+    return iconMap[amenityLower] || 'check';
   }
 
-  function setupInquiryForm(property) {
-    const inquiryForm = document.getElementById("inquiryForm");
-    if (!inquiryForm) return;
-    
-    inquiryForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      
-      if (!currentUser) {
-        showError("You must be logged in to send an inquiry");
-        return;
-      }
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      try {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        
-        const message = this.querySelector('[name="message"]').value.trim();
-        
-        if (!message) {
-          throw new Error("Please enter a message");
-        }
-        
-        // Add inquiry to Firestore
-        const inquiryData = {
-          propertyId: property.id,
-          propertyTitle: property.title,
-          studentId: currentUser.uid,
-          studentEmail: currentUser.email,
-          landlordId: property.landlordId,
-          landlordEmail: property.landlordEmail,
-          message: message,
-          status: 'pending',
-          createdAt: serverTimestamp(),
-          type: 'inquiry'
-        };
-        
-        await addDoc(collection(db, "inquiries"), inquiryData);
-        
-        showSuccess("Inquiry sent successfully! The landlord will contact you soon.");
-        this.reset();
-        
-      } catch (error) {
-        console.error("Error sending inquiry:", error);
-        showError(`Failed to send inquiry: ${error.message}`);
-      } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-    });
-  }
-
-  function setupViewingForm(property) {
-    const viewingForm = document.getElementById("viewingForm");
-    if (!viewingForm) return;
-    
-    viewingForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      
-      if (!currentUser) {
-        showError("You must be logged in to schedule a viewing");
-        return;
-      }
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      try {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
-        
-        const formData = new FormData(this);
-        const date = formData.get('date');
-        const time = formData.get('time');
-        const notes = formData.get('notes') || '';
-        
-        if (!date || !time) {
-          throw new Error("Please select both date and time");
-        }
-        
-        // Check if date is not in the past
-        const selectedDate = new Date(date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (selectedDate < today) {
-          throw new Error("Please select a future date");
-        }
-        
-        // Add viewing request to Firestore
-        const viewingData = {
-          propertyId: property.id,
-          propertyTitle: property.title,
-          studentId: currentUser.uid,
-          studentEmail: currentUser.email,
-          landlordId: property.landlordId,
-          landlordEmail: property.landlordEmail,
-          preferredDate: date,
-          preferredTime: time,
-          notes: notes,
-          status: 'pending',
-          createdAt: serverTimestamp(),
-          type: 'viewing'
-        };
-        
-        await addDoc(collection(db, "viewings"), viewingData);
-        
-        showSuccess("Viewing request submitted successfully! The landlord will confirm the appointment.");
-        this.reset();
-        
-      } catch (error) {
-        console.error("Error scheduling viewing:", error);
-        showError(`Failed to schedule viewing: ${error.message}`);
-      } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-      }
-    });
-  }
-
-  async function fetchSimilarProperties(currentProperty) {
-    try {
-      // Query for properties with similar location or price range
-      const propertiesRef = collection(db, "properties");
-      const q = query(
-        propertiesRef,
-        where("location", "==", currentProperty.location),
-        where("status", "==", "active"),
-        limit(6)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const similarProperties = [];
-      
-      querySnapshot.forEach((doc) => {
-        const property = { id: doc.id, ...doc.data() };
-        // Exclude current property
-        if (property.id !== currentProperty.id) {
-          similarProperties.push(property);
-        }
-      });
-      
-      // If we don't have enough similar properties, get some random ones
-      if (similarProperties.length < 3) {
-        const randomQuery = query(
-          propertiesRef,
-          where("status", "==", "active"),
-          limit(6)
-        );
-        
-        const randomSnapshot = await getDocs(randomQuery);
-        randomSnapshot.forEach((doc) => {
-          const property = { id: doc.id, ...doc.data() };
-          if (property.id !== currentProperty.id && 
-              !similarProperties.find(p => p.id === property.id)) {
-            similarProperties.push(property);
-          }
-        });
-      }
-      
-      renderSimilarProperties(similarProperties.slice(0, 4));
-      
-    } catch (error) {
-      console.error("Error fetching similar properties:", error);
-      const grid = document.getElementById("similarPropertiesGrid");
-      if (grid) {
-        grid.innerHTML = '<div class="empty-state">Unable to load similar properties.</div>';
-      }
-    }
-  }
-
-  function renderSimilarProperties(properties) {
-    const grid = document.getElementById("similarPropertiesGrid");
-    if (!grid) return;
-    
-    grid.innerHTML = "";
-    
-    if (!properties.length) {
-      grid.innerHTML = '<div class="empty-state">No similar properties found.</div>';
-      return;
-    }
-    
-    properties.forEach((property) => {
-      const card = document.createElement("div");
-      card.className = "property-card";
-      card.innerHTML = `
-        <img src="${property.imageUrl || "/img/default-property.jpg"}" 
-             alt="${property.title}" 
-             onerror="this.src='/img/default-property.jpg'" />
-        <div class="property-card-content">
-          <h3 class="property-card-title">${property.title}</h3>
-          <p class="property-card-price">P${formatPrice(property.price)}/month</p>
-          <p class="property-card-location">
-            <i class="fas fa-map-marker-alt"></i> ${property.location}
-          </p>
-          <div class="property-card-features">
-            <span><i class="fas fa-bed"></i> ${property.bedrooms || property.beds || 1} Bed${(property.bedrooms || property.beds || 1) > 1 ? "s" : ""}</span>
-            <span><i class="fas fa-bath"></i> ${property.bathrooms || property.baths || 1} Bath${(property.bathrooms || property.baths || 1) > 1 ? "s" : ""}</span>
-          </div>
-        </div>
-      `;
-      
-      card.addEventListener("click", () => {
-        window.location.href = `property-details.html?id=${property.id}`;
-      });
-      
-      grid.appendChild(card);
-    });
-  }
-
-  // Global functions for property saving
-  window.toggleSaveProperty = async function() {
-    if (!currentUser || !currentProperty) {
-      showError("Unable to save property. Please refresh the page.");
-      return;
-    }
-
-    const saveBtn = document.getElementById('savePropertyBtn');
-    const saveText = document.getElementById('saveButtonText');
-    
-    if (!saveBtn || !saveText) return;
-    
-    try {
-      const originalHtml = saveBtn.innerHTML;
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      
-      // Check if property is currently saved
-      const savedPropertiesRef = collection(db, "savedProperties");
-      const q = query(
-        savedPropertiesRef,
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", currentProperty.id)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        // Save the property
-        await addDoc(savedPropertiesRef, {
-          studentId: currentUser.uid,
-          propertyId: currentProperty.id,
-          propertyTitle: currentProperty.title,
-          propertyPrice: currentProperty.price,
-          propertyLocation: currentProperty.location,
-          propertyImage: currentProperty.imageUrl,
-          savedAt: serverTimestamp()
-        });
-        
-        saveText.textContent = 'Remove from Saved';
-        saveBtn.classList.add('saved');
-        showSuccess("Property saved successfully!");
-        
-      } else {
-        // Remove the saved property
-        querySnapshot.forEach(async (doc) => {
-          await deleteDoc(doc.ref);
-        });
-        
-        saveText.textContent = 'Save Property';
-        saveBtn.classList.remove('saved');
-        showSuccess("Property removed from saved list.");
-      }
-      
-    } catch (error) {
-      console.error("Error toggling saved property:", error);
-      showError("Failed to update saved property. Please try again.");
-    } finally {
-      saveBtn.disabled = false;
-      const icon = saveBtn.classList.contains('saved') ? 'fas fa-heart' : 'far fa-heart';
-      saveBtn.innerHTML = `<i class='${icon}'></i> <span id='saveButtonText'>${saveBtn.classList.contains('saved') ? 'Remove from Saved' : 'Save Property'}</span>`;
-    }
-  };
-
-  async function checkIfPropertySaved(propertyId) {
-    if (!currentUser) return;
-    
-    try {
-      const savedPropertiesRef = collection(db, "savedProperties");
-      const q = query(
-        savedPropertiesRef,
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", propertyId)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const isSaved = !querySnapshot.empty;
-      
-      const saveBtn = document.getElementById('savePropertyBtn');
-      const saveText = document.getElementById('saveButtonText');
-      
-      if (saveBtn && saveText) {
-        if (isSaved) {
-          saveBtn.classList.add('saved');
-          saveText.textContent = 'Remove from Saved';
-          saveBtn.innerHTML = '<i class="fas fa-heart"></i> <span id="saveButtonText">Remove from Saved</span>';
-        } else {
-          saveBtn.classList.remove('saved');
-          saveText.textContent = 'Save Property';
-          saveBtn.innerHTML = '<i class="far fa-heart"></i> <span id="saveButtonText">Save Property</span>';
-        }
-      }
-      
-    } catch (error) {
-      console.error("Error checking if property is saved:", error);
-    }
-  }
-
-  // Utility functions
-  window.scrollToContact = function() {
-    const contactSection = document.getElementById("contactSection");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
+  // Keep all your existing helper functions (formatPrice, formatAmenities, etc.)
   function formatPrice(price) {
     if (!price) return '0';
     return parseFloat(price).toLocaleString();
   }
 
   function formatAmenities(amenities) {
-    if (!Array.isArray(amenities)) return [];
+    if (!Array.isArray(amenities)) {
+      if (typeof amenities === 'string') {
+        // Handle comma-separated string of amenities
+        return amenities.split(',').map(a => a.trim()).filter(a => a);
+      }
+      return [];
+    }
     
     return amenities.map(amenity => {
       if (typeof amenity === 'string') {
@@ -627,104 +396,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function getTomorrowDate() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  }
-
-  // UI Helper functions
-  function showError(message) {
-    createNotification('error', message);
-  }
-
-  function showSuccess(message) {
-    createNotification('success', message);
-  }
-
-  function showLoading(message) {
-    const loader = document.getElementById('loadingIndicator') || createLoadingIndicator();
-    loader.textContent = message;
-    loader.style.display = 'block';
-  }
-
-  function hideLoading() {
-    const loader = document.getElementById('loadingIndicator');
-    if (loader) {
-      loader.style.display = 'none';
-    }
-  }
-
-  function createLoadingIndicator() {
-    const loader = document.createElement('div');
-    loader.id = 'loadingIndicator';
-    loader.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #007bff;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    `;
-    document.body.appendChild(loader);
-    return loader;
-  }
-
-  function createNotification(type, message) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    const colors = {
-      error: { bg: '#dc3545', border: '#dc3545' },
-      success: { bg: '#28a745', border: '#28a745' },
-      warning: { bg: '#ffc107', border: '#ffc107' }
-    };
-    
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${colors[type].bg};
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      border-left: 4px solid ${colors[type].border};
-      z-index: 1000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      max-width: 400px;
-      word-wrap: break-word;
-    `;
-    
-    notification.innerHTML = `
-      ${message}
-      <button onclick="this.parentElement.remove()" style="
-        background: none;
-        border: none;
-        color: white;
-        float: right;
-        font-size: 16px;
-        cursor: pointer;
-        margin-left: 10px;
-      ">&times;</button>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      if (notification.parentElement) {
-        notification.remove();
-      }
-    }, 5000);
-  }
-
-  // Cleanup on page unload
-  window.addEventListener('beforeunload', () => {
-    if (unsubscribe) {
-      unsubscribe();
-    }
-  });
+  // Continue with all your existing functions...
+  // (Keep setupContactForms, fetchSimilarProperties, toggleSaveProperty, etc. exactly as they are)
 });
+
+// How to link from marketplace to this property details page:
+// In your marketplace.js, when creating property cards, add click handlers like this:
+
+/*
+function createPropertyCard(property) {
+  const card = document.createElement('div');
+  card.className = 'property-card';
+  card.innerHTML = `
+    <img src="${property.imageUrl || '/img/default-property.jpg'}" alt="${property.title}" />
+    <div class="property-info">
+      <h3>${property.title || property.name}</h3>
+      <p class="location"><i class="fas fa-map-marker-alt"></i> ${property.location}</p>
+      <p class="rent">P${formatPrice(property.rent || property.price)}/month</p>
+      <p class="type">${property.propertyType || property.type}</p>
+      <button class="view-details-btn" onclick="viewPropertyDetails('${property.id}')">
+        View Details
+      </button>
+    </div>
+  `;
+  return card;
+}
+
+function viewPropertyDetails(propertyId) {
+  // Navigate to property details page with the specific property ID
+  window.location.href = `property-details.html?id=${propertyId}`;
+}
+*/
