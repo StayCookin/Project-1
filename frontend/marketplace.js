@@ -965,7 +965,7 @@ function viewPropertyDetails(propertyId) {
  */
 function editProperty(propertyId) {
   console.log("✏️ Editing property:", propertyId);
-  window.location.href = `create-listing.html?id=${propertyId}`;
+  window.location.href = `create_listing.html?id=${propertyId}`;
 }
 
 /**
