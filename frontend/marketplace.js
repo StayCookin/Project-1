@@ -817,18 +817,32 @@ function displayProperties(properties) {
   }).join('');
 }
 
-// New function to get appropriate action buttons based on user role and ownership
+// Update getActionButtonsForProperty to style the View Details button and add Schedule Viewing button
 function getActionButtonsForProperty(property, isOwner) {
   const userRole = currentUserData?.role;
   let buttons = [];
-  
-  // Everyone can view details
-  buttons.push(`<button class="view-details-btn btn-primary" onclick="viewPropertyDetails('${property.id}')">
-    <i class="fas fa-eye" href="property-details.html"></i> View Details
+
+  // View Details button with border radius and border
+  buttons.push(`<button 
+    class="view-details-btn btn-primary" 
+    onclick="viewPropertyDetails('${property.id}')"
+    style="border-radius:6px;border:1px solid #228B22;"
+  >
+    <i class="fas fa-eye"></i> View Details
   </button>`);
-  
+
+  // Schedule Viewing button for students and available properties
+  if (userRole === 'STUDENT' && property.status === 'available') {
+    buttons.push(`<button 
+      class="schedule-viewing-btn btn-secondary" 
+      onclick="scheduleViewing('${property.id}')"
+      style="border-radius:6px;border:1px solid #228B22;"
+    >
+      <i class="fas fa-calendar"></i> Schedule Viewing
+    </button>`);
+  }
+
   if (userRole === 'LANDLORD' && isOwner) {
-    // Property owner can edit and delete
     buttons.push(`<button class="edit-property-btn btn-warning" onclick="editProperty('${property.id}')">
       <i class="fas fa-edit"></i> Edit
     </button>`);
@@ -836,74 +850,23 @@ function getActionButtonsForProperty(property, isOwner) {
       <i class="fas fa-trash"></i> Delete
     </button>`);
   } else if (userRole === 'STUDENT' && property.status === 'available') {
-    // Students can contact landlord for available properties
     buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
       <i class="fas fa-envelope"></i> Contact
     </button>`);
   } else if (userRole === 'LANDLORD' && !isOwner) {
-    // Other landlords can view but not edit
     buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
       <i class="fas fa-envelope"></i> Contact
     </button>`);
   }
-  
+
   return buttons.join('');
 }
 
-// Add delete property function
-async function deleteProperty(propertyId) {
-  if (!confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-    return;
-  }
-  
-  try {
-    const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
-    await deleteDoc(doc(db, 'properties', propertyId));
-    
-    console.log('Property deleted successfully');
-    showNotification('Property deleted successfully', 'success');
-    
-    // Properties will be automatically updated via the real-time listener
-    
-  } catch (error) {
-    console.error('Error deleting property:', error);
-    showNotification('Error deleting property. Please try again.', 'error');
-  }
+// Add global function for schedule viewing
+function scheduleViewing(propertyId) {
+  window.location.href = `schedule-viewing.html?property=${propertyId}`;
 }
-
-// Add notification system
-function showNotification(message, type = 'info') {
-  // Remove any existing notifications
-  const existingNotification = document.querySelector('.notification');
-  if (existingNotification) {
-    existingNotification.remove();
-  }
-  
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.innerHTML = `
-    <div class="notification-content">
-      <span class="notification-message">${message}</span>
-      <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
-    </div>
-  `;
-  
-  // Add to page
-  document.body.appendChild(notification);
-  
-  // Auto remove after 5 seconds
-  setTimeout(() => {
-    if (notification.parentElement) {
-      notification.remove();
-    }
-  }, 5000);
-}
-
-// Make the new functions globally available
-window.getActionButtonsForProperty = getActionButtonsForProperty;
-window.deleteProperty = deleteProperty;
-window.showNotification = showNotification;
+window.scheduleViewing = scheduleViewing;
 
 /**
  * View property details
