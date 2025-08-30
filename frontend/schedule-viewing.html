@@ -4,24 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schedule a Viewing - InRent</title>
-
-    <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter for clean typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-
-    <!-- Font Awesome for icons -->
     <link 
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-
     <style>
      :root {
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -150,15 +143,13 @@
           class="flex items-center bg-gray-50 p-4 rounded-lg mb-8 border border-gray-200"
         >
           <img
-            src="https://placehold.co/100x80/e2e8f0/4a5568?text=Property"
-            alt="Property Image"
+            src="" alt="Property Image"
             class="w-24 h-20 object-cover rounded-md"
+            id="property-image"
           />
           <div class="ml-4">
-            <h2 class="font-bold text-lg text-gray-800">
-              Single Room in Gaborone West
-            </h2>
-            <p class="text-green-600 font-semibold text-md">P2500.00 / month</p>
+            <h2 class="font-bold text-lg text-gray-800" id="property-title"></h2>
+            <p class="text-green-600 font-semibold text-md" id="property-price"></p>
           </div>
         </div>
 
@@ -277,7 +268,7 @@
                 ></i>
               </button>
               <a
-                href="#"
+                href="marketplace.html"
                 class="block text-center text-gray-600 mt-4 hover:text-black"
                 >Cancel</a
               >
@@ -310,6 +301,16 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        // Example: Replace placeholders with actual property data if available
+        const urlParams = new URLSearchParams(window.location.search);
+        const propertyTitle = urlParams.get("title") || "";
+        const propertyPrice = urlParams.get("price") || "";
+        const propertyImage = urlParams.get("image") || "";
+
+        document.getElementById("property-title").textContent = propertyTitle;
+        document.getElementById("property-price").textContent = propertyPrice;
+        document.getElementById("property-image").src = propertyImage;
+
         // --- DOM Elements ---
         const prevMonthBtn = document.getElementById("prev-month");
         const nextMonthBtn = document.getElementById("next-month");
