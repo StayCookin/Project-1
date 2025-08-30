@@ -138,7 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    
+    saveButton
     // Setup back button with null check
     const backButton = document.getElementById('backButton');
     if (backButton) {
@@ -439,9 +439,7 @@ function renderPropertyDetails(property) {
             <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
                 <i class='fas fa-calendar-alt'></i> Schedule Viewing
             </button>
-            <button class='btn btn-secondary' onclick='scrollToContact()'>
-                <i class='fas fa-paper-plane'></i> Contact Landlord
-            </button>
+           
         </div>
     `;
 }
@@ -453,20 +451,16 @@ function getAmenityIcon(amenity) {
         'internet': 'wifi',
         'parking': 'car',
         'kitchen': 'utensils',
-        'tv': 'tv',
-        'television': 'tv',
-        'air conditioning': 'wind',
         'ac': 'wind',
         'laundry': 'tshirt',
         'washing machine': 'tshirt',
-        'gym': 'dumbbell',
         'pool': 'swimming-pool',
         'balcony': 'building',
-        'garden': 'tree',
+        
         'security': 'shield-alt',
         'furnished': 'couch',
-        'heating': 'fire',
-        'elevator': 'elevator'
+        
+        
     };
     
     return iconMap[amenityLower] || 'check';
