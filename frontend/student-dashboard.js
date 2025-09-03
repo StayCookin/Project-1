@@ -23,12 +23,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+  authDomain: "inrent-6ab14.firebaseapp.com",
+  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+  projectId: "inrent-6ab14",
+  storageBucket: "inrent-6ab14.firebasestorage.app",
+  messagingSenderId: "327416190792",
+  appId: "1:327416190792:web:970377ec8dcef557e5457d",
+  measurementId: "G-JY9E760ZQ0"
 };
 
 let app;
@@ -49,6 +51,7 @@ class StudentDashboard {
     this.currentUser = null;
     this.userProfile = null;
     this.currentRating = 0;
+    this.authUnsubscribe = null;
     this.init();
   }
 
@@ -66,8 +69,306 @@ class StudentDashboard {
     }
   }
 
-  // ... rest of the class remains the same ...
+  // MISSING METHOD: Wait for Firebase Auth to initialize
+  waitForFirebaseAuth() {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Firebase Auth timeout'));
+      }, 10000); // 10 second timeout
 
+      this.authUnsubscribe = onAuthStateChanged(auth, async (user) => {
+        clearTimeout(timeout);
+        try {
+          this.currentUser = user;
+          if (user) {
+            console.log('User authenticated:', user.email);
+            await this.loadUserProfile(user);
+            await this.fetchDashboardStats(user);
+            this.updateUIForAuthenticatedUser();
+          } else {
+            console.log('No user authenticated');
+            this.updateUIForUnauthenticatedUser();
+          }
+          resolve(user);
+        } catch (error) {
+          reject(error);
+        }
+      }, (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+    });
+  }
+
+  // MISSING METHOD: Handle errors
+  handleError(message, error = null) {
+    console.error('Dashboard Error:', message, error);
+    this.showNotification(message, 'error');
+  }
+
+  // MISSING METHOD: Setup event listeners
+  setupEventListeners() {
+    // Sign out button
+    const signOutBtn = document.getElementById('signOutBtn');
+    if (signOutBtn) {
+      signOutBtn.addEventListener('click', this.handleSignOut.bind(this));
+    }
+
+    // Review form
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', this.handleReviewSubmission.bind(this));
+    }
+
+    // Star rating
+    this.setupStarRating();
+
+    // Modal close buttons
+    const closeModalBtns = document.querySelectorAll('[data-close-modal]');
+    closeModalBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modalId = btn.getAttribute('data-close-modal');
+        this.closeModal(modalId);
+      });
+    });
+  }
+
+  // MISSING METHOD: Load user profile
+  async loadUserProfile(user) {
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        this.userProfile = userDoc.data();
+        console.log('User profile loaded:', this.userProfile);
+      } else {
+        console.log('No user profile found');
+        this.userProfile = null;
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+      this.userProfile = null;
+    }
+  }
+
+  // MISSING METHOD: Fetch dashboard stats
+  async fetchDashboardStats(user) {
+    if (!user) return;
+
+    try {
+      // Fetch saved properties count
+      const savedPropertiesRef = collection(db, 'savedProperties');
+      const savedQuery = query(savedPropertiesRef, where('userId', '==', user.uid));
+      const savedSnapshot = await getDocs(savedQuery);
+      const savedCount = savedSnapshot.size;
+
+      // Fetch viewing requests count
+      const viewingRequestsRef = collection(db, 'viewingRequests');
+      const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
+      const viewingSnapshot = await getDocs(viewingQuery);
+      const viewingCount = viewingSnapshot.size;
+
+      // Fetch reviews count
+      const reviewsRef = collection(db, 'reviews');
+      const reviewsQuery = query(reviewsRef, where('userId', '==', user.uid));
+      const reviewsSnapshot = await getDocs(reviewsQuery);
+      const reviewsCount = reviewsSnapshot.size;
+
+      // Update UI
+      this.updateDashboardStats({
+        savedProperties: savedCount,
+        viewingRequests: viewingCount,
+        reviews: reviewsCount
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    }
+  }
+
+  // MISSING METHOD: Update UI for authenticated user
+  updateUIForAuthenticatedUser() {
+    const welcomeMsg = document.getElementById('welcomeMessage');
+    if (welcomeMsg) {
+      const userName = this.userProfile?.firstName || this.currentUser?.displayName || 'Student';
+      welcomeMsg.textContent = `Welcome back, ${userName}!`;
+    }
+
+    // Show authenticated user elements
+    const authElements = document.querySelectorAll('[data-auth="true"]');
+    authElements.forEach(el => el.classList.remove('hidden'));
+
+    // Hide unauthenticated elements
+    const noAuthElements = document.querySelectorAll('[data-auth="false"]');
+    noAuthElements.forEach(el => el.classList.add('hidden'));
+  }
+
+  // MISSING METHOD: Update UI for unauthenticated user
+  updateUIForUnauthenticatedUser() {
+    // Hide authenticated user elements
+    const authElements = document.querySelectorAll('[data-auth="true"]');
+    authElements.forEach(el => el.classList.add('hidden'));
+
+    // Show unauthenticated elements
+    const noAuthElements = document.querySelectorAll('[data-auth="false"]');
+    noAuthElements.forEach(el => el.classList.remove('hidden'));
+
+    // Redirect to login if on protected page
+    if (window.location.pathname.includes('dashboard')) {
+      window.location.href = 'login.html';
+    }
+  }
+
+  // MISSING METHOD: Update dashboard stats in UI
+  updateDashboardStats(stats) {
+    const savedCountEl = document.getElementById('savedPropertiesCount');
+    if (savedCountEl) savedCountEl.textContent = stats.savedProperties;
+
+    const viewingCountEl = document.getElementById('viewingRequestsCount');
+    if (viewingCountEl) viewingCountEl.textContent = stats.viewingRequests;
+
+    const reviewsCountEl = document.getElementById('reviewsCount');
+    if (reviewsCountEl) reviewsCountEl.textContent = stats.reviews;
+  }
+
+  // MISSING METHOD: Handle sign out
+  async handleSignOut() {
+    try {
+      await signOut(auth);
+      this.showNotification('Signed out successfully', 'success');
+      window.location.href = 'index.html';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      this.showNotification('Error signing out', 'error');
+    }
+  }
+
+  // MISSING METHOD: Setup star rating
+  setupStarRating() {
+    const stars = document.querySelectorAll('.star-rating .star');
+    stars.forEach((star, index) => {
+      star.addEventListener('click', () => {
+        this.currentRating = index + 1;
+        this.updateStarDisplay();
+      });
+
+      star.addEventListener('mouseover', () => {
+        this.highlightStars(index + 1);
+      });
+    });
+
+    const starContainer = document.querySelector('.star-rating');
+    if (starContainer) {
+      starContainer.addEventListener('mouseleave', () => {
+        this.updateStarDisplay();
+      });
+    }
+  }
+
+  // MISSING METHOD: Update star display
+  updateStarDisplay() {
+    const stars = document.querySelectorAll('.star-rating .star');
+    stars.forEach((star, index) => {
+      if (index < this.currentRating) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  // MISSING METHOD: Highlight stars on hover
+  highlightStars(rating) {
+    const stars = document.querySelectorAll('.star-rating .star');
+    stars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add('hover');
+      } else {
+        star.classList.remove('hover');
+      }
+    });
+  }
+
+  // MISSING METHOD: Show notification
+  showNotification(message, type = 'info') {
+    // Create notification element if it doesn't exist
+    let notificationContainer = document.getElementById('notificationContainer');
+    if (!notificationContainer) {
+      notificationContainer = document.createElement('div');
+      notificationContainer.id = 'notificationContainer';
+      notificationContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+      document.body.appendChild(notificationContainer);
+    }
+
+    const notification = document.createElement('div');
+    const bgColor = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+    
+    notification.className = `${bgColor} text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300`;
+    notification.textContent = message;
+
+    notificationContainer.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+    }, 100);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.add('translate-x-full');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    }, 5000);
+  }
+
+  // MISSING METHOD: Update save button
+  updateSaveButton(propertyId, isSaved) {
+    const saveBtn = document.querySelector(`[data-property-id="${propertyId}"] .save-btn`);
+    if (saveBtn) {
+      const icon = saveBtn.querySelector('i');
+      if (isSaved) {
+        icon.className = 'fas fa-heart text-red-500';
+        saveBtn.setAttribute('title', 'Remove from saved');
+      } else {
+        icon.className = 'far fa-heart text-gray-400';
+        saveBtn.setAttribute('title', 'Save property');
+      }
+    }
+  }
+
+  // MISSING METHOD: Close modal
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
+
+  // MISSING METHOD: Close review modal specifically
+  closeReviewModal() {
+    const modal = document.getElementById('reviewModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      // Reset form
+      document.getElementById('reviewForm').reset();
+      this.currentRating = 0;
+      this.updateStarDisplay();
+      document.getElementById('reviewFormSuccess').classList.add('hidden');
+    }
+  }
+
+  // MISSING METHOD: Cleanup method
+  cleanup() {
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+    }
+  }
+
+  // EXISTING METHODS (from your original code)
   async toggleSaveProperty(propertyId) {
     if (!this.currentUser) {
       this.showNotification('Please log in to save properties', 'error');
@@ -192,8 +493,6 @@ class StudentDashboard {
       this.showNotification('Failed to submit review. Please try again.', 'error');
     }
   }
-
-  // ... rest of the class remains the same ...
 }
 
 // Error handling wrapper
