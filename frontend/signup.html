@@ -508,28 +508,24 @@ const firebaseConfig = {
             );
             const user = userCredential.user;
 
-            // Send verification email
-            submitButton.textContent = "Sending verification email...";
-            await sendEmailVerification(user);
-
             // Upload file
             submitButton.textContent = `Uploading ${requiredFieldName}...`;
 
             let documentUrl = "";
-            let userDocData = {};
+            
 
             if (role === "STUDENT") {
               documentUrl = await uploadFile(
                 studentIDFile,
                 `kyc/${user.uid}/studentID_${Date.now()}_${studentIDFile.name}`
               );
-              userDocData.studentIDUrl = documentUrl;
+              
             } else {
               documentUrl = await uploadFile(
                 kycFile,
                 `kyc/${user.uid}/kyc_${Date.now()}_${kycFile.name}`
               );
-              userDocData.kycDocumentUrl = documentUrl;
+              
             }
 
             // Save user data to Firestore
@@ -537,11 +533,17 @@ const firebaseConfig = {
             await setDoc(doc(db, "users", user.uid), {
               email,
               role,
-              ...userDocData,
+              ...(role === "STUDENT"
+                ? { studentIDUrl: documentUrl }
+                : { kycDocumentUrl: documentUrl }),
+              
               emailVerified: false,
               createdAt: new Date(),
               updatedAt: new Date(),
             });
+
+            submitButton.textContent = " Sending verification email...";
+            await sendEmailVerification(user);
 
             alert(
               "Signup successful! Please check your email and verify your account before logging in."
@@ -578,7 +580,7 @@ const firebaseConfig = {
           } finally {
             // Reset button state
             submitButton.disabled = false;
-            submitButton.textContent = originalButtonText;
+            submitButton.textContent = originalButtonText; 
           }
         });
     </script>
