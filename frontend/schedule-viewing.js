@@ -5,14 +5,15 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
-  authDomain: "inrent-6ab14.firebaseapp.com",
-  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
-  projectId: "inrent-6ab14",
-  storageBucket: "inrent-6ab14.firebasestorage.app",
-  messagingSenderId: "327416190792",
-  appId: "1:327416190792:web:970377ec8dcef557e5457d",
-  measurementId: "G-JY9E760ZQ0"
+  // Your Firebase config goes here
+   apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+    authDomain: "inrent-6ab14.firebaseapp.com",
+    databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+    projectId: "inrent-6ab14",
+    storageBucket: "inrent-6ab14.firebasestorage.app",
+    messagingSenderId: "327416190792",
+    appId: "1:327416190792:web:970377ec8dcef557e5457d",
+    measurementId: "G-JY9E760ZQ0"
 };
 
 

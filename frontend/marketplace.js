@@ -107,6 +107,98 @@ function setupNavigationButtons(role) {
     });
   }
 }
+async function deleteProperty(propertyId) {
+  console.log("🗑️ Attempting to delete property:", propertyId);
+  
+  // Find the property to get its details for confirmation
+  const property = currentProperties.find(p => p.id === propertyId);
+  if (!property) {
+    console.error("Property not found:", propertyId);
+    alert("Property not found. Please refresh the page and try again.");
+    return;
+  }
+  
+  // Verify ownership
+  if (property.landlordId !== currentUser?.uid) {
+    console.error("❌ User does not own this property");
+    alert("You can only delete your own properties.");
+    return;
+  }
+  
+  // Confirm deletion
+  const confirmed = confirm(
+    `Are you sure you want to delete "${property.title}"?\n\n` +
+    `Location: ${property.location}\n` +
+    `Price: P${property.price || property.rent}/month\n\n` +
+    `This action cannot be undone.`
+  );
+  
+  if (!confirmed) {
+    console.log("Property deletion cancelled by user");
+    return;
+  }
+  
+  try {
+    // Show loading state on the delete button
+    const deleteBtn = document.querySelector(`[onclick="deleteProperty('${propertyId}')"]`);
+    const originalText = deleteBtn?.innerHTML;
+    if (deleteBtn) {
+      deleteBtn.disabled = true;
+      deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+    }
+    
+    // Import deleteDoc function
+    const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
+    
+    // Delete from Firebase
+    console.log("🔥 Deleting property from Firebase...");
+    const propertyRef = doc(db, "properties", propertyId);
+    await deleteDoc(propertyRef);
+    
+    console.log("✅ Property successfully deleted from Firebase");
+    
+    // Update local arrays immediately for better UX
+    currentProperties = currentProperties.filter(p => p.id !== propertyId);
+    filteredProperties = filteredProperties.filter(p => p.id !== propertyId);
+    
+    // Update the display
+    displayProperties(filteredProperties);
+    updateResultsCount();
+    
+    // Show success message
+    alert(`Property "${property.title}" has been successfully deleted.`);
+    
+    console.log("✅ Property deletion completed successfully");
+    
+  } catch (error) {
+    console.error("❌ Error deleting property:", error);
+    
+    // Restore button state
+    const deleteBtn = document.querySelector(`[onclick="deleteProperty('${propertyId}')"]`);
+    if (deleteBtn && originalText) {
+      deleteBtn.disabled = false;
+      deleteBtn.innerHTML = originalText;
+    }
+    
+    // Show specific error messages
+    let errorMessage = "Failed to delete property. Please try again.";
+    
+    if (error.code === 'permission-denied') {
+      errorMessage = "Permission denied. You may not have the required permissions to delete this property.";
+    } else if (error.code === 'not-found') {
+      errorMessage = "Property not found. It may have already been deleted.";
+    } else if (error.code === 'unavailable') {
+      errorMessage = "Database temporarily unavailable. Please try again in a few moments.";
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = "Connection timed out. Please check your internet connection and try again.";
+    }
+    
+    alert(errorMessage);
+  }
+}
+
+// Make the function globally available
+window.deleteProperty = deleteProperty;
 
 // Logout functionality
 function setupLogout() {
@@ -198,21 +290,13 @@ if (messages) {
     window.location.href = "messages.html";
   });
 }
-
 // Dashboard redirect based on role from Firebase
 if (dashboard) {
   dashboard.addEventListener("click", () => {
     console.log("currentUser data at click", currentUserData);
-    if (!currentUserData || !currentUserData.role) {
-      console.log("❌ No user data available, requesting login");
-      alert("Please login to access your dashboard.");
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-      return;
-    }
-    
+  
     const role = currentUserData.role;
+
     console.log("🏠 Dashboard clicked. Current role:", role);
     
     if (role === "LANDLORD") {
@@ -807,19 +891,7 @@ function displayProperties(properties) {
           <p class="location">📍 ${property.location}${property.neighborhood ? `, ${property.neighborhood}` : ''}</p>
           <p class="price">💰 P${property.price || property.rent}/month</p>
           ${property.propertyType ? `<p class="property-type">🏠 ${property.propertyType}</p>` : ''}
-          ${property.bedrooms ? `<p class="bedrooms">🛏️ ${property.bedrooms} bedroom${property.bedrooms !== 1 ? 's' : ''}</p>` : ''}
-          ${property.bathrooms ? `<p class="bathrooms">🚿 ${property.bathrooms} bathroom${property.bathrooms !== 1 ? 's' : ''}</p>` : ''}
-          <div class="amenities">
-            ${(property.amenities || []).slice(0, 3).map(amenity => {
-              const amenityName = typeof amenity === 'object' ? amenity.name : amenity;
-              return `<span class="amenity-tag">${amenityName}</span>`;
-            }).join('')}
-            ${property.amenities?.length > 3 ? `<span class="amenity-more">+${property.amenities.length - 3} more</span>` : ''}
-          </div>
-          <div class="landlord-info">
-            <p class="landlord">👤 ${property.landlordName || 'Landlord'}</p>
-            <p class="views">👁️ ${property.viewCount || 0} views</p>
-          </div>
+          
           <div class="property-actions">
             ${getActionButtonsForProperty(property, isOwner)}
           </div>
@@ -829,93 +901,56 @@ function displayProperties(properties) {
   }).join('');
 }
 
-// New function to get appropriate action buttons based on user role and ownership
+// Update getActionButtonsForProperty to style the View Details button and add Schedule Viewing button
 function getActionButtonsForProperty(property, isOwner) {
   const userRole = currentUserData?.role;
   let buttons = [];
-  
-  // Everyone can view details
-  buttons.push(`<button class="view-details-btn btn-primary" onclick="viewPropertyDetails('${property.id}')">
-    <i class="fas fa-eye" href="property-details.html"></i> View Details
+
+  // View Details button with border radius and border
+  buttons.push(`<button 
+    class="view-details-btn btn-primary" 
+    onclick="viewPropertyDetails('${property.id}')"
+    style="border-radius:6px;border:1px solid #228B22; "
+  >
+    <i class="fas fa-eye"></i> View Details
   </button>`);
-  
+
+  // Schedule Viewing button for students and available properties
+  if (userRole === 'STUDENT' && property.status === 'available') {
+    buttons.push(`<button 
+      class="schedule-viewing-btn btn-secondary" 
+      onclick="scheduleViewing('${property.id}')"
+      style="border-radius:6px;border:1px solid #228B22;"
+    >
+      <i class="fas fa-calendar"></i> Schedule Viewing
+    </button>`);
+  }
+
   if (userRole === 'LANDLORD' && isOwner) {
-    // Property owner can edit and delete
-    buttons.push(`<button class="edit-property-btn btn-warning" onclick="editProperty('${property.id}')">
+    buttons.push(`<button class="edit-property-btn btn-warning" href="create_listing.html" onclick="editProperty('${property.id}')">
       <i class="fas fa-edit"></i> Edit
     </button>`);
     buttons.push(`<button class="delete-property-btn btn-danger" onclick="deleteProperty('${property.id}')">
       <i class="fas fa-trash"></i> Delete
     </button>`);
   } else if (userRole === 'STUDENT' && property.status === 'available') {
-    // Students can contact landlord for available properties
     buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
       <i class="fas fa-envelope"></i> Contact
     </button>`);
   } else if (userRole === 'LANDLORD' && !isOwner) {
-    // Other landlords can view but not edit
     buttons.push(`<button class="contact-landlord-btn btn-secondary" onclick="contactLandlord('${property.id}')">
       <i class="fas fa-envelope"></i> Contact
     </button>`);
   }
-  
+
   return buttons.join('');
 }
 
-// Add delete property function
-async function deleteProperty(propertyId) {
-  if (!confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
-    return;
-  }
-  
-  try {
-    const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js");
-    await deleteDoc(doc(db, 'properties', propertyId));
-    
-    console.log('Property deleted successfully');
-    showNotification('Property deleted successfully', 'success');
-    
-    // Properties will be automatically updated via the real-time listener
-    
-  } catch (error) {
-    console.error('Error deleting property:', error);
-    showNotification('Error deleting property. Please try again.', 'error');
-  }
+// Add global function for schedule viewing
+function scheduleViewing(propertyId) {
+  window.location.href = `schedule-viewing.html?property=${propertyId}`;
 }
-
-// Add notification system
-function showNotification(message, type = 'info') {
-  // Remove any existing notifications
-  const existingNotification = document.querySelector('.notification');
-  if (existingNotification) {
-    existingNotification.remove();
-  }
-  
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.innerHTML = `
-    <div class="notification-content">
-      <span class="notification-message">${message}</span>
-      <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
-    </div>
-  `;
-  
-  // Add to page
-  document.body.appendChild(notification);
-  
-  // Auto remove after 5 seconds
-  setTimeout(() => {
-    if (notification.parentElement) {
-      notification.remove();
-    }
-  }, 5000);
-}
-
-// Make the new functions globally available
-window.getActionButtonsForProperty = getActionButtonsForProperty;
-window.deleteProperty = deleteProperty;
-window.showNotification = showNotification;
+window.scheduleViewing = scheduleViewing;
 
 /**
  * View property details
@@ -930,7 +965,7 @@ function viewPropertyDetails(propertyId) {
  */
 function editProperty(propertyId) {
   console.log("✏️ Editing property:", propertyId);
-  window.location.href = `edit-property.html?id=${propertyId}`;
+  window.location.href = `create_listing.html?id=${propertyId}`;
 }
 
 /**

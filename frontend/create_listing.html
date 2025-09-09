@@ -427,10 +427,6 @@
                                 <label for="furnished">Furnished</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="pet-friendly" name="amenities" value="pet-friendly">
-                                <label for="pet-friendly">Pet Friendly</label>
-                            </div>
-                            <div class="checkbox-item">
                                 <input type="checkbox" id="elevator" name="amenities" value="elevator">
                                 <label for="elevator">Elevator Access</label>
                             </div>
@@ -440,11 +436,12 @@
                     <div class="form-group">
                         <label for="propertyImage" class="form-label">Property Images</label>
                         <input type="file" id="propertyImage" name="propertyImage" class="form-control" 
-                               accept="image/jpeg,image/jpg,image/png,image/webp" />
+                               accept="image/jpeg,image/jpg,image/png,image/webp" multiple/>
                         <small style="color: #666; font-size: 0.85rem; margin-top: 0.25rem; display: block;">
                             Upload a main image for your property (JPEG, PNG, or WebP, max 5MB)
                         </small>
                     </div>
+            
 
                     <div class="form-group">
                         <label for="landlordName" class="form-label">Contact Name</label>

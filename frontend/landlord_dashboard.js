@@ -386,7 +386,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     inquiriesSection.innerHTML = `
       <h2>Recent Property Inquiries</h2>
-      <div id="landlord-inquiries-list">
+      <div style="max-height: 400px; overflow-y: auto;" id="landlord-inquiries-list">
         ${
           inquiries.length === 0
             ? "<p>No inquiries received yet.</p>"

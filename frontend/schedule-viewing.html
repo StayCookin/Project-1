@@ -4,24 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schedule a Viewing - InRent</title>
-
-    <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter for clean typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-
-    <!-- Font Awesome for icons -->
     <link 
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-
     <style>
      :root {
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -150,15 +143,13 @@
           class="flex items-center bg-gray-50 p-4 rounded-lg mb-8 border border-gray-200"
         >
           <img
-            src="https://placehold.co/100x80/e2e8f0/4a5568?text=Property"
-            alt="Property Image"
+            src="" alt="Property Image"
             class="w-24 h-20 object-cover rounded-md"
+            id="property-image"
           />
           <div class="ml-4">
-            <h2 class="font-bold text-lg text-gray-800">
-              Single Room in Gaborone West
-            </h2>
-            <p class="text-green-600 font-semibold text-md">P2500.00 / month</p>
+            <h2 class="font-bold text-lg text-gray-800" id="property-title"></h2>
+            <p class="text-green-600 font-semibold text-md" id="property-price"></p>
           </div>
         </div>
 
@@ -277,7 +268,7 @@
                 ></i>
               </button>
               <a
-                href="#"
+                href="marketplace.html"
                 class="block text-center text-gray-600 mt-4 hover:text-black"
                 >Cancel</a
               >
@@ -308,313 +299,7 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // --- DOM Elements ---
-        const prevMonthBtn = document.getElementById("prev-month");
-        const nextMonthBtn = document.getElementById("next-month");
-        const monthYearEl = document.getElementById("month-year");
-        const calendarDaysEl = document.getElementById("calendar-days");
-        const timeSlotsEl = document.getElementById("time-slots");
-        const timePlaceholder = document.getElementById("time-placeholder");
-        const viewingTypeOptions = document.getElementById(
-          "viewing-type-options"
-        );
-        const form = document.getElementById("schedule-form");
-        const submitBtn = document.getElementById("submit-btn");
-        const submitBtnText = document.getElementById("submit-btn-text");
-        const submitSpinner = document.getElementById("submit-spinner");
-        const formContainer = document.getElementById("form-container");
-        const successModal = document.getElementById("success-modal");
-        const confirmDateEl = document.getElementById("confirm-date");
-        const confirmTimeEl = document.getElementById("confirm-time");
-
-        // --- State ---
-        let currentDate = new Date();
-        let selectedDate = null;
-        let selectedTime = null;
-        let selectedViewingType = "in-person"; // Default selection
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize today's date
-
-        // --- Functions ---
-
-        /**
-         * Renders the calendar for the given month and year.
-         */
-        function renderCalendar() {
-          const year = currentDate.getFullYear();
-          const month = currentDate.getMonth();
-
-          monthYearEl.textContent = `${currentDate.toLocaleString("default", {
-            month: "long",
-          })} ${year}`;
-          calendarDaysEl.innerHTML = "";
-
-          const firstDayOfMonth = new Date(year, month, 1).getDay();
-          const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-          // Adjust for week starting on Monday (getDay() returns 0 for Sunday)
-          const dayOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-
-          // Add empty cells for days before the 1st of the month
-          for (let i = 0; i < dayOffset; i++) {
-            calendarDaysEl.appendChild(document.createElement("div"));
-          }
-
-          // Add day cells
-          for (let day = 1; day <= daysInMonth; day++) {
-            const dayEl = document.createElement("button");
-            dayEl.type = "button";
-            dayEl.textContent = day;
-            dayEl.dataset.day = day;
-
-            const dayDate = new Date(year, month, day);
-            dayDate.setHours(0, 0, 0, 0);
-
-            let classes =
-              "h-10 w-10 flex items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-green-500";
-
-            if (dayDate < today) {
-              dayEl.disabled = true;
-              classes += " text-gray-300 cursor-not-allowed";
-            } else {
-              classes += " hover:bg-green-100 text-gray-700";
-            }
-
-            if (selectedDate && dayDate.getTime() === selectedDate.getTime()) {
-              classes += " bg-green-600 text-white hover:bg-green-600";
-            } else if (dayDate.getTime() === today.getTime()) {
-              classes += " border-2 border-green-500";
-            }
-
-            dayEl.className = classes;
-            calendarDaysEl.appendChild(dayEl);
-          }
-        }
-
-        /**
-         * Renders available time slots for the selected date.
-         */
-        function renderTimeSlots() {
-          if (!selectedDate) {
-            timeSlotsEl.innerHTML = "";
-            timeSlotsEl.appendChild(timePlaceholder);
-            return;
-          }
-
-          timeSlotsEl.innerHTML = "";
-          const availableTimes = [
-            "09:00",
-            "10:00",
-            "11:00",
-            "12:00",
-            "14:00",
-            "15:00",
-            "16:00",
-            "17:00",
-          ];
-          const now = new Date();
-          const isToday = selectedDate.toDateString() === now.toDateString();
-
-          availableTimes.forEach((time) => {
-            const [hour, minute] = time.split(":");
-            const timeDate = new Date(selectedDate);
-            timeDate.setHours(parseInt(hour), parseInt(minute));
-
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = time;
-            button.dataset.time = time;
-
-            let classes =
-              "p-2 rounded-lg border text-sm font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-green-500";
-
-            if (isToday && timeDate < now) {
-              button.disabled = true;
-              classes += " bg-gray-100 text-gray-400 cursor-not-allowed";
-            } else {
-              classes +=
-                " border-gray-300 hover:border-green-500 hover:text-green-600";
-            }
-
-            if (time === selectedTime) {
-              classes +=
-                " bg-green-600 text-white border-green-600 hover:border-green-600";
-            }
-
-            button.className = classes;
-            timeSlotsEl.appendChild(button);
-          });
-        }
-
-        /**
-         * Updates the visual style of viewing type buttons.
-         */
-        function updateViewingTypeButtons() {
-          document.querySelectorAll(".viewing-type-btn").forEach((btn) => {
-            if (btn.dataset.type === selectedViewingType) {
-              btn.classList.add(
-                "bg-green-600",
-                "text-white",
-                "border-green-600"
-              );
-              btn.classList.remove("border-gray-300");
-            } else {
-              btn.classList.remove(
-                "bg-green-600",
-                "text-white",
-                "border-green-600"
-              );
-              btn.classList.add("border-gray-300");
-            }
-          });
-        }
-
-        /**
-         * Shows an error state on a form section.
-         */
-        function triggerError(sectionId) {
-          const section = document.getElementById(sectionId);
-          section.classList.add("shake-error");
-          setTimeout(() => section.classList.remove("shake-error"), 820);
-        }
-
-        // --- Event Listeners ---
-        prevMonthBtn.addEventListener("click", () => {
-          currentDate.setMonth(currentDate.getMonth() - 1);
-          renderCalendar();
-        });
-
-        nextMonthBtn.addEventListener("click", () => {
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          renderCalendar();
-        });
-
-        calendarDaysEl.addEventListener("click", (e) => {
-          if (e.target.tagName === "BUTTON" && !e.target.disabled) {
-            const day = parseInt(e.target.dataset.day);
-            selectedDate = new Date(
-              currentDate.getFullYear(),
-              currentDate.getMonth(),
-              day
-            );
-            selectedTime = null; // Reset time when date changes
-            renderCalendar();
-            renderTimeSlots();
-          }
-        });
-
-        timeSlotsEl.addEventListener("click", (e) => {
-          if (e.target.tagName === "BUTTON" && !e.target.disabled) {
-            selectedTime = e.target.dataset.time;
-            renderTimeSlots(); // Re-render to update styles
-          }
-        });
-
-        viewingTypeOptions.addEventListener("click", (e) => {
-          const button = e.target.closest(".viewing-type-btn");
-          if (button) {
-            selectedViewingType = button.dataset.type;
-            updateViewingTypeButtons();
-          }
-        });
-
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-
-          // Validation
-          if (!selectedDate) {
-            triggerError("date-selection-section");
-            return;
-          }
-          if (!selectedTime) {
-            triggerError("time-selection-section");
-            return;
-          }
-
-          // Show loading state
-          submitBtn.disabled = true;
-          submitBtnText.classList.add("hidden");
-          submitSpinner.classList.remove("hidden");
-
-          // Real API call
-          setTimeout(() => {
-            // Update confirmation modal
-            const dateOptions = {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            };
-            confirmDateEl.textContent = selectedDate.toLocaleDateString(
-              "en-US",
-              dateOptions
-            );
-            confirmTimeEl.textContent = selectedTime;
-
-            // Show success modal
-            formContainer.classList.add("hidden");
-            successModal.classList.remove("hidden");
-          }, 1500);
-          try{
-            const response = await fetch("/api/schedule-viewing",{
-              method: 'POST',
-              headers: {
-                "Content-Type": "application/json" },
-                body: JSON.stringify ({
-                  date: selectedDate.toISOString(),
-                  time: selectedTime,
-                  viewingType: selectedViewingType,
-                  name:document.getElementById("name-input").value,
-                  email:document.getElementById("email-input").value
-                })
-              })
-              if (!response.ok){
-                const errorData= await response.json();
-                throw new Error(errorData.message) || "Failed to schedule a viewing";
-              }
-              const dateOptions = {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              };
-              confirmDateEl.textContent = selectedDate.toLocaleDateString(
-                "en-US",
-                dateOptions
-              );
-              confirmTimeEl.textContent = selectedTime;
-              formContainer.classList.add("hidden");
-              successModal.classList.remove("hidden");
-
-              submitBtn.disabled=false;
-              submitBtnText.classList.remove("hidden");
-              submitSpinner.classList.add("hidden");
-
-            }
-            catch (error){
-              console.error( "Error scheduling viewing", error);
-              alert("Failed to schedule viewing: " + error.message);
-              submitBtn.disabled=false;
-              submitBtnText.classList.remove("hidden");
-              submitSpinner.classList.add("hidden");
-            }
-          }
-        });
-
-        // Add redirect for close button
-        document
-          .getElementById("close-btn")
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            window.location.href = "marketplace.html";
-          });
-
-        // --- Initial Render ---
-        renderCalendar();
-        updateViewingTypeButtons();
-      });
+    <script type="module" src="schedule-viewing.js" defer>
     </script>
   </body>
 </html>
