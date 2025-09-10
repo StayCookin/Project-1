@@ -1,7 +1,7 @@
 // Firebase v9+ configuration and initialization
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, getDoc, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from  "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
 // Firebase configuration
 const firebaseConfig = {
