@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Verify user role is student
     try {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (!userDoc.exists() || userDoc.data().role !== 'student') {
+      if (!userDoc.exists() || userDoc.data().role !== 'STUDENT') {
         window.location.href = "index.html";
         return;
       }
