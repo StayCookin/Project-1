@@ -429,18 +429,7 @@ function renderPropertyDetails(property) {
             </div>
         ` : ''}
         
-        <div class='property-actions'>
-            <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
-                <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
-            </button>
-            <button class='btn btn-primary message-btn' onclick='openMessagingWithLandlord()'>
-                <i class='fas fa-comments'></i> Send Message
-            </button>
-            <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
-                <i class='fas fa-calendar-alt'></i> Schedule Viewing
-            </button>
-           
-        </div>
+      
     `;
 }
 
