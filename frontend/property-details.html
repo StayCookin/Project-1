@@ -127,7 +127,7 @@
                 </div>
             </div>
 
-            ${property.securityFee || property.deposit ? `
+            ${property.securityFee || property.deposit ? `` : ''}
                 <div class='additional-costs'>
                     <h3>Additional Costs</h3>
                     ${property.securityFee ? `<p><strong>Security Fee:</strong> P${formatPrice(property.securityFee)}</p>` : ''}
