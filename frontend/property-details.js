@@ -385,7 +385,7 @@ function renderPropertyDetails(property) {
                     </div>
                 </div>
                 <div class='feature-item'>
-                    <i class='fas fa-building feature-icon'></i>
+                    <i class='fas fa-building feature-icon' style=display: flex;></i>
                     <div>
                         <h3>${property.propertyType || property.type || property.houseType || 'Apartment'}</h3>
                         <p>Property Type</p>
