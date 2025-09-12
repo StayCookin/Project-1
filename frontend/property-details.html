@@ -12,6 +12,30 @@
       rel="stylesheet"
     />
   </head>
+  <style>
+
+    .btn.btn-secondary {
+        background-color: #f3f4f6; /* Tailwind gray-100 */
+        color: #374151; /* Tailwind gray-700 */
+        border: 1px solid #d1d5db; /* Tailwind gray-300 */
+        border-radius: 2.5px;
+        text-align: center 10px;
+    }
+    .btn.btn-primary.message-btn {
+        background-color: #10b981; /* Tailwind green-500 */
+        color: white;
+        border: 1px solid #d1d5db;
+        border-radius: 2.5px;
+        text-align:right 10px;
+    }
+    .btn.btn-outline-primary.viewing-btn {
+      background-color: grey;
+      color: white;
+      border: 1px solid #d1d5db;
+      border-radius: 2.5px;
+      text-align: left 10px;
+    }
+  </style>
   <body class="font-inter bg-gray-50 text-gray-800">
     <!-- Header -->
     <header class="bg-green-800 text-white shadow-md">
@@ -62,7 +86,7 @@
         ></p>
       </div>
 
-      <!-- Gallery -->
+      
       <div id="propertyGallery" class="flex flex-wrap gap-3 mb-6"></div>
 
       <!-- Details -->
@@ -71,6 +95,20 @@
       <!-- Contact Section -->
       <div id="contactSection" class="mb-10"></div>
 
+
+
+      <div class='property-actions'>
+            <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
+                <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
+            </button>
+            <button class='btn btn-primary message-btn' onclick='openMessagingWithLandlord()'>
+                <i class='fas fa-comments'></i> Send Message
+            </button>
+            <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
+                <i class='fas fa-calendar-alt'></i> Schedule Viewing
+            </button>
+           
+        </div>
       <!-- Similar Properties -->
       <section>
         <h2 class="text-xl font-semibold text-green-800 mb-4">

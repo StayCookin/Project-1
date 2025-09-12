@@ -366,36 +366,30 @@ function renderPropertyDetails(property) {
                 <div class='feature-item'>
                     <i class='fas fa-bed feature-icon'></i>
                     <div>
-                        <h3>${property.bedrooms || property.beds || property.rooms || 1}</h3>
-                        <p>Bedroom${(property.bedrooms || property.beds || property.rooms || 1) > 1 ? 's' : ''}</p>
+                        <p>Bedroom${(property.bedrooms || property.beds || property.rooms || 1) > 1 ? 's' : ''}</p><h3>${property.bedrooms || property.beds || property.rooms || 1}</h3>
+                        
                     </div>
                 </div>
                 <div class='feature-item'>
                     <i class='fas fa-bath feature-icon'></i>
                     <div>
-                        <h3>${property.bathrooms || property.baths || property.bathroom || 1}</h3>
-                        <p>Bathroom${(property.bathrooms || property.baths || property.bathroom || 1) > 1 ? 's' : ''}</p>
+                        <p>Bathroom${(property.bathrooms || property.baths || property.bathroom || 1) > 1 ? 's' : ''}</p><h3>${property.bathrooms || property.baths || property.bathroom || 1}</h3>
+                        
                     </div>
                 </div>
+                
                 <div class='feature-item'>
-                    <i class='fas fa-ruler-combined feature-icon'></i>
-                    <div>
-                        <h3>${property.size || property.area || 'N/A'}</h3>
-                        <p>Square Feet</p>
-                    </div>
-                </div>
-                <div class='feature-item'>
-                    <i class='fas fa-building feature-icon'></i>
-                    <div>
-                        <h3>${property.propertyType || property.type || property.houseType || 'Apartment'}</h3>
-                        <p>Property Type</p>
+                    <i class='fas fa-building feature-icon' style=display: flex;></i>
+                    <div> 
+                    <p>Property Type</p>
+                        <h3>${property.propertyType || property.type || property.houseType }</h3>
+                       
                     </div>
                 </div>
             </div>
             
             ${property.securityFee || property.deposit ? `
                 <div class='additional-costs'>
-                    <h3>Additional Costs</h3>
                     ${property.securityFee ? `<p><strong>Security Fee:</strong> P${formatPrice(property.securityFee)}</p>` : ''}
                     ${property.deposit ? `<p><strong>Deposit:</strong> P${formatPrice(property.deposit)}</p>` : ''}
                 </div>
@@ -429,18 +423,7 @@ function renderPropertyDetails(property) {
             </div>
         ` : ''}
         
-        <div class='property-actions'>
-            <button id='savePropertyBtn' class='btn btn-secondary' onclick='toggleSaveProperty()'>
-                <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
-            </button>
-            <button class='btn btn-primary message-btn' onclick='openMessagingWithLandlord()'>
-                <i class='fas fa-comments'></i> Send Message
-            </button>
-            <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
-                <i class='fas fa-calendar-alt'></i> Schedule Viewing
-            </button>
-           
-        </div>
+      
     `;
 }
 
