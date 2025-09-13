@@ -354,6 +354,7 @@ async function toggleSaveProperty() {
     }
   }
 }
+window.toggleSaveProperty = toggleSaveProperty;
 
 function updateSaveButton() {
     const btn = document.getElementById("savePropertyBtn");
