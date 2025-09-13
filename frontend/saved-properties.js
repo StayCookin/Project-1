@@ -2,21 +2,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
   getAuth,
-  getAuthEmulator,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import {
   getFirestore,
-  getFirestoreEmulator,
-  collection,
   doc,
   getDoc,
-  getDocs,
-  deleteDoc,
+  collection,
   query,
-  orderBy,
   where,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
