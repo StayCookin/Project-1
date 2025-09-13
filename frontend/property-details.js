@@ -158,10 +158,10 @@ if(dash){
     dash.addEventListener('click', (e) => {
         e.preventDefault();
 
-        if (window.currentUserData.role && window.currentUserData == "STUDENT"){
+        if (window.currentUserData && window.currentUserData.role == "STUDENT"){
             window.location.href = "student-dashboard.html"
         }
-        else if( window.currentUserData.role && window.cuurentUserData == "LANDLORD"){
+        else if( window.currentUserData && window.currentUserData.role == "LANDLORD"){
             window.location.href = "landlord-dashboard.html"
         }
 
@@ -468,7 +468,7 @@ function renderPropertyDetails(property) {
                 </div>
                 
                 <div class='feature-item'>
-                    <i class='fas fa-building feature-icon' style=display: flex;></i>
+                    <i class='fas fa-building feature-icon' style="display: flex;"></i>
                     <div> 
                     <p>Property Type</p>
                         <h3>${property.propertyType || property.type || property.houseType }</h3>
