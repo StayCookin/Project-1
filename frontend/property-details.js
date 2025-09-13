@@ -170,39 +170,33 @@ if(dash){
     })
 }
 
+// Corrected checkIfPropertySaved (keep this single definition)
 async function checkIfPropertySaved(propertyId) {
     if (!currentUser || !propertyId) {
-        console.log (" Cannot check saved status: missing user or property ID");
+        console.log("Cannot check saved status: missing user or property ID");
+        isPropertySaved = false;
+        updateSaveButton();
+        return;
     }
-    try{ 
-        await new Promise(resolve => setTimeout(resolve, 100));
 
-        const savedQuesry = query(
-            collection(db, "savedProperties"),
-            where("studentId", " ==", currentUser.uid),
-            where("propertyId", "==", propertyId)
+    try {
+        const savedQuery = query(
+            collection(db, 'savedProperties'),
+            where('studentId', '==', currentUser.uid),
+            where('propertyId', '==', propertyId)
         );
 
-        const quesrySnapshot = await getDocs(savedQuery);
-        isPropertySaved =!querySnapshot.empty;
+        const querySnapshot = await getDocs(savedQuery);
+        isPropertySaved = !querySnapshot.empty;
 
-        console.log(" Property ${propertyId} saved status:", isPropertySaved);
+        console.log(`Property ${propertyId} saved status:`, isPropertySaved);
         updateSaveButton();
-    }catch (error) {
-        console.error(" Error checking saved status:", error);
+    } catch (error) {
+        console.error("Error checking saved status:", error);
 
-        // Handle specific permission errors
         if (error.code === 'permission-denied') {
-            console.error('Permission denied. Please check your Firestore security rules.');
             showError('Unable to check saved status. Please refresh the page and try again.');
-        } else if (error.code === 'unauthenticated') {
-            console.error('User not authenticated');
-            // Don't show error to user as this might be temporary during auth initialization
-        } else {
-            // For other errors, still update the button but don't show error to user
-            console.error('Unexpected error:', error.message);
         }
-
         isPropertySaved = false;
         updateSaveButton();
     }
@@ -561,135 +555,47 @@ function formatAmenities(amenities) {
     });
 }
 
-async function checkIfPropertySaved(propertyId) {
-    try {
-        const savedQuery = query(
-            collection(db, 'savedProperties'),
-            where('studentId', '==', currentUser.uid),
-            where('propertyId', '==', propertyId)
-        );
-        
-        const querySnapshot = await getDocs(savedQuery);
-        isPropertySaved = !querySnapshot.empty;
-        
-        updateSaveButton();
-    } catch (error) {
-        console.error('Error checking saved status:', error);
-    }
-}
-
-function updateSaveButton() {
-    const btn = document.getElementById('savePropertyBtn');
-    const text = document.getElementById('saveButtonText');
-    
-    if (!btn || !text) return;
-    
-    const icon = btn.querySelector('i');
-    
-    if (isPropertySaved) {
-        if (icon) icon.className = 'fas fa-heart';
-        text.textContent = 'Saved';
-        btn.classList.add('btn-primary');
-        btn.classList.remove('btn-secondary');
-    } else {
-        if (icon) icon.className = 'far fa-heart';
-        text.textContent = 'Save Property';
-        btn.classList.add('btn-secondary');
-        btn.classList.remove('btn-primary');
-    }
-}
-
-// Global functions for button clicks
-window.toggleSaveProperty = async function() {
-    if (!currentProperty || !currentUser) return;
-    
-    try {
-        if (isPropertySaved) {
-            // Remove from saved properties
-            const savedQuery = query(
-                collection(db, 'savedProperties'),
-                where('studentId', '==', currentUser.uid),
-                where('propertyId', '==', currentProperty.id)
-            );
-            
-            const querySnapshot = await getDocs(savedQuery);
-            querySnapshot.forEach(async (docSnapshot) => {
-                await deleteDoc(doc(db, 'savedProperties', docSnapshot.id));
-            });
-            
-            isPropertySaved = false;
-            showSuccess('Property removed from saved list');
-        } else {
-            // Add to saved properties
-            await addDoc(collection(db, 'savedProperties'), {
-                studentId: currentUser.uid,
-                propertyId: currentProperty.id,
-                savedAt: serverTimestamp()
-            });
-            
-            isPropertySaved = true;
-            showSuccess('Property saved successfully');
-        }
-        
-        updateSaveButton();
-    } catch (error) {
-        console.error('Error toggling save status:', error);
-        showError('Failed to update saved status. Please try again.');
-    }
-};
-
+// Corrected openMessagingWithLandlord (fix condition and keep flow)
 window.openMessagingWithLandlord = async function() {
+    console.log("Start messaging function");
 
-  console.log("Start messaging function");
-
-    if (!currentUser || currentUser.uid) {
+    if (!currentUser || !currentUser.uid) {
         console.log("No current user");
         showError('Property or user information not available');
         return;
     }
 
-    if(!currentProperty){
+    if (!currentProperty) {
         console.log("No current property");
         showError("Property information not available");
         return;
     }
 
     const landlordId = currentProperty.landlordId || currentProperty.ownerId;
-    
     if (!landlordId) {
         console.log("No landlord found");
         showError('Landlord information not found for this property');
         return;
     }
-    console.log("Basic validation passed");
-    console.log("Current user id:", currentUser.uid);
-    console.log("Landlord ID:", landlordId);
-    console.log("Property ID:", currentProperty.id);
 
     try {
-        // Get landlord information
         const landlordDoc = await getDoc(doc(db, 'users', landlordId));
         let landlordName = 'Landlord';
-        
         if (landlordDoc.exists()) {
             const landlordData = landlordDoc.data();
             landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
         }
 
-        // Set context for messaging page
         sessionStorage.setItem('messageLandlordId', landlordId);
         sessionStorage.setItem('messagePropertyId', currentProperty.id);
         sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name || 'Property');
-        
-        // Set navigation context
+
         sessionStorage.setItem('messageContext', JSON.stringify({
             source: 'property-details',
             returnUrl: window.location.href
         }));
 
-        // Navigate to messages with context
         window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
-
     } catch (error) {
         console.error('Error opening messaging:', error);
         showError('Failed to open messaging. Please try again.');
