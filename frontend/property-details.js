@@ -154,6 +154,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+const dash = document.getElementById("dashboardBtn");
+if(dash){
+    dash.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if (window.currentUserData.role && window.currentUserData == "STUDENT"){
+            window.location.href = "student-dashboard.html"
+        }
+        else if( window.currentUserData.role && window.cuurentUserData == "LANDLORD"){
+            window.location.href = "landlord-dashboard.html"
+        }
+
+    })
+}
 
 async function initializeAuth() {
     try {
@@ -184,7 +198,8 @@ async function initializeAuth() {
                     return;
                 }
 
-                currentUser = user;
+                currentUser = { ...user, userData: userData};
+                window.currentUserData = userData;
                 await fetchPropertyDetails();
                 
             } catch (error) {
