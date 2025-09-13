@@ -290,47 +290,69 @@ async function fetchPropertyDetails() {
     }
 }
 
-window.toggleSaveProperty = async function() {
-    if (!currentProperty || !currentUser) {
-        showError(" Please wait for page to load fully before loading properties. ");
+async function toggleSaveProperty() {
+  if (!currentProperty || !currentUser) {
+    showError("Please wait for the page to load fully before saving properties.");
+    return;
+  }
+
+  const btn = document.getElementById("savePropertyBtn");
+  const originalHTML = btn ? btn.innerHTML : "";
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
+    }
+
+    if (isPropertySaved) {
+      // Remove any saved records for this user + property
+      const savedQuery = query(
+        collection(db, "savedProperties"),
+        where("studentId", "==", currentUser.uid),
+        where("propertyId", "==", currentProperty.id)
+      );
+
+      const querySnapshot = await getDocs(savedQuery);
+
+      if (querySnapshot.empty) {
+        console.log("No saved property found to delete.");
+        isPropertySaved = false;
+        updateSaveButton();
         return;
+      }
+
+      for (const docSnap of querySnapshot.docs) {
+        await deleteDoc(doc(db, "savedProperties", docSnap.id));
+      }
+
+      isPropertySaved = false;
+      updateSaveButton();
+      showSuccess("Property removed from saved list.");
+      return;
+    } else {
+      // Create saved record
+      await addDoc(collection(db, "savedProperties"), {
+        studentId: currentUser.uid,
+        propertyId: currentProperty.id,
+        propertyTitle: currentProperty.title || currentProperty.name || "",
+        createdAt: serverTimestamp()
+      });
+
+      isPropertySaved = true;
+      updateSaveButton();
+      showSuccess("Property saved.");
+      return;
     }
-
-    const btn = document.getElementById("savePropertyBtn");
-    const originalHTML = btn ? btn.innerHTML : "";
-
-    try {
-        if(btn) {
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
-        }
-        if (isPropertySaved) {
-
-            const savedQuery = query(
-                collection(db, "savedProperties"),
-                where(" studentId", " ==", currentUser.uid),
-                where(" propertyId", " ==", currentProperty.id)
-            );
-
-            const querySnapshot = await getDocs(savedQuery);
-
-            if(querySnapshot.empty) {
-                console.log( "No saved property found to delete.");
-                isPropertySaved = false;
-                updateSaveButton();
-                return;
-            }
-
-            
-        }
+  } catch (error) {
+    console.error("Error toggling saved property:", error);
+    showError("Failed to update saved property. Please try again.");
+  } finally {
+    console.log("Finalizing save toggle");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
     }
-    finally{
-        console.log("Finalizing save toggle");
-        if(btn) {
-            btn.disabled = false;
-            btn.innerHTML = originalHTML;
-        }
-    }
+  }
 }
 
 function updateSaveButton() {
