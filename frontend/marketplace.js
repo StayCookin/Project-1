@@ -1044,8 +1044,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const searchConfig = document.getElementById("applyFilterBtn");
-      searchConfig = {
+      let searchConfig = {
           maxResults: 20,
           sortField: 'createdAt',
           sortDirection: 'desc'
