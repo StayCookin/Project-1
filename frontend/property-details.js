@@ -563,17 +563,32 @@ window.toggleSaveProperty = async function() {
 };
 
 window.openMessagingWithLandlord = async function() {
-    if (!currentProperty || !currentUser) {
+
+  console.log("Start messaging function");
+
+    if (!currentUser || currentUser.uid) {
+        console.log("No current user");
         showError('Property or user information not available');
+        return;
+    }
+
+    if(!currentProperty){
+        console.log("No current property");
+        showError("Property information not available");
         return;
     }
 
     const landlordId = currentProperty.landlordId || currentProperty.ownerId;
     
     if (!landlordId) {
+        console.log("No landlord found");
         showError('Landlord information not found for this property');
         return;
     }
+    console.log("Basic validation passed");
+    console.log("Current user id:", currentUser.uid);
+    console.log("Landlord ID:", landlordId);
+    console.log("Property ID:", currentProperty.id);
 
     try {
         // Get landlord information
