@@ -13,7 +13,7 @@
     { "src": "/view-listing(.*)", "dest": "/frontend/view-listing.html" },
     { "src": "/student-dashboard", "dest": "/frontend/student-dashboard.html" },
     { "src": "/landlord-dashboard", "dest": "/frontend/landlord-dashboard.html" },
-    { "src": "/terms-and-conditions", "dest": "/frontend/terms-and-conditions.html" },
+    { "src": "/terms-and-conditions", "dest": "/terms" },
     { "src": "/", "dest": "/frontend/index.html" },
     { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
