@@ -138,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    saveButton
     // Setup back button with null check
     const backButton = document.getElementById('backButton');
     if (backButton) {
@@ -154,6 +153,44 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+async function checkIfPropertySaved(propertyId) {
+    if (!currentUser || !propertyId) {
+        console.log (" Cannot check saved status: missing user or property ID");
+    }
+    try{ 
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const savedQuesry = query(
+            collection(db, "savedProperties"),
+            where("studentId", " ==", currentUser.uid),
+            where("propertyId", "==", propertyId)
+        );
+
+        const quesrySnapshot = await getDocs(savedQuery);
+        isPropertySaved =!querySnapshot.empty;
+
+        console.log(" Property ${propertyId} saved status:", isPropertySaved);
+        updateSaveButton();
+    }catch (error) {
+        console.error(" Error checking saved status:", error);
+
+        // Handle specific permission errors
+        if (error.code === 'permission-denied') {
+            console.error('Permission denied. Please check your Firestore security rules.');
+            showError('Unable to check saved status. Please refresh the page and try again.');
+        } else if (error.code === 'unauthenticated') {
+            console.error('User not authenticated');
+            // Don't show error to user as this might be temporary during auth initialization
+        } else {
+            // For other errors, still update the button but don't show error to user
+            console.error('Unexpected error:', error.message);
+        }
+
+        isPropertySaved = false;
+        updateSaveButton();
+    }
+}
 
 async function initializeAuth() {
     try {
@@ -241,6 +278,43 @@ async function fetchPropertyDetails() {
         showError(`Failed to load property: ${error.message}`);
     }
 }
+
+window.toggleSaveProperty = async function() {
+    if (!currentProperty || !currentUser) {
+        showError(" Please wait for page to load fully before loading properties. ");
+        return;
+    }
+
+    const btn = document.getElementById(" savePropertyBtn");
+    const originalHTML = btn ? btn.innerHTML : "";
+
+    try {
+        if(btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
+        }
+        if (isPropertySaved) {
+
+            const savedQuery = query(
+                collection(db, " savedProperties"),
+                where(" studentId", " ==", currentUser.uid),
+                where(" propertyId", " ==", currentProperty.id)
+            );
+
+            const querySnapshot = await getDocs(savedQuery);
+
+            if(querySnapshot.empty) {
+                console.log( "No saved property found to delete.");
+                isPropertySaved = false;
+                updateSaveButton();
+                return;
+            }
+
+            
+        }
+    }
+}
+
 
 function renderProperty(property) {
     document.title = `${property.title || property.name} - Property Details`;
