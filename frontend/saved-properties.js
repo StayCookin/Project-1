@@ -47,11 +47,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const userRole = userData.role || userData.userType || "student";
+        const userRole = userData.role || userData.userType || "STUDENT";
 
-        if (userRole !== "student") {
+        if (userRole !== "STUDENT") {
           // Redirect non-students to appropriate dashboard
-          window.location.href = userRole === "landlord" ? "landlord-dashboard.html" : "index.html";
+          window.location.href = userRole === "LANDLORD" ? "landlord-dashboard.html" : "index.html";
           return;
         }
       }
