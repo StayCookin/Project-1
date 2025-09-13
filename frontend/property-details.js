@@ -296,7 +296,7 @@ window.toggleSaveProperty = async function() {
         return;
     }
 
-    const btn = document.getElementById(" savePropertyBtn");
+    const btn = document.getElementById("savePropertyBtn");
     const originalHTML = btn ? btn.innerHTML : "";
 
     try {
@@ -307,7 +307,7 @@ window.toggleSaveProperty = async function() {
         if (isPropertySaved) {
 
             const savedQuery = query(
-                collection(db, " savedProperties"),
+                collection(db, "savedProperties"),
                 where(" studentId", " ==", currentUser.uid),
                 where(" propertyId", " ==", currentProperty.id)
             );
@@ -324,8 +324,27 @@ window.toggleSaveProperty = async function() {
             
         }
     }
+    finally{
+        console.log("Finalizing save toggle");
+        if(btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    }
 }
 
+function updateSaveButton() {
+    const btn = document.getElementById("savePropertyBtn");
+    if (!btn) return;
+    if (isPropertySaved){
+        btn.innerHTML = '<i class="far fa-heart"></i>Saved';
+        btn.classList.add("saved");
+
+    }else {
+        btn.innerHTML = '<i class="far fa-heart"></i>Save';
+        btn.classList.remove("saved");
+    }
+}
 
 function renderProperty(property) {
     document.title = `${property.title || property.name} - Property Details`;
