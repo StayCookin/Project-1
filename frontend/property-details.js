@@ -153,32 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-const searchConfig = document.getElementById("applyFilterBtn");
-searchConfig = {
-    maxResults: 20,
-    sortField: 'createdAt',
-    sortDirection: 'desc'
-};
-
-async function searchProperties(searchParams = {}, pagination = {}){
-    try {
-        toggleSearchLoading(true);
-
-        console.log(" Search parameters:", searchParams);
-        let queryConstraints = [];
-
-        if(searchParams.location && searchParams.location.trim()) {
-            const locationTerm = searchParams.location.trim().toLowerCase();
-            queryConstraints.push(where('location', '>=', locationTerm));
-            queryConstraints.push(where('location', '<=', locationTerm + '\uf8ff'));
-        }
-
-        if (searchParams.minprice && searchParams.minPrice > 0) {
-            queryConstraints.push(where('rent', '>=', parseInt(searchParams.minPrice)));
-
-        }
-    }
-}
 
 
 const dash = document.getElementById("dashboardBtn");
