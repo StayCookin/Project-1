@@ -32,6 +32,8 @@ let currentUser = null;
 let currentProperty = null;
 let isPropertySaved = false;
 
+
+
 // Helper functions for showing messages
 function showLoading(show) {
     const loadingState = document.getElementById('loadingState');
