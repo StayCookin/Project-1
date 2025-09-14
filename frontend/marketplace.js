@@ -1075,6 +1075,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+<<<<<<< HEAD
     currentUser = user;
     console.log("✅ User authenticated:");
     console.log("  - UID:", user.uid);
@@ -1092,12 +1093,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+=======
+>>>>>>> cc9fd10a0f6840cd9771d78b4d95e0e4be06e90f
     try {
-      // Get user data from Firestore
-      console.log(`🔍 Fetching user data from Firestore for UID: ${user.uid}`);
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const role = userData.role || userData.userType || "STUDENT";
 
+<<<<<<< HEAD
       if (!userDoc.exists()) {
         console.error("❌ User document not found in Firestore!");
         alert(
@@ -1174,6 +1177,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       hideLoadingState();
       await signOut(auth);
+=======
+      // Redirect landlords to landlord dashboard
+      if (role === "LANDLORD") {
+        window.location.href = "landlord-dashboard.html";
+        return;
+      }
+
+      // Authenticated student — set globals and continue initialization
+      currentUser = user;
+      currentUserData = userData;
+
+      // Start property listener and UI setup now that role/user are known
+      await setupPropertiesListener(role, user);
+      if (typeof setupNavigationButtons === "function") setupNavigationButtons(role);
+
+    } catch (err) {
+      console.error("Auth role check failed:", err);
+>>>>>>> cc9fd10a0f6840cd9771d78b4d95e0e4be06e90f
       window.location.href = "index.html";
     }
   });

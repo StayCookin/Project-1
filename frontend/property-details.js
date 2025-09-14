@@ -140,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    saveButton
     // Setup back button with null check
     const backButton = document.getElementById('backButton');
     if (backButton) {
@@ -156,19 +155,53 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+
 const dash = document.getElementById("dashboardBtn");
 if(dash){
     dash.addEventListener('click', (e) => {
         e.preventDefault();
 
-        if (window.currentUserData.role && window.currentUserData == "STUDENT"){
+        if (window.currentUserData && window.currentUserData.role == "STUDENT"){
             window.location.href = "student-dashboard.html"
         }
-        else if( window.currentUserData.role && window.cuurentUserData == "LANDLORD"){
+        else if( window.currentUserData && window.currentUserData.role == "LANDLORD"){
             window.location.href = "landlord-dashboard.html"
         }
 
     })
+}
+
+// Corrected checkIfPropertySaved (keep this single definition)
+async function checkIfPropertySaved(propertyId) {
+    if (!currentUser || !propertyId) {
+        console.log("Cannot check saved status: missing user or property ID");
+        isPropertySaved = false;
+        updateSaveButton();
+        return;
+    }
+
+    try {
+        const savedQuery = query(
+            collection(db, 'savedProperties'),
+            where('studentId', '==', currentUser.uid),
+            where('propertyId', '==', propertyId)
+        );
+
+        const querySnapshot = await getDocs(savedQuery);
+        isPropertySaved = !querySnapshot.empty;
+
+        console.log(`Property ${propertyId} saved status:`, isPropertySaved);
+        updateSaveButton();
+    } catch (error) {
+        console.error("Error checking saved status:", error);
+
+        if (error.code === 'permission-denied') {
+            showError('Unable to check saved status. Please refresh the page and try again.');
+        }
+        isPropertySaved = false;
+        updateSaveButton();
+    }
 }
 
 async function initializeAuth() {
@@ -256,6 +289,85 @@ async function fetchPropertyDetails() {
         console.error("Error fetching property details:", error);
         showLoading(false);
         showError(`Failed to load property: ${error.message}`);
+    }
+}
+
+async function toggleSaveProperty() {
+  if (!currentProperty || !currentUser) {
+    showError("Please wait for the page to load fully before saving properties.");
+    return;
+  }
+
+  const btn = document.getElementById("savePropertyBtn");
+  const originalHTML = btn ? btn.innerHTML : "";
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
+    }
+
+    if (isPropertySaved) {
+      // Remove any saved records for this user + property
+      const savedQuery = query(
+        collection(db, "savedProperties"),
+        where("studentId", "==", currentUser.uid),
+        where("propertyId", "==", currentProperty.id)
+      );
+
+      const querySnapshot = await getDocs(savedQuery);
+
+      if (querySnapshot.empty) {
+        console.log("No saved property found to delete.");
+        isPropertySaved = false;
+        updateSaveButton();
+        return;
+      }
+
+      for (const docSnap of querySnapshot.docs) {
+        await deleteDoc(doc(db, "savedProperties", docSnap.id));
+      }
+
+      isPropertySaved = false;
+      updateSaveButton();
+      showSuccess("Property removed from saved list.");
+      return;
+    } else {
+      // Create saved record
+      await addDoc(collection(db, "savedProperties"), {
+        studentId: currentUser.uid,
+        propertyId: currentProperty.id,
+        propertyTitle: currentProperty.title || currentProperty.name || "",
+        createdAt: serverTimestamp()
+      });
+
+      isPropertySaved = true;
+      updateSaveButton();
+      showSuccess("Property saved.");
+      return;
+    }
+  } catch (error) {
+    console.error("Error toggling saved property:", error);
+    showError("Failed to update saved property. Please try again.");
+  } finally {
+    console.log("Finalizing save toggle");
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+}
+window.toggleSaveProperty = toggleSaveProperty;
+
+function updateSaveButton() {
+    const btn = document.getElementById("savePropertyBtn");
+    if (!btn) return;
+    if (isPropertySaved){
+        btn.innerHTML = '<i class="far fa-heart"></i>Saved';
+        btn.classList.add("saved");
+
+    }else {
+        btn.innerHTML = '<i class="far fa-heart"></i>Save';
+        btn.classList.remove("saved");
     }
 }
 
@@ -396,7 +508,7 @@ function renderPropertyDetails(property) {
                 </div>
                 
                 <div class='feature-item'>
-                    <i class='fas fa-building feature-icon' style=display: flex;></i>
+                    <i class='fas fa-building feature-icon' style="display: flex;"></i>
                     <div> 
                     <p>Property Type</p>
                         <h3>${property.propertyType || property.type || property.houseType }</h3>
@@ -487,135 +599,47 @@ function formatAmenities(amenities) {
     });
 }
 
-async function checkIfPropertySaved(propertyId) {
-    try {
-        const savedQuery = query(
-            collection(db, 'savedProperties'),
-            where('studentId', '==', currentUser.uid),
-            where('propertyId', '==', propertyId)
-        );
-        
-        const querySnapshot = await getDocs(savedQuery);
-        isPropertySaved = !querySnapshot.empty;
-        
-        updateSaveButton();
-    } catch (error) {
-        console.error('Error checking saved status:', error);
-    }
-}
-
-function updateSaveButton() {
-    const btn = document.getElementById('savePropertyBtn');
-    const text = document.getElementById('saveButtonText');
-    
-    if (!btn || !text) return;
-    
-    const icon = btn.querySelector('i');
-    
-    if (isPropertySaved) {
-        if (icon) icon.className = 'fas fa-heart';
-        text.textContent = 'Saved';
-        btn.classList.add('btn-primary');
-        btn.classList.remove('btn-secondary');
-    } else {
-        if (icon) icon.className = 'far fa-heart';
-        text.textContent = 'Save Property';
-        btn.classList.add('btn-secondary');
-        btn.classList.remove('btn-primary');
-    }
-}
-
-// Global functions for button clicks
-window.toggleSaveProperty = async function() {
-    if (!currentProperty || !currentUser) return;
-    
-    try {
-        if (isPropertySaved) {
-            // Remove from saved properties
-            const savedQuery = query(
-                collection(db, 'savedProperties'),
-                where('studentId', '==', currentUser.uid),
-                where('propertyId', '==', currentProperty.id)
-            );
-            
-            const querySnapshot = await getDocs(savedQuery);
-            querySnapshot.forEach(async (docSnapshot) => {
-                await deleteDoc(doc(db, 'savedProperties', docSnapshot.id));
-            });
-            
-            isPropertySaved = false;
-            showSuccess('Property removed from saved list');
-        } else {
-            // Add to saved properties
-            await addDoc(collection(db, 'savedProperties'), {
-                studentId: currentUser.uid,
-                propertyId: currentProperty.id,
-                savedAt: serverTimestamp()
-            });
-            
-            isPropertySaved = true;
-            showSuccess('Property saved successfully');
-        }
-        
-        updateSaveButton();
-    } catch (error) {
-        console.error('Error toggling save status:', error);
-        showError('Failed to update saved status. Please try again.');
-    }
-};
-
+// Corrected openMessagingWithLandlord (fix condition and keep flow)
 window.openMessagingWithLandlord = async function() {
+    console.log("Start messaging function");
 
-  console.log("Start messaging function");
-
-    if (!currentUser || currentUser.uid) {
+    if (!currentUser || !currentUser.uid) {
         console.log("No current user");
         showError('Property or user information not available');
         return;
     }
 
-    if(!currentProperty){
+    if (!currentProperty) {
         console.log("No current property");
         showError("Property information not available");
         return;
     }
 
     const landlordId = currentProperty.landlordId || currentProperty.ownerId;
-    
     if (!landlordId) {
         console.log("No landlord found");
         showError('Landlord information not found for this property');
         return;
     }
-    console.log("Basic validation passed");
-    console.log("Current user id:", currentUser.uid);
-    console.log("Landlord ID:", landlordId);
-    console.log("Property ID:", currentProperty.id);
 
     try {
-        // Get landlord information
         const landlordDoc = await getDoc(doc(db, 'users', landlordId));
         let landlordName = 'Landlord';
-        
         if (landlordDoc.exists()) {
             const landlordData = landlordDoc.data();
             landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
         }
 
-        // Set context for messaging page
         sessionStorage.setItem('messageLandlordId', landlordId);
         sessionStorage.setItem('messagePropertyId', currentProperty.id);
         sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name || 'Property');
-        
-        // Set navigation context
+
         sessionStorage.setItem('messageContext', JSON.stringify({
             source: 'property-details',
             returnUrl: window.location.href
         }));
 
-        // Navigate to messages with context
         window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
-
     } catch (error) {
         console.error('Error opening messaging:', error);
         showError('Failed to open messaging. Please try again.');

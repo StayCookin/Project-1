@@ -2,30 +2,28 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
   getAuth,
-  getAuthEmulator,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import {
   getFirestore,
-  getFirestoreEmulator,
-  collection,
   doc,
   getDoc,
-  getDocs,
-  deleteDoc,
+  collection,
   query,
-  orderBy,
   where,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAXKk5gRjwSGK_g9f_HP_f4y4445e_8l4w",
-  authDomain: "project-1-1e31c.firebaseapp.com",
-  projectId: "project-1-1e31c",
-  storageBucket: "project-1-1e31c.firebasestorage.app",
-  messagingSenderId: "658275930203",
-  appId: "1:658275930203:web:afc2e2a249509737b0ef7e",
+  apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
+  authDomain: "inrent-6ab14.firebaseapp.com",
+  databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
+  projectId: "inrent-6ab14",
+  storageBucket: "inrent-6ab14.firebasestorage.app",
+  messagingSenderId: "327416190792",
+  appId: "1:327416190792:web:970377ec8dcef557e5457d",
+  measurementId: "G-JY9E760ZQ0"
 };
 
 
@@ -33,10 +31,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-if (location.hostname === "localhost"){
-  connectAuthEmulator(auth, "http://localhost:5500");
-  connectFirestoreEmulator(db, "localhost", 8080);
-}
 
 // Student User Flow: Login > Marketplace > View Property > Save/Book > Saved Properties Page
 document.addEventListener("DOMContentLoaded", function () {
@@ -53,11 +47,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const userRole = userData.role || userData.userType || "student";
+        const userRole = userData.role || userData.userType || "STUDENT";
 
-        if (userRole !== "student") {
+        if (userRole !== "STUDENT") {
           // Redirect non-students to appropriate dashboard
-          window.location.href = userRole === "landlord" ? "landlord-dashboard.html" : "index.html";
+          window.location.href = userRole === "LANDLORD" ? "landlord-dashboard.html" : "index.html";
           return;
         }
       }
