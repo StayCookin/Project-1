@@ -1075,7 +1075,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-<<<<<<< HEAD
+
     currentUser = user;
     console.log("✅ User authenticated:");
     console.log("  - UID:", user.uid);
@@ -1091,10 +1091,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await signOut(auth);
       window.location.href = "signup.html";
       return;
-    }
-
-=======
->>>>>>> cc9fd10a0f6840cd9771d78b4d95e0e4be06e90f
+    
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
@@ -1195,6 +1192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Auth role check failed:", err);
 >>>>>>> cc9fd10a0f6840cd9771d78b4d95e0e4be06e90f
+
       window.location.href = "index.html";
     }
   });
