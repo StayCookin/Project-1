@@ -201,7 +201,7 @@ function renderSavedProperties(properties) {
           <span><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
         </div>
         ${property.createdAt ? `<div class="saved-date" style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">
-          <i class="fas fa-heart" style="color: #e74c3c;"></i> Saved ${formatDate(property.savedAt)}
+          <i class="fas fa-heart" style="color: #e74c3c;"></i> Saved ${formatDate(property.createdAt)}
         </div>` : ''}
         <div class="property-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
           <button class="btn btn-primary" onclick="viewDetails('${property._id}')"
