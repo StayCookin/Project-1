@@ -14,7 +14,8 @@ import {
   where,
   getDocs,
   orderBy,
-  deleteDoc
+  deleteDoc,
+  getDocs as getDocsAlias
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -282,8 +283,18 @@ async function removeSavedProperty(propertyId, event) { // Added event parameter
     removeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
     removeBtn.disabled = true;
 
-    // Remove from student's saved properties subcollection
-    await deleteDoc(doc(db, "users", user.uid, "savedProperties", propertyId));
+    // Remove from student's saved property collection
+    const savedPropertiesRef = collection(db, "savedProperties");
+    const deleteQuery = query(
+      savedPropertiesRef, where("studentId","==", user.uid), where("propertyId", "==", propertyId));
+
+  const querySnapshot = await getDocs(deleteQuery);
+  if(querySnapshot.empty){
+    throw new Error("SAved property not found");
+  }
+  const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+
+  await Promise.all(deletePromises);
 
     // Show success message
     showNotification('Success', 'Property removed from your saved list');
