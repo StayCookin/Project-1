@@ -310,7 +310,7 @@ async function validateUserProfile(user) {
     const userDoc = await getDoc(userDocRef);
 
     const userData = userDoc.data();
-    const requiredFields = ['firstName','email', 'role', 'createdAt'];
+    const requiredFields = ['email', 'role', 'createdAt'];
     const missingFields = requiredFields.filter(field => !userData.hasOwnProperty(field));
     
     if (missingFields.length > 0) {
