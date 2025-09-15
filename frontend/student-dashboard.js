@@ -173,8 +173,9 @@ class StudentDashboard {
       const savedPropertiesRef = collection(db, 'savedProperties');
       const savedQuery = query(savedPropertiesRef, where('userId', '==', user.uid));
       const savedSnapshot = await getDocs(savedQuery);
-      const savedCount = savedSnapshot.size;
-    }catch(error){ console.log("Saved property collection not found", error);
+     savedCount = savedSnapshot.size;
+    }catch(error){ 
+      console.log("Saved property collection not found", error);
       savedCount =0;
     }
 try{
@@ -182,7 +183,7 @@ try{
       const viewingRequestsRef = collection(db, 'viewingRequests');
       const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
       const viewingSnapshot = await getDocs(viewingQuery);
-      const viewingCount = viewingSnapshot.size;}catch(error){
+     viewingCount = viewingSnapshot.size;}catch(error){
      console.log("viewing requests are currently empty", error);
      viewingCount = 0;
       }
@@ -191,7 +192,7 @@ try{
       const reviewsRef = collection(db, 'reviews');
       const reviewsQuery = query(reviewsRef, where('userId', '==', user.uid));
       const reviewsSnapshot = await getDocs(reviewsQuery);
-      const reviewsCount = reviewsSnapshot.size;} catch(error){
+     reviewsCount = reviewsSnapshot.size;} catch(error){
         console.log("Reviews not yet made", error);
         reviewsCount = 0;
       }
@@ -203,13 +204,11 @@ try{
         reviews: reviewsCount
       });
 
-    } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
     }
   }
 
   // MISSING METHOD: Update UI for authenticated user
-  updateUIForAuthenticatedUser() {
+  updateUIForAuthenticatedUser () {
     const welcomeMsg = document.getElementById('welcomeMessage');
     if (welcomeMsg) {
       const userName = this.userProfile?.firstName || this.currentUser?.displayName || 'Student';
