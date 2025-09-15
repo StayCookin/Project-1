@@ -86,7 +86,7 @@ class StudentDashboard {
             await this.fetchDashboardStats(user);
             this.updateUIForAuthenticatedUser();
             const userDocRef = doc(db, 'users', user.uid);
-            constuserDoc = await getDoc(userDocRef);
+            const userDoc = await getDoc(userDocRef);
             if(userDoc.exists()){
               const userData = userDoc.data();
               const firstName = userData.firstName;
