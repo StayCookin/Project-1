@@ -1077,10 +1077,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     currentUser = user;
-    console.log("✅ User authenticated:");
-    console.log("  - UID:", user.uid);
-    console.log("  - Email:", user.email);
-    console.log("  - Email Verified:", user.emailVerified);
+    console.log("✅ User authenticated:", user.email);
+  
 
     // Check email verification
     if (!user.emailVerified) {
@@ -1091,7 +1089,40 @@ document.addEventListener("DOMContentLoaded", () => {
       await signOut(auth);
       window.location.href = "signup.html";
       return;
-    
+    }
+    try { console.log("Loading user info");
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (!userDoc.exists()){
+        console.log("User doc not found");
+        alert ("User profile not found. Please complete registration");
+        await signOut(auth);
+        window.location.href= "signup.html";
+        return;
+      }
+      currentUserData = userDoc.data();
+      console.log("User data loaded", currentUserData);
+
+      if (!currentUserData.role){
+        console.log("Invalid user role", currentUserData.role);
+        alert("Invalid user role. Please contact support");
+        await signOut(auth);
+        window.location.href = "signup.html";
+        return;
+      }
+      hideLoadingState();
+
+      console.log("Initializing marketplace");
+      updateUIForRole(currentUserData.role, user);
+      setupEventListeners(currentUserData.role, user);
+
+      await setupPropertiesListener(currentUserData.role, user);
+      
+    }
+    catch(error){
+      console.error("Error during initialization", error);
+      hideLoadingState();
+      alert("Error loading marketplace. Please try again");
     }
   });
 });
