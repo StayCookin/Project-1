@@ -603,6 +603,12 @@ function formatAmenities(amenities) {
 window.openMessagingWithLandlord = async function() {
     console.log("Start messaging function");
 
+    const messagingBtn = document.querySelector('[onclick="openMessagingWithLandlord()"]');
+    if(messagingBtn){
+        messagingBtn.disabled = true;
+        messagingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>Opening chat';
+    }
+
     if (!currentUser || !currentUser.uid) {
         console.log("No current user");
         showError('Property or user information not available');
@@ -612,6 +618,10 @@ window.openMessagingWithLandlord = async function() {
     if (!currentProperty) {
         console.log("No current property");
         showError("Property information not available");
+        if(messagingBtn){ 
+            messagingBtn.disabled=true;
+            messagingBtn.innerHTML = '<i class="fas fa-comments"></i> Message Landlord';
+        }
         return;
     }
 
@@ -619,33 +629,63 @@ window.openMessagingWithLandlord = async function() {
     if (!landlordId) {
         console.log("No landlord found");
         showError('Landlord information not found for this property');
+        if(messagingBtn){
+            messagingBtn.disabled=false;
+            messagingBtn.innerHTML= '<i class="fas fa-comments"></i>Message Landlord';
+        }
         return;
     }
 
     try {
         const landlordDoc = await getDoc(doc(db, 'users', landlordId));
         let landlordName = 'Landlord';
+
         if (landlordDoc.exists()) {
             const landlordData = landlordDoc.data();
+            if (landlordData.role === 'LANDLORD'){
             landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
+        } else { console.log('Landlord profile not found');}
+    }
+        else { throw new Error ('User not a landlord');
+
         }
-
-        sessionStorage.setItem('messageLandlordId', landlordId);
-        sessionStorage.setItem('messagePropertyId', currentProperty.id);
-        sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name || 'Property');
-
-        sessionStorage.setItem('messageContext', JSON.stringify({
-            source: 'property-details',
-            returnUrl: window.location.href
+    
+       const messagingContext = {
+        landlordId: landlordId,
+        landlordName: landlordName,
+        propertyId: currentProperty.id,
+        propertyName: currentProperty.title || currentProperty.name || 'Property',
+        propertyLocation: currentProperty.location || currentProperty.address || '',
+        source: 'property-details',
+        returnUrl: window.location.href,
+        timestamp: Date.now()
+        };
+       try{
+        const expirationTime = Date.now() + (24 * 60 * 60 * 1000);
+        sessionStorage.setItem('messagingContext', JSON.stringify({
+            data: messagingContext,
+            expires: expirationTime
         }));
 
-        window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
-    } catch (error) {
-        console.error('Error opening messaging:', error);
-        showError('Failed to open messaging. Please try again.');
-    }
-};
+        sessionStorage.setItem('messageLandlordId',landlordId);
+        sessionStorage.setItem('messagePropertyId', currentProperty.id);
+        sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name ||'Property');
 
+        window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+    } catch (storageError) {
+        console.error('Error opening messaging:', storageError);
+        window.location.href= `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+    }
+}catch(error){
+    console.error("Error opening messaging", error);
+    showError( "Failed to open messaging. Please try again. ");
+
+    if (messagingBtn){
+        messagingBtn.disabled = false;
+        messagingBtn.innerHTML = '<i class="fas fa-comments"></i>Message Landlord';
+    }
+}
+};
 window.scheduleViewing = function() {
     if (!currentProperty || !currentUser) {
         showError('Property or user information not available');
