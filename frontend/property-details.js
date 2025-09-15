@@ -646,9 +646,7 @@ window.openMessagingWithLandlord = async function() {
             landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
         } else { console.log('Landlord profile not found');}
     }
-        else { throw new Error ('User not a landlord');
-
-        }
+        
     
        const messagingContext = {
         landlordId: landlordId,
