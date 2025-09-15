@@ -13,6 +13,8 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -83,9 +85,9 @@ async function fetchSavedProperties() {
     }
 
     // Get saved properties from student's subcollection
-    // Path: users/{studentId}/savedProperties/{propertyId}
-    const savedPropertiesRef = collection(db, "users", user.uid, "savedProperties");
-    const savedQuery = query(savedPropertiesRef, orderBy("savedAt", "desc"));
+    // Path: savedProperties/{propertyId}
+    const savedPropertiesRef = collection(db,"savedProperties");
+    const savedQuery = query(savedPropertiesRef,where("studentId","==", user.uid), orderBy("createdAt", "desc"));
     const savedSnapshot = await getDocs(savedQuery);
 
     if (savedSnapshot.empty) {
