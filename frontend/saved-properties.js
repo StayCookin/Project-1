@@ -110,7 +110,7 @@ async function fetchSavedProperties() {
             const propertyData = propertyDoc.data();
             return {
               _id: propertyId,
-              savedAt: savedData.savedAt,
+              createdAt: savedData.createdAt,
               ...propertyData
             };
           } else {
@@ -200,7 +200,7 @@ function renderSavedProperties(properties) {
           <span><i class="fas fa-bath"></i> ${baths} Bath${baths !== 1 ? 's' : ''}</span>
           <span><i class="fas fa-ruler-combined"></i> ${size} sqft</span>
         </div>
-        ${property.savedAt ? `<div class="saved-date" style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">
+        ${property.createdAt ? `<div class="saved-date" style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">
           <i class="fas fa-heart" style="color: #e74c3c;"></i> Saved ${formatDate(property.savedAt)}
         </div>` : ''}
         <div class="property-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
