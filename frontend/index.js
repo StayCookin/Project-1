@@ -1,7 +1,7 @@
 // Firebase imports - Only what's needed for auth state, getting user data, and logout
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getAuth,connectAuthEmulator, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getFirestore,connectFirestoreEmulator, connectStorageEmulator,connectDatabaseEmulator,doc, getDoc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore,doc, getDoc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
