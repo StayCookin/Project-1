@@ -12,6 +12,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
