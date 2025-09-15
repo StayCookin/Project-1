@@ -162,53 +162,57 @@ class StudentDashboard {
 
   // MISSING METHOD: Fetch dashboard stats
   async fetchDashboardStats(user) {
-    if (!user) return;
+  if (!user) return;
 
-    let savedCount = 0;
-    let viewingCount = 0;
-    let reviewsCount = 0;
+  let savedCount = 0;
+  let viewingCount = 0;
+  let reviewsCount = 0;
 
-    try {
-      // Fetch saved properties count
-      const savedPropertiesRef = collection(db, 'savedProperties');
-      const savedQuery = query(savedPropertiesRef, where('userId', '==', user.uid));
-      const savedSnapshot = await getDocs(savedQuery);
-     savedCount = savedSnapshot.size;
-    }catch(error){ 
-      console.log("Saved property collection not found", error);
-      savedCount =0;
-    }
-try{
-      // Fetch viewing requests count
-      const viewingRequestsRef = collection(db, 'viewingRequests');
-      const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
-      const viewingSnapshot = await getDocs(viewingQuery);
-     viewingCount = viewingSnapshot.size;}catch(error){
-     console.log("viewing requests are currently empty", error);
-     viewingCount = 0;
-      }
- try{
-      // Fetch reviews count
-      const reviewsRef = collection(db, 'reviews');
-      const reviewsQuery = query(reviewsRef, where('userId', '==', user.uid));
-      const reviewsSnapshot = await getDocs(reviewsQuery);
-     reviewsCount = reviewsSnapshot.size;} catch(error){
-        console.log("Reviews not yet made", error);
-        reviewsCount = 0;
-      }
-
-      // Update UI
-      this.updateDashboardStats({
-        savedProperties: savedCount,
-        viewingRequests: viewingCount,
-        reviews: reviewsCount
-      });
-
-    }
+  try {
+    // Fetch saved properties count
+    const savedPropertiesRef = collection(db, 'savedProperties');
+    const savedQuery = query(savedPropertiesRef, where('userId', '==', user.uid));
+    const savedSnapshot = await getDocs(savedQuery);
+    savedCount = savedSnapshot.size;
+  } catch(error) { 
+    console.log("Saved property collection not found", error);
+    savedCount = 0;
   }
 
+  try {
+    // Fetch viewing requests count
+    const viewingRequestsRef = collection(db, 'viewingRequests');
+    const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
+    const viewingSnapshot = await getDocs(viewingQuery);
+    viewingCount = viewingSnapshot.size;
+  } catch(error) {
+    console.log("viewing requests are currently empty", error);
+    viewingCount = 0;
+  }
+
+  try {
+    // Fetch reviews count
+    const reviewsRef = collection(db, 'reviews');
+    const reviewsQuery = query(reviewsRef, where('userId', '==', user.uid));
+    const reviewsSnapshot = await getDocs(reviewsQuery);
+    reviewsCount = reviewsSnapshot.size;
+  } catch(error) {
+    console.log("Reviews not yet made", error);
+    reviewsCount = 0;
+  }
+
+  // Update UI
+  this.updateDashboardStats({
+    savedProperties: savedCount,
+    viewingRequests: viewingCount,
+    reviews: reviewsCount
+  });
+}
+
+  
+
   // MISSING METHOD: Update UI for authenticated user
-  updateUIForAuthenticatedUser () {
+  updateUIForAuthenticatedUser() {
     const welcomeMsg = document.getElementById('welcomeMessage');
     if (welcomeMsg) {
       const userName = this.userProfile?.firstName || this.currentUser?.displayName || 'Student';
@@ -253,7 +257,7 @@ try{
   }
 
   // MISSING METHOD: Handle sign out
-  async handleSignOut() {
+async handleSignOut() {
     try {
       await signOut(auth);
       this.showNotification('Signed out successfully', 'success');
@@ -513,6 +517,7 @@ try{
       this.showNotification('Failed to submit review. Please try again.', 'error');
     }
   }
+  
 }
 
 // Error handling wrapper
@@ -565,3 +570,4 @@ if (document.readyState === 'loading') {
 } else {
   initializeDashboard();
 }
+
