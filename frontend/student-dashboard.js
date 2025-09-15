@@ -85,6 +85,13 @@ class StudentDashboard {
             await this.loadUserProfile(user);
             await this.fetchDashboardStats(user);
             this.updateUIForAuthenticatedUser();
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            if(userDoc.exists){
+              const userData = userDoc.data();
+              const firstName = userData.firstName;
+
+              document.getElementById("sidebarWelcome").textContent= 'Dumela, ${firstName}';
+            }
           } else {
             console.log('No user authenticated');
             this.updateUIForUnauthenticatedUser();

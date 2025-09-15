@@ -464,6 +464,7 @@ const firebaseConfig = {
 
           const email = document.getElementById("emailAddress").value;
           const password = document.getElementById("password").value;
+          const firstName = document.getElementById("firstName").value;
           const role = document.getElementById("role").value;
           const studentIDFile = document.getElementById("studentId").files[0];
           const kycFile = document.getElementById("kycDoc").files[0];
@@ -531,6 +532,7 @@ const firebaseConfig = {
             // Save user data to Firestore
             submitButton.textContent = "Saving user data...";
             await setDoc(doc(db, "users", user.uid), {
+              firstName,
               email,
               role,
               ...(role === "STUDENT"
