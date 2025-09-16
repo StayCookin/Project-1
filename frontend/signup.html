@@ -531,15 +531,15 @@ const firebaseConfig = {
             submitButton.textContent = "Saving user data...";
             await setDoc(doc(db, "users", user.uid), {
               firstName,
-              email,
+              email: user.email,
               role,
               ...(role === "STUDENT"
                 ? { studentIDUrl: documentUrl }
                 : { kycDocumentUrl: documentUrl }),
               
               emailVerified: false,
-              createdAt: new Date(),
-              updatedAt: new Date(),
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
             });
 
             submitButton.textContent = " Sending verification email...";
