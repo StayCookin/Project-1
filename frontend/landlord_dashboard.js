@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   async function fetchAndDisplayInquiries(landlordId) {
     try {
-      const inquiriesRef = collection(db, "inquiries");
+      const inquiriesRef = collection(db, "applications");
       const q = query(
         inquiriesRef,
         where("landlordId", "==", landlordId),
