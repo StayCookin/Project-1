@@ -562,9 +562,25 @@ async function openConversation(userId, propertyId, propertyName) {
       };
     }
 
-    // The messages will be rendered by the real-time listener
-    // Just show loading state initially
-    showConversationLoadingState(conversationData, propertyName);
+     document.getElementById("chatName").textContent =
+      conversationData.user?.name || "User";
+    document.getElementById("chatRole").textContent = conversationData.user?.role || "";
+
+    document.getElementById("chatForm").style.display = "flex";
+
+    // Show loading state in chat area
+    const chatArea = document.getElementById('chatArea');
+    if (chatArea) {
+      chatArea.innerHTML = `
+        <div class="conversation-header">
+          <button class="back-to-conversations" onclick="showConversationsList()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
+            ← Back to Messages
+          </button>
+          <h3 style='color:#228b22;'>Conversation${propertyName ? " - " + propertyName : ""}</h3>
+        </div>
+        <div class="text-center py-8 text-gray-500">Loading messages...</div>
+      `;
+    }
   } catch (error) {
     console.error("Error opening conversation:", error);
     showError("Failed to open conversation");
