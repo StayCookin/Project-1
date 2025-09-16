@@ -40,18 +40,27 @@
         overflow-y: auto;
       }
       .chat-bubble {
-        max-width: 70%;
+        max-width: 75%;
         word-break: break-word;
+        padding: 12px 16px;
+        border-radius: 18px;
+        position: relative;
+        margin-bottom: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+
       }
       .chat-bubble.student {
         background: #e6f9ed;
-        color: #228b22;
+        color: #1f2937;
         align-self: flex-end;
+        border-bottom-right-radius: 4px;
       }
       .chat-bubble.landlord {
-        background: #f1f5f9;
-        color: #222;
+        background: #ffffff;
+        color: #1f2937;
         align-self: flex-start;
+        border-bottom-right-radius: 4px;
+        border: 1px solid #e5e7eb;
       }
       .chat-bubble + .chat-bubble {
         margin-top: 0.5rem;
@@ -79,90 +88,20 @@
       .chat-input:focus {
         outline: 2px solid #22c55e;
       }
-      @media (max-width: 900px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 90vw !important;
-          max-width: 95vw !important;
-          padding: 1.5rem 0.5rem !important;
-        }
-        .max-w-5xl {
-          max-width: 100vw !important;
-        }
+      @media (max-width: 768px) {
         .md\:flex-row {
-          flex-direction: column !important;
+          flex-direction: column;
         }
         .md\:w-1\/3 {
-          width: 100% !important;
-        }
-        .border-r {
-          border-right: none !important;
-        }
-      }
-      @media (max-width: 600px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          min-width: 100vw !important;  
-          max-width: 100vw !important;
-          padding: 1.2rem 0.5rem !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-        }
-        .p-4 {
-          padding: 0.5rem !important;
-        }
-        .rounded-2xl {
-          border-radius: 0.7rem !important;
-        }
-        .w-10,
-        .h-10 {
-          width: 2rem !important;
-          height: 2rem !important;
-        }
-        .text-xl {
-          font-size: 1.1rem !important;
-        }
-        label,
-        input,
-        select,
-        button,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.1rem !important;
-        }
-      }
-      @media (max-width: 400px) {
-        body,
-        .centered-form-container,
-        .main-content,
-        .container,
-        form {
-          padding: 0.5rem 0.2rem !important;
-        }
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          font-size: 1.2rem !important;
+          width: 100%;
+          max-height: 40vh;
         }
       }
     </style>
   </head>
-  <body class="min-h-screen flex items-center justify-center p-0">
+  <body class="min-h-screen bg-[#f8f9fa]">
     <div
-      class="w-full min-h-screen flex flex-col items-center justify-center bg-[#f8f9fa]"
+      class="w-full min-h-screen flex flex-col md:flex-row overflow-hidden bg-white"
     >
       <div
         class="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-xl flex flex-col md:flex-row overflow-hidden min-h-[80vh]"
@@ -178,9 +117,23 @@
           >
             <i class="fas fa-arrow-left"></i> Back
           </button>
-          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-comments mr-2 text-green-600"></i>Conversations
+          <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-comments mr-2 text-green-600"></i>Messages
           </h2>
+          <button class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-green-700 transition">
+            <i class="fas fa-plus text-sm"></i>
+          </button>
+          </div>
+
+          <!--search BARR-->
+          <div class="mb-4">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="text" placeholder="Search Conversation" class="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-full text-sm outline-none focus:ring-green-500">
+            </div>
+          </div>
+
           <div id="conversationList" class="flex flex-col gap-2"></div>
         </aside>
         <!-- Main Chat Area -->
@@ -192,7 +145,7 @@
         </div>
         <main class="flex-1 flex flex-col">
           <div
-            class="flex items-center justify-between border-b border-gray-200 p-4 bg-white"
+            class="flex items-center justify-between border-b border-gray-200 p-4 bg-white shadow-sm"
           >
             <div class="flex items-center gap-3">
               <img
@@ -202,10 +155,10 @@
                 class="w-10 h-10 rounded-full border border-green-200"
               />
               <div>
-                <div id="chatName" class="font-semibold text-gray-800">
+                <div id="chatName" class="font-semibold text-gray-800 text-lg">
                   Select a conversation
                 </div>
-                <div id="chatRole" class="text-xs text-gray-500"></div>
+                <div id="chatRole" class="text-sm text-green-600 flex items-center"></div>
               </div>
             </div>
           </div>
@@ -215,22 +168,28 @@
           ></div>
           <form
             id="chatForm"
-            class="flex gap-2 p-4 border-t border-gray-200 bg-white"
+            class="p-4 border-t border-gray-200 bg-white"
             autocomplete="off"
             style="display: none"
           >
+          <button type="button" class="text-gray-500 hover:text-green-600 transition">
+            <i class="far fa-smile text-lg"></i>
+          </button>
+          <button type="button" class="text-gray-500 hover:text-green-600 transition">
+            <i class="fas fa-paperclip text-lg"></i>
+          </button>
             <input
               id="chatInput"
               type="text"
-              class="flex-1 p-3 rounded-lg border border-gray-300 chat-input"
+              class="flex-1 bg-transparent outline-none px-2 py-1"
               placeholder="Type your message..."
               required
             />
             <button
               type="submit"
-              class="bg-green-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-green-700 transition"
+              class="bg-green-600 text-white w-10 h-10 rounded-full flex items-center justify-crnter hover:bg-green-700 transition"
             >
-              <i class="fas fa-paper-plane"></i>
+              <i class="fas fa-paper-plane text-sm"></i>
             </button>
           </form>
         </main>
