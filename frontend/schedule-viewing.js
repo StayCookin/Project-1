@@ -422,8 +422,8 @@ function initializeCalendar(property, user, userData) {
           
           // Metadata
           status: "pending",
-          createdAt: Timestamp.fromDate(new Date()),
-          updatedAt: Timestamp.fromDate(new Date())
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
         };
 
         // Double-check availability before saving
