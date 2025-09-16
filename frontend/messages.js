@@ -413,7 +413,7 @@ function setupMessageListeners() {
 
 
 function ensureMessagesContainer(){
-  let container = decodeURIComponent.getELementById("messagesContainer");
+  let container = document.getELementById("messagesContainer");
   if(!container) {
     container = document.createElement('div');
     container.id = 'messagesContainer';
