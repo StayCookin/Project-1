@@ -411,8 +411,19 @@ function setupMessageListeners() {
   });
 }
 
+
+function ensureMessagesContainer(){
+  let container = decodeURIComponent.getELementById("messagesContainer");
+  if(!container) {
+    container = document.createElement('div');
+    container.id = 'messagesContainer';
+    document.body.appendChild(container);
+  }
+  return container;
+}
+
 function renderConversations(conversations) {
-  const container = document.getElementById("messagesContainer");
+ container = document.getElementById("messagesContainer");
   
   if (!container) {
     console.error('Messages container not found');
@@ -527,6 +538,12 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
 
 function showConversationLoadingState(conversationData, propertyName) {
   const container = document.getElementById("messagesContainer");
+
+  if (!container) {
+    console.error('Messages container not found');
+    showError('Messages container not availablr. Please refresh page');
+    return;
+  }
   container.innerHTML = `
     <div class="conversation-header">
       <button class="back-to-conversations" onclick="showConversationsList()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
