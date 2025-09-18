@@ -822,19 +822,38 @@ async function toggleMoveIn() {
         alert("Proceeding to payment");
         closePopup();
     }
+    // Style the existing close button (created in the innerHTML above) if present,
+    // otherwise create and append an alternative close button.
+    if (closeBtn) {
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        `;
+        closeBtn.onclick = closePopup;
+    } else {
+        const altCloseBtn = document.createElement('button');
+        altCloseBtn.id = 'closePopupBtn';
+        altCloseBtn.innerHTML = '&times;';
+        altCloseBtn.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        `;
+        altCloseBtn.onclick = closePopup;
+        popupContent.appendChild(altCloseBtn);
+    }
 
- closeBtn = document.getElementById('button');
-   closeBtn.innerHTML = '&times;';
-   closeBtn.style.cssText = `
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        background: none;
-        border: none;
-        font-size: 24px;
-        cursor: pointer;
-    `;
-   
+    // Add the iframe document frame once into the popup content
     const documentFrame = document.createElement('iframe');
     documentFrame.src = '';
     documentFrame.style.cssText = `
@@ -842,15 +861,7 @@ async function toggleMoveIn() {
         height: 600px;
         border: none;
     `;
-    
-    popupContent.appendChild(closeBtn);
     popupContent.appendChild(documentFrame);
-    popup.appendChild(popupContent);
-
-    document.body.appendChild(popup);
-
-
-    closeBtn.onclick = closePopup;
     popup.onclick = (e) => {
         if (e.target === popup) closePopup();    };
         document.addEventListener('keydown', function escHandler(e) {
