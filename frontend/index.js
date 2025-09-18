@@ -1,4 +1,5 @@
 // Firebase imports - Only what's needed for auth state, getting user data, and logout
+import { Analytics } from "@vercel/analytics/next";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 import { getFirestore,doc, getDoc, updateDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
