@@ -719,6 +719,140 @@ window.scrollToContact = function() {
     }
 };
 
+async function toggleMoveIn() {
+    const move = document.getElementById("moveBtn");
+
+    const popup = document.createElement('div');
+    popup.id = 'moveInPopup';
+    popup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+
+    const popupContent = document.createElement('div');
+    popupContent.style.cssText = `
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 90%;
+        max-height: 90%;
+        overflow: auto;
+        position: relative;
+    `;
+     popupContent.innerHTML = `
+        <button id="closePopupBtn" style="
+            position:absolute;
+            top:10px;
+            right:15px;
+            background:none;
+            border:none;
+            font-size:24px;
+            cursor:pointer;">&times;
+        </button>
+
+        <div class="agreement-text">
+          <h3 style="text-align:center; margin-bottom:10px;">Rental Agreement</h3>
+
+          <p><strong>Parties:</strong> This rental agreement is entered into between 
+          <span id="landlordName">[LANDLORD_NAME]</span> (“Landlord”) 
+          and <span id="studentName">[STUDENT_NAME]</span> (“Student”).</p>
+
+          <p><strong>Property:</strong> The Landlord agrees to rent the property located at 
+          <span id="propertyAddress">[PROPERTY_ADDRESS]</span>.</p>
+
+          <p><strong>Duration:</strong> This agreement is valid from 
+          <span id="startDate">[START_DATE]</span> to 
+          <span id="endDate">[END_DATE]</span>.</p>
+
+          <p><strong>Rent:</strong> The Student agrees to pay 
+          <span id="rentAmount">[RENT_AMOUNT]</span> per month via InRent. 
+          A deposit of <span id="depositAmount">[DEPOSIT_AMOUNT]</span> is due upon signing.</p>
+
+          <h4>House Rules</h4>
+          <ul id="houseRules">
+            <li>No pets allowed unless agreed in writing.</li>
+            <li>Curfew at 10PM unless otherwise stated.</li>
+            <li>Respect quiet hours after 9PM.</li>
+            <li>Visitors must be approved by the Landlord.</li>
+          </ul>
+
+          <p>
+            By signing this agreement, the Student acknowledges that they have read,
+            understood, and agree to the terms, including the house rules stated above.
+          </p>
+
+          <button id="moveInConfirmBtn" style="
+              margin-top:20px;
+              padding:10px 15px;
+              background:#007bff;
+              color:white;
+              border:none;
+              border-radius:4px;
+              cursor:pointer;">Move In</button>
+        </div>
+    `;
+
+    popup.appendChild(popupContent);
+    document.body.appendChild(popup);
+
+    document.getElementById('closePopupBtn').onclick = () => {
+        document.body.removeChild(popup);
+    };
+
+    document.getElementById("moveInConfirmBtn").onclick = () => {
+
+        alert("Proceeding to payment");
+    }
+
+   const closeBtn = document.getElementById('button');
+   closeBtn.innerHTML = '&times;';
+   closeBtn.style.cssText = `
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+    `;
+   
+    const documentFrame = document.createElement('iframe');
+    documentFrame.src = '';
+    documentFrame.style.cssText = `
+        width: 800px;
+        height: 600px;
+        border: none;
+    `;
+    
+    popupContent.appendChild(closeBtn);
+    popupContent.appendChild(documentFrame);
+    popup.appendChild(popupContent);
+
+    document.body.appendChild(popup);
+
+    const closePopup = () => {
+        document.body.removeChild(popup);
+    };
+
+    closeBtn.onclick = closePopup;
+    popup.onclick = (e) => {
+        if (e.target === popup) closePopup();    };
+        document.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+                document.removeEventListener('keydown', escHandler);
+            }
+        });
+}
+
 window.sendInquiry = async function() {
     const inquiryType = document.getElementById('inquiryType');
     const message = document.getElementById('message');
