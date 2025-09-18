@@ -718,7 +718,10 @@ window.scrollToContact = function() {
         });
     }
 };
-
+document.addEventListener('DOMContentLoaded', function() {
+    const moveBtn = document.getElementById('moveBtn');
+    moveBtn.addEventListener('click', toggleMoveIn);
+});
 async function toggleMoveIn() {
     const move = document.getElementById("moveBtn");
 
@@ -803,6 +806,13 @@ async function toggleMoveIn() {
     popup.appendChild(popupContent);
     document.body.appendChild(popup);
 
+    const closePopup = () => {
+        document.body.removeChilde(popup);
+    };
+   
+    const closeBtn = document.getElementById('closePopupBtn');
+    const moveInBtn = document.getElementById('moveInConfirmBtn');
+
     document.getElementById('closePopupBtn').onclick = () => {
         document.body.removeChild(popup);
     };
@@ -810,9 +820,10 @@ async function toggleMoveIn() {
     document.getElementById("moveInConfirmBtn").onclick = () => {
 
         alert("Proceeding to payment");
+        closePopup();
     }
 
-   const closeBtn = document.getElementById('button');
+ closeBtn = document.getElementById('button');
    closeBtn.innerHTML = '&times;';
    closeBtn.style.cssText = `
         position: absolute;
@@ -838,9 +849,6 @@ async function toggleMoveIn() {
 
     document.body.appendChild(popup);
 
-    const closePopup = () => {
-        document.body.removeChild(popup);
-    };
 
     closeBtn.onclick = closePopup;
     popup.onclick = (e) => {
