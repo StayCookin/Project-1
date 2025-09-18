@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
     moveBtn.addEventListener('click', toggleMoveIn);
 });
 async function toggleMoveIn() {
-    const move = document.getElementById("moveBtn");
+    let move = document.getElementById("moveBtn");
 
     const popup = document.createElement('div');
     popup.id = 'moveInPopup';
