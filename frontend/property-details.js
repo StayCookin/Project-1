@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function toggleMoveIn() {
     let move = document.getElementById("moveBtn");
 
-    const popup = document.createElement('div');
+    let popup = document.createElement('div');
     popup.id = 'moveInPopup';
     popup.style.cssText = `
         position: fixed;
@@ -807,7 +807,7 @@ async function toggleMoveIn() {
     document.body.appendChild(popup);
 
     const closePopup = () => {
-        document.body.removeChilde(popup);
+        document.body.removeChild(popup);
     };
    
     const closeBtn = document.getElementById('closePopupBtn');
