@@ -408,7 +408,7 @@ function initializeCalendar(property, user, userData) {
           // User information
           userId: user.uid,
           userEmail: user.email,
-          
+          landlordId: propertyOwnerId || property.landlordId || property.userId,
           // Booking details
           date: Timestamp.fromDate(selectedDate), // Firebase Timestamp
           dateString: selectedDate.toISOString().split('T')[0], // For easier querying
