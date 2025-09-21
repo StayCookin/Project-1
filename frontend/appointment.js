@@ -79,7 +79,8 @@ window.addViewing = addViewing; window.updateViewing = updateViewing; window.can
         }
     }
 
-   formatDateTime(startDate, endDate) {
+   formatDateTime(startDate, endDate) ;
+    function formatDateTime(startDate, endDate) {
         const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
         const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
         const formattedDate = startDate.toLocaleDateString('en-US', options);
