@@ -65,14 +65,43 @@ function initializeAuth() {
 
 // Load user's viewings from Firebase
 async function loadUserViewings() {
-    if (!currentUser) return;
+    if (!currentUser) {
+        console.log('DEBUG: No current user');
+        return;
+    }
+
+    console.log('DEBUG: Current user ID:', currentUser.uid);
+    console.log('DEBUG: Current user email:', currentUser.email);
 
     try {
+        // First, let's check what data exists in the collection
+        const allViewingsQuery = query(
+            collection(db, 'viewingBookings'),
+            orderBy('createdAt', 'desc')
+        );
+
+        const allSnapshot = await getDocs(allViewingsQuery);
+        console.log('DEBUG: Total documents in viewingBookings:', allSnapshot.size);
+        
+        allSnapshot.forEach((doc) => {
+            const data = doc.data();
+            console.log('DEBUG: Document data:', {
+                id: doc.id,
+                landlordId: data.landlordId,
+                userId: data.userId,
+                propertyTitle: data.propertyTitle,
+                status: data.status
+            });
+        });
+
+        // Now try the landlord-specific query
         const viewingsQuery = query(
             collection(db, 'viewingBookings'),
             where('landlordId', '==', currentUser.uid),
             orderBy('date', 'asc')
         );
+
+        console.log('DEBUG: Setting up landlord query for:', currentUser.uid);
 
         // Clear existing listener
         if (viewingsListener) {
@@ -82,29 +111,40 @@ async function loadUserViewings() {
 
         // Set up real-time listener
         viewingsListener = onSnapshot(viewingsQuery, (snapshot) => {
+            console.log('DEBUG: Query snapshot size:', snapshot.size);
+            
             const viewings = [];
             snapshot.forEach((doc) => {
-                viewings.push({
+                const viewing = {
                     id: doc.id,
                     ...doc.data()
-                });
+                };
+                console.log('DEBUG: Found viewing for landlord:', viewing);
+                viewings.push(viewing);
             });
+            
+            console.log('DEBUG: Total viewings for landlord:', viewings.length);
             renderViewings(viewings);
         }, (error) => {
-            console.error('Error loading viewings:', error);
+            console.error('DEBUG: Error in snapshot listener:', error);
             showError('Failed to load your viewings. Please refresh the page.');
         });
 
     } catch (error) {
-        console.error('Error setting up viewings listener:', error);
+        console.error('DEBUG: Error setting up viewings listener:', error);
         showError('Failed to load your viewings.');
     }
 }
 
 // Render viewings in the UI
 function renderViewings(viewings) {
+    console.log('DEBUG: Rendering viewings:', viewings.length);
+    
     const container = document.querySelector('section');
-    if (!container) return;
+    if (!container) {
+        console.log('DEBUG: No section container found');
+        return;
+    }
 
     // Preserve header elements
     const header = container.querySelector('h2');
@@ -117,20 +157,31 @@ function renderViewings(viewings) {
     if (header) container.appendChild(header);
     if (description) container.appendChild(description);
 
+    // Add debug info
+    const debugInfo = document.createElement('div');
+    debugInfo.className = 'bg-yellow-100 border border-yellow-300 rounded p-3 mb-4 text-sm';
+    debugInfo.innerHTML = `
+        <strong>Debug Info:</strong><br>
+        Current User: ${currentUser ? currentUser.email : 'None'}<br>
+        User ID: ${currentUser ? currentUser.uid : 'None'}<br>
+        Viewings Found: ${viewings.length}
+    `;
+    container.appendChild(debugInfo);
+
     // Show message if no viewings
     if (!viewings.length) {
         const noViewingsMsg = document.createElement('div');
         noViewingsMsg.className = 'text-center py-8 text-gray-500';
         noViewingsMsg.innerHTML = `
             <i class="fas fa-calendar-times text-4xl mb-4"></i>
-            <p class="text-lg">No viewings scheduled yet.</p>
-            <p class="text-sm">Book your first property viewing to get started!</p>
+            <p class="text-lg">No viewing requests found.</p>
+            <p class="text-sm">Waiting for tenants to book viewings for your properties.</p>
         `;
         container.appendChild(noViewingsMsg);
         return;
     }
 
-    // Separate upcoming and past viewings
+    // Continue with normal rendering...
     const now = new Date();
     const upcomingViewings = viewings.filter(viewing => new Date(viewing.date.seconds * 1000) > now);
     const pastViewings = viewings.filter(viewing => new Date(viewing.date.seconds * 1000) <= now);
@@ -139,7 +190,7 @@ function renderViewings(viewings) {
     if (upcomingViewings.length > 0) {
         const upcomingHeader = document.createElement('h3');
         upcomingHeader.className = 'text-xl sm:text-2xl font-semibold text-gray-700 mb-4';
-        upcomingHeader.textContent = 'Upcoming Viewings';
+        upcomingHeader.textContent = 'Upcoming Viewing Requests';
         container.appendChild(upcomingHeader);
 
         upcomingViewings.forEach(viewing => {
@@ -151,7 +202,7 @@ function renderViewings(viewings) {
     if (pastViewings.length > 0) {
         const pastHeader = document.createElement('h3');
         pastHeader.className = 'text-xl sm:text-2xl font-semibold text-gray-700 mb-4 mt-8';
-        pastHeader.textContent = 'Past Viewings';
+        pastHeader.textContent = 'Past Viewing Requests';
         container.appendChild(pastHeader);
 
         pastViewings.forEach(viewing => {
