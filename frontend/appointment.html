@@ -26,6 +26,42 @@
             color: #228b22;
             text-align: center;
         }
+        .notification-center {
+            animation : slideIn 0.3s ease-out;
+        }
+
+        @keyFrames slideIn {
+            from {
+                transform: translateX(100%);
+            opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+        }
+
+        .loading {
+            position: relative;
+        }
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left:50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #228b22;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+        }
     </style>
    <body class="p-4">
 
@@ -38,10 +74,10 @@
 
         <!-- Viewing Card 1 -->
         <div class="viewing-card bg-white rounded-2xl p-5 mb-5 shadow-lg border-l-4 border-blue-500">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">12b Skyline Avenue</h3>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2"></h3>
             <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Type:</strong> 2-Bed Apartment</p>
             <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Date & Time:</strong> Fri, Oct 27, 2023 at 2:00 PM - 2:30 PM</p>
-            <p class="text-sm"><strong class="font-medium">Status:</strong> <span class="font-bold text-green-600">Confirmed</span></p>
+            <p class="text-sm"><strong class="font-medium">Status:</strong> <span class="font-bold text-green-600"></span></p>
             <div class="action-buttons mt-4 flex flex-col sm:flex-row gap-2">
                 <a class="btn-reschedule px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Reschedule</a>
                 <a class="btn-cancel px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Cancel</a>
