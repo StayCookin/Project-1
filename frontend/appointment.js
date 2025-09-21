@@ -18,7 +18,6 @@ import {
 import {
   getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-import { getAggregate } from "firebase/firestore/lite";
 
 // Firebase configuration
 const firebaseConfig = {

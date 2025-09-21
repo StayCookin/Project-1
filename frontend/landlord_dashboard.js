@@ -1,4 +1,3 @@
-// Fixed Landlord Dashboard JavaScript - Using Firebase v9+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { 
   getAuth, 
