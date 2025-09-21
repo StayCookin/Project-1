@@ -70,7 +70,7 @@ async function loadUserViewings() {
     try {
         const viewingsQuery = query(
             collection(db, 'viewingBookings'),
-            where('userId', '==', currentUser.uid),
+            where('landlordId', '==', currentUser.uid),
             orderBy('date', 'asc')
         );
 
