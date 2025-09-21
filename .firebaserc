@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "project-1-1e31c"
-  }
+    "default": "inrent-6ab14",
+    "the one": "inrent-6ab14"
+  },
+  "targets": {},
+  "etags": {}
 }
