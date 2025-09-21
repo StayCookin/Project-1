@@ -4,6 +4,7 @@ import {
     collection, 
     doc, 
     addDoc, 
+    getDocs,
     updateDoc, 
     onSnapshot, 
     query, 
