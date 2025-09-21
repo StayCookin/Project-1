@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="landlord_dashboard.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JY9E760ZQ0"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);} 
+  gtag('js', new Date());
+
+  gtag('config', 'G-JY9E760ZQ0');</script>
+    <title>Appointment</title>
+    <style>
+        body {
+            font-family:Arial, Helvetica, sans-serif;
+            background: whitesmoke;
+
+        }
+        h1 {
+            color: #228b22;
+            text-align: center;
+        }
+    </style>
+   <body class="p-4">
+
+    <!-- Main viewing section container -->
+    <section class="max-w-3xl mx-auto my-5 p-6 bg-white rounded-3xl shadow-2xl">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">My Property Viewings</h2>
+        <p class="text-gray-500 mb-8 text-sm sm:text-base">Welcome to your personal property viewing hub. Here you can manage all your upcoming and past appointments in one place.</p>
+
+        <h3 class="text-xl sm:text-2xl font-semibold text-gray-700 mb-4">Upcoming Viewings</h3>
+
+        <!-- Viewing Card 1 -->
+        <div class="viewing-card bg-white rounded-2xl p-5 mb-5 shadow-lg border-l-4 border-blue-500">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">12b Skyline Avenue</h3>
+            <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Type:</strong> 2-Bed Apartment</p>
+            <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Date & Time:</strong> Fri, Oct 27, 2023 at 2:00 PM - 2:30 PM</p>
+            <p class="text-sm"><strong class="font-medium">Status:</strong> <span class="font-bold text-green-600">Confirmed</span></p>
+            <div class="action-buttons mt-4 flex flex-col sm:flex-row gap-2">
+                <a class="btn-reschedule px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Reschedule</a>
+                <a class="btn-cancel px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Cancel</a>
+            
+            </div>
+        </div>
+
+        <!-- Viewing Card 2 -->
+        <div class="viewing-card bg-white rounded-2xl p-5 mb-5 shadow-lg border-l-4 border-blue-500" >
+            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">78 Riverside Park</h3>
+            <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Type:</strong> Studio Apartment</p>
+            <p class="text-sm text-gray-600 mb-1"><strong class="font-medium">Date & Time:</strong> Mon, Oct 30, 2023 at 4:15 PM - 4:45 PM</p>
+            <p class="text-sm"><strong class="font-medium">Status:</strong> <span class="font-bold text-yellow-600">Pending Approval</span></p>
+            <div class="action-buttons mt-4 flex flex-col sm:flex-row gap-2">
+                <a class="btn-reschedule px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Edit Request</a>
+                <a class="btn-cancel px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Cancel Request</a>
+            </div>
+        </div>
+
+    </section>
+
+</body>
+
+<script type="module" src="appointment.js"></script>
+
+</html>
