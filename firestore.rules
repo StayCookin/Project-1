@@ -1,59 +1,272 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // --- USERS COLLECTION ---
-    match /users/{userId} {
-      // Allow the user to create and read their own profile
-      allow read, create: if request.auth != null && request.auth.uid == userId;
-      
-      // Allow update if they are not trying to change their role or verification status
-      allow update: if request.auth != null 
-                    && request.auth.uid == userId
-                    && request.resource.data.role == resource.data.role
-                    && request.resource.data.get('emailVerified', false) == resource.data.get('emailVerified', false);
-                    
-      allow delete: if false; // No one can delete profiles
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // --- PROPERTIES COLLECTION ---
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isLandlord() {
+      return isAuthenticated() && getUserData().role == "LANDLORD";
+    }
+    
+    function isStudent() {
+      return isAuthenticated() && getUserData().role == "STUDENT";
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidEmail(email) {
+      return email.matches('.*@.*\\..*');
+    }
+    
+    function isValidPrice(price) {
+      return price is number && price > 0 && price <= 1000000;
+    }
+    
+    function isValidSecurityFee(fee) {
+      return fee is number && fee >= 0;
+    }
+    
+    function isValidPropertyData(data) {
+      return data.keys().hasAll(['title', 'price', 'securityFee', 'location', 'landlordId', 'landlordEmail', 'createdAt', 'status']) &&
+             data.title is string && data.title.size() >= 3 && data.title.size() <= 200 &&
+             isValidPrice(data.price) &&
+             isValidSecurityFee(data.securityFee) &&
+             data.location is string && data.location.size() >= 2 && data.location.size() <= 200 &&
+             data.landlordId is string && data.landlordId == request.auth.uid &&
+             data.landlordEmail is string && isValidEmail(data.landlordEmail) &&
+             data.status in ['active', 'inactive', 'rented'] &&
+             data.createdAt == request.time &&
+             (!('bedrooms' in data) || (data.bedrooms is int && data.bedrooms >= 0 && data.bedrooms <= 20)) &&
+             (!('bathrooms' in data) || (data.bathrooms is int && data.bathrooms >= 0 && data.bathrooms <= 20)) &&
+             (!('propertyType' in data) || data.propertyType in ['apartment', 'house', 'studio', 'condo', 'townhouse', 'room']) &&
+             (!('featured' in data) || data.featured is bool) &&
+             (!('viewCount' in data) || data.viewCount is int) &&
+             (!('available' in data) || data.available is bool) &&
+             (!('amenities' in data) || data.amenities is list);
+    }
+    
+    function isValidPropertyUpdate(data) {
+      return data.updatedAt == request.time &&
+             (!('title' in data) || (data.title is string && data.title.size() >= 3 && data.title.size() <= 200)) &&
+             (!('price' in data) || isValidPrice(data.price)) &&
+             (!('securityFee' in data) || isValidSecurityFee(data.securityFee)) &&
+             (!('location' in data) || (data.location is string && data.location.size() >= 2 && data.location.size() <= 200)) &&
+             (!('status' in data) || data.status in ['active', 'inactive', 'rented']) &&
+             (!('bedrooms' in data) || (data.bedrooms is int && data.bedrooms >= 0 && data.bedrooms <= 20)) &&
+             (!('bathrooms' in data) || (data.bathrooms is int && data.bathrooms >= 0 && data.bathrooms <= 20)) &&
+             (!('propertyType' in data) || data.propertyType in ['apartment', 'house', 'studio', 'condo', 'townhouse', 'room']) &&
+             (!('available' in data) || data.available is bool) &&
+             (!('amenities' in data) || data.amenities is list);
+    }
+
+    // Users collection - for storing user profiles and roles
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated();
+      
+      
+      // Users can create their own profile (during registration)
+      allow create: if isOwner(userId) && 
+        resource == null &&
+        request.resource.data.keys().hasAll(['email', 'role', 'createdAt']) &&
+        request.resource.data.email == request.auth.token.email &&
+        request.resource.data.role in ['LANDLORD', 'STUDENT'] &&
+        request.resource.data.createdAt == request.time;
+      
+      // Users can update their own profile (but not change role after creation)
+      allow update: if isOwner(userId) && 
+        request.resource.data.role == resource.data.role &&
+        request.resource.data.updatedAt == request.time;
+      
+      // Admin functions (if needed) - only if you have admin users
+      // allow read, write: if isAdmin();
+    }
+
+    // Properties collection - main property listings
     match /properties/{propertyId} {
-      // Anyone logged in can read properties
+      // Anyone can read active properties (for browsing)
       allow read: if request.auth != null;
       
-      // Only verified landlords can create listings
-      allow create: if request.auth != null 
-                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "LANDLORD"
-                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.emailVerified == true
-                    && request.resource.data.landlordId == request.auth.uid;
-                    
-      // Only the landlord who owns the property can edit or delete it
-      allow update, delete: if request.auth != null 
-                            && resource.data.landlordId == request.auth.uid;
-    }
-    
-    // --- APPLICATIONS COLLECTION ---
-    match /applications/{applicationId} {
-      // Users can read applications they created or for properties they own
-      allow read: if request.auth != null && (
-        resource.data.studentId == request.auth.uid ||
-        get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid
-      );
+      // Only landlords can create properties
+      allow create: if isLandlord() && 
+        isValidPropertyData(request.resource.data);
       
-      // Only verified students can create applications  
-      allow create: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'STUDENT' &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.emailVerified == true &&
-        request.resource.data.studentId == request.auth.uid;
-        
-      // Landlords can update application status
-      allow update: if request.auth != null && 
-        get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid;
+      // Only property owner (landlord) can update their properties
+      allow update: if isLandlord() && 
+        resource.data.landlordId == request.auth.uid &&
+        isValidPropertyUpdate(request.resource.data) &&
+        // Prevent changing critical fields
+        request.resource.data.landlordId == resource.data.landlordId &&
+        request.resource.data.createdAt == resource.data.createdAt;
+      
+      // Only property owner can delete their properties
+      allow delete: if isLandlord() && 
+        resource.data.landlordId == request.auth.uid;
     }
     
-    // Default deny for other collections
+    match /viewingBookings/{bookingId} {
+    function isValidBookingData(data) {
+       return data.propertyId is string &&
+         data.userId == request.auth.uid &&
+         data.date is timestamp &&
+         data.time is string &&
+         data.status in ['pending', 'confirmed', 'cancelled'] &&
+         data.createdAt is timestamp &&
+         data.updatedAt is timestamp;
+     }
+      
+      allow read: if request.auth != null &&
+      (resource.data.userId == request.auth.uid || isLandlord() || isStudent());
+      
+      allow create: if request.auth != null && isStudent() && isValidBookingData(request.resource.data);
+      
+      allow update: if request.auth != null && request.resource.data.updatedAt is timestamp && ( (isStudent() && resource.data.userId == request.auth.uid) || isLandlord());
+      
+      allow delete: if request.auth != null && (resource.data.userId == request.auth.uid || isLandlord());
+    }
+    
+
+    // Property images metadata (if you want to store image metadata separately)
+    match /property-images/{imageId} {
+      // Only authenticated users can read image metadata
+      allow read: if isAuthenticated();
+      
+      // Only the uploader can create image metadata
+      allow create: if isAuthenticated() && 
+        request.resource.data.uploadedBy == request.auth.uid &&
+        request.resource.data.uploadedAt == request.time;
+      
+      // Only the uploader can delete image metadata
+      allow delete: if isAuthenticated() && 
+        resource.data.uploadedBy == request.auth.uid;
+    }
+
+    // Rental applications or inquiries (if you plan to add this feature)
+    match /applications/{applicationId} {
+      // Tenants can read their own applications
+      // Landlords can read applications for their properties
+      allow read: if isAuthenticated() && 
+        ((isStudent() && resource.data.studentId == request.resource.auth.uid) || (isLandlord() && resource.data.landlordId == request.auth.uid));
+      
+      // Only tenants can create applications
+      allow create: if isStudent() && 
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.createdAt == request.time;
+      
+      // Landlords can update application status, tenants can update their application details
+      allow update: if isAuthenticated() && 
+        (isLandlord() && (resource.data.landlordId == request.auth.uid && 
+          request.resource.data.studentId == resource.data.studentId) ||
+         (isStudent() && resource.data.studentId == request.auth.uid && 
+          request.resource.data.status == resource.data.status)) &&
+        request.resource.data.updatedAt == request.time;
+    }
+
+    // Messages/Chat collection (if you plan to add messaging)
+    match /conversations/{conversationId} {
+    
+      allow read: if request.auth != null && 
+     request.auth.uid in resource.data.participants;
+     
+      // Users can send messages
+      
+      allow create: if request.auth!= null && 
+    request.auth.uid in request.resource.data.participants && request.resource.data.participants.size() == 2 && (isStudent() || isLandlord()) && 'createdAt' in request.resource.data && 'lastMessageAt' in request.resource.data;
+    
+    allow update: if request.auth != null && request.auth.uid in resource.data.participants && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastMessage', 'lastMessageAt', 'lastMessageSender', 'lastMessageRead']);
+    match /messages/{messageId} {
+    allow read: if request.auth != null &&
+    request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+    
+    allow create: if request.auth != null &&
+    request.resource.data.senderId == request.auth.uid &&
+    request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+    (isStudent() || isLandlord()) &&
+    'timestamp' in request.resource.data &&
+    'text' in request.resource.data &&
+    'senderName' in request.resource.data;
+    
+    allow update: if request.auth != null &&
+    request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants &&
+    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+    }
+     
+ match /messageContext/{contextId}{
+ allow read: if request.auth != null &&
+ (request.auth.uid == resource.data.studentId || request.auth.uid == resource.data.landlordId);
+ 
+ allow create: if request.auth != null &&
+ isStudent() && request.auth.uid == request.resource.data.studentId &&
+ exists(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)) &&
+ get(/databases/$(database)/documents/properties/$(request.resource.data.propertyId)).data.landlordId == request.resource.data.landlordId;
+ }
+ match /notifications/{notificationId} {
+ allow read: if request.auth != null &&
+ request.auth.uid == resource.data.userId;
+ 
+ allow create: if request.auth != null &&
+ request.resource.data.createdAt == request.time;
+ 
+ allow update: if request.auth != null && 
+ request.auth.uid == resource.data.userId;
+ }
+    // Reviews collection (if you plan to add reviews)
+    match /reviews/{reviewId} {
+      // Anyone can read reviews
+      allow read: if true;
+      
+      // Only tenants can create reviews, and only one per property per tenant
+      allow create: if isStudent() && 
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.createdAt == request.time;
+      
+      // Only review author can update their review
+      allow update: if isAuthenticated() && 
+        resource.data.studentId == request.auth.uid &&
+        request.resource.data.updatedAt == request.time;
+    }
+
+    // Analytics or stats collection (read-only for users, write for system)
+    match /analytics/{document=**} {
+      // Users can read general analytics (like property view counts)
+      allow read: if true;
+      
+      // Only system/admin can write analytics
+      // You might want to handle this server-side or with Cloud Functions
+    }
+    
+    match /savedProperties/{savedPropertyId} {
+    allow read, write: if request.auth != null &&
+    isStudent();
+    allow create: if request.auth != null;
+    allow delete: if request.auth != null;
+    }
+    
+    match /viewings/{viewingId} {
+    allow read: if isAuthenticated() && (resource.data.studentId == request.auth.uid || (isLandlord() && get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid));
+    
+    allow create: if isStudent() && request.resource.data.studentId == request.auth.uid && exists(/databases/$(database)/documents/properties/$(request.resource.data.propertyId));
+    
+    allow update: if isAuthenticated() && ((isStudent() && resource.data.studentId == request.auth.uid) || (isLandlord() && get(/databases/$(database)/documents/properties/$(resource.data.propertyId)).data.landlordId == request.auth.uid));
+    
+    allow delete: if isAuthenticated() && ((isStudent() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending'));
+
+    }
+
+    // Catch-all rule - deny everything else
     match /{document=**} {
       allow read, write: if false;
     }
-  }
+    }
 }
