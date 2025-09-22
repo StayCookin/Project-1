@@ -17,14 +17,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCZuEC4QU-RYxQbjWqBoxk6j1mbwwRtRBo",
-    authDomain: "inrent-6ab14.firebaseapp.com",
-    databaseURL: "https://inrent-6ab14-default-rtdb.firebaseio.com",
-    projectId: "inrent-6ab14",
-    storageBucket: "inrent-6ab14.firebasestorage.app",
-    messagingSenderId: "327416190792",
-    appId: "1:327416190792:web:970377ec8dcef557e5457d",
-    measurementId: "G-JY9E760ZQ0"
+  apiKey: process.env.apiKey,
+  authDomain: process.env.authDomain,
+  databaseURL: process.env.Database_URL,
+  projectId: process.env.projectId,
+  storageBucket: process.env.storageBucket,
+  messagingSenderId: process.env.messagingSenderId,
+  appId: process.env.appId,
+  measurementId: process.env.measurementId
 };
 
 let app, db, auth;
