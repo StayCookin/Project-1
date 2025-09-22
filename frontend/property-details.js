@@ -1,3 +1,4 @@
+import firebase from "firebase/compat/app";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
     getAuth,
@@ -16,17 +17,16 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: process.env.apiKey,
-  authDomain: process.env.authDomain,
-  databaseURL: process.env.Database_URL,
-  projectId: process.env.projectId,
-  storageBucket: process.env.storageBucket,
-  messagingSenderId: process.env.messagingSenderId,
-  appId: process.env.appId,
-  measurementId: process.env.measurementId
-};
+async function initializeFirebase(){
+    try {
+        const response = await fetch ('/api/firebase-config');
+        const firebaseConfig = await response.json();
 
+        firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error('Error loading firebase config:',error);
+        }
+}
 let app, db, auth;
 let currentUser = null;
 let currentProperty = null;
