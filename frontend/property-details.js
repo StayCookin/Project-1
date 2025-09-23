@@ -831,7 +831,7 @@ async function toggleMoveIn() {
 
           <p><strong>Parties:</strong> This rental agreement is entered into between 
           <span id="landlordName">${rentalData.landlordName}</span> (Email: ${rentalData.landlordEmail}) ("Landlord") 
-          and <span id="studentName">${rentalData.studentName}</span> (Email ${rentalData.studentEmail}) (“Student”).</p>
+          and <span id="studentName">${rentalData.studentFirstName}</span> (Email ${rentalData.studentEmail}) (“Student”).</p>
 
           <p><strong>Property:</strong> The Landlord agrees to rent the property located at 
           <span id="propertyAddress">${rentalData.propertyAddress}</span>.</p>
@@ -857,7 +857,7 @@ async function toggleMoveIn() {
           </ul>
 
           <p>
-            By signing this agreement, the Student acknowledges that they have read,
+            By clicking Move In, the Student acknowledges that they have read,
             understood, and agree to the terms, including the house rules stated above.
           </p>
 
