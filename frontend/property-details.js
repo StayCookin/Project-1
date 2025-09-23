@@ -723,9 +723,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const moveBtn = document.getElementById('moveBtn');
     moveBtn.addEventListener('click', toggleMoveIn);
 });
-async function toggleMoveIn() {
-    let move = document.getElementById("moveBtn");
 
+async function getRentalData(propertyId, studentId) {
+  const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
+  if (!studentDoc.exists()) {
+    throw new Error('Student not found');
+  }
+  const studentData = studentDoc.data();
+
+  const landlordDoc = await getDoc(doc(db, 'users', propertyData.landlordId));
+  const landlordData = landlordDoc.exists() ? landlordDoc.data() : {};
+
+  const startDate = new Date().toLocaleDateString();
+  const endDate = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toLocaleDateString(); //one year later
+
+  const defaultHouseRules = [
+  " No male visitors allowed",
+  " Keep the property clean and tidy"
+  ];
+
+  return {
+    landlordName: landlordData.fullName || landlordData.firstName || landlordData.name || 'Property Owner',
+    landlordEmail: propertyData.landlordEmail || landlordData.email || '',
+     studentName: studentData.fullName || studentData.name || 'Student',
+            studentEmail: studentData.email,
+            propertyAddress: propertyData.location,
+            propertyTitle: propertyData.title,
+            startDate: startDate,
+            endDate: endDate,
+            rentAmount: `P${propertyData.price}`, // Using P for Pula (Botswana currency)
+            depositAmount: `P${propertyData.securityFee}`,
+            propertyType: propertyData.propertyType || 'Property',
+            bedrooms: propertyData.bedrooms || 'N/A',
+            bathrooms: propertyData.bathrooms || 'N/A',
+            amenities: propertyData.amenities || [],
+            houseRules: propertyData.houseRules || defaultHouseRules
+  };
+}
+async function toggleMoveIn(propertyId, studentId) {
+    
+    try {
+        console.log(' Loading rental agreement');
+        const rentalData = await getRentalData(propertyId, studentId);
+
+        let move = document.getElementById('moveBtn');
+
+        
     let popup = document.createElement('div');
     popup.id = 'moveInPopup';
     popup.style.cssText = `
@@ -766,26 +809,30 @@ async function toggleMoveIn() {
           <h3 style="text-align:center; margin-bottom:10px;">Rental Agreement</h3>
 
           <p><strong>Parties:</strong> This rental agreement is entered into between 
-          <span id="landlordName">[LANDLORD_NAME]</span> (“Landlord”) 
-          and <span id="studentName">[STUDENT_NAME]</span> (“Student”).</p>
+          <span id="landlordName">${rentalData.landlordName}</span> (Email: ${rentalData.landlordEmail}) ("Landlord") 
+          and <span id="studentName">${rentalData.studentName}</span> (Email ${rentalData.studentEmail}) (“Student”).</p>
 
           <p><strong>Property:</strong> The Landlord agrees to rent the property located at 
-          <span id="propertyAddress">[PROPERTY_ADDRESS]</span>.</p>
+          <span id="propertyAddress">${rentalData.propertyAddress}</span>.</p>
 
           <p><strong>Duration:</strong> This agreement is valid from 
-          <span id="startDate">[START_DATE]</span> to 
-          <span id="endDate">[END_DATE]</span>.</p>
+          <span id="startDate">${rentalData.startDate}</span> to 
+          <span id="endDate">${rentalData.endDate}</span>.</p>
 
           <p><strong>Rent:</strong> The Student agrees to pay 
-          <span id="rentAmount">[RENT_AMOUNT]</span> per month via InRent. 
-          A deposit of <span id="depositAmount">[DEPOSIT_AMOUNT]</span> is due upon signing.</p>
+          <span id="rentAmount">${rentalData.rentAmount}</span> per month via InRent. 
+          A deposit of <span id="depositAmount">${rentalData.depositAmount}</span> is due upon signing.</p>
 
+         ${rentalData.amenities.length > 0 ? `
+            <h4>Amenities Included</h4>
+            <ul>
+            ${rentalData.amenities.map(amenity => `<li>${amenity}</li>`).join('')}
+              </ul>
+              ` : ''}
+     
           <h4>House Rules</h4>
           <ul id="houseRules">
-            <li>No pets allowed unless agreed in writing.</li>
-            <li>Curfew at 10PM unless otherwise stated.</li>
-            <li>Respect quiet hours after 9PM.</li>
-            <li>Visitors must be approved by the Landlord.</li>
+            ${rentalData.houseRules.map(rule => `<li>${rule}</li>`).join('')}
           </ul>
 
           <p>
@@ -807,6 +854,25 @@ async function toggleMoveIn() {
     popup.appendChild(popupContent);
     document.body.appendChild(popup);
 
+
+    document.getElementById('closePopupBtn').addEventListener('click', () => {
+        document.body.removeChild(popup);
+    });
+    popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+            document.body.removeChild(popup);
+        }
+    });
+
+    document.getElementById('moveInConfirmBtn').addEventListener('click', async () => {
+        try {
+            await handleMoveInConfirmation(propertyId, studentId, rentalData);
+            document.body.removeChild(popup);
+        } catch (error) {
+            console.error(' Error creating rental agreement', error);
+            alert('Failed to process move-in. Please try again.');
+        }
+    })
     const closePopup = () => {
         document.body.removeChild(popup);
     };
@@ -872,6 +938,33 @@ async function toggleMoveIn() {
             }
         });
 }
+    catch (error) {
+        console.error('Error handling move-in confirmation:', error);
+    }
+};
+
+async function handleMoveInConfirmation(propertyId, studentId, rentalData) {
+    try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        await updateDoc(propertyRef, {
+            status: 'rented',
+            updatedAt: new Date()
+        });
+
+        await addDoc(collection(db, 'notifications'), {
+            userId: rentalData.landlordId,
+            type: 'move_in_confirmed',
+            message: `${rentalData.studentName} has confirmed move-in for ${rentalData.propertyTitle}`,
+            propertyId: propertyId,
+            studentId: studentId,
+            createdAt: new Date(),
+            read: false
+        });
+        alert ('Move-in confirmed!');
+    } catch (error) {
+        console.error('Error handling move-in confirmation:', error);
+        throw error;
+    }
 
 window.sendInquiry = async function() {
     const inquiryType = document.getElementById('inquiryType');
