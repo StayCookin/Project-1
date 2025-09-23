@@ -14,6 +14,7 @@ import {
     getDocs,
     addDoc,
     deleteDoc,
+    updateDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
@@ -725,10 +726,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function getRentalData(propertyId, studentId) {
+    try{
+
   const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
+  if (!propertyDoc.exists()) {
+    throw new Error('Property not found');
+  }
+  const propertyData = propertyDoc.data();
+
+  const studentDoc = await getDoc(doc(db, 'users', studentId));
   if (!studentDoc.exists()) {
     throw new Error('Student not found');
   }
+
+
   const studentData = studentDoc.data();
 
   const landlordDoc = await getDoc(doc(db, 'users', propertyData.landlordId));
@@ -745,6 +756,7 @@ async function getRentalData(propertyId, studentId) {
   return {
     landlordName: landlordData.fullName || landlordData.firstName || landlordData.name || 'Property Owner',
     landlordEmail: propertyData.landlordEmail || landlordData.email || '',
+    landlordId: propertyData.landlordId,
      studentName: studentData.fullName || studentData.name || 'Student',
             studentEmail: studentData.email,
             propertyAddress: propertyData.location,
@@ -759,12 +771,21 @@ async function getRentalData(propertyId, studentId) {
             amenities: propertyData.amenities || [],
             houseRules: propertyData.houseRules || defaultHouseRules
   };
+} catch (error) {
+    console.error (' Error fetching rental data:', error);
+    throw error;
 }
-async function toggleMoveIn(propertyId, studentId) {
+}
+async function toggleMoveIn() {
     
     try {
+
+        if (!currentProperty || !currentUser){
+            showError('Property or user info not available');
+            return;
+        }
         console.log(' Loading rental agreement');
-        const rentalData = await getRentalData(propertyId, studentId);
+        const rentalData = await getRentalData(currentProperty.id,currentUser.uid);
 
         let move = document.getElementById('moveBtn');
 
@@ -866,7 +887,7 @@ async function toggleMoveIn(propertyId, studentId) {
 
     document.getElementById('moveInConfirmBtn').addEventListener('click', async () => {
         try {
-            await handleMoveInConfirmation(propertyId, studentId, rentalData);
+            await handleMoveInConfirmation(currentProperty.Id, currentUser.uid, rentalData);
             document.body.removeChild(popup);
         } catch (error) {
             console.error(' Error creating rental agreement', error);
@@ -920,15 +941,7 @@ async function toggleMoveIn(propertyId, studentId) {
         popupContent.appendChild(altCloseBtn);
     }
 
-    // Add the iframe document frame once into the popup content
-    const documentFrame = document.createElement('iframe');
-    documentFrame.src = '';
-    documentFrame.style.cssText = `
-        width: 800px;
-        height: 600px;
-        border: none;
-    `;
-    popupContent.appendChild(documentFrame);
+
     popup.onclick = (e) => {
         if (e.target === popup) closePopup();    };
         document.addEventListener('keydown', function escHandler(e) {
