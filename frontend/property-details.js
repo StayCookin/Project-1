@@ -1,4 +1,4 @@
-import firebase from "firebase/compat/app";
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
     getAuth,
