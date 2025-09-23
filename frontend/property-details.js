@@ -845,12 +845,16 @@ async function toggleMoveIn() {
           A deposit of <span id="depositAmount">${rentalData.depositAmount}</span> is due upon signing.</p>
 
          ${rentalData.amenities.length > 0 ? `
-            <h4>Amenities Included</h4>
-            <ul>
-            ${rentalData.amenities.map(amenity => `<li>${amenity}</li>`).join('')}
-              </ul>
-              ` : ''}
-     
+    <h4>Amenities Included</h4>
+    <ul>
+    ${rentalData.amenities.map(amenity => {
+        // Handle both string and object amenities
+        const amenityName = typeof amenity === 'string' ? amenity : (amenity.name || amenity.title || 'Amenity');
+        return `<li>${amenityName}</li>`;
+    }).join('')}
+      </ul>
+      ` : ''}
+      
           <h4>House Rules</h4>
           <ul id="houseRules">
             ${rentalData.houseRules.map(rule => `<li>${rule}</li>`).join('')}
