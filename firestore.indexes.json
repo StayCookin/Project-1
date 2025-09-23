@@ -76,6 +76,36 @@
       "density": "SPARSE_ALL"
     },
     {
+      "collectionGroup": "viewingBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "landlordId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
+      "collectionGroup": "viewingBookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    },
+    {
       "collectionGroup": "viewings",
       "queryScope": "COLLECTION",
       "fields": [
