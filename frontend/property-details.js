@@ -965,6 +965,7 @@ async function handleMoveInConfirmation(propertyId, studentId, rentalData) {
         console.error('Error handling move-in confirmation:', error);
         throw error;
     }
+}
 
 window.sendInquiry = async function() {
     const inquiryType = document.getElementById('inquiryType');
