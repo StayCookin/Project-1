@@ -303,7 +303,20 @@ if (logOut) {
 if (messages) {
   messages.addEventListener("click", () => {
     console.log("📨 Redirecting to messages page");
-    window.location.href = "messages.html";
+
+    const currentPage = window.location.pathname.split('/').pop().split('.')[0];
+    let fromParam = "";
+
+    if (currentPage === "marketplace") {
+      fromParam = "?from=marketplace";
+    } else if (currentPage === "student-dashboard") {
+      fromParam = "?from=student-dashboard";
+    } else if (currentPage === "landlord-dashboard") {
+      fromParam = "?from=landlord-dashboard";
+    } else if (currentPage === "profile") {
+      fromParam = "?from=profile";
+    }
+    window.location.href = `messages.html${fromParam}`;
   });
 }
 // Dashboard click handler: only redirect when user explicitly clicks Dashboard.

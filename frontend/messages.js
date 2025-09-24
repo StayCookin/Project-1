@@ -115,7 +115,11 @@ function detectNavigationContext() {
   } else if (urlParams.get("from") === "landlord-dashboard") {
     navigationContext.source = "landlord-dashboard";
     navigationContext.returnUrl = "landlord-dashboard.html";
-  } else if (urlParams.get("from") === "property-details") {
+  } else if (urlParams.get("from") === "marketplace") { 
+ navigationContext.source = "marketplace";
+ navigationContext.returnUrl = "marketplace.html";
+  }
+  else if (urlParams.get("from") === "property-details") {
     navigationContext.source = "property-details";
     navigationContext.returnUrl =
       urlParams.get("returnUrl") || "properties.html";
