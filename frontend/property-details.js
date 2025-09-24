@@ -128,10 +128,6 @@ try {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const servicesReady = await initializeFirebaseServices();
-    if (!servicesReady) {
-        return;
-    }
     initializeAuth();
     
     // Setup inquiry type change handler with null check
@@ -191,10 +187,12 @@ async function checkIfPropertySaved(propertyId) {
     }
 
     try {
-        const querySnapshot = await db.collection('savedProperties')
-        .where('studentId', '==', currentUser.uid)
-        .where('propertyId','==', propertyId )
-        .get();
+          const savedQuery = query(
+            collection(db, 'savedProperties'),
+            where('studentId', '==', currentUser.uid),
+            where('propertyId', '==', propertyId)
+        );
+        const querySnapshot = await getDocs(savedQuery);
         isPropertySaved = !querySnapshot.empty;
 
         console.log(`Property ${propertyId} saved status:`, isPropertySaved);
@@ -212,7 +210,7 @@ async function checkIfPropertySaved(propertyId) {
 
 async function initializeAuth() {
     try {
-        firebase.auth().onAuthStateChanged( async (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 showError("You must be logged in to view property details.");
                 setTimeout(() => {
@@ -224,7 +222,8 @@ async function initializeAuth() {
             try {
                 // Verify user role
                 
-                const userDoc = await db.collection("users").doc(user.uid).get();
+               const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
                 
                 if (!userDoc.exists()) {
                     throw new Error("User profile not found");
@@ -271,8 +270,9 @@ async function fetchPropertyDetails() {
     try {
         showLoading(true);
         
-
-        const propertyDoc = await db.collection("properties").doc(propertyId).get();
+        const propertyDocRef = doc(db, "properties", propertyId);
+const propertyDoc = await getDoc(propertyDocRef);
+        
         
         if (!propertyDoc.exists()) {
             throw new Error("Property not found");
@@ -306,6 +306,66 @@ async function toggleSaveProperty() {
 
   const btn = document.getElementById("savePropertyBtn");
   const originalHTML = btn ? btn.innerHTML : "";
+  
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
+    }
+
+    if (isPropertySaved) {
+      // FIXED: Remove saved property using v9+ syntax
+      const savedQuery = query(
+        collection(db, "savedProperties"),
+        where("studentId", "==", currentUser.uid),
+        where("propertyId", "==", currentProperty.id)
+      );
+      const querySnapshot = await getDocs(savedQuery);
+
+      if (querySnapshot.empty) {
+        console.log("No saved property found to delete.");
+        isPropertySaved = false;
+        updateSaveButton();
+        return;
+      }
+
+      for (const docSnap of querySnapshot.docs) {
+        await deleteDoc(doc(db, "savedProperties", docSnap.id));
+      }
+
+      isPropertySaved = false;
+      updateSaveButton();
+      showSuccess("Property removed from saved list.");
+    } else {
+      // FIXED: Create saved record using v9+ syntax
+      await addDoc(collection(db, "savedProperties"), {
+        studentId: currentUser.uid,
+        propertyId: currentProperty.id,
+        propertyTitle: currentProperty.title || currentProperty.name || "",
+        createdAt: serverTimestamp() // FIXED: Use imported serverTimestamp
+      });
+
+      isPropertySaved = true;
+      updateSaveButton();
+      showSuccess("Property saved.");
+    }
+  } catch (error) {
+    console.error("Error toggling saved property:", error);
+    showError("Failed to update saved property. Please try again.");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+}
+  if (!currentProperty || !currentUser) {
+    showError("Please wait for the page to load fully before saving properties.");
+    return;
+  }
+
+  const btn = document.getElementById("savePropertyBtn");
+  const originalHTML = btn ? btn.innerHTML : "";
   try {
     if (btn) {
       btn.disabled = true;
@@ -315,13 +375,13 @@ async function toggleSaveProperty() {
     if (isPropertySaved) {
       // Remove any saved records for this user + property
 
-      const querySnapshot = await db.collection('savedProperties')
-      .where('studentId', '==', currentUser.uid)
-      .where('propertyId', '==', propertyId)
-      .get();
-    querySnapshot.forEach(async (docSnap) => {
-        await db.collection("savedProperties").doc(docSnap.id).delete();
-    })
+      const savedQuery = query(
+        collection(db, "savedProperties"),
+        where("studentId", "==", currentUser.uid),
+        where("propertyId", "==", currentProperty.id)
+      );
+    const querySnapshot = await getDocs(savedQuery);
+    }
       if (querySnapshot.empty) {
         console.log("No saved property found to delete.");
         isPropertySaved = false;
@@ -343,7 +403,7 @@ async function toggleSaveProperty() {
         studentId: currentUser.uid,
         propertyId: currentProperty.id,
         propertyTitle: currentProperty.title || currentProperty.name || "",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: serverTimestamp()
       });
 
       isPropertySaved = true;
@@ -375,6 +435,7 @@ function updateSaveButton() {
         btn.innerHTML = '<i class="far fa-heart"></i>Save';
         btn.classList.remove("saved");
     }
+}
 }
 
 function renderProperty(property) {
