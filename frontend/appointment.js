@@ -98,7 +98,7 @@ async function loadUserViewings() {
         // Now try the landlord-specific query
         const viewingsQuery = query(
             collection(db, 'viewingBookings'),
-            where('userId', '==', currentUser.uid),
+            where('landlordId', '==', currentUser.uid),
             orderBy('date', 'asc')
         );
 
