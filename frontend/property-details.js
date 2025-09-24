@@ -7,7 +7,7 @@ async function initializeFirebase(){
         } catch (error) {
             console.error('Error loading firebase config:',error);
         }
-}
+
 let app, db, auth;
 let currentUser = null;
 let currentProperty = null;
@@ -105,6 +105,11 @@ try {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+
+    const servicesReady = await initializeFirebaseServices();
+    if (!servicesReady) {
+        return;
+    }
     initializeAuth();
     
     // Setup inquiry type change handler with null check
@@ -136,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+}
 
 
 const dash = document.getElementById("dashboardBtn");
@@ -163,13 +169,10 @@ async function checkIfPropertySaved(propertyId) {
     }
 
     try {
-        const savedQuery = query(
-            collection(db, 'savedProperties'),
-            where('studentId', '==', currentUser.uid),
-            where('propertyId', '==', propertyId)
-        );
-
-        const querySnapshot = await getDocs(savedQuery);
+        const querySnapshot = await db.collection('savedProperties')
+        .where('studentId', '==', currentUser.uid)
+        .where('propertyId','==', propertyId )
+        .get();
         isPropertySaved = !querySnapshot.empty;
 
         console.log(`Property ${propertyId} saved status:`, isPropertySaved);
@@ -187,7 +190,7 @@ async function checkIfPropertySaved(propertyId) {
 
 async function initializeAuth() {
     try {
-        onAuthStateChanged(auth, async (user) => {
+        firebase.auth().onAuthStateChanged( async (user) => {
             if (!user) {
                 showError("You must be logged in to view property details.");
                 setTimeout(() => {
@@ -198,8 +201,8 @@ async function initializeAuth() {
 
             try {
                 // Verify user role
-                const userDocRef = doc(db, "users", user.uid);
-                const userDoc = await getDoc(userDocRef);
+                
+                const userDoc = await db.collection("users").doc(user.uid).get();
                 
                 if (!userDoc.exists()) {
                     throw new Error("User profile not found");
@@ -246,8 +249,8 @@ async function fetchPropertyDetails() {
     try {
         showLoading(true);
         
-        const propertyDocRef = doc(db, "properties", propertyId);
-        const propertyDoc = await getDoc(propertyDocRef);
+
+        const propertyDoc = await db.collection("properties").doc(propertyId).get();
         
         if (!propertyDoc.exists()) {
             throw new Error("Property not found");
@@ -289,14 +292,14 @@ async function toggleSaveProperty() {
 
     if (isPropertySaved) {
       // Remove any saved records for this user + property
-      const savedQuery = query(
-        collection(db, "savedProperties"),
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", currentProperty.id)
-      );
 
-      const querySnapshot = await getDocs(savedQuery);
-
+      const querySnapshot = await db.collection('savedProperties')
+      .where('studentId', '==', currentUser.uid)
+      .where('propertyId', '==', propertyId)
+      .get();
+    querySnapshot.forEach(async (docSnap) => {
+        await db.collection("savedProperties").doc(docSnap.id).delete();
+    })
       if (querySnapshot.empty) {
         console.log("No saved property found to delete.");
         isPropertySaved = false;
@@ -314,11 +317,11 @@ async function toggleSaveProperty() {
       return;
     } else {
       // Create saved record
-      await addDoc(collection(db, "savedProperties"), {
+      await db.collection("savedProperties").add( {
         studentId: currentUser.uid,
         propertyId: currentProperty.id,
         propertyTitle: currentProperty.title || currentProperty.name || "",
-        createdAt: serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
       isPropertySaved = true;

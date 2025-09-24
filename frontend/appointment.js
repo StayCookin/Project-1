@@ -98,11 +98,11 @@ async function loadUserViewings() {
         // Now try the landlord-specific query
         const viewingsQuery = query(
             collection(db, 'viewingBookings'),
-            where('landlordId', '==', currentUser.uid),
+            where('userId', '==', currentUser.uid),
             orderBy('date', 'asc')
         );
 
-        console.log('DEBUG: Setting up landlord query for:', currentUser.uid);
+        console.log('DEBUG: Setting up student query for:', currentUser.uid);
 
         // Clear existing listener
         if (viewingsListener) {
@@ -165,7 +165,7 @@ function renderViewings(viewings) {
         <strong>Debug Info:</strong><br>
         Current User: ${currentUser ? currentUser.email : 'None'}<br>
         User ID: ${currentUser ? currentUser.uid : 'None'}<br>
-        Viewings Found: ${viewings.length}
+        My Booking  Found: ${viewings.length}
     `;
     container.appendChild(debugInfo);
 
