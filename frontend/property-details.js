@@ -159,8 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
-}
-
 
 const dash = document.getElementById("dashboardBtn");
 if(dash){
