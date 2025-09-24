@@ -359,7 +359,6 @@ async function toggleSaveProperty() {
 }
   if (!currentProperty || !currentUser) {
     showError("Please wait for the page to load fully before saving properties.");
-    return;
   }
 
   const btn = document.getElementById("savePropertyBtn");
