@@ -1,10 +1,4 @@
 
-<<<<<<< HEAD
-        firebase.initializeApp(firebaseConfig);
-        } catch (error) {
-            console.error('Error loading firebase config:',error);
-        }
-=======
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
     getAuth,
@@ -34,7 +28,7 @@ const firebaseConfig = {
     appId: "1:327416190792:web:970377ec8dcef557e5457d",
     measurementId: "G-JY9E760ZQ0"
 };
->>>>>>> 7a0ea0bb776bd7083b76eb8fd80e3edf71e0c1b2
+
 
 let app, db, auth;
 let currentUser = null;
