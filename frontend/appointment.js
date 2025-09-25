@@ -200,7 +200,7 @@ async function sendNotificationToStudent(
       additionalData
     );
 
-    await logNotificatoinActivity(viewingId, notificationType, {
+    await logNotificationActivity(viewingId, notificationType, {
       inAppSent: inAppSuccess,
       emailSent: emailSuccess,
       recipientId: viewingData.userId,
@@ -238,14 +238,14 @@ async function getViewingById(viewingId) {
 
 async function createInAppNotification(
   viewingData,
-  notificatoinType,
+  notificationType,
   additionalData
 ) {
   try {
     const notification = {
       userId: viewingData.userId,
       type: notificationType,
-      title: getNotificationTitle(notificatoinType, viewingData),
+      title: getNotificationTitle(notificationType, viewingData),
       message: getNotificationMessage(
         notificationType,
         viewingData,
@@ -286,7 +286,7 @@ async function sendEmailNotification(
       to: viewingData.email,
       subject: getEmailSubject(notificationType, viewingData),
       html: getEmailTemplate(notificaitonType, viewingData, additionalData),
-      notificatoinType: notificationType,
+      notificationType: notificationType,
       viewingId: viewingData.id,
       userId: viewingData.userId,
     };
@@ -307,7 +307,7 @@ async function sendEmailNotification(
   }
 }
 
-async function logNotificatoinActivity(viewingId, notificatoinType, metadata) {
+async function logNotificationActivity(viewingId, notificationType, metadata) {
   try {
     await addDoc(collection(db, "notificationLogs"), {
       viewingId: viewingId,
@@ -404,7 +404,7 @@ function getEmailSubject(type, viewingData) {
   }
 }
 
-function getEMailTemplate(type, viewingData, additionalData = {}) {
+function getEmailTemplate(type, viewingData, additionalData = {}) {
   const propertyTitle = viewingData.propertyTitle || "Property";
   const propertyLocatoin =
     viewingData.propertyLocation || "Location not specified";
@@ -536,8 +536,7 @@ async function acceptViewingWithNotification(viewingId) {
     showError("Failed to accept viewing request. Please try again.");
     return false;
   }
-}
-const customReason =
+  const customReason =
   reason || prompt("Optional: Provide a reason for rejection");
 
 if (
@@ -564,6 +563,8 @@ try {
   showError("Failed to reject viewing request. Please try again.");
   return false;
 }
+}
+
 async function scheduleViewingReminder(viewingId) {
   try {
     const viewingData = await getViewingById(viewingId);
@@ -846,6 +847,8 @@ function getStatusBadge(status) {
 
 // Format date and time for display (updated for your data structure)
 function formatDateTimeFromBooking(date, timeString) {
+  if (!date) return "Invalid date";
+
   const options = {
     weekday: "short",
     year: "numeric",
@@ -854,7 +857,9 @@ function formatDateTimeFromBooking(date, timeString) {
   };
 
   const formattedDate = date.toLocaleDateString("en-US", options);
-  return `${formattedDate} at ${timeString}`;
+  const formattedTime = timeString || "N/A"
+  return `${formattedDate} at ${formattedTime}`;
+  
 }
 
 // Format date and time for display (legacy function kept for compatibility)
