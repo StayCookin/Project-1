@@ -566,6 +566,32 @@ async function scheduleViewingReminder(viewingId) {
     return false;
   }
 }
+
+async function cancelViewing(viewingId){
+  if(!currentUser) {
+    showError("Please log in to cancel viewings");
+    return false;
+  }
+
+  if (!confirm("Are you sure want to cancel this viewing request?")) {
+    return false;
+  }
+  try {
+    await sendNotificationToStudent(
+      viewingId,
+      NOTIFICATION_TYPES.VIEWING_CANCELLED
+    );
+
+    await deleteDoc(doc(db, "viewingBookings", viewingId));
+
+    showSuccess("VIewing request cancelled");
+    return true;
+  } catch (error) {
+    console.error("Error cancelling viewing:", error);
+    showError("Failed to cancel viewing request. Please try again.");
+    return false;
+  }
+}
 async function rejectViewingWithNotification(viewingId) {
   if (!currentUser) {
     showError("Please log in to reject viewings.");
@@ -593,32 +619,100 @@ async function rejectViewingWithNotification(viewingId) {
   
 }
 //this doesnt stay here
- 
+ async function rescheduleViewing(viewingId) {
+  if (!currentUser) {
+    console.error("Please log in to reschedule");
+    return;
+  }
+  const newDate = prompt("Enter new date (YYY-MM-DD:");
+  const newTime = prompt("Enter new time (e.g 14:00:");
+
+  if (!newDate || !newTime) {
+    showError("Reschedule cancelled, both itme and date are required");
+    return false;
+  }
+  try {
+    const bookingRef = doc(db, "viewingBookings", viewingId);
+
+    await updateDoc(bookingRef, {
+      viewingDate: new Date(newDate),
+      time: newTime,
+      status: "Reschedule"
+    });
+    await sendNotificationToStudent(
+      viewingId,
+      NOTIFICATION_TYPE.VIEWING_RESCHEDULED,
+      { newDate, newTime } 
+    );
+
+    showSuccess("Viewing rescheduled succesfully");
+    return true;
+  } catch (error) {
+    console.error("Error rescheduling viewing:", error);
+    showError("Failed to reschedule viewing. Please try again.");
+    return false;
+  }
+ }
+
+ async function markAsCompleted(viewingId) {
+  if (!currentUser) {
+    showError("Please log in to mark viewings");
+    return false;
+  }
+  if (!confirm("Mark this viewing as completed?")) {
+    return false;
+  }
+  try {
+    const bookingRef = doc(db, "viewingBookings", viewingId);
+    await updateDoc(bookingRef, { status: "Completed"});
+    await sendNotificationToStudent(
+      viewingId,
+      NOTIFICATION_TYPES.VIEWING_COMPLETED
+    );
+    showSuccess("Viewing marked as completed.");
+    return true;
+  } catch (error) {
+    console.error("Error marking viewing as completed:", error);
+    showError("Failed to update viewing status.");
+    return false;
+  }
+ }
 
 // Make functions globally available
 window.sendNotificationToStudent = sendNotificationToStudent;
+window.markAsCompleted = markAsCompleted;
 window.acceptViewingWithNotification = acceptViewingWithNotification;
 window.rejectViewingWithNotification = rejectViewingWithNotification;
 window.scheduleViewingReminder = scheduleViewingReminder;
 window.NOTIFICATION_TYPES = NOTIFICATION_TYPES;
-async function rejectViewing(viewingId) {
+window.cancelViewing = cancelViewing;
+window.rescheduleViewing= rescheduleViewing;
+window.rejectViewingWithNotification = rejectViewingWithNotification;
+
+async function rejectViewingWithNotification(viewingId) {
   if (!currentUser) {
     showError("Please log in to reject viewings.");
     return false;
   }
-  if (!confirm("Are you sure you want to reject this viewing request?")) {
-    return;
+
+  const reason = prompt("Optional: Provide a reason for rejection") || "";
+  if (!confirm("Reject this viewing request? Student will be notified.")) {
+    return false;
   }
 
   try {
-    await deleteDoc(doc(db, "viewingBookings", viewingId));
+    await sendNotificationToStudent(
+      viewingId,
+      NOTIFICATION_TYPES.VIEWING_REJECTED,
+      { reason }
+    );
 
-    showSuccess("Viewing request rejected and deleted successfully.");
-    await sendNotificationToStudent(viewingId, "rejected, reschedule");
+    await deleteDoc(doc(db, "viewingBookings", viewingId));
+    showSuccess("Viewing request denied and student notified");
     return true;
   } catch (error) {
-    console.error("Error rejecting viewing", error);
-    showError("Failed to reject viewing request. Please try again.");
+    console.error("Error rejecting viewing:", error);
+    showError("Failed to reject viewing request.");
     return false;
   }
 }
