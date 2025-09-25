@@ -153,6 +153,12 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    // Setup move button
+    const moveBtn = document.getElementById('moveBtn');
+    if (moveBtn) {
+        moveBtn.addEventListener('click', toggleMoveIn);
+    }
 });
 
 const dash = document.getElementById("dashboardBtn");
@@ -708,13 +714,6 @@ window.scrollToContact = function() {
     }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    const moveBtn = document.getElementById('moveBtn');
-    if (moveBtn) {
-        moveBtn.addEventListener('click', toggleMoveIn);
-    }
-});
-
 async function getRentalData(propertyId, studentId) {
     try{
         const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
@@ -837,4 +836,164 @@ async function toggleMoveIn() {
         ${rentalData.amenities.map(amenity => {
             // Handle both string and object amenities
             const amenityName = typeof amenity === 'string' ? amenity : (amenity.name || amenity.title || 'Amenity');
-            return `<li>${amenityName}
+            return `<li>${amenityName}</li>`;
+        }).join('')}
+          </ul>
+          ` : ''}
+          
+              <h4>House Rules</h4>
+              <ul id="houseRules">
+                ${rentalData.houseRules.map(rule => `<li>${rule}</li>`).join('')}
+              </ul>
+
+              <p>
+                By clicking Move In, the Student acknowledges that they have read,
+                understood, and agree to the terms, including the house rules stated above.
+              </p>
+
+              <button id="moveInConfirmBtn" style="
+                  margin-top:20px;
+                  padding:10px 15px;
+                  background:#007bff;
+                  color:white;
+                  border:none;
+                  border-radius:4px;
+                  cursor:pointer;">Move In</button>
+            </div>
+        `;
+
+        popup.appendChild(popupContent);
+        document.body.appendChild(popup);
+
+        const closePopup = () => {
+            if (document.body.contains(popup)) {
+                document.body.removeChild(popup);
+            }
+        };
+
+        document.getElementById('closePopupBtn').addEventListener('click', closePopup);
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                closePopup();
+            }
+        });
+
+        document.getElementById('moveInConfirmBtn').addEventListener('click', async () => {
+            try {
+                await handleMoveInConfirmation(currentProperty.id, currentUser.uid, rentalData);
+                closePopup();
+                showSuccess('Move-in confirmed! Proceeding to payment.');
+            } catch (error) {
+                console.error('Error creating rental agreement', error);
+                showError('Failed to process move-in. Please try again.');
+            }
+        });
+
+        // Handle escape key
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                closePopup();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+
+    } catch (error) {
+        console.error('Error handling move-in confirmation:', error);
+        showError('Failed to load rental agreement. Please try again.');
+    }
+}
+
+async function handleMoveInConfirmation(propertyId, studentId, rentalData) {
+    try {
+        const propertyRef = doc(db, 'properties', propertyId);
+        await updateDoc(propertyRef, {
+            status: 'rented',
+            updatedAt: new Date()
+        });
+
+        await addDoc(collection(db, 'notifications'), {
+            userId: rentalData.landlordId,
+            type: 'move_in_confirmed',
+            message: `${rentalData.studentName} has confirmed move-in for ${rentalData.propertyTitle}`,
+            propertyId: propertyId,
+            studentId: studentId,
+            createdAt: new Date(),
+            read: false
+        });
+        
+        console.log('Move-in confirmed successfully');
+    } catch (error) {
+        console.error('Error handling move-in confirmation:', error);
+        throw error;
+    }
+}
+
+window.sendInquiry = async function() {
+    const inquiryType = document.getElementById('inquiryType');
+    const message = document.getElementById('message');
+    const preferredDate = document.getElementById('preferredDate');
+    
+    if (!inquiryType || !message) {
+        showError('Required form elements not found');
+        return;
+    }
+    
+    const inquiryTypeValue = inquiryType.value;
+    const messageValue = message.value.trim();
+    const preferredDateValue = preferredDate ? preferredDate.value : '';
+    
+    if (!messageValue) {
+        showError('Please enter a message');
+        return;
+    }
+    
+    if (inquiryTypeValue === 'viewing' && !preferredDateValue) {
+        showError('Please select a preferred date and time for the viewing');
+        return;
+    }
+    
+    try {
+        // FIXED: Use userId instead of landlordId
+        const landlordId = currentProperty.userId || currentProperty.landlordId || currentProperty.ownerId;
+        
+        const inquiryData = {
+            studentId: currentUser.uid,
+            propertyId: currentProperty.id,
+            landlordId: landlordId,
+            type: inquiryTypeValue,
+            message: messageValue,
+            createdAt: serverTimestamp(),
+            status: 'pending'
+        };
+        
+        if (inquiryTypeValue === 'viewing') {
+            inquiryData.preferredDate = new Date(preferredDateValue);
+            
+            // Also create a viewing request
+            await addDoc(collection(db, 'viewings'), {
+                studentId: currentUser.uid,
+                propertyId: currentProperty.id,
+                landlordId: landlordId,
+                scheduledDate: new Date(preferredDateValue),
+                status: 'pending',
+                notes: messageValue,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+        }
+        
+        // Create inquiry record
+        await addDoc(collection(db, 'inquiries'), inquiryData);
+        
+        showSuccess('Your inquiry has been sent successfully!');
+        
+        // Clear form
+        message.value = '';
+        if (preferredDate) preferredDate.value = '';
+        
+    } catch (error) {
+        console.error('Error sending inquiry:', error);
+        showError('Failed to send inquiry. Please try again.');
+    }
+};
