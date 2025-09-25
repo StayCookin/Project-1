@@ -536,33 +536,7 @@ async function acceptViewingWithNotification(viewingId) {
     showError("Failed to accept viewing request. Please try again.");
     return false;
   }
-  const customReason =
-  reason || prompt("Optional: Provide a reason for rejection");
-
-if (
-  !confirm(
-    "Are you sure you want to reject this viewing request? The student will be notified"
-  )
-) {
-  return;
-}
-try {
-  await sendNotificationToStudent(
-    viewingId,
-    NOTIFICATION_TYPES.VIEWING_REJECTED,
-    {
-      reason: customReason,
-    }
-  );
-  await deleteDoc(doc(db, "viewingBookings", viewingId));
-
-  showSuccess("Viewing request rejected and student notified.");
-  return true;
-} catch (error) {
-  console.error("Error rejecting viewing:", error);
-  showError("Failed to reject viewing request. Please try again.");
-  return false;
-}
+ 
 }
 
 async function scheduleViewingReminder(viewingId) {
@@ -592,6 +566,34 @@ async function scheduleViewingReminder(viewingId) {
     return false;
   }
 }
+async function rejectViewingWithNotification(viewingId) {
+  if (!currentUser) {
+    showError("Please log in to reject viewings.");
+    return false;
+  }
+  const reason = prompt("Optional: Provide a reason for rejection") || "";
+  if (!confirm("Are you sure you want to reject this viewing request?")) {
+    return false;
+  }
+
+  try {
+    await sendNotificationToStudent(
+      vieiwngId,
+      NOTIFICATION_TYPES.VIEWING_REJECTED,
+      {reason}
+    );
+    await deleteDoc(doc(db, "viewingBookings", viewingId));
+    showSuccess("Viewing request rejected, student notified");
+    return true;
+  } catch (error) {
+    console.error("Error rejecting viewing:", error);
+    showError("Failed to reject viewing request. Please try again.");
+    return false;
+  }
+  
+}
+//this doesnt stay here
+ 
 
 // Make functions globally available
 window.sendNotificationToStudent = sendNotificationToStudent;
