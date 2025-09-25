@@ -159,23 +159,14 @@ function renderViewings(viewings) {
     if (description) container.appendChild(description);
 
     // Add debug info
-    const debugInfo = document.createElement('div');
-    debugInfo.className = 'bg-yellow-100 border border-yellow-300 rounded p-3 mb-4 text-sm';
-    debugInfo.innerHTML = `
-        <strong>Debug Info:</strong><br>
-        Current User: ${currentUser ? currentUser.email : 'None'}<br>
-        User ID: ${currentUser ? currentUser.uid : 'None'}<br>
-        My Booking  Found: ${viewings.length}
-    `;
-    container.appendChild(debugInfo);
-
+   
     // Show message if no viewings
     if (!viewings.length) {
         const noViewingsMsg = document.createElement('div');
         noViewingsMsg.className = 'text-center py-8 text-gray-500';
         noViewingsMsg.innerHTML = `
             <i class="fas fa-calendar-times text-4xl mb-4"></i>
-            <p class="text-lg">No viewing requests found.</p>
+            <p class="text-lg">No viewing requests yet.</p>
             <p class="text-sm">Waiting for tenants to book viewings for your properties.</p>
         `;
         container.appendChild(noViewingsMsg);
