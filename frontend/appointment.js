@@ -5,6 +5,7 @@ import {
     doc, 
     addDoc, 
     getDocs,
+    deleteDoc,
     updateDoc, 
     onSnapshot, 
     query, 
@@ -137,6 +138,59 @@ async function loadUserViewings() {
     }
 }
 
+async function acceptViewing(viewingId){
+    if(!currentUser) {
+        showError('Please Log in to accept viewings');
+        return false;
+    }
+
+    if (!confirm("Are you sure you want to accept this request?")) {
+        return;
+    }
+
+    try {
+        const success = await updateViewing(viewingId, {
+            status: VIEWING_STATUS.CONFIRMED,
+            confirmedAt: serverTimestamp(),
+            confirmedBy: currentUser.uid
+        });
+
+        if (success) {
+            showSuccess("Viewing request accepted successfully!");
+            await sendNotificationToStudent(viewingId, 'accepted');
+        }
+        return success;
+    }
+    catch (error) {
+        console.error('Error accepting viewing', error);
+        showError('Failed to accpet viewing requset. Please try again.');
+        return false;
+    }
+}
+
+async function rejectViewing(viewingId) {
+    if (!currentUser) {
+        showError('Please log in to reject viewings.');
+        return false;
+    }
+    if (!confirm("Are you sure you want to reject this viewing request?")) {
+        return;
+    }
+
+    try {
+        await deleteDoc(doc(db, 'viewingBookings', viewingId));
+
+        showSuccess('Viewing request rejected and deleted successfully.');
+        await sendNotificationToStudent(viewingId, 'rejected, reschedule');
+        return true;
+    }
+    catch (error) {
+        console.error('Error rejecting viewing', error);
+        showError('Failed to reject viewing request. Please try again.');
+        return false;
+    }
+}
+
 // Render viewings in the UI
 function renderViewings(viewings) {
     console.log('DEBUG: Rendering viewings:', viewings.length);
@@ -241,8 +295,9 @@ function createActionButtons(viewing, canModify) {
     if (isPending) {
         return `
             <div class="action-buttons mt-4 flex flex-col sm:flex-row gap-2">
-                <button onclick="editViewing('${viewing.id}')" class="btn-reschedule px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Edit Request</button>
-                <button onclick="cancelViewing('${viewing.id}')" class="btn-cancel px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Cancel Request</button>
+                <button onclick="acceptViewing('${viewing.id}')" class="btn-accept px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-green-50 text-green-600 border border-green-400 hover:bg-green-100">Accept Request</button>
+                <button onclick="rejectViewing('${viewing.id}')" class="btn-reject px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Reject Request</button>
+                <button onclick="editViewing('${viewing.id}')" class="btn-edit px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Edit Details</button>
             </div>
         `;
     } else if (isConfirmed) {
@@ -250,12 +305,61 @@ function createActionButtons(viewing, canModify) {
             <div class="action-buttons mt-4 flex flex-col sm:flex-row gap-2">
                 <button onclick="rescheduleViewing('${viewing.id}')" class="btn-reschedule px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-blue-50 text-blue-600 border border-blue-400 hover:bg-blue-100">Reschedule</button>
                 <button onclick="cancelViewing('${viewing.id}')" class="btn-cancel px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-red-50 text-red-600 border border-red-400 hover:bg-red-100">Cancel</button>
+                <button onclick="markAsCompleted('${viewing.id}')" class="btn-completed px-4 py-2 rounded-xl text-sm font-semibold transition-colors duration-200 text-center bg-gray-50 text-gray-600 border border-gray-400 hover:bg-gray-100">Mark as Completed</button>
             </div>
         `;
     }
 
     return '<div class="mt-4"></div>';
 }
+async function markAsCompleted(viewingId) {
+    if (!confirm("Mark this viewing as completed?")) {
+        return;
+    }
+    const success = await updateViewing(viewingId, {
+        status: VIEWING_STATUS.COMPLETED,
+        completedAt: serverTimestamp(),
+        completedBy: currentUser.uid
+    });
+
+    if(success) {
+        showSuccess('Viewing marked as completed.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const acceptBtn = document.getElementById("acceptBtn");
+    const rejectBtn = document.getElementById("rejectBtn");
+
+    if(acceptBtn) {
+        acceptBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const viewingId = this.dataset.viewingId;
+            if(viewingId) {
+                acceptViewing(viewingId);
+            }
+            else {
+                showError("No viewing ID found.");
+            }
+        });
+    }
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const viewingId = this.dataset.viewingId;
+            if(viewingId) {
+                rejectViewing(viewingId);
+            } else {
+                showError("No viewing Id found");
+            }
+        });
+    }
+});
+
+window.acceptViewing = acceptViewing;
+window.rejectViewing = rejectViewing;
+window.rejectViewingKeepRecord = rejectViewingKeepRecord;
+window.markAsCompleted = markAsCompleted;
 
 // Get status-specific border color
 function getStatusBorderColor(status) {
