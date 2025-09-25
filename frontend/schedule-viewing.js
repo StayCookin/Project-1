@@ -408,7 +408,7 @@ function initializeCalendar(property, user, userData) {
           // User information
           userId: user.uid,
           userEmail: user.email,
-          landlordId: property.userId,
+          landlordId: property.landlordId,
 
           
           // Booking details
