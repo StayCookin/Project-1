@@ -285,7 +285,7 @@ async function sendEmailNotification(
     const emailData = {
       to: viewingData.email,
       subject: getEmailSubject(notificationType, viewingData),
-      html: getEmailTemplate(notificaitonType, viewingData, additionalData),
+      html: getEmailTemplate(notificationType, viewingData, additionalData),
       notificationType: notificationType,
       viewingId: viewingData.id,
       userId: viewingData.userId,
@@ -317,7 +317,7 @@ async function logNotificationActivity(viewingId, notificationType, metadata) {
       landlordId: currentUser?.uid,
     });
   } catch (error) {
-    console.error("Error logging notificaiton activity");
+    console.error("Error logging notification activity");
   }
 }
 
