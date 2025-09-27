@@ -115,18 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     showError("Failed to initialize messages system");
   }
 });
-function formatTimestamp(timestamp) {
-  // Replace the incomplete implementation with a robust formatter
-  if (!timestamp) return new Date();
-  // Firestore Timestamp object
-  if (typeof timestamp.toDate === "function") return timestamp.toDate();
-  // plain object with seconds (e.g. serialized)
-  if (typeof timestamp.seconds === "number") return new Date(timestamp.seconds * 1000);
-  // numeric millis
-  if (typeof timestamp === "number") return new Date(timestamp);
-  // fallback: attempt Date conversion
-  return new Date(timestamp);
-}
+
 function detectNavigationContext() {
   const urlParams = new URLSearchParams(window.location.search);
   const referrer = document.referrer;
