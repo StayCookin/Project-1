@@ -834,20 +834,7 @@ function createActionButtons(viewing, canModify) {
 
   return '<div class="mt-4"></div>';
 }
-async function markAsCompleted(viewingId) {
-  if (!confirm("Mark this viewing as completed?")) {
-    return;
-  }
-  const success = await updateViewing(viewingId, {
-    status: VIEWING_STATUS.COMPLETED,
-    completedAt: serverTimestamp(),
-    completedBy: currentUser.uid,
-  });
 
-  if (success) {
-    showSuccess("Viewing marked as completed.");
-  }
-}
 
 document.addEventListener("DOMContentLoaded", function () {
   const acceptBtn = document.getElementById("acceptBtn");
