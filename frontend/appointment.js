@@ -997,19 +997,7 @@ async function updateViewing(viewingId, updateData) {
 }
 
 // Cancel viewing
-async function cancelViewing(viewingId) {
-  if (!confirm("Are you sure you want to cancel this viewing?")) {
-    return;
-  }
 
-  const success = await updateViewing(viewingId, {
-    status: "cancelled",
-  });
-
-  if (success) {
-    showSuccess("Viewing cancelled successfully.");
-  }
-}
 
 // Reschedule viewing
 async function rescheduleViewing(viewingId) {
