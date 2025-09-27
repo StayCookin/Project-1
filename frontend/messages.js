@@ -61,7 +61,8 @@ function formatTimestamp(timestamp) {
   // Firestore Timestamp object
   if (typeof timestamp.toDate === "function") return timestamp.toDate();
   // plain object with seconds (e.g. serialized)
-  if (typeof timestamp.seconds === "number") return new Date(timestamp.seconds * 1000);
+  if (typeof timestamp.seconds === "number")
+    return new Date(timestamp.seconds * 1000);
   // numeric millis
   if (typeof timestamp === "number") return new Date(timestamp);
   // fallback: attempt Date conversion
@@ -348,63 +349,90 @@ async function handleConversationsUpdate(snapshot) {
   for (const docSnapshot of snapshot.docs) {
     const conversationData = docSnapshot.data();
 
-    // Get the other participant's info
+    // Get the other participant's id
     const otherParticipantId = conversationData.participants.find(
       (id) => id !== currentUser.uid
     );
+
     let otherUser = null;
     let propertyInfo = null;
 
-    if (userDoc.exists()) {
-  const userData = userDoc.data();
-  otherUser = {
-    _id: otherParticipantId,
-    id: otherParticipantId,
-    name: ${userData.firstName || ""} ${userData.lastName || ""}.trim() || "User",
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    role: userData.role || "User", // Make sure role is included
-    email: userData.email,
-    ...userData,
-  };
-}
-  
-        // Get property info if available
-        if (conversationData.propertyId) {
-          const propertyDoc = await getDoc(
-            doc(db, "properties", conversationData.propertyId)
-          );
-          if (propertyDoc.exists()) {
-            propertyInfo = {
-              id: conversationData.propertyId,
-              ...propertyDoc.data(),
-            };
-          }
+    // Load other participant profile safely
+    if (otherParticipantId) {
+      try {
+        const otherUserDoc = await getDoc(doc(db, "users", otherParticipantId));
+        if (otherUserDoc.exists()) {
+          const userData = otherUserDoc.data();
+          otherUser = {
+            _id: otherParticipantId,
+            id: otherParticipantId,
+            name:
+              `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
+              "User",
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            role: userData.role || "User",
+            email: userData.email,
+            ...userData,
+          };
+        } else {
+          otherUser = {
+            _id: otherParticipantId,
+            id: otherParticipantId,
+            name: "User",
+          };
         }
-      } 
-    
+      } catch (err) {
+        console.error("Failed to load other participant profile:", err);
+        otherUser = {
+          _id: otherParticipantId,
+          id: otherParticipantId,
+          name: "User",
+        };
+      }
+    }
+
+    // Get property info if available
+    if (conversationData.propertyId) {
+      try {
+        const propertyDoc = await getDoc(
+          doc(db, "properties", conversationData.propertyId)
+        );
+        if (propertyDoc.exists()) {
+          propertyInfo = {
+            id: conversationData.propertyId,
+            ...propertyDoc.data(),
+          };
+        }
+      } catch (err) {
+        console.error("Failed to load property info:", err);
+      }
+    }
 
     // Count unread messages
     const unreadCount = await getUnreadMessageCount(docSnapshot.id);
 
     // Format conversation data to match your existing structure
-   const formattedConversation = {
-    id: docSnapshot.id,
-    user: otherUser,
-    lastMessage: {
-      content: conversationData.lastMessage || "No messages yet",
-      createdAt: formatTimestamp(conversationData.lastMessageAt),
-      property: conversationData.property,  
-    },
-   unreadCount: unreadCount,
-   propertyInfo: propertyInfo,
-   ...conversationData,
-   };
-    conversations.push(formattedConversation);
-  
+    const formattedConversation = {
+      id: docSnapshot.id,
+      user: otherUser,
+      lastMessage: {
+        content: conversationData.lastMessage || "No messages yet",
+        createdAt: formatTimestamp(conversationData.lastMessageAt),
+        property: conversationData.property || null,
+      },
+      unreadCount: unreadCount,
+      propertyInfo: propertyInfo,
+      ...conversationData,
+    };
 
+    conversations.push(formattedConversation);
+  } // end for
+
+  // After processing all conversations
   renderConversations(conversations);
   setupMessageListeners();
+}
 
 async function getUnreadMessageCount(conversationId) {
   try {
@@ -691,8 +719,8 @@ function renderConversationMessages(messages, propertyName) {
         <div style="font-size:0.98rem;">${msg.text || msg.content}</div>
         <div style="font-size:0.9rem;color:#888;">${
           msg.timestamp
-           ? formatTimestamp(msg.timestamp).toLocaleString()
-           : formatTimestamp(msg.createdAt).toLocaleString()
+            ? formatTimestamp(msg.timestamp).toLocaleString()
+            : formatTimestamp(msg.createdAt).toLocaleString()
         }</div>
       `;
       chatArea.appendChild(div);
