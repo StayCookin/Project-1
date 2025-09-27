@@ -55,6 +55,12 @@ try {
   showError("Failed to initialize Firebase services");
 }
 
+
+
+if(timestamp.seconds) {
+  return new Date(timestamp.seconds * 1000);
+} return new Date(timestamp);
+
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -88,7 +94,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       chatFormEl.addEventListener("submit", function (e) {
         e.preventDefault();
         const chatInputEl = document.getElementById("chatInput");
-        const messageText = (chatInputEl && chatInputEl.value ? chatInputEl.value : "").trim();
+        const messageText = (
+          chatInputEl && chatInputEl.value ? chatInputEl.value : ""
+        ).trim();
         if (messageText && activeConversationId) {
           sendMessageToConversation(activeConversationId, messageText);
           if (chatInputEl) chatInputEl.value = "";
@@ -100,7 +108,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     showError("Failed to initialize messages system");
   }
 });
-
+function formatTimestamp(timestamp) {
+  if (!timestamp) return new Date();
+}
 function detectNavigationContext() {
   const urlParams = new URLSearchParams(window.location.search);
   const referrer = document.referrer;
@@ -115,11 +125,10 @@ function detectNavigationContext() {
   } else if (urlParams.get("from") === "landlord-dashboard") {
     navigationContext.source = "landlord-dashboard";
     navigationContext.returnUrl = "landlord-dashboard.html";
-  } else if (urlParams.get("from") === "marketplace") { 
- navigationContext.source = "marketplace";
- navigationContext.returnUrl = "marketplace.html";
-  }
-  else if (urlParams.get("from") === "property-details") {
+  } else if (urlParams.get("from") === "marketplace") {
+    navigationContext.source = "marketplace";
+    navigationContext.returnUrl = "marketplace.html";
+  } else if (urlParams.get("from") === "property-details") {
     navigationContext.source = "property-details";
     navigationContext.returnUrl =
       urlParams.get("returnUrl") || "properties.html";
@@ -341,25 +350,20 @@ async function handleConversationsUpdate(snapshot) {
     let otherUser = null;
     let propertyInfo = null;
 
-    if (otherParticipantId) {
-      try {
-        // Get other participant's profile
-        const userDoc = await getDoc(doc(db, "users", otherParticipantId));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          otherUser = {
-            _id: otherParticipantId,
-            id: otherParticipantId,
-            name: `${userData.firstName || ""} ${
-              userData.lastName || ""
-            }`.trim(),
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            role: userData.role,
-            ...userData,
-          };
-        }
-
+    if (userDoc.exists()) {
+  const userData = userDoc.data();
+  otherUser = {
+    _id: otherParticipantId,
+    id: otherParticipantId,
+    name: ${userData.firstName || ""} ${userData.lastName || ""}.trim() || "User",
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    role: userData.role || "User", // Make sure role is included
+    email: userData.email,
+    ...userData,
+  };
+}
+  
         // Get property info if available
         if (conversationData.propertyId) {
           const propertyDoc = await getDoc(
@@ -372,34 +376,30 @@ async function handleConversationsUpdate(snapshot) {
             };
           }
         }
-      } catch (error) {
-        console.error("Error fetching participant info:", error);
-      }
-    }
+      } 
+    
 
     // Count unread messages
     const unreadCount = await getUnreadMessageCount(docSnapshot.id);
 
     // Format conversation data to match your existing structure
-    const formattedConversation = {
-      id: docSnapshot.id,
-      user: otherUser,
-      lastMessage: {
-        content: conversationData.lastMessage || "No messages yet",
-        createdAt: conversationData.lastMessageAt?.toDate() || new Date(),
-        property: conversationData.propertyId,
-      },
-      unreadCount: unreadCount,
-      propertyInfo: propertyInfo,
-      ...conversationData,
-    };
-
+   const formattedConversation = {
+    id: docSnapshot.id,
+    user: otherUser,
+    lastMessage: {
+      content: conversationData.lastMessage || "No messages yet",
+      createdAt: formatTimestamp(conversationData.lastMessageAt),
+      property: conversationData.property,  
+    },
+   unreadCount: unreadCount,
+   propertyInfo: propertyInfo,
+   ...conversationData,
+   };
     conversations.push(formattedConversation);
-  }
+  
 
   renderConversations(conversations);
   setupMessageListeners();
-}
 
 async function getUnreadMessageCount(conversationId) {
   try {
@@ -480,9 +480,10 @@ async function selectConversation(conversationId, conversationData) {
     clickedItem.classList.add("active");
   }
   await markMessagesAsRead(conversationId);
-  const chatArea = document.getElementById('chatArea');
-  if(chatArea){
-    chatArea.innerHTML = '<div class="text-center py-8 text-gray-500">Loading messages</div>';
+  const chatArea = document.getElementById("chatArea");
+  if (chatArea) {
+    chatArea.innerHTML =
+      '<div class="text-center py-8 text-gray-500">Loading messages</div>';
   }
 }
 function ensureMessagesContainer() {
@@ -498,38 +499,50 @@ function ensureMessagesContainer() {
 function renderConversations(conversations) {
   const container = document.getElementById("conversationList");
 
-  if(!container){
-    console.error('Conversationlist element not found');
+  if (!container) {
+    console.error("Conversationlist element not found");
     return;
   }
 
   container.innerHTML = "";
-  
+
   if (!conversations.length) {
-    container.innerHTML = '<div class="text-gray-500 text-sm p-4">No conversations yet</div>';
+    container.innerHTML =
+      '<div class="text-gray-500 text-sm p-4">No conversations yet</div>';
     return;
   }
 
   conversations.forEach((conv) => {
     const div = document.createElement("div");
-    div.className = "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
+    div.className =
+      "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
     div.onclick = () => selectConversation(conv.id, conv);
-    
+
     div.innerHTML = `
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
           <i class="fas fa-user text-green-600"></i>
         </div>
         <div class="flex-1 min-w-0">
-          <div class="font-semibold text-gray-800 truncate">${conv.user?.name || "User"}</div>
-          <div class="text-sm text-gray-500 truncate">${conv.lastMessage.content}</div>
-          <div class="text-xs text-gray-400">${new Date(conv.lastMessage.createdAt).toLocaleDateString()}</div>
+          <div class="font-semibold text-gray-800 truncate">${
+            conv.user?.name || "User"
+          }</div>
+          <div class="text-sm text-gray-500 truncate">${
+            conv.lastMessage.content
+          }</div>
+          <div class="text-xs text-gray-400">${new Date(
+            conv.lastMessage.createdAt
+          ).toLocaleDateString()}</div>
         </div>
-        ${conv.unreadCount ? `<div class="bg-green-600 text-white text-xs px-2 py-1 rounded-full">${conv.unreadCount}</div>` : ''}
+        ${
+          conv.unreadCount
+            ? `<div class="bg-green-600 text-white text-xs px-2 py-1 rounded-full">${conv.unreadCount}</div>`
+            : ""
+        }
       </div>
     `;
     container.appendChild(div);
-    });
+  });
 }
 
 async function openConversation(userId, propertyId, propertyName) {
@@ -566,21 +579,24 @@ async function openConversation(userId, propertyId, propertyName) {
       };
     }
 
-     document.getElementById("chatName").textContent =
+    document.getElementById("chatName").textContent =
       conversationData.user?.name || "User";
-    document.getElementById("chatRole").textContent = conversationData.user?.role || "";
+    document.getElementById("chatRole").textContent =
+      conversationData.user?.role || "";
 
     document.getElementById("chatForm").style.display = "flex";
 
     // Show loading state in chat area
-    const chatArea = document.getElementById('chatArea');
+    const chatArea = document.getElementById("chatArea");
     if (chatArea) {
       chatArea.innerHTML = `
         <div class="conversation-header">
           <button class="back-to-conversations" onclick="showConversationsList()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
             ← Back to Messages
           </button>
-          <h3 style='color:#228b22;'>Conversation${propertyName ? " - " + propertyName : ""}</h3>
+          <h3 style='color:#228b22;'>Conversation${
+            propertyName ? " - " + propertyName : ""
+          }</h3>
         </div>
         <div class="text-center py-8 text-gray-500">Loading messages...</div>
       `;
@@ -667,22 +683,17 @@ function renderConversationMessages(messages, propertyName) {
         <div style="font-size:0.98rem;">${msg.text || msg.content}</div>
         <div style="font-size:0.9rem;color:#888;">${
           msg.timestamp
-            ? new Date(
-                msg.timestamp.seconds
-                  ? msg.timestamp.seconds * 1000
-                  : msg.timestamp
-              ).toLocaleString()
-            : ""
+           ? formatTimestamp(msg.timestamp).toLocaleString()
+           : formatTimestamp(msg.createdAt).toLocaleString()
         }</div>
       `;
       chatArea.appendChild(div);
     });
   }
+}
 
-  }
-
-  // Auto-scroll to bottom
-  chatArea.scrollTop = chatArea.scrollHeight;
+// Auto-scroll to bottom
+chatArea.scrollTop = chatArea.scrollHeight;
 
 async function sendMessage(receiverId, propertyId, content) {
   try {
