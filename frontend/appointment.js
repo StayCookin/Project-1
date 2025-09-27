@@ -1000,12 +1000,7 @@ async function updateViewing(viewingId, updateData) {
 
 
 // Reschedule viewing
-async function rescheduleViewing(viewingId) {
-  showInfo("Reschedule functionality would open a date/time picker here.");
-  await updateViewing(viewingId, {
-    status: "pending",
-  });
-}
+
 
 // Edit viewing
 async function editViewing(viewingId) {
