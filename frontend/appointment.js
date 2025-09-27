@@ -689,33 +689,6 @@ window.cancelViewing = cancelViewing;
 window.rescheduleViewing= rescheduleViewing;
 window.rejectViewingWithNotification = rejectViewingWithNotification;
 
-async function rejectViewingWithNotification(viewingId) {
-  if (!currentUser) {
-    showError("Please log in to reject viewings.");
-    return false;
-  }
-
-  const reason = prompt("Optional: Provide a reason for rejection") || "";
-  if (!confirm("Reject this viewing request? Student will be notified.")) {
-    return false;
-  }
-
-  try {
-    await sendNotificationToStudent(
-      viewingId,
-      NOTIFICATION_TYPES.VIEWING_REJECTED,
-      { reason }
-    );
-
-    await deleteDoc(doc(db, "viewingBookings", viewingId));
-    showSuccess("Viewing request denied and student notified");
-    return true;
-  } catch (error) {
-    console.error("Error rejecting viewing:", error);
-    showError("Failed to reject viewing request.");
-    return false;
-  }
-}
 
 // Render viewings in the UI
 function renderViewings(viewings) {
