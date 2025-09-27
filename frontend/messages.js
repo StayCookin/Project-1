@@ -55,11 +55,18 @@ try {
   showError("Failed to initialize Firebase services");
 }
 
-
-
-if(timestamp.seconds) {
-  return new Date(timestamp.seconds * 1000);
-} return new Date(timestamp);
+function formatTimestamp(timestamp) {
+  // Replace the incomplete implementation with a robust formatter
+  if (!timestamp) return new Date();
+  // Firestore Timestamp object
+  if (typeof timestamp.toDate === "function") return timestamp.toDate();
+  // plain object with seconds (e.g. serialized)
+  if (typeof timestamp.seconds === "number") return new Date(timestamp.seconds * 1000);
+  // numeric millis
+  if (typeof timestamp === "number") return new Date(timestamp);
+  // fallback: attempt Date conversion
+  return new Date(timestamp);
+}
 
 // Initialize on DOM load
 document.addEventListener("DOMContentLoaded", async () => {
@@ -109,7 +116,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 function formatTimestamp(timestamp) {
+  // Replace the incomplete implementation with a robust formatter
   if (!timestamp) return new Date();
+  // Firestore Timestamp object
+  if (typeof timestamp.toDate === "function") return timestamp.toDate();
+  // plain object with seconds (e.g. serialized)
+  if (typeof timestamp.seconds === "number") return new Date(timestamp.seconds * 1000);
+  // numeric millis
+  if (typeof timestamp === "number") return new Date(timestamp);
+  // fallback: attempt Date conversion
+  return new Date(timestamp);
 }
 function detectNavigationContext() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -435,19 +451,22 @@ function setupMessageListeners() {
         const messages = [];
         snapshot.forEach((doc) => {
           const messageData = doc.data();
-          // Format to match your existing structure
+          // Normalized message object (use formatTimestamp)
           messages.push({
             id: doc.id,
             content: messageData.text,
-            createdAt: messageData.timestamp?.toDate() || new Date(),
+            createdAt: formatTimestamp(messageData.timestamp),
             sender: {
               _id: messageData.senderId,
               name: messageData.senderName,
             },
             receiver: {
-              _id: conversation.user._id,
+              _id: conversation.user?._id || conversation.user?.id || null,
             },
-            property: conversation.lastMessage.property,
+            property:
+              conversation.lastMessage?.property ||
+              conversation.propertyInfo?.id ||
+              null,
             ...messageData,
           });
         });
