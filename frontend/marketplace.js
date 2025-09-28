@@ -12,7 +12,7 @@ import {
   query,
   where,
   getDocs,
-  orderBy
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Firebase config
@@ -304,7 +304,7 @@ if (messages) {
   messages.addEventListener("click", () => {
     console.log("📨 Redirecting to messages page");
 
-    const currentPage = window.location.pathname.split('/').pop().split('.')[0];
+    const currentPage = window.location.pathname.split("/").pop().split(".")[0];
     let fromParam = "";
 
     if (currentPage === "marketplace") {
@@ -440,9 +440,15 @@ function setupSearchAndFilters(role) {
   }
 
   // Property type filter
-  const propertyTypeSelect = document.getElementById("propertyTypeFilter");
+  const propertyTypeSelect = document.getElementById("typeFilter");
   if (propertyTypeSelect) {
     propertyTypeSelect.addEventListener("change", applyCurrentFilters);
+  }
+
+  // Bedroom filter (add this)
+  const bedroomFilter = document.getElementById("bedroomFilter");
+  if (bedroomFilter) {
+    bedroomFilter.addEventListener("change", applyCurrentFilters);
   }
 
   // Availability filter (for landlords)
@@ -731,6 +737,22 @@ function applyCurrentFilters() {
     );
   }
 
+  // Bedroom filter handling (add this)
+  const bedroomFilterValue = document.getElementById("bedroomFilter")?.value;
+  if (bedroomFilterValue && bedroomFilterValue !== "all") {
+    if (bedroomFilterValue.endsWith("+")) {
+      const minBeds = parseInt(bedroomFilterValue.slice(0, -1), 10);
+      filtered = filtered.filter(
+        (property) => (parseInt(property.bedrooms, 10) || 0) >= minBeds
+      );
+    } else {
+      const beds = parseInt(bedroomFilterValue, 10);
+      filtered = filtered.filter(
+        (property) => (parseInt(property.bedrooms, 10) || 0) === beds
+      );
+    }
+  }
+
   // Amenities filter
   const selectedAmenities = Array.from(
     document.querySelectorAll('#amenitiesList input[type="checkbox"]:checked')
@@ -777,10 +799,12 @@ function clearAllFilters() {
   const locationFilter = document.getElementById("locationFilter");
   const propertyTypeFilter = document.getElementById("propertyTypeFilter");
   const availabilityFilter = document.getElementById("availabilityFilter");
+  const bedroomFilter = document.getElementById("bedroomFilter");
 
   if (locationFilter) locationFilter.value = "all";
   if (propertyTypeFilter) propertyTypeFilter.value = "all";
   if (availabilityFilter) availabilityFilter.value = "all";
+  if (bedroomFilter) bedroomFilter.value = "all";
 
   // Clear amenities checkboxes
   const amenityCheckboxes = document.querySelectorAll(
@@ -1089,10 +1113,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
     currentUser = user;
     console.log("✅ User authenticated:", user.email);
-  
 
     // Check email verification
     if (!user.emailVerified) {
@@ -1104,20 +1126,21 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "signup.html";
       return;
     }
-    try { console.log("Loading user info");
+    try {
+      console.log("Loading user info");
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
-      if (!userDoc.exists()){
+      if (!userDoc.exists()) {
         console.log("User doc not found");
-        alert ("User profile not found. Please complete registration");
+        alert("User profile not found. Please complete registration");
         await signOut(auth);
-        window.location.href= "signup.html";
+        window.location.href = "signup.html";
         return;
       }
       currentUserData = userDoc.data();
       console.log("User data loaded", currentUserData);
 
-      if (!currentUserData.role){
+      if (!currentUserData.role) {
         console.log("Invalid user role", currentUserData.role);
         alert("Invalid user role. Please contact support");
         await signOut(auth);
@@ -1131,9 +1154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setupEventListeners(currentUserData.role, user);
 
       await setupPropertiesListener(currentUserData.role, user);
-      
-    }
-    catch(error){
+    } catch (error) {
       console.error("Error during initialization", error);
       hideLoadingState();
       alert("Error loading marketplace. Please try again");
