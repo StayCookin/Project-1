@@ -779,6 +779,20 @@ function applyCurrentFilters() {
   updateResultsCount();
 }
 
+
+async function loadProperties() {
+  try {
+    const propertiesRef = collection(db, 'properties');
+    const snapshot = await getDocs(propertiesRef);
+
+    currentProperties = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    console.log(`🔄 Properties updated: ${currentProperties.length} total`);
+    applyCurrentFilters();
+  }catch(error) {console.error ( "Error loading properties", error);}
+}
 /**
  * Clears all filters and search
  */
