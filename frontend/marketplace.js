@@ -780,7 +780,7 @@ function applyCurrentFilters() {
 }
 
 
-async function loadProperties() {
+async function loadPropertiesFilter() {
   try {
     const propertiesRef = collection(db, 'properties');
     const snapshot = await getDocs(propertiesRef);
