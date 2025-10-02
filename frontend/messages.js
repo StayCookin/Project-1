@@ -516,10 +516,7 @@ async function selectConversation(conversationId, conversationData) {
       item.classList.add('active');
     }
   });
-  const clickedItem = event.target.closest(".conversation-item");
-  if (clickedItem) {
-    clickedItem.classList.add("active");
-  }
+  
   await markMessagesAsRead(conversationId);
   const chatArea = document.getElementById("chatArea");
   if (chatArea) {
