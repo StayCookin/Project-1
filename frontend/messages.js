@@ -885,6 +885,8 @@ async function handleConversationsUpdate(snapshot) {
     const newConversations = [];
     const processedIds = new Set();
 
+    const conversationByParticipant = new Map();
+
     for (const docSnapshot of snapshot.docs) {
       const conversationId = docSnapshot.id;
 
@@ -900,6 +902,25 @@ async function handleConversationsUpdate(snapshot) {
       const otherParticipantId = (conversationData.participants || []).find(
         (id) => id !== currentUser.uid
       );
+
+      if(conversationsByParticipant.has(otherParticipantId)) {
+        console.log(`Duplicate conversation detected with user ${otherParticipantId}`)
+      }
+
+      const existingConv = conversationsByParticipant.get(otherParticipantId);
+      const existingTime = existingConv.conversationData.lastMessageAt?.toMillis() || 0;
+      const currentTime = conversationData.lastMessageAt?.toMillis() || 0;
+
+      if (currentTime > existingTime) {
+        console.log(`Replacing with newer conversation ${conversationId}`); 
+        const oldIndex = newConversations.findIndex(c => c.id === existingConv.id);
+        if (oldIndex > -1) {
+          newConversations.splice(oldIndex, 1);
+        }
+      }else {
+        console.log(`Keeping existing conversation ${existingConv.id}`);
+        continue;
+      }
 
       let otherUser = null;
       let propertyInfo = null;
@@ -1015,6 +1036,11 @@ async function handleConversationsUpdate(snapshot) {
         participants: conversationData.participants,
         ...conversationData,
       };
+
+      conversationsByParticipant.set(otherParticipantId, {
+        id: conversationId,
+        conversationData: conversationData
+      });
 
       newConversations.push(formattedConversation);
     } // end for
