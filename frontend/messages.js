@@ -480,6 +480,38 @@ async function selectConversation(conversationId, conversationData) {
     chatArea.innerHTML =
       '<div class="text-center py-8 text-gray-500">Loading messages...</div>';
   }
+
+  // ADD THIS: Actually load the messages
+  try {
+    const messagesQuery = query(
+      collection(db, "conversations", conversationId, "messages"),
+      orderBy("timestamp", "asc"),
+      limit(100)
+    );
+
+    const messagesSnapshot = await getDocs(messagesQuery);
+    const messages = [];
+    
+    messagesSnapshot.forEach((doc) => {
+      const messageData = doc.data();
+      messages.push({
+        id: doc.id,
+        content: messageData.text,
+        senderId: messageData.senderId,
+        senderName: messageData.senderName,
+        text: messageData.text,
+        timestamp: messageData.timestamp,
+        ...messageData,
+      });
+    });
+
+    renderConversationMessages(messages, conversationData.propertyInfo?.title || "");
+  } catch (error) {
+    console.error("Error loading messages:", error);
+    if (chatArea) {
+      chatArea.innerHTML = '<div class="text-center py-8 text-red-500">Failed to load messages</div>';
+    }
+  }
 }
 
 function renderConversationMessages(messages, propertyName) {
