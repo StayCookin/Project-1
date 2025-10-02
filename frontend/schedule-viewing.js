@@ -408,7 +408,9 @@ function initializeCalendar(property, user, userData) {
           // User information
           userId: user.uid,
           userEmail: user.email,
-          landlordId: propertyOwnerId || property.landlordId || property.userId,
+          landlordId: property.landlordId,
+
+          
           // Booking details
           date: Timestamp.fromDate(selectedDate), // Firebase Timestamp
           dateString: selectedDate.toISOString().split('T')[0], // For easier querying
@@ -425,6 +427,15 @@ function initializeCalendar(property, user, userData) {
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now()
         };
+
+        console.log("Debug: property userId(landlordId):", property.userId);
+        console.log("Debug: Full booking object:", booking);
+
+        if (!booking.landlordId) {
+          console.error("Error: No userId found in property:", property);
+          showError("Property owner information missing. Please contact support.");
+          return;
+        }
 
         // Double-check availability before saving
         const dateStr = selectedDate.toISOString().split('T')[0];

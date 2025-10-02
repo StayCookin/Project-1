@@ -32,10 +32,10 @@ The platform includes an automated email notification system for:
 
 ## Technical Stack
 
-- Frontend: React.js
-- Email Service: EmailJS
+- Frontend: HTML5,CSS
+- Email Service: Mail Gun
 - Authentication: Custom implementation
-- Database: (To be specified)
+- Database: Firestore 
 
 ## Getting Started
 

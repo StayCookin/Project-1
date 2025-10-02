@@ -1,4 +1,3 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import {
     getAuth,
@@ -33,8 +32,6 @@ let app, db, auth;
 let currentUser = null;
 let currentProperty = null;
 let isPropertySaved = false;
-
-
 
 // Helper functions for showing messages
 function showLoading(show) {
@@ -156,8 +153,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-});
 
+    // Setup move button
+    const moveBtn = document.getElementById('moveBtn');
+    if (moveBtn) {
+        moveBtn.addEventListener('click', toggleMoveIn);
+    }
+});
 
 const dash = document.getElementById("dashboardBtn");
 if(dash){
@@ -170,11 +172,10 @@ if(dash){
         else if( window.currentUserData && window.currentUserData.role == "LANDLORD"){
             window.location.href = "landlord-dashboard.html"
         }
-
     })
 }
 
-// Corrected checkIfPropertySaved (keep this single definition)
+// Check if property is saved
 async function checkIfPropertySaved(propertyId) {
     if (!currentUser || !propertyId) {
         console.log("Cannot check saved status: missing user or property ID");
@@ -189,7 +190,6 @@ async function checkIfPropertySaved(propertyId) {
             where('studentId', '==', currentUser.uid),
             where('propertyId', '==', propertyId)
         );
-
         const querySnapshot = await getDocs(savedQuery);
         isPropertySaved = !querySnapshot.empty;
 
@@ -295,69 +295,67 @@ async function fetchPropertyDetails() {
 }
 
 async function toggleSaveProperty() {
-  if (!currentProperty || !currentUser) {
-    showError("Please wait for the page to load fully before saving properties.");
-    return;
-  }
-
-  const btn = document.getElementById("savePropertyBtn");
-  const originalHTML = btn ? btn.innerHTML : "";
-  try {
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
-    }
-
-    if (isPropertySaved) {
-      // Remove any saved records for this user + property
-      const savedQuery = query(
-        collection(db, "savedProperties"),
-        where("studentId", "==", currentUser.uid),
-        where("propertyId", "==", currentProperty.id)
-      );
-
-      const querySnapshot = await getDocs(savedQuery);
-
-      if (querySnapshot.empty) {
-        console.log("No saved property found to delete.");
-        isPropertySaved = false;
-        updateSaveButton();
+    if (!currentProperty || !currentUser) {
+        showError("Please wait for the page to load fully before saving properties.");
         return;
-      }
-
-      for (const docSnap of querySnapshot.docs) {
-        await deleteDoc(doc(db, "savedProperties", docSnap.id));
-      }
-
-      isPropertySaved = false;
-      updateSaveButton();
-      showSuccess("Property removed from saved list.");
-      return;
-    } else {
-      // Create saved record
-      await addDoc(collection(db, "savedProperties"), {
-        studentId: currentUser.uid,
-        propertyId: currentProperty.id,
-        propertyTitle: currentProperty.title || currentProperty.name || "",
-        createdAt: serverTimestamp()
-      });
-
-      isPropertySaved = true;
-      updateSaveButton();
-      showSuccess("Property saved.");
-      return;
     }
-  } catch (error) {
-    console.error("Error toggling saved property:", error);
-    showError("Failed to update saved property. Please try again.");
-  } finally {
-    console.log("Finalizing save toggle");
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
+
+    const btn = document.getElementById("savePropertyBtn");
+    const originalHTML = btn ? btn.innerHTML : "";
+    
+    try {
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
+        }
+
+        if (isPropertySaved) {
+            // Remove saved property using v9+ syntax
+            const savedQuery = query(
+                collection(db, "savedProperties"),
+                where("studentId", "==", currentUser.uid),
+                where("propertyId", "==", currentProperty.id)
+            );
+            const querySnapshot = await getDocs(savedQuery);
+
+            if (querySnapshot.empty) {
+                console.log("No saved property found to delete.");
+                isPropertySaved = false;
+                updateSaveButton();
+                return;
+            }
+
+            for (const docSnap of querySnapshot.docs) {
+                await deleteDoc(doc(db, "savedProperties", docSnap.id));
+            }
+
+            isPropertySaved = false;
+            updateSaveButton();
+            showSuccess("Property removed from saved list.");
+        } else {
+            // Create saved record using v9+ syntax
+            await addDoc(collection(db, "savedProperties"), {
+                studentId: currentUser.uid,
+                propertyId: currentProperty.id,
+                propertyTitle: currentProperty.title || currentProperty.name || "",
+                createdAt: serverTimestamp()
+            });
+
+            isPropertySaved = true;
+            updateSaveButton();
+            showSuccess("Property saved.");
+        }
+    } catch (error) {
+        console.error("Error toggling saved property:", error);
+        showError("Failed to update saved property. Please try again.");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
     }
-  }
 }
+
 window.toggleSaveProperty = toggleSaveProperty;
 
 function updateSaveButton() {
@@ -366,8 +364,7 @@ function updateSaveButton() {
     if (isPropertySaved){
         btn.innerHTML = '<i class="far fa-heart"></i>Saved';
         btn.classList.add("saved");
-
-    }else {
+    } else {
         btn.innerHTML = '<i class="far fa-heart"></i>Save';
         btn.classList.remove("saved");
     }
@@ -498,23 +495,19 @@ function renderPropertyDetails(property) {
                     <i class='fas fa-bed feature-icon'></i>
                     <div>
                         <p>Bedroom${(property.bedrooms || property.beds || property.rooms || 1) > 1 ? 's' : ''}</p><h3>${property.bedrooms || property.beds || property.rooms || 1}</h3>
-                        
                     </div>
                 </div>
                 <div class='feature-item'>
                     <i class='fas fa-bath feature-icon'></i>
                     <div>
                         <p>Bathroom${(property.bathrooms || property.baths || property.bathroom || 1) > 1 ? 's' : ''}</p><h3>${property.bathrooms || property.baths || property.bathroom || 1}</h3>
-                        
                     </div>
                 </div>
-                
                 <div class='feature-item'>
                     <i class='fas fa-building feature-icon' style="display: flex;"></i>
                     <div> 
-                    <p>Property Type</p>
+                        <p>Property Type</p>
                         <h3>${property.propertyType || property.type || property.houseType }</h3>
-                       
                     </div>
                 </div>
             </div>
@@ -553,8 +546,6 @@ function renderPropertyDetails(property) {
                 <p style='line-height: 1.6;'>${property.rules || property.houseRules}</p>
             </div>
         ` : ''}
-        
-      
     `;
 }
 
@@ -570,11 +561,8 @@ function getAmenityIcon(amenity) {
         'washing machine': 'tshirt',
         'pool': 'swimming-pool',
         'balcony': 'building',
-        
         'security': 'shield-alt',
         'furnished': 'couch',
-        
-        
     };
     
     return iconMap[amenityLower] || 'check';
@@ -601,7 +589,7 @@ function formatAmenities(amenities) {
     });
 }
 
-// Corrected openMessagingWithLandlord (fix condition and keep flow)
+// Open messaging with landlord
 window.openMessagingWithLandlord = async function() {
     console.log("Start messaging function");
 
@@ -621,19 +609,20 @@ window.openMessagingWithLandlord = async function() {
         console.log("No current property");
         showError("Property information not available");
         if(messagingBtn){ 
-            messagingBtn.disabled=true;
+            messagingBtn.disabled = true;
             messagingBtn.innerHTML = '<i class="fas fa-comments"></i> Message Landlord';
         }
         return;
     }
 
-    const landlordId = currentProperty.landlordId || currentProperty.ownerId;
+    // FIXED: Use userId instead of landlordId for property
+    const landlordId = currentProperty.userId || currentProperty.landlordId || currentProperty.ownerId;
     if (!landlordId) {
         console.log("No landlord found");
         showError('Landlord information not found for this property');
         if(messagingBtn){
-            messagingBtn.disabled=false;
-            messagingBtn.innerHTML= '<i class="fas fa-comments"></i>Message Landlord';
+            messagingBtn.disabled = false;
+            messagingBtn.innerHTML = '<i class="fas fa-comments"></i>Message Landlord';
         }
         return;
     }
@@ -645,54 +634,58 @@ window.openMessagingWithLandlord = async function() {
         if (landlordDoc.exists()) {
             const landlordData = landlordDoc.data();
             if (landlordData.role === 'LANDLORD'){
-            landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
-        } else { console.log('Landlord profile not found');}
-    }
+                landlordName = `${landlordData.firstName || ''} ${landlordData.lastName || ''}`.trim() || 'Landlord';
+            } else { 
+                console.log('Landlord profile not found');
+            }
+        }
         
-    
-       const messagingContext = {
-        landlordId: landlordId,
-        landlordName: landlordName,
-        propertyId: currentProperty.id,
-        propertyName: currentProperty.title || currentProperty.name || 'Property',
-        propertyLocation: currentProperty.location || currentProperty.address || '',
-        source: 'property-details',
-        returnUrl: window.location.href,
-        timestamp: Date.now()
+        const messagingContext = {
+            landlordId: landlordId,
+            landlordName: landlordName,
+            propertyId: currentProperty.id,
+            propertyName: currentProperty.title || currentProperty.name || 'Property',
+            propertyLocation: currentProperty.location || currentProperty.address || '',
+            source: 'property-details',
+            returnUrl: window.location.href,
+            timestamp: Date.now()
         };
-       try{
-        const expirationTime = Date.now() + (24 * 60 * 60 * 1000);
-        sessionStorage.setItem('messagingContext', JSON.stringify({
-            data: messagingContext,
-            expires: expirationTime
-        }));
+        
+        try{
+            const expirationTime = Date.now() + (24 * 60 * 60 * 1000);
+            sessionStorage.setItem('messagingContext', JSON.stringify({
+                data: messagingContext,
+                expires: expirationTime
+            }));
 
-        sessionStorage.setItem('messageLandlordId',landlordId);
-        sessionStorage.setItem('messagePropertyId', currentProperty.id);
-        sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name ||'Property');
+            sessionStorage.setItem('messageLandlordId',landlordId);
+            sessionStorage.setItem('messagePropertyId', currentProperty.id);
+            sessionStorage.setItem('messagePropertyName', currentProperty.title || currentProperty.name ||'Property');
 
-        window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
-    } catch (storageError) {
-        console.error('Error opening messaging:', storageError);
-        window.location.href= `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+            window.location.href = `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+        } catch (storageError) {
+            console.error('Error opening messaging:', storageError);
+            window.location.href= `messages.html?from=property-details&landlord=${landlordId}&property=${currentProperty.id}`;
+        }
+    } catch(error){
+        console.error("Error opening messaging", error);
+        showError( "Failed to open messaging. Please try again. ");
+
+        if (messagingBtn){
+            messagingBtn.disabled = false;
+            messagingBtn.innerHTML = '<i class="fas fa-comments"></i>Message Landlord';
+        }
     }
-}catch(error){
-    console.error("Error opening messaging", error);
-    showError( "Failed to open messaging. Please try again. ");
-
-    if (messagingBtn){
-        messagingBtn.disabled = false;
-        messagingBtn.innerHTML = '<i class="fas fa-comments"></i>Message Landlord';
-    }
-}
 };
+
 window.scheduleViewing = function() {
     if (!currentProperty || !currentUser) {
         showError('Property or user information not available');
         return;
     }
 
-    const landlordId = currentProperty.landlordId || currentProperty.ownerId;
+    // FIXED: Use userId instead of landlordId for property
+    const landlordId = currentProperty.userId || currentProperty.landlordId || currentProperty.ownerId;
     
     if (!landlordId) {
         showError('Landlord information not found for this property');
@@ -720,44 +713,40 @@ window.scrollToContact = function() {
         });
     }
 };
-document.addEventListener('DOMContentLoaded', function() {
-    const moveBtn = document.getElementById('moveBtn');
-    moveBtn.addEventListener('click', toggleMoveIn);
-});
 
 async function getRentalData(propertyId, studentId) {
     try{
+        const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
+        if (!propertyDoc.exists()) {
+            throw new Error('Property not found');
+        }
+        const propertyData = propertyDoc.data();
 
-  const propertyDoc = await getDoc(doc(db, 'properties', propertyId));
-  if (!propertyDoc.exists()) {
-    throw new Error('Property not found');
-  }
-  const propertyData = propertyDoc.data();
+        const studentDoc = await getDoc(doc(db, 'users', studentId));
+        if (!studentDoc.exists()) {
+            throw new Error('Student not found');
+        }
 
-  const studentDoc = await getDoc(doc(db, 'users', studentId));
-  if (!studentDoc.exists()) {
-    throw new Error('Student not found');
-  }
+        const studentData = studentDoc.data();
 
+        // FIXED: Use userId instead of landlordId
+        const landlordId = propertyData.userId || propertyData.landlordId;
+        const landlordDoc = await getDoc(doc(db, 'users', landlordId));
+        const landlordData = landlordDoc.exists() ? landlordDoc.data() : {};
 
-  const studentData = studentDoc.data();
+        const startDate = new Date().toLocaleDateString();
+        const endDate = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toLocaleDateString(); //one year later
 
-  const landlordDoc = await getDoc(doc(db, 'users', propertyData.landlordId));
-  const landlordData = landlordDoc.exists() ? landlordDoc.data() : {};
+        const defaultHouseRules = [
+            " No male visitors allowed",
+            " Keep the property clean and tidy"
+        ];
 
-  const startDate = new Date().toLocaleDateString();
-  const endDate = new Date(Date.now() + (365 * 24 * 60 * 60 * 1000)).toLocaleDateString(); //one year later
-
-  const defaultHouseRules = [
-  " No male visitors allowed",
-  " Keep the property clean and tidy"
-  ];
-
-  return {
-    landlordName: landlordData.fullName || landlordData.firstName || landlordData.name || 'Property Owner',
-    landlordEmail: propertyData.landlordEmail || landlordData.email || '',
-    landlordId: propertyData.landlordId,
-     studentName: studentData.fullName || studentData.name || 'Student',
+        return {
+            landlordName: landlordData.fullName || landlordData.firstName || landlordData.name || 'Property Owner',
+            landlordEmail: propertyData.landlordEmail || landlordData.email || '',
+            landlordId: landlordId,
+            studentName: studentData.fullName || studentData.name || 'Student',
             studentEmail: studentData.email,
             propertyAddress: propertyData.location,
             propertyTitle: propertyData.title,
@@ -770,16 +759,15 @@ async function getRentalData(propertyId, studentId) {
             bathrooms: propertyData.bathrooms || 'N/A',
             amenities: propertyData.amenities || [],
             houseRules: propertyData.houseRules || defaultHouseRules
-  };
-} catch (error) {
-    console.error (' Error fetching rental data:', error);
-    throw error;
+        };
+    } catch (error) {
+        console.error (' Error fetching rental data:', error);
+        throw error;
+    }
 }
-}
-async function toggleMoveIn() {
-    
-    try {
 
+async function toggleMoveIn() {
+    try {
         if (!currentProperty || !currentUser){
             showError('Property or user info not available');
             return;
@@ -787,178 +775,134 @@ async function toggleMoveIn() {
         console.log(' Loading rental agreement');
         const rentalData = await getRentalData(currentProperty.id,currentUser.uid);
 
-        let move = document.getElementById('moveBtn');
+        let popup = document.createElement('div');
+        popup.id = 'moveInPopup';
+        popup.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
 
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = `
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            position: relative;
+        `;
         
-    let popup = document.createElement('div');
-    popup.id = 'moveInPopup';
-    popup.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    `;
+        popupContent.innerHTML = `
+            <button id="closePopupBtn" style="
+                position:absolute;
+                top:10px;
+                right:15px;
+                background:none;
+                border:none;
+                font-size:24px;
+                cursor:pointer;">&times;
+            </button>
 
-    const popupContent = document.createElement('div');
-    popupContent.style.cssText = `
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        max-width: 90%;
-        max-height: 90%;
-        overflow: auto;
-        position: relative;
-    `;
-     popupContent.innerHTML = `
-        <button id="closePopupBtn" style="
-            position:absolute;
-            top:10px;
-            right:15px;
-            background:none;
-            border:none;
-            font-size:24px;
-            cursor:pointer;">&times;
-        </button>
+            <div class="agreement-text">
+              <h3 style="text-align:center; margin-bottom:10px;">Rental Agreement</h3>
 
-        <div class="agreement-text">
-          <h3 style="text-align:center; margin-bottom:10px;">Rental Agreement</h3>
+              <p><strong>Parties:</strong> This rental agreement is entered into between 
+              <span id="landlordName">${rentalData.landlordName}</span> (Email: ${rentalData.landlordEmail}) ("Landlord") 
+              and <span id="studentName">${rentalData.studentName}</span> (Email: ${rentalData.studentEmail}) ("Student").</p>
 
-          <p><strong>Parties:</strong> This rental agreement is entered into between 
-          <span id="landlordName">${rentalData.landlordName}</span> (Email: ${rentalData.landlordEmail}) ("Landlord") 
-          and <span id="studentName">${rentalData.studentFirstName}</span> (Email ${rentalData.studentEmail}) (“Student”).</p>
+              <p><strong>Property:</strong> The Landlord agrees to rent the property located at 
+              <span id="propertyAddress">${rentalData.propertyAddress}</span>.</p>
 
-          <p><strong>Property:</strong> The Landlord agrees to rent the property located at 
-          <span id="propertyAddress">${rentalData.propertyAddress}</span>.</p>
+              <p><strong>Duration:</strong> This agreement is valid from 
+              <span id="startDate">${rentalData.startDate}</span> to 
+              <span id="endDate">${rentalData.endDate}</span>.</p>
 
-          <p><strong>Duration:</strong> This agreement is valid from 
-          <span id="startDate">${rentalData.startDate}</span> to 
-          <span id="endDate">${rentalData.endDate}</span>.</p>
+              <p><strong>Rent:</strong> The Student agrees to pay 
+              <span id="rentAmount">${rentalData.rentAmount}</span> per month via InRent. 
+              A deposit of <span id="depositAmount">${rentalData.depositAmount}</span> is due upon signing.</p>
 
-          <p><strong>Rent:</strong> The Student agrees to pay 
-          <span id="rentAmount">${rentalData.rentAmount}</span> per month via InRent. 
-          A deposit of <span id="depositAmount">${rentalData.depositAmount}</span> is due upon signing.</p>
-
-         ${rentalData.amenities.length > 0 ? `
-    <h4>Amenities Included</h4>
-    <ul>
-    ${rentalData.amenities.map(amenity => {
-        // Handle both string and object amenities
-        const amenityName = typeof amenity === 'string' ? amenity : (amenity.name || amenity.title || 'Amenity');
-        return `<li>${amenityName}</li>`;
-    }).join('')}
-      </ul>
-      ` : ''}
-      
-          <h4>House Rules</h4>
-          <ul id="houseRules">
-            ${rentalData.houseRules.map(rule => `<li>${rule}</li>`).join('')}
+             ${rentalData.amenities.length > 0 ? `
+        <h4>Amenities Included</h4>
+        <ul>
+        ${rentalData.amenities.map(amenity => {
+            // Handle both string and object amenities
+            const amenityName = typeof amenity === 'string' ? amenity : (amenity.name || amenity.title || 'Amenity');
+            return `<li>${amenityName}</li>`;
+        }).join('')}
           </ul>
+          ` : ''}
+          
+              <h4>House Rules</h4>
+              <ul id="houseRules">
+                ${rentalData.houseRules.map(rule => `<li>${rule}</li>`).join('')}
+              </ul>
 
-          <p>
-            By clicking Move In, the Student acknowledges that they have read,
-            understood, and agree to the terms, including the house rules stated above.
-          </p>
+              <p>
+                By clicking Move In, the Student acknowledges that they have read,
+                understood, and agree to the terms, including the house rules stated above.
+              </p>
 
-          <button id="moveInConfirmBtn" style="
-              margin-top:20px;
-              padding:10px 15px;
-              background:#007bff;
-              color:white;
-              border:none;
-              border-radius:4px;
-              cursor:pointer;">Move In</button>
-        </div>
-    `;
-
-    popup.appendChild(popupContent);
-    document.body.appendChild(popup);
-
-
-    document.getElementById('closePopupBtn').addEventListener('click', () => {
-        document.body.removeChild(popup);
-    });
-    popup.addEventListener('click', (e) => {
-        if (e.target === popup) {
-            document.body.removeChild(popup);
-        }
-    });
-
-    document.getElementById('moveInConfirmBtn').addEventListener('click', async () => {
-        try {
-            await handleMoveInConfirmation(currentProperty.Id, currentUser.uid, rentalData);
-            document.body.removeChild(popup);
-        } catch (error) {
-            console.error(' Error creating rental agreement', error);
-            alert('Failed to process move-in. Please try again.');
-        }
-    })
-    const closePopup = () => {
-        document.body.removeChild(popup);
-    };
-   
-    const closeBtn = document.getElementById('closePopupBtn');
-    const moveInBtn = document.getElementById('moveInConfirmBtn');
-
-    document.getElementById('closePopupBtn').onclick = () => {
-        document.body.removeChild(popup);
-    };
-
-    document.getElementById("moveInConfirmBtn").onclick = () => {
-
-        alert("Proceeding to payment");
-        closePopup();
-    }
-    // Style the existing close button (created in the innerHTML above) if present,
-    // otherwise create and append an alternative close button.
-    if (closeBtn) {
-        closeBtn.innerHTML = '&times;';
-        closeBtn.style.cssText = `
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
+              <button id="moveInConfirmBtn" style="
+                  margin-top:20px;
+                  padding:10px 15px;
+                  background:#007bff;
+                  color:white;
+                  border:none;
+                  border-radius:4px;
+                  cursor:pointer;">Move In</button>
+            </div>
         `;
-        closeBtn.onclick = closePopup;
-    } else {
-        const altCloseBtn = document.createElement('button');
-        altCloseBtn.id = 'closePopupBtn';
-        altCloseBtn.innerHTML = '&times;';
-        altCloseBtn.style.cssText = `
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-        `;
-        altCloseBtn.onclick = closePopup;
-        popupContent.appendChild(altCloseBtn);
-    }
 
+        popup.appendChild(popupContent);
+        document.body.appendChild(popup);
 
-    popup.onclick = (e) => {
-        if (e.target === popup) closePopup();    };
-        document.addEventListener('keydown', function escHandler(e) {
+        const closePopup = () => {
+            if (document.body.contains(popup)) {
+                document.body.removeChild(popup);
+            }
+        };
+
+        document.getElementById('closePopupBtn').addEventListener('click', closePopup);
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                closePopup();
+            }
+        });
+
+        document.getElementById('moveInConfirmBtn').addEventListener('click', async () => {
+            try {
+                await handleMoveInConfirmation(currentProperty.id, currentUser.uid, rentalData);
+                closePopup();
+                showSuccess('Move-in confirmed! Proceeding to payment.');
+            } catch (error) {
+                console.error('Error creating rental agreement', error);
+                showError('Failed to process move-in. Please try again.');
+            }
+        });
+
+        // Handle escape key
+        const escHandler = (e) => {
             if (e.key === 'Escape') {
                 closePopup();
                 document.removeEventListener('keydown', escHandler);
             }
-        });
-}
-    catch (error) {
+        };
+        document.addEventListener('keydown', escHandler);
+
+    } catch (error) {
         console.error('Error handling move-in confirmation:', error);
+        showError('Failed to load rental agreement. Please try again.');
     }
-};
+}
 
 async function handleMoveInConfirmation(propertyId, studentId, rentalData) {
     try {
@@ -977,7 +921,8 @@ async function handleMoveInConfirmation(propertyId, studentId, rentalData) {
             createdAt: new Date(),
             read: false
         });
-        alert ('Move-in confirmed!');
+        
+        console.log('Move-in confirmed successfully');
     } catch (error) {
         console.error('Error handling move-in confirmation:', error);
         throw error;
@@ -1009,10 +954,13 @@ window.sendInquiry = async function() {
     }
     
     try {
+        // FIXED: Use userId instead of landlordId
+        const landlordId = currentProperty.userId || currentProperty.landlordId || currentProperty.ownerId;
+        
         const inquiryData = {
             studentId: currentUser.uid,
             propertyId: currentProperty.id,
-            landlordId: currentProperty.landlordId || currentProperty.ownerId,
+            landlordId: landlordId,
             type: inquiryTypeValue,
             message: messageValue,
             createdAt: serverTimestamp(),
@@ -1026,7 +974,7 @@ window.sendInquiry = async function() {
             await addDoc(collection(db, 'viewings'), {
                 studentId: currentUser.uid,
                 propertyId: currentProperty.id,
-                landlordId: currentProperty.landlordId || currentProperty.ownerId,
+                landlordId: landlordId,
                 scheduledDate: new Date(preferredDateValue),
                 status: 'pending',
                 notes: messageValue,
