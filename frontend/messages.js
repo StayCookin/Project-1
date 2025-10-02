@@ -880,12 +880,13 @@ async function handleConversationsUpdate(snapshot) {
   }
 
   isRendering = true;
+  
+  // Track conversations by other participant to prevent duplicates
+  const conversationsByParticipant = new Map();
 
   try {
     const newConversations = [];
     const processedIds = new Set();
-
-    const conversationByParticipant = new Map();
 
     for (const docSnapshot of snapshot.docs) {
       const conversationId = docSnapshot.id;
@@ -903,23 +904,26 @@ async function handleConversationsUpdate(snapshot) {
         (id) => id !== currentUser.uid
       );
 
-      if(conversationsByParticipant.has(otherParticipantId)) {
-        console.log(`Duplicate conversation detected with user ${otherParticipantId}`)
-      }
-
-      const existingConv = conversationsByParticipant.get(otherParticipantId);
-      const existingTime = existingConv.conversationData.lastMessageAt?.toMillis() || 0;
-      const currentTime = conversationData.lastMessageAt?.toMillis() || 0;
-
-      if (currentTime > existingTime) {
-        console.log(`Replacing with newer conversation ${conversationId}`); 
-        const oldIndex = newConversations.findIndex(c => c.id === existingConv.id);
-        if (oldIndex > -1) {
-          newConversations.splice(oldIndex, 1);
+      // Check if we already have a conversation with this participant
+      if (otherParticipantId && conversationsByParticipant.has(otherParticipantId)) {
+        console.log(`⚠️ Duplicate conversation detected with user ${otherParticipantId}`);
+        
+        // Compare timestamps and keep the more recent one
+        const existingConv = conversationsByParticipant.get(otherParticipantId);
+        const existingTime = existingConv.conversationData.lastMessageAt?.toMillis() || 0;
+        const currentTime = conversationData.lastMessageAt?.toMillis() || 0;
+        
+        if (currentTime > existingTime) {
+          console.log(`Replacing with newer conversation ${conversationId}`);
+          // Remove the old one from newConversations
+          const oldIndex = newConversations.findIndex(c => c.id === existingConv.id);
+          if (oldIndex > -1) {
+            newConversations.splice(oldIndex, 1);
+          }
+        } else {
+          console.log(`Keeping existing conversation ${existingConv.id}`);
+          continue; // Skip this one, keep the existing
         }
-      }else {
-        console.log(`Keeping existing conversation ${existingConv.id}`);
-        continue;
       }
 
       let otherUser = null;
@@ -1037,17 +1041,20 @@ async function handleConversationsUpdate(snapshot) {
         ...conversationData,
       };
 
-      conversationsByParticipant.set(otherParticipantId, {
-        id: conversationId,
-        conversationData: conversationData
-      });
+      // Track this conversation by participant
+      if (otherParticipantId) {
+        conversationsByParticipant.set(otherParticipantId, {
+          id: conversationId,
+          conversationData: conversationData
+        });
+      }
 
       newConversations.push(formattedConversation);
     } // end for
 
     conversations = newConversations;
 
-    console.log(`✅ Processed ${conversations.length} conversations`);
+    console.log(`✅ Processed ${conversations.length} unique conversations`);
     console.log(
       "Conversation summary:",
       conversations.map((c) => ({
@@ -1062,6 +1069,9 @@ async function handleConversationsUpdate(snapshot) {
     if (messageListeners.size === 0 || messageListeners.size !== conversations.length) {
       setupMessageListeners();
     }
+  } catch (error) {
+    console.error("Error in handleConversationsUpdate:", error);
+    showError("Failed to load conversations");
   } finally {
     isRendering = false;
   }
