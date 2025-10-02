@@ -113,7 +113,7 @@
       <div id="propertyGallery" class="flex flex-wrap gap-3 mb-6"></div>
 
       <!-- Details -->
-      <div id="propertyDetails" class="mb-8"></div>
+      <div id="propertyDetails" class="flex gap-6"></div>
 
       <!-- Contact Section -->
       <div id="contactSection" class="mb-10"></div>
@@ -121,17 +121,17 @@
 
 
       <div class='property-actions'>
-            <button id='savePropertyBtn' onclick='toggleSaveProperty()' class='btn btn-secondary' >
+            <button id='savePropertyBtn' onclick='toggleSaveProperty()' class='px-5 py-3 rounded-2xl border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition flex items-center gap-2 text-lg font-medium' >
                 <i class='far fa-heart'></i> <span id='saveButtonText'>Save Property</span>
             </button>
-            <button class='btn btn-primary message-btn' onclick='openMessagingWithLandlord()'>
+            <button class='px-5 py-3 rounded-2xl bg-green-600 text-white hover:bg-green-700 transition flex items-center gap-2 text-lg font-medium shadow-md' onclick='openMessagingWithLandlord()'>
                 <i class='fas fa-comments'></i> Send Message
             </button>
-            <button class='btn btn-outline-primary viewing-btn' onclick='scheduleViewing()'>
+            <button class='px-5 py-3 rounded-2xl bg-gray-700 text-white hover:bg-gray-800 transition flex items-center gap-2 text-lg font-medium' onclick='scheduleViewing()'>
                 <i class='fas fa-calendar-alt'></i> Schedule Viewing
             </button>
             <button id="moveBtn">
-              <i class="fas fa-plus"></i>Move In
+              <i class="px-5 py-3 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2 text-lg font-medium shadow-md"></i>Move In
             </button>
            
         </div>
