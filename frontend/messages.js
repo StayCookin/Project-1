@@ -551,51 +551,7 @@ async function markMessagesAsRead(conversationId) {
   }
 }
 
-async function sendMessageToConversation(conversationId, messageText) {
-  if (!messageText.trim()) return;
 
-  try {
-    // Add message to conversation
-    await addDoc(collection(db, "conversations", conversationId, "messages"), {
-      senderId: currentUser.uid,
-      senderName: userProfile?.firstName || currentUser.displayName || "User",
-      text: messageText.trim(),
-      timestamp: serverTimestamp(),
-      read: false,
-    });
-
-    // Update conversation's last message
-    await updateDoc(doc(db, "conversations", conversationId), {
-      lastMessage: messageText.trim(),
-      lastMessageAt: serverTimestamp(),
-      lastMessageSender: currentUser.uid,
-      lastMessageRead: false,
-    });
-
-    // Create notification for the other user
-    const conversation = conversations.find(
-      (conv) => conv.id === conversationId
-    );
-    if (conversation && conversation.user) {
-      await addDoc(collection(db, "notifications"), {
-        userId: conversation.user._id,
-        title: "New Message",
-        message: `New message from ${
-          userProfile?.firstName || "User"
-        }: ${messageText.substring(0, 50)}${
-          messageText.length > 50 ? "..." : ""
-        }`,
-        type: "message",
-        conversationId: conversationId,
-        read: false,
-        createdAt: serverTimestamp(),
-      });
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    throw error;
-  }
-}
 
 async function findOrCreateConversation(otherUserId, propertyId = null) {
   try {
