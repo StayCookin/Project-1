@@ -1076,7 +1076,101 @@ async function handleConversationsUpdate(snapshot) {
     isRendering = false;
   }
 }
+async function sendMessageToConversation(conversationId, messageText) {
+  if (!messageText.trim()) return;
 
+  try {
+    // Create the message object
+    const newMessage = {
+      senderId: currentUser.uid,
+      senderName: userProfile?.firstName || currentUser.displayName || "User",
+      text: messageText.trim(),
+      timestamp: new Date(), // Use local time for immediate display
+      read: false,
+      isOptimistic: true, // Mark as optimistic (will be replaced by real one)
+    };
+
+    // IMMEDIATELY render the message optimistically
+    const chatArea = document.getElementById("chatArea");
+    if (chatArea && activeConversationId === conversationId) {
+      const div = document.createElement("div");
+      const isCurrentUser = newMessage.senderId === currentUser.uid;
+      
+      div.className = `chat-bubble ${isCurrentUser ? 'student' : 'landlord'} optimistic-message`;
+      div.setAttribute('data-optimistic', 'true');
+      
+      div.innerHTML = `
+        <div style="font-size:0.98rem;">${newMessage.text}</div>
+        <div style="font-size:0.75rem;color:#666;margin-top:4px;">
+          ${newMessage.timestamp.toLocaleTimeString()}
+          <span style="margin-left:4px;opacity:0.5;">Sending...</span>
+        </div>
+      `;
+      chatArea.appendChild(div);
+      
+      // Auto-scroll to bottom
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    // Now send to Firestore (this will trigger the real-time listener)
+    await addDoc(collection(db, "conversations", conversationId, "messages"), {
+      senderId: currentUser.uid,
+      senderName: userProfile?.firstName || currentUser.displayName || "User",
+      text: messageText.trim(),
+      timestamp: serverTimestamp(),
+      read: false,
+    });
+
+    // Update conversation's last message
+    await updateDoc(doc(db, "conversations", conversationId), {
+      lastMessage: messageText.trim(),
+      lastMessageAt: serverTimestamp(),
+      lastMessageSender: currentUser.uid,
+      lastMessageRead: false,
+    });
+
+    // Remove the "Sending..." indicator from the optimistic message
+    const optimisticMsg = chatArea?.querySelector('[data-optimistic="true"]');
+    if (optimisticMsg) {
+      const sendingIndicator = optimisticMsg.querySelector('span[style*="opacity"]');
+      if (sendingIndicator) {
+        sendingIndicator.textContent = '✓';
+      }
+    }
+
+    // Create notification for the other user
+    const conversation = conversations.find(
+      (conv) => conv.id === conversationId
+    );
+    if (conversation && conversation.user) {
+      await addDoc(collection(db, "notifications"), {
+        userId: conversation.user._id,
+        title: "New Message",
+        message: `New message from ${
+          userProfile?.firstName || "User"
+        }: ${messageText.substring(0, 50)}${
+          messageText.length > 50 ? "..." : ""
+        }`,
+        type: "message",
+        conversationId: conversationId,
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    
+    // Remove the optimistic message if sending failed
+    const chatArea = document.getElementById("chatArea");
+    const optimisticMsg = chatArea?.querySelector('[data-optimistic="true"]');
+    if (optimisticMsg) {
+      optimisticMsg.remove();
+    }
+    
+    showError("Failed to send message");
+    throw error;
+  }
+}
 // DIAGNOSTIC FUNCTION - Call this to check what data exists in Firestore
 async function diagnoseLandlordData() {
   console.log("=== DIAGNOSTIC: Checking Landlord Data ===");
