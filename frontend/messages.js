@@ -631,11 +631,63 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
     });
 
     return conversationRef.id;
+  } 
+  async function cleanupDuplicateConversations() {
+  console.log("🧹 Cleaning up duplicate conversations...");
+  
+  try {
+    const conversationsQuery = query(
+      collection(db, "conversations"),
+      where("participants", "array-contains", currentUser.uid)
+    );
+
+    const snapshot = await getDocs(conversationsQuery);
+    const conversationsByUser = new Map();
+
+    // Group conversations by other participant
+    snapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const otherUserId = data.participants.find(id => id !== currentUser.uid);
+      
+      if (!conversationsByUser.has(otherUserId)) {
+        conversationsByUser.set(otherUserId, []);
+      }
+      conversationsByUser.get(otherUserId).push({ id: doc.id, data });
+    });
+
+    // Find and handle duplicates
+    for (const [userId, convs] of conversationsByUser.entries()) {
+      if (convs.length > 1) {
+        console.log(`Found ${convs.length} conversations with user ${userId}`);
+        
+        // Keep the oldest conversation, delete others
+        convs.sort((a, b) => {
+          const aTime = a.data.createdAt?.toMillis() || 0;
+          const bTime = b.data.createdAt?.toMillis() || 0;
+          return aTime - bTime;
+        });
+
+        const keepConv = convs[0];
+        const deleteConvs = convs.slice(1);
+
+        console.log(`Keeping conversation: ${keepConv.id}`);
+        
+        for (const conv of deleteConvs) {
+          console.log(`Would delete conversation: ${conv.id}`);
+          // Uncomment to actually delete:
+          // await deleteDoc(doc(db, "conversations", conv.id));
+        }
+      }
+    }
+
+    console.log("✅ Cleanup complete");
   } catch (error) {
-    console.error("Error finding/creating conversation:", error);
-    throw error;
+    console.error("Cleanup failed:", error);
   }
 }
+
+// Make it available globally
+window.cleanupDuplicateConversations = cleanupDuplicateConversations;
 
 async function openConversation(userId, propertyId, propertyName) {
   try {
