@@ -1176,7 +1176,7 @@ async function diagnoseLandlordData() {
   console.log("=== DIAGNOSTIC: Checking Landlord Data ===");
 
   try {
-    const conversationsQuery = query(
+    let conversationsQuery = query(
       collection(db, "conversations"),
       where("participants", "array-contains", currentUser.uid)
     );
