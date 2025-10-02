@@ -663,7 +663,7 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
         for (const conv of deleteConvs) {
           console.log(`Would delete conversation: ${conv.id}`);
           // Uncomment to actually delete:
-          // await deleteDoc(doc(db, "conversations", conv.id));
+          await deleteDoc(doc(db, "conversations", conv.id));
         }
       }
     }
