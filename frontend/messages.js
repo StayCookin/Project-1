@@ -343,661 +343,257 @@ async function fetchMessages() {
   }
 }
 
-async function handleConversationsUpdate(snapshot) {
-  conversations = [];
+// Add rendering guard and debounce helper
+let isRendering = false;
 
-  for (const docSnapshot of snapshot.docs) {
-    const conversationData = docSnapshot.data();
-
-    // Get the other participant's id
-    const otherParticipantId = conversationData.participants.find(
-      (id) => id !== currentUser.uid
-    );
-
-    let otherUser = null;
-    let propertyInfo = null;
-
-    // Load other participant profile safely
-    if (otherParticipantId) {
-      try {
-        const otherUserDoc = await getDoc(doc(db, "users", otherParticipantId));
-        if (otherUserDoc.exists()) {
-          const userData = otherUserDoc.data();
-          otherUser = {
-            _id: otherParticipantId,
-            id: otherParticipantId,
-            name:
-              `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
-              "User",
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            role: userData.role || "User",
-            email: userData.email,
-            ...userData,
-          };
-        } else {
-          otherUser = {
-            _id: otherParticipantId,
-            id: otherParticipantId,
-            name: "User",
-          };
-        }
-      } catch (err) {
-        console.error("Failed to load other participant profile:", err);
-        otherUser = {
-          _id: otherParticipantId,
-          id: otherParticipantId,
-          name: "User",
-        };
-      }
-    }
-
-    // Get property info if available
-    if (conversationData.propertyId) {
-      try {
-        const propertyDoc = await getDoc(
-          doc(db, "properties", conversationData.propertyId)
-        );
-        if (propertyDoc.exists()) {
-          propertyInfo = {
-            id: conversationData.propertyId,
-            ...propertyDoc.data(),
-          };
-        }
-      } catch (err) {
-        console.error("Failed to load property info:", err);
-      }
-    }
-
-    // Count unread messages
-    const unreadCount = await getUnreadMessageCount(docSnapshot.id);
-
-    // Format conversation data to match your existing structure
-    const formattedConversation = {
-      id: docSnapshot.id,
-      user: otherUser,
-      lastMessage: {
-        content: conversationData.lastMessage || "No messages yet",
-        createdAt: formatTimestamp(conversationData.lastMessageAt),
-        property: conversationData.property || null,
-      },
-      unreadCount: unreadCount,
-      propertyInfo: propertyInfo,
-      ...conversationData,
+function debounce(fn, wait = 150) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
     };
-
-    conversations.push(formattedConversation);
-  } // end for
-
-  // After processing all conversations
-  renderConversations(conversations);
-  setupMessageListeners();
 }
 
-async function getUnreadMessageCount(conversationId) {
-  try {
-    const messagesQuery = query(
-      collection(db, "conversations", conversationId, "messages"),
-      where("senderId", "!=", currentUser.uid),
-      where("read", "==", false)
-    );
-
-    const unreadMessages = await getDocs(messagesQuery);
-    return unreadMessages.size;
-  } catch (error) {
-    console.error("Error counting unread messages:", error);
-    return 0;
-  }
-}
-
-function setupMessageListeners() {
-  // Clear existing message listeners
-  messageListeners.forEach((unsubscribe) => unsubscribe());
-  messageListeners.clear();
-
-  // Setup listeners for each conversation
-  conversations.forEach((conversation) => {
-    const messagesQuery = query(
-      collection(db, "conversations", conversation.id, "messages"),
-      orderBy("timestamp", "asc"),
-      limit(100)
-    );
-
-    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      if (activeConversationId === conversation.id) {
-        const messages = [];
-        snapshot.forEach((doc) => {
-          const messageData = doc.data();
-          // Normalized message object (use formatTimestamp)
-          messages.push({
-            id: doc.id,
-            content: messageData.text,
-            createdAt: formatTimestamp(messageData.timestamp),
-            sender: {
-              _id: messageData.senderId,
-              name: messageData.senderName,
-            },
-            receiver: {
-              _id: conversation.user?._id || conversation.user?.id || null,
-            },
-            property:
-              conversation.lastMessage?.property ||
-              conversation.propertyInfo?.id ||
-              null,
-            ...messageData,
-          });
-        });
-
-        renderConversationMessages(
-          messages,
-          conversation.propertyInfo?.title || ""
-        );
-      }
-    });
-
-    messageListeners.set(conversation.id, unsubscribe);
-  });
-}
-
-async function selectConversation(conversationId, conversationData) {
-  activeConversationId = conversationId;
-
-  document.getElementById("chatName").textContent =
-    conversationData.user?.name || "User";
-  document.getElementById("chatRole").textContent = conversationData.user?.role;
-
-  document.getElementById("chatForm").style.display = "flex";
-
- 
-
-  document.querySelectorAll(".conversation-item").forEach((item) => {
-    item.classList.remove("active");
-    if (item.getAttribute(' data-conversation-id') === conversationId) {
-      item.classList.add('active');
+// Lightweight debounced renderer (uses your existing renderConversations)
+const debouncedRenderConversations = debounce((convs) => {
+    try {
+        renderConversations(convs);
+    } catch (err) {
+        console.error("Debounced render failed:", err);
     }
-  });
-  
-  await markMessagesAsRead(conversationId);
-  const chatArea = document.getElementById("chatArea");
-  if (chatArea) {
-    chatArea.innerHTML =
-      '<div class="text-center py-8 text-gray-500">Loading messages</div>';
-  }
-}
-function ensureMessagesContainer() {
-  let container = document.getElementById("messagesContainer");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "messagesContainer";
-    document.body.appendChild(container);
-  }
-  return container;
-}
+}, 150);
 
-function renderConversations(conversations) {
-  const container = document.getElementById("conversationList");
-
-  if (!container) {
-    console.error("Conversationlist element not found");
+// Replace or add enhanced handleConversationsUpdate
+async function handleConversationsUpdate(snapshot) {
+  if (isRendering) {
+    console.log("Already processing conversation update, queuing...");
+    setTimeout(() => handleConversationsUpdate(snapshot), 200);
     return;
   }
 
-  container.innerHTML = "";
+  isRendering = true;
 
-  if (!conversations.length) {
-    container.innerHTML =
-      '<div class="text-gray-500 text-sm p-4">No conversations yet</div>';
-    return;
-  }
+  try {
+    const newConversations = [];
+    const processedIds = new Set();
 
-  conversations.forEach((conv) => {
-    const div = document.createElement("div");
-    div.className =
-      "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
+    for (const docSnapshot of snapshot.docs) {
+      const conversationId = docSnapshot.id;
 
-      div.setAttribute('data-conversation-id', conv.id);
-
-      if (activeConversationId === conv.id) {
-        div.classList.add('active');
+      if (processedIds.has(conversationId)) {
+        console.log(`Skipping duplicate conversation: ${conversationId}`);
+        continue;
       }
-    div.onclick = () => selectConversation(conv.id, conv);
+      processedIds.add(conversationId);
 
-    div.innerHTML = `
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-          <i class="fas fa-user text-green-600"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="font-semibold text-gray-800 truncate">${
-            conv.user?.name || "User"
-          }</div>
-          <div class="text-sm text-gray-500 truncate">${
-            conv.lastMessage.content
-          }</div>
-          <div class="text-xs text-gray-400">${new Date(
-            conv.lastMessage.createdAt
-          ).toLocaleDateString()}</div>
-        </div>
-        ${
-          conv.unreadCount
-            ? `<div class="bg-green-600 text-white text-xs px-2 py-1 rounded-full">${conv.unreadCount}</div>`
-            : ""
+      const conversationData = docSnapshot.data();
+
+      // Get the other participant's id
+      const otherParticipantId = (conversationData.participants || []).find(
+        (id) => id !== currentUser.uid
+      );
+
+      let otherUser = null;
+      let propertyInfo = null;
+
+      // ENHANCED USER PROFILE LOADING
+      if (otherParticipantId) {
+        try {
+          console.log(`Loading profile for participant: ${otherParticipantId}`);
+
+          const otherUserDoc = await getDoc(doc(db, "users", otherParticipantId));
+
+          if (otherUserDoc.exists()) {
+            const userData = otherUserDoc.data();
+
+            // Multiple fallback strategies for getting the name
+            let displayName = "User";
+            const firstName = userData.firstName || "";
+            const lastName = userData.lastName || "";
+            const constructedName = `${firstName} ${lastName}`.trim();
+
+            if (constructedName) {
+              displayName = constructedName;
+            } else if (userData.fullName) {
+              displayName = userData.fullName;
+            } else if (userData.name && userData.name !== "User") {
+              displayName = userData.name;
+            } else if (userData.displayName) {
+              displayName = userData.displayName;
+            } else if (userData.email) {
+              displayName = userData.email.split("@")[0];
+            } else if (userData.businessName) {
+              displayName = userData.businessName;
+            } else if (userData.companyName) {
+              displayName = userData.companyName;
+            }
+
+            otherUser = {
+              _id: otherParticipantId,
+              id: otherParticipantId,
+              name: displayName,
+              firstName: userData.firstName || "",
+              lastName: userData.lastName || "",
+              fullName: userData.fullName || displayName,
+              role: userData.role || "User",
+              email: userData.email || "",
+              profileImage: userData.profileImage || userData.photoURL || null,
+              businessName: userData.businessName || null,
+              companyName: userData.companyName || null,
+              ...userData,
+            };
+          } else {
+            console.warn(`❌ User document NOT FOUND for ID: ${otherParticipantId}`);
+
+            let fallbackName = "User";
+            if (conversationData.participantNames && conversationData.participantNames[otherParticipantId]) {
+              fallbackName = conversationData.participantNames[otherParticipantId];
+            }
+
+            otherUser = {
+              _id: otherParticipantId,
+              id: otherParticipantId,
+              name: fallbackName,
+              role: "User",
+              error: "Profile not found"
+            };
+          }
+        } catch (err) {
+          console.error(`❌ ERROR loading participant profile (${otherParticipantId}):`, err);
+
+          otherUser = {
+            _id: otherParticipantId,
+            id: otherParticipantId,
+            name: "User (Error Loading)",
+            role: "User",
+            error: err.message
+          };
         }
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
+      } else {
+        console.error("❌ No other participant ID found in conversation", docSnapshot.id);
+      }
 
-async function openConversation(userId, propertyId, propertyName) {
-  try {
-    // Find or create conversation
-    let conversationId = await findOrCreateConversation(userId, propertyId);
+      // Get property info if available
+      if (conversationData.propertyId) {
+        try {
+          const propertyDoc = await getDoc(
+            doc(db, "properties", conversationData.propertyId)
+          );
+          if (propertyDoc.exists()) {
+            propertyInfo = {
+              id: conversationData.propertyId,
+              ...propertyDoc.data(),
+            };
+          }
+        } catch (err) {
+          console.error("Failed to load property info:", err);
+        }
+      }
 
-    // Set as active conversation
-    activeConversationId = conversationId;
+      // Count unread messages
+      const unreadCount = await getUnreadMessageCount(docSnapshot.id);
 
-    // Mark messages as read
-    await markMessagesAsRead(conversationId);
+      // Format conversation data
+      const formattedConversation = {
+        id: docSnapshot.id,
+        user: otherUser,
+        lastMessage: {
+          content: conversationData.lastMessage || "No messages yet",
+          createdAt: formatTimestamp(conversationData.lastMessageAt),
+          property: conversationData.propertyId || null,
+        },
+        unreadCount: unreadCount,
+        propertyInfo: propertyInfo,
+        participants: conversationData.participants,
+        ...conversationData,
+      };
 
-    // Find the conversation data
-    let conversationData = conversations.find(
-      (conv) => conv.id === conversationId
+      newConversations.push(formattedConversation);
+    } // end for
+
+    conversations = newConversations;
+
+    console.log(`✅ Processed ${conversations.length} conversations`);
+    console.log(
+      "Conversation summary:",
+      conversations.map((c) => ({
+        id: c.id,
+        otherUser: c.user?.name,
+        role: c.user?.role,
+      }))
     );
 
-    if (!conversationData) {
-      // If not found, create temporary data structure
-      const userDoc = await getDoc(doc(db, "users", userId));
-      const userData = userDoc.exists() ? userDoc.data() : {};
+    debouncedRenderConversations(conversations);
 
-      conversationData = {
-        id: conversationId,
-        user: {
-          _id: userId,
-          name:
-            `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
-            "User",
-        },
-        lastMessage: { property: propertyId },
-        propertyInfo: { title: propertyName },
-      };
+    if (messageListeners.size === 0 || messageListeners.size !== conversations.length) {
+      setupMessageListeners();
     }
-
-    document.getElementById("chatName").textContent =
-      conversationData.user?.name || "User";
-    document.getElementById("chatRole").textContent =
-      conversationData.user?.role || "";
-
-    document.getElementById("chatForm").style.display = "flex";
-
-    // Show loading state in chat area
-    const chatArea = document.getElementById("chatArea");
-    if (chatArea) {
-      chatArea.innerHTML = `
-        <div class="conversation-header">
-          <button class="back-to-conversations" onclick="showConversationsList()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
-            ← Back to Messages
-          </button>
-          <h3 style='color:#228b22;'>Conversation${
-            propertyName ? " - " + propertyName : ""
-          }</h3>
-        </div>
-        <div class="text-center py-8 text-gray-500">Loading messages...</div>
-      `;
-    }
-  } catch (error) {
-    console.error("Error opening conversation:", error);
-    showError("Failed to open conversation");
+  } finally {
+    isRendering = false;
   }
 }
 
-async function findOrCreateConversation(otherUserId, propertyId = null) {
+// DIAGNOSTIC FUNCTION - Call this to check what data exists in Firestore
+async function diagnoseLandlordData() {
+  console.log("=== DIAGNOSTIC: Checking Landlord Data ===");
+
   try {
-    // Check if conversation already exists
     const conversationsQuery = query(
       collection(db, "conversations"),
       where("participants", "array-contains", currentUser.uid)
     );
 
-    const existingConversations = await getDocs(conversationsQuery);
+    const convSnapshot = await getDocs(conversationsQuery);
 
-    for (const docSnapshot of existingConversations.docs) {
-      const data = docSnapshot.data();
-      const participants = data.participants;
-      if (participants.includes(otherUserId)) {
-        // If propertyId matches or no propertyId specified
-        if (!propertyId || data.propertyId === propertyId) {
-          return docSnapshot.id;
+    console.log(`Found ${convSnapshot.size} conversations`);
+
+    for (const convDoc of convSnapshot.docs) {
+      const convData = convDoc.data();
+      const otherParticipantId = convData.participants.find(
+        (id) => id !== currentUser.uid
+      );
+
+      console.log(`\n--- Conversation ${convDoc.id} ---`);
+      console.log("Other participant ID:", otherParticipantId);
+
+      if (otherParticipantId) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", otherParticipantId));
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            console.log("✅ User document EXISTS");
+            console.log("Available fields:", Object.keys(userData));
+            console.log("firstName:", userData.firstName);
+            console.log("lastName:", userData.lastName);
+            console.log("fullName:", userData.fullName);
+            console.log("name:", userData.name);
+            console.log("email:", userData.email);
+            console.log("role:", userData.role);
+            console.log("businessName:", userData.businessName);
+            console.log("All data:", userData);
+          } else {
+            console.log("❌ User document DOES NOT EXIST");
+          }
+        } catch (err) {
+          console.error("❌ Error fetching user:", err);
         }
       }
     }
 
-    // Create new conversation
-    const conversationRef = await addDoc(collection(db, "conversations"), {
-      participants: [currentUser.uid, otherUserId],
-      propertyId: propertyId || null,
-      createdAt: serverTimestamp(),
-      lastMessageAt: serverTimestamp(),
-      lastMessage: "Conversation started",
-      lastMessageSender: currentUser.uid,
-      lastMessageRead: false,
-    });
-
-    return conversationRef.id;
-  } catch (error) {
-    console.error("Error finding/creating conversation:", error);
-    throw error;
+    console.log("\n=== END DIAGNOSTIC ===");
+  } catch (err) {
+    console.error("Diagnostic failed:", err);
   }
 }
 
-function renderConversationMessages(messages, propertyName) {
-  const chatArea = document.getElementById("chatArea");
+// Make diagnostic available globally
+window.diagnoseLandlordData = diagnoseLandlordData;
 
-  // Create conversation header with back button
-  let headerHTML = `
-    <div class="conversation-header">
-      <button class="back-to-conversations" onclick="showConversationsList()" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
-        ← Back to Messages
-      </button>
-      <h3 style='color:#228b22;'>Conversation${
-        propertyName ? " - " + propertyName : ""
-      }</h3>
-    </div>
-  `;
+// AUTO-RUN DIAGNOSTIC on page load (remove this after debugging)
+setTimeout(() => {
+  console.log("🔍 Running automatic diagnostic...");
+  if (currentUser) diagnoseLandlordData().catch(err => console.error('Diagnostic failed', err));
+}, 3000);
 
-  // Ensure chatArea exists
-  if (!chatArea) return;
-
-  // Clear container and add header
-  chatArea.innerHTML = headerHTML;
-
-  if (!messages || !messages.length) {
-    chatArea.innerHTML += '<div class="empty-state">No messages yet.</div>';
-  } else {
-    // Add messages
-    messages.forEach((msg) => {
-      const div = document.createElement("div");
-      div.className = "message-item";
-      div.innerHTML = `
-        <div style="font-weight:600;color:${
-          msg.senderId === currentUser.uid ? "#228b22" : "#222"
-        }">${
-        msg.senderId === currentUser.uid ? "You" : msg.senderName || "User"
-      }</div>
-        <div style="font-size:0.98rem;">${msg.text || msg.content}</div>
-        <div style="font-size:0.9rem;color:#888;">${
-          msg.timestamp
-            ? formatTimestamp(msg.timestamp).toLocaleString()
-            : formatTimestamp(msg.createdAt).toLocaleString()
-        }</div>
-      `;
-      chatArea.appendChild(div);
-    });
-  }
-}
-
-// Auto-scroll to bottom
-chatArea.scrollTop = chatArea.scrollHeight;
-
-async function sendMessage(receiverId, propertyId, content) {
-  try {
-    if (!activeConversationId) {
-      activeConversationId = await findOrCreateConversation(
-        receiverId,
-        propertyId
-      );
-    }
-
-    await sendMessageToConversation(activeConversationId, content);
-  } catch (error) {
-    console.error("Error sending message:", error);
-    alert("Failed to send message: " + error.message);
-  }
-}
-
-async function sendMessageToConversation(conversationId, messageText) {
-  if (!messageText.trim()) return;
-
-  try {
-    // Add message to conversation
-    await addDoc(collection(db, "conversations", conversationId, "messages"), {
-      senderId: currentUser.uid,
-      senderName: userProfile?.firstName || currentUser.displayName || "User",
-      text: messageText.trim(),
-      timestamp: serverTimestamp(),
-      read: false,
-    });
-
-    // Update conversation's last message
-    await updateDoc(doc(db, "conversations", conversationId), {
-      lastMessage: messageText.trim(),
-      lastMessageAt: serverTimestamp(),
-      lastMessageSender: currentUser.uid,
-      lastMessageRead: false,
-    });
-
-    // Create notification for the other user
-    const conversation = conversations.find(
-      (conv) => conv.id === conversationId
-    );
-    if (conversation && conversation.user) {
-      await addDoc(collection(db, "notifications"), {
-        userId: conversation.user._id,
-        title: "New Message",
-        message: `New message from ${
-          userProfile?.firstName || "User"
-        }: ${messageText.substring(0, 50)}${
-          messageText.length > 50 ? "..." : ""
-        }`,
-        type: "message",
-        conversationId: conversationId,
-        read: false,
-        createdAt: serverTimestamp(),
-      });
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    throw error;
-  }
-}
-
-async function markMessagesAsRead(conversationId) {
-  try {
-    const messagesQuery = query(
-      collection(db, "conversations", conversationId, "messages"),
-      where("senderId", "!=", currentUser.uid),
-      where("read", "==", false)
-    );
-
-    const unreadMessages = await getDocs(messagesQuery);
-
-    const updatePromises = [];
-    unreadMessages.forEach((doc) => {
-      updatePromises.push(updateDoc(doc.ref, { read: true }));
-    });
-
-    await Promise.all(updatePromises);
-
-    // Update conversation's last message read status
-    const conversation = conversations.find(
-      (conv) => conv.id === conversationId
-    );
-    if (
-      conversation &&
-      conversation.lastMessageSender !== currentUser.uid &&
-      !conversation.lastMessageRead
-    ) {
-      await updateDoc(doc(db, "conversations", conversationId), {
-        lastMessageRead: true,
-      });
-    }
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
-  }
-}
-
-function showConversationsList() {
-  activeConversationId = null;
-  renderConversations(conversations);
-}
-
-function handleContextualOpen() {
-  // Handle opening from sessionStorage (from property pages, profiles, etc.)
-  const landlordId = sessionStorage.getItem("messageLandlordId");
-  const propertyId = sessionStorage.getItem("messagePropertyId");
-  const propertyName = sessionStorage.getItem("messagePropertyName");
-
-  // Check for additional context in sessionStorage
-  const messageContext = sessionStorage.getItem("messageContext");
-  if (messageContext) {
-    const context = JSON.parse(messageContext);
-    // Update navigation context if it wasn't detected from URL/referrer
-    if (navigationContext.source === "direct") {
-      navigationContext.source = context.source;
-      navigationContext.returnUrl = context.returnUrl;
-      setupBackButton(); // Re-setup with new context
-    }
-  }
-
-  // Handle direct conversation opening
-  if (landlordId && propertyId) {
-    // Wait a bit for conversations to load
-    setTimeout(() => {
-      openConversation(landlordId, propertyId, propertyName);
-      // Clear context after use but preserve navigation context
-      sessionStorage.removeItem("messageLandlordId");
-      sessionStorage.removeItem("messagePropertyId");
-      sessionStorage.removeItem("messagePropertyName");
-    }, 1500);
-  }
-
-  // Handle direct conversation opening from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const conversationId = urlParams.get("conversation");
-  if (conversationId) {
-    setTimeout(() => {
-      const conversation = conversations.find(
-        (conv) => conv.id === conversationId
-      );
-      if (conversation) {
-        openConversation(
-          conversation.user._id,
-          conversation.lastMessage.property,
-          conversation.propertyInfo?.title
-        );
-      }
-    }, 1500);
-  }
-
-  // Handle opening specific landlord from URL
-  const targetLandlordId = urlParams.get("landlord");
-  const targetPropertyId = urlParams.get("property");
-  if (targetLandlordId) {
-    setTimeout(() => {
-      openConversation(targetLandlordId, targetPropertyId, "");
-    }, 1500);
-  }
-}
-
-function showError(message) {
-  console.error(message);
-  const container = document.getElementById("messagesContainer");
-  if (container) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div style="color: #dc2626; font-weight: 600; margin-bottom: 1rem;">Error</div>
-        <div>${message}</div>
-        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #228b22; color: white; border: none; border-radius: 0.375rem; cursor: pointer;">
-          Retry
-        </button>
-      </div>
-    `;
-  }
-}
-
-// Cleanup function
-function cleanup() {
-  if (conversationsListener) {
-    conversationsListener();
-    conversationsListener = null;
-  }
-
-  messageListeners.forEach((unsubscribe) => unsubscribe());
-  messageListeners.clear();
-}
-
-// Cleanup on page unload
-window.addEventListener("beforeunload", cleanup);
-
-// Make functions available globally for onclick handlers
-window.openConversation = openConversation;
-window.showConversationsList = showConversationsList;
-
-// Helper functions for other pages to open messages with context
-window.MessagesHelper = {
-  // Open messages from student dashboard
-  openFromStudentDashboard: () => {
-    window.location.href = "messages.html?from=student-dashboard";
-  },
-
-  // Open messages from landlord dashboard
-  openFromLandlordDashboard: () => {
-    window.location.href = "messages.html?from=landlord-dashboard";
-  },
-
-  // Open specific conversation from property page
-  openConversationFromProperty: (
-    landlordId,
-    propertyId,
-    propertyName,
-    returnUrl
-  ) => {
-    sessionStorage.setItem("messageLandlordId", landlordId);
-    sessionStorage.setItem("messagePropertyId", propertyId);
-    sessionStorage.setItem("messagePropertyName", propertyName || "");
-    sessionStorage.setItem(
-      "messageContext",
-      JSON.stringify({
-        source: "property-details",
-        returnUrl: returnUrl || window.location.href,
-      })
-    );
-    window.location.href = "messages.html?from=property-details";
-  },
-
-  // Open conversation from profile page
-  openConversationFromProfile: (landlordId, returnUrl) => {
-    sessionStorage.setItem("messageLandlordId", landlordId);
-    sessionStorage.setItem(
-      "messageContext",
-      JSON.stringify({
-        source: "profile",
-        returnUrl: returnUrl || "profile.html",
-      })
-    );
-    window.location.href = "messages.html?from=profile";
-  },
-
-  // Open with direct URL parameters
-  openDirectConversation: (landlordId, propertyId, fromPage) => {
-    const params = new URLSearchParams({
-      landlord: landlordId,
-      from: fromPage || "direct",
-    });
-    if (propertyId) params.set("property", propertyId);
-
-    window.location.href = `messages.html?${params.toString()}`;
-  },
-
-  // Set message context for complex navigation scenarios
-  setMessageContext: (source, returnUrl, additionalData = {}) => {
-    sessionStorage.setItem(
-      "messageContext",
-      JSON.stringify({
-        source,
-        returnUrl,
-        ...additionalData,
-      })
-    );
-  },
-};
+// ...existing code...
