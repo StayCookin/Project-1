@@ -321,7 +321,7 @@ function updateUIWithUserInfo() {
 async function getUnreadMessageCount(conversationId) {
   try {
     const messagesQuery = query(
-      collection(db, " conversations", conversationId, "messages"),
+      collection(db, "conversations", conversationId, "messages"),
       where("senderId", "!=", currentUser.uid),
       where("read", "==", false)
     );
@@ -340,13 +340,13 @@ function setupMessageListeners() {
 
   conversations.forEach((conversation) => {
     const messagesQuery = query(
-      collection(db, "conversations", conversation.Id, "messages"),
+      collection(db, "conversations", conversation.id, "messages"),
       orderBy("timestamp", "asc"),
       limit(100)
     );
 
     const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      if(activeConversationId === conversationsListener.id) {
+      if(activeConversationId === conversation.id) {
         const messages = [];
         snapshot.forEach((doc) => {
           const messageData = doc.data();
@@ -397,7 +397,7 @@ function renderConversations(conversations) {
     }
     renderedIds.add(conv.id);
 
-    const div = document.getElementById("div");
+    const div = document.createElement("div");
     div.className = 
     "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
     div.setAttribute("data-conversation-id", conv.id);
