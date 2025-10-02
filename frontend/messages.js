@@ -508,8 +508,13 @@ async function selectConversation(conversationId, conversationData) {
 
   document.getElementById("chatForm").style.display = "flex";
 
+ 
+
   document.querySelectorAll(".conversation-item").forEach((item) => {
     item.classList.remove("active");
+    if (item.getAttribute(' data-conversation-id') === conversationId) {
+      item.classList.add('active');
+    }
   });
   const clickedItem = event.target.closest(".conversation-item");
   if (clickedItem) {
@@ -552,6 +557,12 @@ function renderConversations(conversations) {
     const div = document.createElement("div");
     div.className =
       "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
+
+      div.setAttribute('data-conversation-id', conv.id);
+
+      if (activeConversationId === conv.id) {
+        div.classList.add('active');
+      }
     div.onclick = () => selectConversation(conv.id, conv);
 
     div.innerHTML = `
