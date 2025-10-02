@@ -318,6 +318,461 @@ function updateUIWithUserInfo() {
   });
 }
 
+async function getUnreadMessageCount(conversationId) {
+  try {
+    const messagesQuery = query(
+      collection(db, " conversations", conversationId, "messages"),
+      where("senderId", "!=", currentUser.uid),
+      where("read", "==", false)
+    );
+
+    const unreadMessages = await getDocs(messagesQuery);
+    return unreadMessages.size;
+} catch (error) { 
+  console.error(" Error counting unread messages:", error);
+  return 0;
+}
+}
+
+function setupMessageListeners() {
+  messageListeners.forEach((unsubscribe) => unsubscribe ());
+  messageListeners.clear();
+
+  conversations.forEach((conversation) => {
+    const messagesQuery = query(
+      collection(db, "conversations", conversation.Id, "messages"),
+      orderBy("timestamp", "asc"),
+      limit(100)
+    );
+
+    const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      if(activeConversationId === conversationsListener.id) {
+        const messages = [];
+        snapshot.forEach((doc) => {
+          const messageData = doc.data();
+          messages.push({
+            id: doc.id,
+            content: messageData.text,
+            sender: {
+              _id: messageData.senderId,
+              name: messageData.senderName,
+            },
+            receiver: {
+              _id: conversation.user?._id || conversation.user?.id || null,
+            },
+            property:
+            conversation.lastMessage?.property || 
+            conversation.propertyInfo?.id || null,
+            ...messageData,
+          });
+        });
+        renderConversationMessages(messages, conversation.propertyInfo?.title || "");
+      }
+    });
+    messageListeners.set(conversation.id, unsubscribe);
+  })
+}
+
+function renderConversations(conversations) {
+  const container = document.getElementById("conversationList");
+
+  if(!container) {
+    console.error("Conversation list element not found");
+    return;
+  }
+  container.innerHTML = "";
+
+  if(!conversations.length) {
+    container.innerHTML = 
+    '<div class="text-gray-500 text-sm p-4">No conversations yet</div>';
+    return;
+  }
+
+  const renderedIds = new Set();
+
+  conversations.forEach((conv) => {
+    if (renderedIds.has(conv.id)) {
+      console.warn(`Skipping duplicate render for conversation: ${conv.id}`);
+      return;
+    }
+    renderedIds.add(conv.id);
+
+    const div = document.getElementById("div");
+    div.className = 
+    "conversation-item p-3 rounded-lg cursor-pointer border border-gray-200 bg-white hover:bg-gray-50 mb-2";
+    div.setAttribute("data-conversation-id", conv.id);
+
+    if (activeConversationId === conv.id) {
+      div.classList.add("active");
+    }
+
+    div.onclick = () => selectConversation(conv.id, conv);
+ let displayName = "User";
+    let roleDisplay = "";
+
+    if (conv.user) {
+      if (conv.user.name && conv.user.name !== "User") {
+        displayName = conv.user.name;
+      } else if (conv.user.firstName || conv.user.lastName) {
+        displayName = `${conv.user.firstName || ""} ${
+          conv.user.lastName || ""
+        }`.trim();
+      } else if (conv.user.email) {
+        displayName = conv.user.email.split("@")[0];
+      }
+
+      roleDisplay = conv.user.role ? ` • ${conv.user.role}` : "";
+    }
+
+    div.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          ${
+            conv.user?.profileImage
+              ? `<img src="${conv.user.profileImage}" alt="${displayName}" class="w-full h-full rounded-full object-cover" />`
+              : `<i class="fas fa-user text-green-600"></i>`
+          }
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-gray-800 truncate">${displayName}${roleDisplay}</div>
+          <div class="text-sm text-gray-500 truncate">${
+            conv.lastMessage.content || "No messages yet"
+          }</div>
+          <div class="text-xs text-gray-400">${
+            conv.lastMessage.createdAt
+              ? new Date(conv.lastMessage.createdAt).toLocaleDateString()
+              : ""
+          }</div>
+        </div>
+        ${
+          conv.unreadCount
+            ? `<div class="bg-green-600 text-white text-xs px-2 py-1 rounded-full">${conv.unreadCount}</div>`
+            : ""
+        }
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+async function selectConversation(conversationId, conversationData) {
+  activeConversationId = conversationId;
+
+  document.getElementById("chatName").textContent =
+    conversationData.user?.name || "User";
+  document.getElementById("chatRole").textContent =
+    conversationData.user?.role || "";
+
+  document.getElementById("chatForm").style.display = "flex";
+
+  // Update active state on all conversation items
+  document.querySelectorAll(".conversation-item").forEach((item) => {
+    item.classList.remove("active");
+    if (item.getAttribute("data-conversation-id") === conversationId) {
+      item.classList.add("active");
+    }
+  });
+
+  await markMessagesAsRead(conversationId);
+
+  const chatArea = document.getElementById("chatArea");
+  if (chatArea) {
+    chatArea.innerHTML =
+      '<div class="text-center py-8 text-gray-500">Loading messages...</div>';
+  }
+}
+
+function renderConversationMessages(messages, propertyName) {
+  const chatArea = document.getElementById("chatArea");
+
+  if (!chatArea) return;
+
+  // Clear container
+  chatArea.innerHTML = "";
+
+  if (!messages || !messages.length) {
+    chatArea.innerHTML = '<div class="text-center py-8 text-gray-500">No messages yet.</div>';
+  } else {
+    // Add messages
+    messages.forEach((msg) => {
+      const div = document.createElement("div");
+      const isCurrentUser = msg.senderId === currentUser.uid;
+      
+      div.className = `chat-bubble ${isCurrentUser ? 'student' : 'landlord'}`;
+      
+      div.innerHTML = `
+        <div style="font-size:0.98rem;">${msg.text || msg.content}</div>
+        <div style="font-size:0.75rem;color:#666;margin-top:4px;">${
+          msg.timestamp
+            ? formatTimestamp(msg.timestamp).toLocaleTimeString()
+            : formatTimestamp(msg.createdAt).toLocaleTimeString()
+        }</div>
+      `;
+      chatArea.appendChild(div);
+    });
+  }
+
+  // Auto-scroll to bottom
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+async function markMessagesAsRead(conversationId) {
+  try {
+    const messagesQuery = query(
+      collection(db, "conversations", conversationId, "messages"),
+      where("senderId", "!=", currentUser.uid),
+      where("read", "==", false)
+    );
+
+    const unreadMessages = await getDocs(messagesQuery);
+
+    const updatePromises = [];
+    unreadMessages.forEach((doc) => {
+      updatePromises.push(updateDoc(doc.ref, { read: true }));
+    });
+
+    await Promise.all(updatePromises);
+
+    // Update conversation's last message read status
+    const conversation = conversations.find(
+      (conv) => conv.id === conversationId
+    );
+    if (
+      conversation &&
+      conversation.lastMessageSender !== currentUser.uid &&
+      !conversation.lastMessageRead
+    ) {
+      await updateDoc(doc(db, "conversations", conversationId), {
+        lastMessageRead: true,
+      });
+    }
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+  }
+}
+
+async function sendMessageToConversation(conversationId, messageText) {
+  if (!messageText.trim()) return;
+
+  try {
+    // Add message to conversation
+    await addDoc(collection(db, "conversations", conversationId, "messages"), {
+      senderId: currentUser.uid,
+      senderName: userProfile?.firstName || currentUser.displayName || "User",
+      text: messageText.trim(),
+      timestamp: serverTimestamp(),
+      read: false,
+    });
+
+    // Update conversation's last message
+    await updateDoc(doc(db, "conversations", conversationId), {
+      lastMessage: messageText.trim(),
+      lastMessageAt: serverTimestamp(),
+      lastMessageSender: currentUser.uid,
+      lastMessageRead: false,
+    });
+
+    // Create notification for the other user
+    const conversation = conversations.find(
+      (conv) => conv.id === conversationId
+    );
+    if (conversation && conversation.user) {
+      await addDoc(collection(db, "notifications"), {
+        userId: conversation.user._id,
+        title: "New Message",
+        message: `New message from ${
+          userProfile?.firstName || "User"
+        }: ${messageText.substring(0, 50)}${
+          messageText.length > 50 ? "..." : ""
+        }`,
+        type: "message",
+        conversationId: conversationId,
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw error;
+  }
+}
+
+async function findOrCreateConversation(otherUserId, propertyId = null) {
+  try {
+    // Check if conversation already exists
+    const conversationsQuery = query(
+      collection(db, "conversations"),
+      where("participants", "array-contains", currentUser.uid)
+    );
+
+    const existingConversations = await getDocs(conversationsQuery);
+
+    for (const docSnapshot of existingConversations.docs) {
+      const data = docSnapshot.data();
+      const participants = data.participants;
+      if (participants.includes(otherUserId)) {
+        // If propertyId matches or no propertyId specified
+        if (!propertyId || data.propertyId === propertyId) {
+          return docSnapshot.id;
+        }
+      }
+    }
+
+    // Create new conversation
+    const conversationRef = await addDoc(collection(db, "conversations"), {
+      participants: [currentUser.uid, otherUserId],
+      propertyId: propertyId || null,
+      createdAt: serverTimestamp(),
+      lastMessageAt: serverTimestamp(),
+      lastMessage: "Conversation started",
+      lastMessageSender: currentUser.uid,
+      lastMessageRead: false,
+    });
+
+    return conversationRef.id;
+  } catch (error) {
+    console.error("Error finding/creating conversation:", error);
+    throw error;
+  }
+}
+
+async function openConversation(userId, propertyId, propertyName) {
+  try {
+    // Find or create conversation
+    let conversationId = await findOrCreateConversation(userId, propertyId);
+
+    // Set as active conversation
+    activeConversationId = conversationId;
+
+    // Mark messages as read
+    await markMessagesAsRead(conversationId);
+
+    // Find the conversation data
+    let conversationData = conversations.find(
+      (conv) => conv.id === conversationId
+    );
+
+    if (!conversationData) {
+      // If not found, create temporary data structure
+      const userDoc = await getDoc(doc(db, "users", userId));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
+      conversationData = {
+        id: conversationId,
+        user: {
+          _id: userId,
+          name:
+            `${userData.firstName || ""} ${userData.lastName || ""}`.trim() ||
+            "User",
+        },
+        lastMessage: { property: propertyId },
+        propertyInfo: { title: propertyName },
+      };
+    }
+
+    document.getElementById("chatName").textContent =
+      conversationData.user?.name || "User";
+    document.getElementById("chatRole").textContent =
+      conversationData.user?.role || "";
+
+    document.getElementById("chatForm").style.display = "flex";
+
+    // Show loading state in chat area
+    const chatArea = document.getElementById("chatArea");
+    if (chatArea) {
+      chatArea.innerHTML =
+        '<div class="text-center py-8 text-gray-500">Loading messages...</div>';
+    }
+  } catch (error) {
+    console.error("Error opening conversation:", error);
+    showError("Failed to open conversation");
+  }
+}
+
+function handleContextualOpen() {
+  // Handle opening from sessionStorage
+  const landlordId = sessionStorage.getItem("messageLandlordId");
+  const propertyId = sessionStorage.getItem("messagePropertyId");
+  const propertyName = sessionStorage.getItem("messagePropertyName");
+
+  const messageContext = sessionStorage.getItem("messageContext");
+  if (messageContext) {
+    const context = JSON.parse(messageContext);
+    if (navigationContext.source === "direct") {
+      navigationContext.source = context.source;
+      navigationContext.returnUrl = context.returnUrl;
+      setupBackButton();
+    }
+  }
+
+  if (landlordId && propertyId) {
+    setTimeout(() => {
+      openConversation(landlordId, propertyId, propertyName);
+      sessionStorage.removeItem("messageLandlordId");
+      sessionStorage.removeItem("messagePropertyId");
+      sessionStorage.removeItem("messagePropertyName");
+    }, 1500);
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const conversationId = urlParams.get("conversation");
+  if (conversationId) {
+    setTimeout(() => {
+      const conversation = conversations.find(
+        (conv) => conv.id === conversationId
+      );
+      if (conversation) {
+        openConversation(
+          conversation.user._id,
+          conversation.lastMessage.property,
+          conversation.propertyInfo?.title
+        );
+      }
+    }, 1500);
+  }
+
+  const targetLandlordId = urlParams.get("landlord");
+  const targetPropertyId = urlParams.get("property");
+  if (targetLandlordId) {
+    setTimeout(() => {
+      openConversation(targetLandlordId, targetPropertyId, "");
+    }, 1500);
+  }
+}
+
+function showError(message) {
+  console.error(message);
+  const chatArea = document.getElementById("chatArea");
+  if (chatArea) {
+    chatArea.innerHTML = `
+      <div class="text-center py-8">
+        <div style="color: #dc2626; font-weight: 600; margin-bottom: 1rem;">Error</div>
+        <div class="text-gray-600">${message}</div>
+        <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          Retry
+        </button>
+      </div>
+    `;
+  }
+}
+
+// Cleanup function
+function cleanup() {
+  if (conversationsListener) {
+    conversationsListener();
+    conversationsListener = null;
+  }
+
+  messageListeners.forEach((unsubscribe) => unsubscribe());
+  messageListeners.clear();
+}
+
+// Cleanup on page unload
+window.addEventListener("beforeunload", cleanup);
+
+window.openConversation = openConversation;
+window.diagnoseLandlordData = diagnoseLandlordData;
+
 async function fetchMessages() {
   try {
     // Setup real-time listener for conversations
