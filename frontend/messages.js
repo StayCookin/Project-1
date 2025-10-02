@@ -335,7 +335,7 @@ async function getUnreadMessageCount(conversationId) {
 }
 
 function setupMessageListeners() {
-  messageListeners.forEach((unsubscribe) => unsubscribe ());
+  messageListeners.forEach((unsubscribe) => unsubscribe());
   messageListeners.clear();
 
   conversations.forEach((conversation) => {
@@ -616,10 +616,7 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
         return docSnapshot.id;
         }
       }
-      
-    }catch (error) { console.error(" error finding conversations:", error);}
-
-    // Create new conversation
+       console.log(`🆕 Creating NEW conversation with user: ${otherUserId}`);
     const conversationRef = await addDoc(collection(db, "conversations"), {
       participants: [currentUser.uid, otherUserId],
       propertyId: propertyId || null,
@@ -629,9 +626,12 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
       lastMessageSender: currentUser.uid,
       lastMessageRead: false,
     });
-
     return conversationRef.id;
+    }catch (error) {
+    console.error("❌ Error finding/creating conversation:", error);
+    throw error;
   } 
+}
   async function cleanupDuplicateConversations() {
   console.log("🧹 Cleaning up duplicate conversations...");
   
