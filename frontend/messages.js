@@ -612,11 +612,12 @@ async function findOrCreateConversation(otherUserId, propertyId = null) {
       const participants = data.participants;
       if (participants.includes(otherUserId)) {
         // If propertyId matches or no propertyId specified
-        if (!propertyId || data.propertyId === propertyId) {
-          return docSnapshot.id;
+        console.log('Using existing conversation: ${docSnapshot.id}');
+        return docSnapshot.id;
         }
       }
-    }
+      
+    }catch (error) { console.error(" error finding conversations:", error);}
 
     // Create new conversation
     const conversationRef = await addDoc(collection(db, "conversations"), {
