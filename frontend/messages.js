@@ -218,14 +218,14 @@ function setupBackButton() {
     switch (navigationContext.source) {
       case "student-dashboard":
         backBtn.innerHTML =
-          '<i class="fas fa-arrow-left"></i> Back to Student Dashboard';
+          '<i class="fas fa-arrow-left mb-4 flex items-center gap-2 text-green-700 hover:text-green-900 font-semibold text-sm" ></i> Back to Dashboard';
         backBtn.onclick = () =>
           (window.location.href = "student-dashboard.html");
         break;
 
       case "landlord-dashboard":
         backBtn.innerHTML =
-          '<i class="fas fa-arrow-left"></i> Back to Landlord Dashboard';
+          '<i class="fas fa-arrow-left"></i> Back to Dashboard';
         backBtn.onclick = () =>
           (window.location.href = "landlord-dashboard.html");
         break;
