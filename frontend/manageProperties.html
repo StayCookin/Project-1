@@ -92,8 +92,8 @@
 
     <div class="buttons">
       <button class="maintenance" onclick="openModal()">Request Maintenance</button>
-      <button class="pay">Pay Rent</button>
-      <button class="moveout" onclick="moveOut()">Move Out</button>
+      <button class="pay" onclick="payRentNow(getPropertyId())">Pay Rent</button>
+      <button class="moveout" onclick="moveOut(getPropertyId())">Move Out</button>
     </div>
   </div>
 
@@ -118,24 +118,9 @@
     </div>
   </div>
 
-  <script>
-    function openModal() {
-      document.getElementById("maintenanceModal").style.display = "flex";
-    }
-    function closeModal() {
-      document.getElementById("maintenanceModal").style.display = "none";
-    }
-    function submitRequest() {
-      const problem = document.getElementById("problemType").value;
-      const urgency = document.getElementById("urgency").value;
-      alert("Maintenance Request Sent:\nProblem: " + problem + "\nUrgency: " + urgency);
-      closeModal();
-    }
-    function moveOut() {
-      alert("Your landlord has been notified. You will move out in 5 days.");
-      // Here you can add code to send email or update DB
-    }
-  </script>
-  <script type="module" src="manageProperties.js" defer></script>
+  <script> function getPropertyId() {
+    return document.body.dataset.propertyId;
+  }</script>
 </body>
+<script type="module" src="manageProperties.js" defer></script>
 </html>
