@@ -366,7 +366,7 @@ export const propertyManagement = {
   }
 };
 
-// HTML Integration Functions
+
 export async function submitRequest(propertyId) {
   const problem = document.getElementById("problemType").value;
   const urgency = document.getElementById("urgency").value;
@@ -378,8 +378,12 @@ export async function submitRequest(propertyId) {
   }
 
   try {
-    const result = await propertyManagement.requestMaintenance(propertyId, problem, urgency, description);
-    alert(`${result.message}\nRequest ID: ${result.requestId}`);
+    const result = await propertyManagement.requestMaintenance(
+    currentPropertyId,
+    problem,
+    urgency,
+    description);
+    alert (`${result.message}\nRequest ID: ${result.requestId}`);
     closeModal();
   } catch (error) {
     alert(`Error: ${error.message}`);
@@ -402,7 +406,10 @@ export async function moveOut(propertyId) {
     }
   }
 }
-
+function getPropertyIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('propertyId');
+}
 export async function payRentNow(propertyId) {
   try {
     const propertyInfo = await propertyManagement.getPropertyInfo(propertyId);
@@ -430,4 +437,48 @@ export function closeModal() {
   document.getElementById("problemType").value = "";
   document.getElementById("urgency").value = "Medium";
   if (document.getElementById("description")) document.getElementById("description").value = "";
+}
+// At the bottom of your file, add:
+let currentPropertyId = null;
+
+async function loadPropertyData() {
+  try {
+    // Get property ID from URL
+    currentPropertyId = getPropertyIdFromURL();
+    
+    if (!currentPropertyId) {
+      throw new Error('No property ID provided');
+    }
+
+    // Fetch property info
+    const property = await propertyManagement.getPropertyInfo(currentPropertyId);
+    
+    if (!property) {
+      throw new Error('Property not found');
+    }
+
+    // Update HTML with property data
+    document.querySelector('.property-info h2').textContent = property.title;
+    document.querySelector('.property-info p:nth-child(2)').innerHTML = 
+      `<strong>Address:</strong> ${property.address}`;
+    document.querySelector('.property-info p:nth-child(3)').innerHTML = 
+      `<strong>Landlord:</strong> ${property.landlordName}`;
+    document.querySelector('.property-info p:nth-child(4)').innerHTML = 
+      `<strong>Rent:</strong> P${property.price} / month`;
+
+    // Optionally load balance info
+    const balance = await propertyManagement.getBalance(currentPropertyId);
+    // Display balance somewhere if needed
+    
+  } catch (error) {
+    alert('Error loading property: ' + error.message);
+  }
+}
+
+// Call this when page loads
+window.addEventListener('DOMContentLoaded', loadPropertyData);
+
+function getPropertyIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('propertyId');
 }
