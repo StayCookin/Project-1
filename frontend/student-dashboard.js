@@ -181,7 +181,7 @@ class StudentDashboard {
 
   try {
     // Fetch viewing requests count
-    const viewingRequestsRef = collection(db, 'viewingRequests');
+    const viewingRequestsRef = collection(db, 'viewingBookings');
     const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
     const viewingSnapshot = await getDocs(viewingQuery);
     viewingCount = viewingSnapshot.size;
