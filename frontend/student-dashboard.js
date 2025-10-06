@@ -168,28 +168,30 @@ class StudentDashboard {
   let viewingCount = 0;
   let reviewsCount = 0;
 
-  try {
-    // Fetch saved properties count
-    const savedPropertiesRef = collection(db, 'savedProperties');
-    const savedQuery = query(savedPropertiesRef, where('userId', '==', user.uid));
-    const savedSnapshot = await getDocs(savedQuery);
-    savedCount = savedSnapshot.size;
-  } catch(error) { 
-    console.log("Saved property collection not found", error);
-    savedCount = 0;
-  }
+  const savedQuery = query(
+    collection(db, 'savedProperties'),
+    where('userId', '==', userId)
+  );
+  onSnapshot(savedQuery, (snapshot) => {
+    this.updateDashboardStats('savedPropertiesCount', snapshot.size);
+  });
 
-  try {
-    // Fetch viewing requests count
-    const viewingRequestsRef = collection(db, 'viewingBookings');
-    const viewingQuery = query(viewingRequestsRef, where('studentId', '==', user.uid));
-    const viewingSnapshot = await getDocs(viewingQuery);
-    viewingCount = viewingSnapshot.size;
-  } catch(error) {
-    console.log("viewing requests are currently empty", error);
-    viewingCount = 0;
-  }
-
+  const  conversationsQuery = query(
+    collection(db, 'viewingBookings'),
+    where('studentId', '==', user.uid),
+    where('status', 'in', ['pending', 'scheduled'])
+  );
+  onSnapshot(conversationsQuery, (snapshot) => {
+    let unreadCount = 0;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.unread && data.unread[user.uid]) {
+        unreadCount += data.unread[user.uid];
+      }
+    });
+    this.updateDashboardStats('unreadMessagesCount', unreadCount);
+  });
+  
   try {
     // Fetch reviews count
     const reviewsRef = collection(db, 'reviews');
