@@ -170,7 +170,7 @@ class StudentDashboard {
 
   const savedQuery = query(
     collection(db, 'savedProperties'),
-    where('userId', '==', user)
+    where('userId', '==', user.uid)
   );
   onSnapshot(savedQuery, (snapshot) => {
     this.updateDashboardStats('savedPropertiesCount', snapshot.size);
