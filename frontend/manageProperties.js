@@ -482,3 +482,21 @@ function getPropertyIdFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get('propertyId');
 }
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.submitRequest = submitRequest;
+window.payRentNow= payRentNow;
+window.moveOut = moveOut;
+window.loadPropertyData = loadPropertyData;
+
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadPropertyData();
+  
+  // Add event listeners to buttons
+  document.getElementById('maintenanceBtn')?.addEventListener('click', openModal);
+  document.getElementById('payBtn')?.addEventListener('click', payRentNow);
+  document.getElementById('moveOutBtn')?.addEventListener('click', moveOut);
+  document.getElementById('cancelBtn')?.addEventListener('click', closeModal);
+  document.getElementById('submitRequestBtn')?.addEventListener('click', submitRequest);
+});
