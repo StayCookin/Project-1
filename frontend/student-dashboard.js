@@ -436,7 +436,7 @@ async handleSignOut() {
 
     // Check if user already has a viewing for this property
     try {
-      const viewingRequestsRef = collection(db, 'viewingRequests');
+      const viewingRequestsRef = collection(db, 'viewingBookings');
       const q = query(
         viewingRequestsRef,
         where('studentId', '==', this.currentUser.uid),
@@ -452,7 +452,7 @@ async handleSignOut() {
       }
 
       // Create viewing request
-      await addDoc(collection(db, 'viewingRequests'), {
+      await addDoc(collection(db, 'viewingBookings'), {
         studentId: this.currentUser.uid,
         propertyId: propertyId,
         status: 'pending',
