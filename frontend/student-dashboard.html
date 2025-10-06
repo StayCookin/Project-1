@@ -557,7 +557,6 @@
           button.setAttribute('data-favorited', isFavorited);
           updateDashboardCards(); // Update the card count instantly
           
-          // Optional: Add a subtle confirmation animation
           button.classList.add('animate-ping', 'duration-500');
           setTimeout(() => button.classList.remove('animate-ping', 'duration-500'), 500);
 
@@ -588,5 +587,6 @@
         setupDropdownToggle('profileMenuToggle', 'profileDropdown');
       };
     </script>
+    <script type="module" src="manageProperties.js" defer></script>
   </body>
 </html>
