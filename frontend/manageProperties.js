@@ -478,10 +478,7 @@ async function loadPropertyData() {
 // Call this when page loads
 window.addEventListener('DOMContentLoaded', loadPropertyData);
 
-function getPropertyIdFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('propertyId');
-}
+
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.submitRequest = submitRequest;
