@@ -122,7 +122,76 @@ class StudentDashboard {
       signOutBtn.addEventListener('click', this.handleSignOut.bind(this));
     }
 
-    // Review form
+    
+const openSidebarBtn = document.getElementById('openSidebarBtn');
+const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+const sidebar = document.getElementById('sidebar');
+const mobileOverlay = document.getElementById('mobileOverlay');
+
+if(openSidebarBtn && closeSidebarBtn && sidebar && mobileOverlay) {
+  openSidebarBtn.addEventListener('click', () => {sidebar.classList.add('open');
+    sidebar.classList.add('open');
+    mobileOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+
+  closeSidebarBtn.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    mobileOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  const sidebarLinks = sidebar.querySelectorAll('a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      if(window.innerWidth < 768) {
+        sidebar.classList.remove('open');
+        mobileOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+}
+
+const notificationToggle = document.getElementById('notificationToggle');
+const notificationDropdown = document.getElementById('notificationDropdown');
+
+if(notificationToggle && notificationDropdown) {
+  notificationToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  notificationDropdown.classList.toggle('hidden');
+  });
+}
+
+const profileMenuToggle = document.getElementById('profileMenuToggle');
+const profileDropdown = document.getElementById('profileDropdown');
+if(profileMenuToggle && profileDropdown) {
+  profileMenuToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle('hidden');
+  });
+}
+
+document.addEventListener('click', () => {
+  if ( notificationDropdown) notificationDropdown.classList.add('hidden');
+  if (profileDropdown) profileDropdown.classList.add('hidden');
+});
+
+const logoutBtn = document.getElementById('logoutBtn');
+const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+
+if(logoutBtn) {
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    this.handleSignOut();
+  });
+}
+if (headerLogoutBtn) {
+  headerLogoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    this.handleSignOut();
+  });
+}
     const reviewForm = document.getElementById('reviewForm');
     if (reviewForm) {
       reviewForm.addEventListener('submit', this.handleReviewSubmission.bind(this));
@@ -160,7 +229,8 @@ class StudentDashboard {
     }
   }
 
-  // MISSING METHOD: Fetch dashboard stats
+
+
   async fetchDashboardStats(user) {
   if (!user) return;
 
