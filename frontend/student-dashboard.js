@@ -193,21 +193,35 @@ if (headerLogoutBtn) {
   });
 }
     const reviewForm = document.getElementById('reviewForm');
-    if (reviewForm) {
-      reviewForm.addEventListener('submit', this.handleReviewSubmission.bind(this));
-    }
+  if (reviewForm) {
+    reviewForm.addEventListener('submit', this.handleReviewSubmission.bind(this));
+  }
 
-    // Star rating
-    this.setupStarRating();
+  // Star rating
+  this.setupStarRating();
 
-    // Modal close buttons
-    const closeModalBtns = document.querySelectorAll('[data-close-modal]');
-    closeModalBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const modalId = btn.getAttribute('data-close-modal');
-        this.closeModal(modalId);
-      });
+  // Modal close buttons
+  const closeModalBtns = document.querySelectorAll('[data-close-modal]');
+  closeModalBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.getAttribute('data-close-modal');
+      this.closeModal(modalId);
     });
+  });
+
+  // Favorite buttons for property cards
+  const favoriteButtons = document.querySelectorAll('.favorite-btn');
+  favoriteButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const propertyCard = btn.closest('.property-card');
+      const propertyId = propertyCard?.getAttribute('data-id');
+      if (propertyId) {
+        this.toggleSaveProperty(propertyId);
+      }
+    });
+  });
   }
 
   // MISSING METHOD: Load user profile
