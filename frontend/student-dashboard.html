@@ -17,62 +17,180 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-      /* Custom styles to complement Tailwind */
-      :root {
-        --color-primary: #10b981; /* Tailwind green-500 */
-        --color-secondary: #059669; /* Tailwind green-600 */
-      }
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f0f2f5;
-        color: #374151; /* Default dark text */
-      }
-      h1, h2, h3 {
-        font-family: 'Poppins', sans-serif;
-      }
-      /* Custom scrollbar for main content */
-      .main-content::-webkit-scrollbar { width: 8px; }
-      .main-content::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
-      .main-content::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-      .main-content::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  /* Custom styles to complement Tailwind */
+  :root {
+    --color-primary: #10b981; /* Tailwind green-500 */
+    --color-secondary: #059669; /* Tailwind green-600 */
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+    color: #374151;
+  }
+  h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Custom scrollbar for main content */
+  .main-content::-webkit-scrollbar { width: 8px; }
+  .main-content::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+  .main-content::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+  .main-content::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-      /* Mobile Sidebar Toggle - Hidden by default on desktop */
-      .sidebar-mobile {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 50;
-        position: fixed;
-        height: 100vh;
-      }
-      .sidebar-mobile.open {
-        transform: translateX(0);
-      }
-      .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 40;
-      }
-      .overlay.open {
-        display: block;
-      }
-      @media (min-width: 768px) {
-        /* md: breakpoint */
-        .sidebar-mobile {
-          transform: translateX(0) !important;
-          position: sticky;
-          top: 0;
-          height: 100vh;
-        }
-        .overlay {
-          display: none !important;
-        }
-      }
-    </style>
+  /* Mobile Sidebar Toggle */
+  .sidebar-mobile {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 50;
+    position: fixed;
+    height: 100vh;
+    width: 280px;
+  }
+  .sidebar-mobile.open {
+    transform: translateX(0);
+  }
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+  .overlay.open {
+    display: block;
+  }
+
+  /* ===== MEDIA QUERIES ===== */
+  
+  /* Extra Small Devices (phones, 320px to 479px) */
+  @media (max-width: 479px) {
+    body {
+      font-size: 14px;
+    }
+    h1 {
+      font-size: 1.5rem;
+    }
+    h2 {
+      font-size: 1.25rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+    }
+    .sidebar-mobile {
+      width: 85vw;
+      max-width: 280px;
+    }
+  }
+
+  /* Small Devices (landscape phones, 480px to 767px) */
+  @media (min-width: 480px) and (max-width: 767px) {
+    .sidebar-mobile {
+      width: 320px;
+    }
+  }
+
+  /* Medium Devices (tablets, 768px and up) */
+  @media (min-width: 768px) {
+    .sidebar-mobile {
+      transform: translateX(0) !important;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 280px;
+    }
+    .overlay {
+      display: none !important;
+    }
+  }
+
+  /* Large Devices (desktops, 1024px and up) */
+  @media (min-width: 1024px) {
+    .sidebar-mobile {
+      width: 300px;
+    }
+    .main-content {
+      max-width: 1200px;
+    }
+  }
+
+  /* Extra Large Devices (large desktops, 1280px and up) */
+  @media (min-width: 1280px) {
+    .sidebar-mobile {
+      width: 320px;
+    }
+    .main-content {
+      max-width: 1400px;
+    }
+  }
+
+  /* Ultra Wide Screens (1536px and up) */
+  @media (min-width: 1536px) {
+    .main-content {
+      max-width: 1600px;
+    }
+  }
+
+  /* Landscape Orientation Adjustments */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .sidebar-mobile {
+      overflow-y: auto;
+    }
+    body {
+      font-size: 14px;
+    }
+  }
+
+  /* High DPI/Retina Displays */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    .sidebar-mobile,
+    .overlay,
+    button,
+    .no-print {
+      display: none !important;
+    }
+    body {
+      background-color: white;
+      color: black;
+    }
+    .main-content {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  /* Dark Mode Support (if needed in future) */
+  @media (prefers-color-scheme: dark) {
+    /* Uncomment when implementing dark mode
+    body {
+      background-color: #1f2937;
+      color: #f9fafb;
+    }
+    */
+  }
+
+  /* Reduced Motion for Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar-mobile {
+      transition: none;
+    }
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
   </head>
   <body class="min-h-screen flex flex-col overflow-x-hidden">
 
