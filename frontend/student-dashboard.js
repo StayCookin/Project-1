@@ -63,6 +63,9 @@ class StudentDashboard {
       
       await this.waitForFirebaseAuth();
       this.setupEventListeners();
+      if (this.currentUser) {
+        this.setupRealtimeProperties();
+      }
     } catch (error) {
       console.error('Dashboard initialization failed:', error);
       this.handleError('Failed to initialize dashboard');
@@ -362,7 +365,101 @@ if (headerLogoutBtn) {
     console.error('Error listening to applications:', error);
   });
 }
+  setupRealtimeProperties() {
+  if (!this.currentUser) return;
+
+  // Real-time listener for recommended properties
+  const propertiesQuery = query(
+    collection(db, 'properties'),
+    where('isActive', '==', true),
+    where('isAvailable', '==', true),
+    orderBy('createdAt', 'desc'),
+    limit(6)
+  );
+
+  onSnapshot(propertiesQuery, async (snapshot) => {
+    const propertyGrid = document.querySelector('.property-grid');
+    if (!propertyGrid) return;
+
+    // Clear existing properties
+    propertyGrid.innerHTML = '';
+
+    // Get saved properties for this user
+    const savedPropertiesRef = collection(db, 'savedProperties');
+    const savedQuery = query(savedPropertiesRef, where('userId', '==', this.currentUser.uid));
+    const savedSnapshot = await getDocs(savedQuery);
+    const savedPropertyIds = new Set(savedSnapshot.docs.map(doc => doc.data().propertyId));
+
+    snapshot.forEach(doc => {
+      const property = doc.data();
+      const propertyId = doc.id;
+      const isSaved = savedPropertyIds.has(propertyId);
+
+      const propertyCard = this.createPropertyCard(property, propertyId, isSaved);
+      propertyGrid.appendChild(propertyCard);
+    });
+  }, (error) => {
+    console.error('Error listening to properties:', error);
+  });
+}
+
+createPropertyCard(property, propertyId, isSaved) {
+  const card = document.createElement('div');
+  card.className = 'property-card bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden';
+  card.setAttribute('data-id', propertyId);
+
+  const heartClass = isSaved ? 'fas fa-heart text-red-500' : 'far fa-heart text-red-400';
   
+  card.innerHTML = `
+    <div class="relative w-full h-48 group">
+      <img src="${property.images?.[0] || 'https://placehold.co/600x400/10B981/FFFFFF?text=Property'}" 
+           alt="${property.title}" 
+           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+           onerror="this.src='https://placehold.co/600x400/9CA3AF/FFFFFF?text=Image+Unavailable';">
+      <div class="absolute inset-0 bg-black opacity-10"></div>
+      <button class="favorite-btn absolute top-3 right-3 text-white p-2 rounded-full shadow-lg transition-all duration-300 z-10" 
+              aria-label="Toggle favorite"
+              data-favorited="${isSaved}">
+        <i class="${heartClass} text-2xl hover:text-red-500 bg-white rounded-full p-1 opacity-90"></i>
+      </button>
+    </div>
+    <div class="p-5">
+      <h3 class="text-xl font-bold text-gray-800 mb-1">${property.title}</h3>
+      <p class="text-sm text-gray-500 flex items-center mb-3">
+        <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>${property.location}
+      </p>
+      
+      <div class="flex items-center space-x-3 mb-4 flex-wrap gap-y-2">
+        <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full shadow-sm">
+          P${property.price?.toLocaleString()}/mo
+        </span>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+          <i class="fas fa-bed mr-1"></i>${property.bedrooms} Bed${property.bedrooms > 1 ? 's' : ''}
+        </span>
+        ${property.distance ? `
+          <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded-full">
+            <i class="fas fa-route mr-1"></i>${property.distance}
+          </span>
+        ` : ''}
+      </div>
+
+      <a href="property-details.html?id=${propertyId}" 
+         class="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition">
+        View Details
+      </a>
+    </div>
+  `;
+
+  // Add favorite button listener
+  const favoriteBtn = card.querySelector('.favorite-btn');
+  favoriteBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.toggleSaveProperty(propertyId);
+  });
+
+  return card;
+}
 
   // MISSING METHOD: Update UI for authenticated user
   updateUIForAuthenticatedUser() {
