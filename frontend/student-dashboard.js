@@ -248,7 +248,8 @@ if (headerLogoutBtn) {
 
 
 
- async fetchDashboardStats(user) {
+// Replace the entire fetchDashboardStats method
+async fetchDashboardStats(user) {
   if (!user) return;
 
   // Real-time listener for saved properties
@@ -262,12 +263,9 @@ if (headerLogoutBtn) {
     const cardFavorites = document.getElementById('cardFavorites');
     if (cardFavorites) {
       cardFavorites.textContent = count;
-      // Add animation effect
       cardFavorites.classList.add('scale-110');
       setTimeout(() => cardFavorites.classList.remove('scale-110'), 300);
     }
-  }, (error) => {
-    console.error('Error listening to saved properties:', error);
   });
 
   // Real-time listener for viewing bookings
@@ -285,11 +283,9 @@ if (headerLogoutBtn) {
       cardViewings.classList.add('scale-110');
       setTimeout(() => cardViewings.classList.remove('scale-110'), 300);
     }
-  }, (error) => {
-    console.error('Error listening to viewings:', error);
   });
 
-  // Real-time listener for messages/conversations
+  // Real-time listener for messages
   const conversationsQuery = query(
     collection(db, 'conversations'),
     where('participants', 'array-contains', user.uid)
@@ -299,7 +295,6 @@ if (headerLogoutBtn) {
     let unreadCount = 0;
     snapshot.forEach(doc => {
       const data = doc.data();
-      // Count unread messages for this user
       if (data.unreadCount && data.unreadCount[user.uid]) {
         unreadCount += data.unreadCount[user.uid];
       }
@@ -316,10 +311,12 @@ if (headerLogoutBtn) {
     
     if (notificationBadge) {
       notificationBadge.textContent = unreadCount;
-      notificationBadge.classList.toggle('hidden', unreadCount === 0);
+      if (unreadCount === 0) {
+        notificationBadge.classList.add('hidden');
+      } else {
+        notificationBadge.classList.remove('hidden');
+      }
     }
-  }, (error) => {
-    console.error('Error listening to messages:', error);
   });
 
   // Real-time listener for application status
@@ -332,38 +329,204 @@ if (headerLogoutBtn) {
   
   onSnapshot(applicationQuery, (snapshot) => {
     const cardApplication = document.getElementById('cardApplication');
-    if (cardApplication) {
-      if (!snapshot.empty) {
-        const appData = snapshot.docs[0].data();
-        const status = appData.status || 'Pending';
-        const propertyName = appData.propertyName || 'Property';
-        
-        // Update status with color coding
-        const statusColors = {
-          'pending': 'text-yellow-600',
-          'approved': 'text-green-600',
-          'rejected': 'text-red-600',
-          'under_review': 'text-blue-600'
-        };
-        
-        const colorClass = statusColors[status.toLowerCase()] || 'text-blue-600';
-        cardApplication.innerHTML = `Application <span class="${colorClass} font-bold">${status}</span>`;
-        
-        // Update property name if element exists
-        const propertyNameEl = cardApplication.nextElementSibling;
-        if (propertyNameEl) {
-          propertyNameEl.textContent = `for ${propertyName}`;
-        }
-      } else {
-        cardApplication.innerHTML = 'No Active <span class="text-gray-600">Application</span>';
-      }
+    if (cardApplication && !snapshot.empty) {
+      const appData = snapshot.docs[0].data();
+      const status = appData.status || 'Pending';
+      
+      const statusColors = {
+        'pending': 'text-yellow-600',
+        'approved': 'text-green-600',
+        'rejected': 'text-red-600',
+        'under_review': 'text-blue-600'
+      };
+      
+      const colorClass = statusColors[status.toLowerCase()] || 'text-blue-600';
+      cardApplication.innerHTML = `Application <span class="${colorClass}">${status}</span>`;
       
       cardApplication.classList.add('scale-110');
       setTimeout(() => cardApplication.classList.remove('scale-110'), 300);
     }
-  }, (error) => {
-    console.error('Error listening to applications:', error);
   });
+}
+
+// Add this NEW method for real-time properties
+setupRealtimeProperties() {
+  if (!this.currentUser) return;
+
+  // Real-time listener for recommended properties
+  const propertiesQuery = query(
+    collection(db, 'properties'),
+    where('isActive', '==', true),
+    where('isAvailable', '==', true),
+    orderBy('createdAt', 'desc'),
+    limit(6)
+  );
+
+  onSnapshot(propertiesQuery, async (snapshot) => {
+    const propertyGrid = document.querySelector('.property-grid');
+    if (!propertyGrid) return;
+
+    // Show loading state
+    if (snapshot.empty) {
+      propertyGrid.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-home text-gray-300 text-6xl mb-4"></i>
+          <p class="text-gray-500 text-lg">No properties available at the moment</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Get saved properties for this user
+    const savedPropertiesRef = collection(db, 'savedProperties');
+    const savedQuery = query(savedPropertiesRef, where('userId', '==', this.currentUser.uid));
+    const savedSnapshot = await getDocs(savedQuery);
+    const savedPropertyIds = new Set(savedSnapshot.docs.map(doc => doc.data().propertyId));
+
+    // Clear and rebuild property grid
+    propertyGrid.innerHTML = '';
+
+    snapshot.forEach(doc => {
+      const property = doc.data();
+      const propertyId = doc.id;
+      const isSaved = savedPropertyIds.has(propertyId);
+
+      const propertyCard = this.createPropertyCard(property, propertyId, isSaved);
+      propertyGrid.appendChild(propertyCard);
+    });
+  }, (error) => {
+    console.error('Error listening to properties:', error);
+    const propertyGrid = document.querySelector('.property-grid');
+    if (propertyGrid) {
+      propertyGrid.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-exclamation-triangle text-red-300 text-6xl mb-4"></i>
+          <p class="text-red-500 text-lg">Error loading properties. Please refresh the page.</p>
+        </div>
+      `;
+    }
+  });
+}
+
+// Add this NEW method to create property cards
+createPropertyCard(property, propertyId, isSaved) {
+  const card = document.createElement('div');
+  card.className = 'property-card bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden';
+  card.setAttribute('data-id', propertyId);
+  card.style.animation = 'fadeIn 0.3s ease-in-out';
+
+  const heartClass = isSaved ? 'fas fa-heart text-red-500' : 'far fa-heart text-red-400';
+  const imageUrl = property.images?.[0] || 'https://placehold.co/600x400/10B981/FFFFFF?text=Property';
+  
+  card.innerHTML = `
+    <div class="relative w-full h-48 group">
+      <img src="${imageUrl}" 
+           alt="${property.title || 'Property'}" 
+           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+           onerror="this.src='https://placehold.co/600x400/9CA3AF/FFFFFF?text=Image+Unavailable';">
+      <div class="absolute inset-0 bg-black opacity-10"></div>
+      <button class="favorite-btn absolute top-3 right-3 text-white p-2 rounded-full shadow-lg transition-all duration-300 z-10" 
+              aria-label="Toggle favorite"
+              data-favorited="${isSaved}">
+        <i class="${heartClass} text-2xl hover:text-red-500 bg-white rounded-full p-1 opacity-90"></i>
+      </button>
+    </div>
+    <div class="p-5">
+      <h3 class="text-xl font-bold text-gray-800 mb-1">${property.title || 'Untitled Property'}</h3>
+      <p class="text-sm text-gray-500 flex items-center mb-3">
+        <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>${property.location || 'Location not specified'}
+      </p>
+      
+      <div class="flex items-center space-x-3 mb-4 flex-wrap gap-y-2">
+        <span class="bg-green-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full shadow-sm">
+          P${property.price ? property.price.toLocaleString() : 'N/A'}/mo
+        </span>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+          <i class="fas fa-bed mr-1"></i>${property.bedrooms || 0} Bed${property.bedrooms > 1 ? 's' : ''}
+        </span>
+        ${property.distance ? `
+          <span class="bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded-full">
+            <i class="fas fa-route mr-1"></i>${property.distance}
+          </span>
+        ` : ''}
+      </div>
+
+      <a href="property-details.html?id=${propertyId}" 
+         class="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg transition">
+        View Details
+      </a>
+    </div>
+  `;
+
+  // Add favorite button listener
+  const favoriteBtn = card.querySelector('.favorite-btn');
+  favoriteBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.toggleSaveProperty(propertyId);
+  });
+
+  return card;
+}
+
+// Update toggleSaveProperty to update UI in real-time
+async toggleSaveProperty(propertyId) {
+  if (!this.currentUser) {
+    this.showNotification('Please log in to save properties', 'error');
+    return;
+  }
+
+  try {
+    const savedPropertyRef = doc(db, 'savedProperties', `${this.currentUser.uid}_${propertyId}`);
+    const savedPropertyDoc = await getDoc(savedPropertyRef);
+
+    if (savedPropertyDoc.exists()) {
+      // Unsave property
+      await deleteDoc(savedPropertyRef);
+      this.showNotification('Property removed from saved list', 'success');
+      
+      // Update UI immediately
+      this.updatePropertyFavoriteUI(propertyId, false);
+    } else {
+      // Save property
+      await setDoc(savedPropertyRef, {
+        userId: this.currentUser.uid,
+        propertyId: propertyId,
+        savedAt: serverTimestamp()
+      });
+      this.showNotification('Property saved successfully', 'success');
+      
+      // Update UI immediately
+      this.updatePropertyFavoriteUI(propertyId, true);
+    }
+
+  } catch (error) {
+    console.error('Error toggling save property:', error);
+    this.showNotification('Failed to update saved properties', 'error');
+  }
+}
+
+// Add this NEW helper method
+updatePropertyFavoriteUI(propertyId, isSaved) {
+  const propertyCard = document.querySelector(`[data-id="${propertyId}"]`);
+  if (propertyCard) {
+    const favoriteBtn = propertyCard.querySelector('.favorite-btn');
+    const icon = favoriteBtn?.querySelector('i');
+    
+    if (icon) {
+      if (isSaved) {
+        icon.className = 'fas fa-heart text-2xl text-red-500 hover:text-red-600 bg-white rounded-full p-1 opacity-90';
+        favoriteBtn.setAttribute('data-favorited', 'true');
+      } else {
+        icon.className = 'far fa-heart text-2xl text-red-400 hover:text-red-500 bg-white rounded-full p-1 opacity-90';
+        favoriteBtn.setAttribute('data-favorited', 'false');
+      }
+      
+      // Add animation
+      icon.classList.add('scale-110');
+      setTimeout(() => icon.classList.remove('scale-110'), 300);
+    }
+  }
 }
   setupRealtimeProperties() {
   if (!this.currentUser) return;
@@ -380,6 +543,17 @@ if (headerLogoutBtn) {
   onSnapshot(propertiesQuery, async (snapshot) => {
     const propertyGrid = document.querySelector('.property-grid');
     if (!propertyGrid) return;
+
+    if(snapshot.empty) {
+      propertyGrid.innerHTML = `
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-home text-gray-300 text-6xl mb-4"></i>
+          <p class="text-gray-500 text-lg">No properties available at the moment</p>
+        </div>
+      `;
+      return;
+    }
+    
 
     // Clear existing properties
     propertyGrid.innerHTML = '';
