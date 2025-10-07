@@ -247,8 +247,6 @@ if (headerLogoutBtn) {
   }
 
 
-
-// Replace the entire fetchDashboardStats method
 async fetchDashboardStats(user) {
   if (!user) return;
 
@@ -285,7 +283,7 @@ async fetchDashboardStats(user) {
     }
   });
 
-  // Real-time listener for messages
+  // Real-time listener for messages/conversations
   const conversationsQuery = query(
     collection(db, 'conversations'),
     where('participants', 'array-contains', user.uid)
