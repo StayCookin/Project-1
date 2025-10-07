@@ -245,56 +245,123 @@ if (headerLogoutBtn) {
 
 
 
-  async fetchDashboardStats(user) {
+ async fetchDashboardStats(user) {
   if (!user) return;
 
-  let savedCount = 0;
-  let viewingCount = 0;
-  let reviewsCount = 0;
-
+  // Real-time listener for saved properties
   const savedQuery = query(
     collection(db, 'savedProperties'),
     where('userId', '==', user.uid)
   );
+  
   onSnapshot(savedQuery, (snapshot) => {
-    this.updateDashboardStats('savedPropertiesCount', snapshot.size);
+    const count = snapshot.size;
+    const cardFavorites = document.getElementById('cardFavorites');
+    if (cardFavorites) {
+      cardFavorites.textContent = count;
+      // Add animation effect
+      cardFavorites.classList.add('scale-110');
+      setTimeout(() => cardFavorites.classList.remove('scale-110'), 300);
+    }
+  }, (error) => {
+    console.error('Error listening to saved properties:', error);
   });
 
-  const  conversationsQuery = query(
+  // Real-time listener for viewing bookings
+  const viewingsQuery = query(
     collection(db, 'viewingBookings'),
     where('studentId', '==', user.uid),
     where('status', 'in', ['pending', 'scheduled'])
   );
+  
+  onSnapshot(viewingsQuery, (snapshot) => {
+    const count = snapshot.size;
+    const cardViewings = document.getElementById('cardViewings');
+    if (cardViewings) {
+      cardViewings.textContent = count;
+      cardViewings.classList.add('scale-110');
+      setTimeout(() => cardViewings.classList.remove('scale-110'), 300);
+    }
+  }, (error) => {
+    console.error('Error listening to viewings:', error);
+  });
+
+  // Real-time listener for messages/conversations
+  const conversationsQuery = query(
+    collection(db, 'conversations'),
+    where('participants', 'array-contains', user.uid)
+  );
+  
   onSnapshot(conversationsQuery, (snapshot) => {
     let unreadCount = 0;
     snapshot.forEach(doc => {
       const data = doc.data();
-      if (data.unread && data.unread[user.uid]) {
-        unreadCount += data.unread[user.uid];
+      // Count unread messages for this user
+      if (data.unreadCount && data.unreadCount[user.uid]) {
+        unreadCount += data.unreadCount[user.uid];
       }
     });
-    this.updateDashboardStats('unreadMessagesCount', unreadCount);
+    
+    const cardMessages = document.getElementById('cardMessages');
+    const notificationBadge = document.getElementById('notificationBadge');
+    
+    if (cardMessages) {
+      cardMessages.textContent = unreadCount;
+      cardMessages.classList.add('scale-110');
+      setTimeout(() => cardMessages.classList.remove('scale-110'), 300);
+    }
+    
+    if (notificationBadge) {
+      notificationBadge.textContent = unreadCount;
+      notificationBadge.classList.toggle('hidden', unreadCount === 0);
+    }
+  }, (error) => {
+    console.error('Error listening to messages:', error);
   });
-  
-  try {
-    // Fetch reviews count
-    const reviewsRef = collection(db, 'reviews');
-    const reviewsQuery = query(reviewsRef, where('userId', '==', user.uid));
-    const reviewsSnapshot = await getDocs(reviewsQuery);
-    reviewsCount = reviewsSnapshot.size;
-  } catch(error) {
-    console.log("Reviews not yet made", error);
-    reviewsCount = 0;
-  }
 
-  // Update UI
-  this.updateDashboardStats({
-    savedProperties: savedCount,
-    viewingRequests: viewingCount,
-    reviews: reviewsCount
+  // Real-time listener for application status
+  const applicationQuery = query(
+    collection(db, 'applications'),
+    where('studentId', '==', user.uid),
+    orderBy('submittedAt', 'desc'),
+    limit(1)
+  );
+  
+  onSnapshot(applicationQuery, (snapshot) => {
+    const cardApplication = document.getElementById('cardApplication');
+    if (cardApplication) {
+      if (!snapshot.empty) {
+        const appData = snapshot.docs[0].data();
+        const status = appData.status || 'Pending';
+        const propertyName = appData.propertyName || 'Property';
+        
+        // Update status with color coding
+        const statusColors = {
+          'pending': 'text-yellow-600',
+          'approved': 'text-green-600',
+          'rejected': 'text-red-600',
+          'under_review': 'text-blue-600'
+        };
+        
+        const colorClass = statusColors[status.toLowerCase()] || 'text-blue-600';
+        cardApplication.innerHTML = `Application <span class="${colorClass} font-bold">${status}</span>`;
+        
+        // Update property name if element exists
+        const propertyNameEl = cardApplication.nextElementSibling;
+        if (propertyNameEl) {
+          propertyNameEl.textContent = `for ${propertyName}`;
+        }
+      } else {
+        cardApplication.innerHTML = 'No Active <span class="text-gray-600">Application</span>';
+      }
+      
+      cardApplication.classList.add('scale-110');
+      setTimeout(() => cardApplication.classList.remove('scale-110'), 300);
+    }
+  }, (error) => {
+    console.error('Error listening to applications:', error);
   });
 }
-
   
 
   // MISSING METHOD: Update UI for authenticated user
