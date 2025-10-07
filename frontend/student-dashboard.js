@@ -293,9 +293,37 @@ async fetchDashboardStats(user) {
     let unreadCount = 0;
     snapshot.forEach(doc => {
       const data = doc.data();
-      if (data.unreadCount && data.unreadCount[user.uid]) {
+      if (data.unreadCount && data.unreadCount[user.uid] === 1) {
         unreadCount += data.unreadCount[user.uid];
       }
+
+      if (data.messages && Array.isArray(data.messages)) {
+        const unreadMessages = data.messages.filter(msg =>
+          msg.recipientId === user.uid && msg.read === false
+        );
+        unreadCount += unreadMessages.length;
+      }
+
+      if(data.lastMessage && data.lastMessage.recipientId === user.uid && data.lastMessage.read === false) {
+        unreadCount += 1;
+      }
+      console.log("Total unread messages:", unreadCount);
+
+      const cardMessages = document.getElementById('cardMessages');
+      const notificationBadge = document.getElementById('notificationBadge');
+
+      if(cardMessages) {
+        console.log("Updating messages:", unreadCount);
+        cardMessages.textContent = unreadCount;
+        cardMessages.classList.add('scale-110');
+        setTimeout(() => cardMessages.classList.remove('scale-110'), 300);
+      } else { console.error('cardMessages element not found');}
+
+      if(notificationBadge) {
+        notificationBadge.textContent= unreadCount;
+        notificationBadge.classList.toggle('hidden', unreadCount === 0);
+      }
+      console.log("Error in conversation listener");
     });
     
     const cardMessages = document.getElementById('cardMessages');
