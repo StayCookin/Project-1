@@ -17,7 +17,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-  
+  /* Custom styles to complement Tailwind */
   :root {
     --color-primary: #10b981; /* Tailwind green-500 */
     --color-secondary: #059669; /* Tailwind green-600 */
@@ -47,27 +47,7 @@
     width: 280px;
   }
   .sidebar-mobile.open {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
-    z-index: 50;
-    position: fixed;
-    height: 100vh;
-    width: 280px;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .sidebar-mobile::-webkit-scrollbar {
-    width:6px;
-  }
-  .sidebar-mobile::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-  .sidebar-mobile::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-  }
-  .sidebar-mobile::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    transform: translateX(0);
   }
   .overlay {
     display: none;
@@ -120,7 +100,6 @@
       top: 0;
       height: 100vh;
       width: 280px;
-      overflow-y: auto;
     }
     .overlay {
       display: none !important;
