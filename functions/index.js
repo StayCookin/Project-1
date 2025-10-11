@@ -31,21 +31,21 @@ setGlobalOptions({maxInstances: 10});
 //   response.send("Hello from Firebase!");
 // });
 // functions/index.js
-const functions = require('firebase-functions');
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
+const functions = require("firebase-functions");
+const formData = require("form-data");
+const Mailgun = require("mailgun.js");
 
 const mailgun = new Mailgun(formData);
 const mg = mailgun.client({
-  username: 'api',
+  username: "api",
   key: functions.config().mailgun.key, // Set via: firebase functions:config:set mailgun.key="YOUR_KEY"
 });
 
-const DOMAIN = 'sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org';
+const DOMAIN = "sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org";
 
 exports.sendVerificationEmail = functions.https.onCall(async (data, context) => {
-  const { email, firstName, verificationLink } = data;
-  
+  const {email, firstName, verificationLink} = data;
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -73,22 +73,22 @@ exports.sendVerificationEmail = functions.https.onCall(async (data, context) => 
 
   try {
     const result = await mg.messages.create(DOMAIN, {
-      from: 'InRent <postmaster@sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org>',
+      from: "InRent <postmaster@sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org>",
       to: [email],
-      subject: 'Verify Your InRent Account',
+      subject: "Verify Your InRent Account",
       html: htmlContent,
-      text: `Hi ${firstName}, Please verify your email: ${verificationLink}`
+      text: `Hi ${firstName}, Please verify your email: ${verificationLink}`,
     });
-    
-    return { success: true, messageId: result.id };
+
+    return {success: true, messageId: result.id};
   } catch (error) {
-    console.error('Mailgun error:', error);
-    throw new functions.https.HttpsError('internal', 'Failed to send email');
+    console.error("Mailgun error:", error);
+    throw new functions.https.HttpsError("internal", "Failed to send email");
   }
 });
 
 exports.sendAppointmentEmail = functions.https.onCall(async (data, context) => {
-  const { email, firstName, appointmentDetails } = data;
+  const {email, firstName, appointmentDetails} = data;
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -117,16 +117,16 @@ exports.sendAppointmentEmail = functions.https.onCall(async (data, context) => {
 
   try {
     const result = await mg.messages.create(DOMAIN, {
-      from: 'InRent <postmaster@sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org>',
+      from: "InRent <postmaster@sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org>",
       to: [email],
-      subject: 'Your InRent Appointment',
+      subject: "Your InRent Appointment",
       html: htmlContent,
-      text: `Hi ${firstName}, Your appointment has been scheduled: ${appointmentDetails}`
+      text: `Hi ${firstName}, Your appointment has been scheduled: ${appointmentDetails}`,
     });
 
-    return { success: true, messageId: result.id };
+    return {success: true, messageId: result.id};
   } catch (error) {
-    console.error('Mailgun error:', error);
-    throw new functions.https.HttpsError('internal', 'Failed to send email');
+    console.error("Mailgun error:", error);
+    throw new functions.https.HttpsError("internal", "Failed to send email");
   }
 });
