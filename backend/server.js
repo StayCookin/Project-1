@@ -8,6 +8,9 @@ const express = require('express');
 const cors = require('cors');
 const cloudinary = require('cloudinary').v2;
 const nodemailer = require('nodemailer');
+const express = require('express');
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
 
 // Initialize Firebase Admin
 try {
@@ -79,6 +82,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+  username: 'api',
+  key: process.env.MAILGUN_API_KEY,
+});
+
+app.post('/api/send-verification', async (req, res) => {
+  const { email, firstName, verificationLink} = req.body;
+
+  try { 
+    const result = await mg.messages.create(process.env.MAILGUN_DOMAIN, {
+      from: 'InRent <postmaster@sandbox047c36c5c1934dd2a1718a82bda6bdc0.mailgun.org>',
+      to: [email],
+      subject: 'Verify your InRent account',
+      html: `<h1>Hi ${firstName}</h1><a href="${verificationLink}">Verify</a>`,
+      text: `Hi ${firstName}, verify: ${verificationLink}`
+  });
+  res.json({ success: true, messageId: result.id});
+} catch (error) { res.status(500).json({ error: error.message});}
+  });
+
+  app.listen(3000, () => console.log('Server running on port 3000'));
 // Authentication middleware
 const authenticate = async (req, res, next) => {
   try {

@@ -5,6 +5,7 @@
   "scripts": {
     "deploy": "vercel"
   },
+  
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
     "bcryptjs": "^3.0.2",
@@ -14,7 +15,10 @@
     "express": "^5.1.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.4.0",
+    "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.2",
+    "mailgun-js": "^0.22.0",
+    "mailgun.js": "^12.1.1",
     "mysql2": "^3.14.1",
     "nodemailer": "^7.0.5",
     "twilio": "^5.10.0"
@@ -31,5 +35,11 @@
   "homepage": "https://github.com/StayCookin/Project-1#readme",
   "devDependencies": {
     "@lhci/cli": "^0.15.1"
-  }
+  },
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": []
+  
 }
